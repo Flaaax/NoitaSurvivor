@@ -1,0 +1,16 @@
+{
+  "name": "noita-survivor",
+  "version-string": "0.1.0",
+  "builtin-baseline": "4c5ae6b55f3e3e39d291679f89822f496cf190ee",
+  "dependencies": [
+    "boost-locale",
+    "box2d",
+    "fmt",
+    "glew",
+    "imgui",
+    "imgui-sfml",
+    "nlohmann-json",
+    "sfml",
+    "spdlog"
+  ]
+}

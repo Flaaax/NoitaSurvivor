@@ -2,6 +2,8 @@
 /bin/*
 
 /build/
+/build-*/
+/vcpkg_installed/
 /out/
 /x64/
 /.vs/
