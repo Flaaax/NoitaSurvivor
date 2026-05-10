@@ -6,17 +6,6 @@ if(NOT MSVC)
     message(FATAL_ERROR "This first CMake migration target is intentionally MSVC-only.")
 endif()
 
-list(APPEND CMAKE_PREFIX_PATH
-    "C:/dev/vcpkg/packages/box2d_x64-windows"
-    "C:/dev/vcpkg/packages/fmt_x64-windows"
-    "C:/dev/vcpkg/packages/glew_x64-windows"
-    "C:/dev/vcpkg/packages/imgui_x64-windows"
-    "C:/dev/vcpkg/packages/imgui-sfml_x64-windows"
-    "C:/dev/vcpkg/packages/nlohmann-json_x64-windows"
-    "C:/dev/vcpkg/packages/sfml_x64-windows"
-    "C:/dev/vcpkg/packages/spdlog_x64-windows"
-)
-
 set(BOOST_1_86_ROOT "E:/C++ sources/boost/boost_1_86_0" CACHE PATH "Boost 1.86 root")
 set(BOOST_1_86_LIB_DIR "${BOOST_1_86_ROOT}/stage/lib" CACHE PATH "Boost 1.86 library directory")
 
