@@ -72,10 +72,10 @@ namespace myecs {
 		template<typename Type>
 		[[nodiscard]] inline constexpr u64 type_hash()noexcept {
 			constexpr std::string_view name = type_name<Type>();
-			u64 hash = 0xCBF29CE484222325; // 64位初始值
+			u64 hash = 0xCBF29CE484222325;
 			for (auto c : name) {
 				hash ^= c;
-				hash *= 0x100000001B3; // 64位质数
+				hash *= 0x100000001B3;
 			}
 			return hash;
 		}
@@ -86,7 +86,6 @@ namespace myecs {
 			return (x >> k) | (x << (64 - k));
 		}
 
-		// u64 → u64 双射（伪随机置换）
 		inline u64 random_map(u64 x) {
 			u64 val = static_cast<u64>(x);
 			val ^= 0xDEADBEEFCAFEBABE;

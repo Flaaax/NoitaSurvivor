@@ -10,7 +10,7 @@ struct ShotData {
 	float arg = {};
 };
 
-class ModifierSpell :public Spell {
+class ModifierSpell : public Spell {
 public:
 	float dmg_mod = 0;
 	float velocity_mod = 0;

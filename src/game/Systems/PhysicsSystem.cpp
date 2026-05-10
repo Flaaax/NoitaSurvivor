@@ -57,11 +57,11 @@ void PhysicsSystem::update(float dt, GameCtx& ctx) {
 
 	//kill bodies out of the bound
 	for (const auto& [e, bc] : reg.view<BodyComponent>()) {
-		auto& bound = ctx.state.maxBound;
-		if (!bound.contains(bc.getPosition())) {
+		if (auto& bound = ctx.state.maxBound; !bound.contains(bc.getPosition())) {
 			//should be careful, I guess
 			if (!reg.has<EntityComponent>(e))throw std::runtime_error("this should never happen...");
 			reg.get<EntityComponent>(e).kill();
+			//Logger::info("Found entity {} out of bound",e.string());
 		}
 	}
 

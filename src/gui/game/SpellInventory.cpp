@@ -4,25 +4,25 @@
 #include "src/game/Spells/Spell.h"
 #include"src/utils/Assert.h"
 #include"../Renderer.h"
-#include"../ObjectID.h"
 #include"src/utils/VectorHelper.h"
 
 
-nvec2 NSpellInventory::calcSlotPosition(size_t index)const {
-	return getPosition() + nvec2{ index * (NSpell::slotSize - NSpell::outLine) , 0 };
+nvec2 NSpellInventory::calcSlotPosition(size_t index) const {
+	return getPosition() + nvec2{index * (NSpell::slotSize - NSpell::outLine), 0};
 }
 
 void NSpellInventory::updateSlots() {
 	size_t count = getCount();
 	for (size_t i = 0; i < count; i++) {
 		auto& slot = slots[i];
-		slot.geometry.size = { NSpell::slotSize, NSpell::slotSize };
+		slot.geometry.size = {NSpell::slotSize, NSpell::slotSize};
 		slot.geometry.position = calcSlotPosition(i);
 		slot.index = i;
 		slot.inventory = this;
 	}
 
-	m_geometry.size = { count * (NSpell::slotSize - NSpell::outLine) + NSpell::outLine, NSpell::slotSize };
+	m_geometry.size = {count * (NSpell::slotSize - NSpell::outLine) + NSpell::outLine,
+	                   NSpell::slotSize};
 }
 
 NSpellInventory::NSpellInventory(size_t count, const nvec2& pos) {
@@ -30,6 +30,7 @@ NSpellInventory::NSpellInventory(size_t count, const nvec2& pos) {
 	slots.resize(count);
 	updateSlots();
 	setUpdate(true);
+	ID = Util::TypeName<NSpellInventory>();
 }
 
 void NSpellInventory::setCount(size_t count) {
@@ -41,12 +42,12 @@ void NSpellInventory::setCount(size_t count) {
 void NSpellInventory::draw(Renderer& renderer) const {
 	for (size_t i = 0; i < getCount(); i++) {
 		sf::RectangleShape shape;
-		shape.setPosition(calcSlotPosition(i) + nvec2{ NSpell::outLine, NSpell::outLine });
+		shape.setPosition(calcSlotPosition(i) + nvec2{NSpell::outLine, NSpell::outLine});
 		shape.setOutlineThickness(NSpell::outLine);
-		shape.setFillColor({ 140,140,140 });
-		shape.setOutlineColor({ 0,0,0 });
+		shape.setFillColor({140, 140, 140});
+		shape.setOutlineColor({0, 0, 0});
 		auto width = NSpell::slotSize - 2 * NSpell::outLine;
-		shape.setSize({ width, width });
+		shape.setSize({width, width});
 		renderer.drawGui(shape);
 	}
 }
@@ -96,7 +97,8 @@ void NSpellInventory::destroyAllSpell() {
 void NSpellInventory::update(float dt) {
 	if (modified) {
 		modified = false;
-		if (onModify) onModify(*this);
+		if (onModify)
+			onModify(*this);
 	}
 }
 
@@ -106,7 +108,7 @@ n_shared<Spell> NSpellInventory::getSpell(size_t index) const {
 	return slot.spell ? slot.spell->spell : nullptr;
 }
 
-void NSpellInventory::setFrom(const std::vector<n_shared<Spell>>& spells) {
+void NSpellInventory::setFrom(const std::vector<n_shared<Spell> >& spells) {
 	destroyAllSpell();
 	setCount(spells.size());
 	for (size_t i = 0; i < getCount(); i++) {
@@ -130,12 +132,12 @@ void NSpellInventory::setFrom(const std::vector<n_shared<Spell>>& spells) {
 //	return ret;
 //}
 
-NSpell::NSpell(std::shared_ptr<Spell> spell, const nvec2& pos) :spell(std::move(spell)) {
+NSpell::NSpell(std::shared_ptr<Spell> spell, const nvec2& pos) : spell(std::move(spell)) {
 	assertNotNull(this->spell.get());
 
 	setUpdate(true);
 	stat = None;
-	m_geometry.size = { slotSize, slotSize };
+	m_geometry.size = {slotSize, slotSize};
 	m_geometry.position = pos;
 }
 
@@ -143,12 +145,11 @@ bool NSpell::handleEvent(const sf::Event& event) {
 	if (event.type == sf::Event::MouseButtonPressed) {
 		if (m_geometry.contains(NWindow::mouseRenderPos)) {
 			stat = Dragged;
-			getParent()->moveToTop(this);		//must have a parent
+			getParent()->moveToTop(this); //must have a parent
 			t = 0.f;
 			return true;
 		}
-	}
-	else if (event.type == sf::Event::MouseButtonReleased) {
+	} else if (event.type == sf::Event::MouseButtonReleased) {
 		if (stat != Dragged) {
 			return false;
 		}
@@ -156,10 +157,9 @@ bool NSpell::handleEvent(const sf::Event& event) {
 		stat = Released;
 		std::vector<NSpellSlot*> slots;
 
-		for (auto obj : getParent()->getObjects()) {
-			if (obj->ID() == ObjectID<NSpellInventory>::rawID) {
-				auto myinventory = static_cast<NSpellInventory*>(obj);
-				for (auto& slot : myinventory->slots) {
+		for (const auto obj : getParent()->getObjects()) {
+			if (obj->ID == Util::TypeName<NSpellInventory>()) {
+				for (const auto inventory = static_cast<NSpellInventory*>(obj); auto& slot : inventory->slots) {
 					if (slot.geometry.overlaps(this->m_geometry)) {
 						slots += &slot;
 					}
@@ -168,8 +168,8 @@ bool NSpell::handleEvent(const sf::Event& event) {
 		}
 
 		//no target slot
-		if (slots.size() == 0)return true;
-
+		if (slots.size() == 0)
+			return true;
 
 		//find nearest slot
 		float minLength = std::numeric_limits<float>::max();
@@ -184,7 +184,8 @@ bool NSpell::handleEvent(const sf::Event& event) {
 		assertNotNull(other_slot);
 
 		//Need not change slots
-		if (other_slot == slot)return true;
+		if (other_slot == slot)
+			return true;
 
 		NSpellSlot* original_slot = this->slot;
 		NSpell* other_spell = other_slot->spell;
@@ -224,25 +225,24 @@ void NSpell::update(float dt) {
 		constexpr float DECAY_FACTOR = 10.0f; // Larger values snap faster.
 		float moveRatio = 1.0f - std::exp(-DECAY_FACTOR * dt);
 		m_geometry.position += dir * moveRatio;
-	}
-	else if (stat == Dragged) {
+	} else if (stat == Dragged) {
 		m_geometry.setCenter(NWindow::mouseRenderPos);
 
 		t += dt;
-		constexpr float p = 0.1f;					// Quarter period.
-		constexpr float A = 12.f;					// Max rotation angle.
-		while (t >= 4 * p) t -= 4 * p;				// Loop the wave period.
-		float tt = (3 * p <= t && t <= 4 * p) ?
-			(t - 4 * p) :
-			(p - std::abs(t - p));
-		tt /= p;	// Normalize to [-1, 1].
+		constexpr float p = 0.1f; // Quarter period.
+		constexpr float A = 12.f; // Max rotation angle.
+		while (t >= 4 * p)
+			t -= 4 * p; // Loop the wave period.
+		float tt = (3 * p <= t && t <= 4 * p) ? (t - 4 * p) : (p - std::abs(t - p));
+		tt /= p; // Normalize to [-1, 1].
 		float sgn = std::abs(tt) < nmath::n_epsilon ? 0.f : (tt / abs(tt));
 		rotation = sgn * (1 - 1 / std::exp(std::abs(tt))) * A;
 	}
 }
 
 void NSpell::draw(Renderer& renderer) const {
-	if (!spell)return;
+	if (!spell)
+		return;
 	sf::Sprite sprite;
 	sprite.setTexture(spell->getTexture());
 	nvec2 size = sprite.getTexture()->getSize();

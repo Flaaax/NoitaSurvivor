@@ -110,7 +110,7 @@ int NWindow::loop() {
 		while (window->pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				isRunning = false;
-				Logger::info("Window closed by direct closing");
+				Logger::info("Window closed directly by user");
 			}
 			else if (event.type == sf::Event::Resized) {
 				updateWindowSize();
@@ -118,7 +118,7 @@ int NWindow::loop() {
 			}
 			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
 				isRunning = false;
-				Logger::info("Window closed by Esc");
+				Logger::info("Window closed by pressing Esc");
 			}
 			if (currentScene) {
 				if (currentScene->m_widget) {

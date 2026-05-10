@@ -12,6 +12,7 @@
 #include"Systems/GameStateSystem.h"
 #include"Systems/PhysicsSystem.h"
 #include"Services/PhysicsBodyService.h"
+#include "Systems/EntityDestroySystem.h"
 
 
 Game::Game() {
@@ -91,6 +92,8 @@ void Game::update(float dt) {
 	GameSystem().update(dt, ctx);
 
 	ctx.state.enemySpawnTimer.update(dt);
+
+	EntityDestroySystem().destroyDeadEntities(ctx);
 
 	RenderSystem().update(dt, ctx);
 }

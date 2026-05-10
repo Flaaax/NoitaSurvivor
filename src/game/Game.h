@@ -45,10 +45,10 @@ private:
 public:
 	void init();
 	void draw(Renderer& renderer);
-	void update(float deltaTime);
+	void update(float dt);
 
 	void handleEvent(const sf::Event& event);
 
-	bool isPaused()const { return state.isPaused; }
+	[[nodiscard]] bool isPaused()const { return state.isPaused; }
 	void setPaused(bool paused) { state.isPaused = paused; }
 };

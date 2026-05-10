@@ -15,7 +15,7 @@ using namespace myecs;
 void GameSystem::update(float dt, GameCtx& ctx) {
 	auto& reg = ctx.reg;
 	{
-		auto mydir = ctx.state.mousePos - ctx.state.playerPos;
+		const auto mydir = ctx.state.mousePos - ctx.state.playerPos;
 		auto& wand = *ctx.state.wands.front();
 		wand.setGeometry(ctx.state.playerPos, mydir.rad());
 		wand.update(dt);
@@ -25,10 +25,10 @@ void GameSystem::update(float dt, GameCtx& ctx) {
 	}
 
 	for (auto [e, s] : reg.view<ScriptComponent>()) {
-		for (auto& sc : s.scripts) {
+		for (const auto& sc : s.scripts) {
 			sc->onUpdate(ctx, e, dt);
 		}
-		Util::eraseIf(s.scripts, [](const auto& ele) {
+		Util::eraseIf(s.scripts, [](const n_shared<Script>& ele) {
 			return ele->isDone;
 		});
 	}

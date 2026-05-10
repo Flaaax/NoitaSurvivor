@@ -45,7 +45,7 @@ namespace fs = std::filesystem;
 
 
 static void initTexture(Util::StdMap<sf::Texture>& textures, std::string& name, const std::filesystem::path& path) {
-	if (auto it = textures.find(name); it != textures.end()) {
+	if (const auto it = textures.find(name); it != textures.end()) {
 		Logger::error_throw("duplicated texture name: {} with path {}", name, path.string());
 		return;
 	}
@@ -101,7 +101,7 @@ const sf::Texture& AssetMgr::getSpellTexture(std::string_view name) {
 	if (auto it = inst().spellTextures.find(name); it != inst().spellTextures.end()) {
 		return it->second;
 	}
-	Logger::warn("Spell texture {} does not exist", name);
+	Logger::warn("Spell texture '{}' does not exist", name);
 	return inst().spellTextures[inst().spell_gfx_default];
 }
 

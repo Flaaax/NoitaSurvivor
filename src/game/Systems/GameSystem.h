@@ -10,8 +10,9 @@ struct nvec2;
 
 class GameSystem {
 public:
-	void update(float dt, GameCtx& ctx);
-	void handleEvent(const sf::Event& event, GameCtx& ctx);
+	static void update(float dt, GameCtx& ctx);
+
+	static void handleEvent(const sf::Event& event, GameCtx& ctx);
 
 };
 

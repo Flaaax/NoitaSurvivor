@@ -4,6 +4,7 @@ struct GameCtx;
 
 class GameStateSystem {
 public:
-	void initStates(GameCtx& ctx);
-	void updateBeforePhysics(GameCtx& ctx);
+	static void initStates(GameCtx& ctx);
+
+	static void updateBeforePhysics(GameCtx& ctx);
 };

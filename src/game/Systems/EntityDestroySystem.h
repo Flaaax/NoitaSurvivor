@@ -4,6 +4,6 @@ struct GameCtx;
 
 class EntityDestroySystem {
 public:
-	void destroyDeadEntities(GameCtx& ctx);
+	static void destroyDeadEntities(GameCtx& ctx);
 
 };
