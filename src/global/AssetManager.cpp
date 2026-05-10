@@ -132,7 +132,7 @@ static std::string remove_number_suffix(const std::string& filename) {
 	std::smatch match;	
 
 	if (std::regex_match(filename, match, pattern)) {
-		return match[1]; // ����ȥ��ĩβ_N��Ĳ���
+		return match[1];
 	}
 	return filename;
 }
