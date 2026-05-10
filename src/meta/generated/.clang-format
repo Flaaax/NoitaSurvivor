@@ -1,0 +1,9 @@
+Language:        Cpp
+BasedOnStyle:    LLVM
+BreakBeforeBraces: Attach
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+AccessModifierOffset: -4
+ColumnLimit:     100
+PointerAlignment: Left
