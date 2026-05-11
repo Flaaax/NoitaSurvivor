@@ -5,7 +5,9 @@ UseTab: Always
 IndentWidth: 4
 TabWidth: 4
 AccessModifierOffset: -4
-ColumnLimit:     100
+ColumnLimit:     150
 PointerAlignment: Left
 DerivePointerAlignment: false
 ReferenceAlignment: Left
+Standard: c++20
+SpacesInAngles: Never

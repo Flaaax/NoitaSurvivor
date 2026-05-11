@@ -1,6 +1,8 @@
 #pragma once
 #include"src/ecs/entity.h"
-#include"GameState.h"
+#include "States/GameState.h"
+#include"States/ContactState.h"
+
 
 class b2World;
 class EntityFactory;
@@ -11,7 +13,7 @@ struct GameCtx {
 	myecs::Registry& reg;
 	b2World& world;
 	EntityFactory& factory;
-	ContactLayerRules& contactRules;
-	GameState& state;
-	const float& debug_dt;
+	const ContactLayerRules& contactRules;
+	GameState& gameState;
+	ContactState& contactState;
 };

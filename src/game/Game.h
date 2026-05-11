@@ -25,6 +25,7 @@ class Game {
 	friend class GameScene;
 private:
 	GameState state;
+	ContactState contactState;
 
 	//GameContext
 	myecs::Registry reg;
@@ -40,15 +41,13 @@ private:
 	explicit Game();
 	~Game();
 	GameCtx getContext();
-
-	float debug_dt{};	//todo
 public:
 	void init();
-	void draw(Renderer& renderer);
+	void draw(Renderer& rdr);
 	void update(float dt);
 
 	void handleEvent(const sf::Event& event);
 
-	[[nodiscard]] bool isPaused()const { return state.isPaused; }
+	bool isPaused()const { return state.isPaused; }
 	void setPaused(bool paused) { state.isPaused = paused; }
 };

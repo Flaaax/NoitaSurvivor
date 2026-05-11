@@ -16,7 +16,9 @@ find_package(nlohmann_json 3.11.3 EXACT CONFIG REQUIRED)
 find_package(spdlog 1.13.0 EXACT CONFIG REQUIRED)
 
 add_executable(NoitaSurvivor
-        src/utils/TypeName.h)
+        src/utils/TypeName.h
+        src/game/Systems/ContactSystem.h
+        src/game/Systems/ContactSystem.cpp)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT NoitaSurvivor)
 
 target_compile_features(NoitaSurvivor PRIVATE cxx_std_20)

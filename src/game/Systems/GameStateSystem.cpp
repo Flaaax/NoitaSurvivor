@@ -10,7 +10,7 @@
 void GameStateSystem::initStates(GameCtx& ctx) {
 	using namespace Util;
 
-	auto& state = ctx.state;
+	auto& state = ctx.gameState;
 
 	state.wands += make_unique(new Wand());
 	
@@ -39,9 +39,9 @@ void GameStateSystem::initStates(GameCtx& ctx) {
 }
 
 void GameStateSystem::updateBeforePhysics(GameCtx& ctx) {
-	auto& state = ctx.state;
+	auto& state = ctx.gameState;
 	state.mousePos = (NWindow::mouseRenderPos - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
-	myecs::entity player = ctx.state.player.id;
+	myecs::entity player = ctx.gameState.player.id;
 	auto& playerBody = ctx.reg.get<BodyComponent>(player);
 	state.playerPos = playerBody.getPosition();
 	state.cameraPos = state.playerPos;

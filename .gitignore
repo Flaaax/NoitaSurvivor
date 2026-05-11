@@ -1,5 +1,7 @@
-/resources/*
-/bin/*
+/resources/
+/bin/
+/CodeGenerator/bin/
+/CodeGenerator/obj/
 
 /build/
 /build-*/

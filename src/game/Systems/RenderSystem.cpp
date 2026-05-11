@@ -10,7 +10,7 @@
 
 void RenderSystem::debugRender(Renderer& rdr, GameCtx& ctx) {
 	NLineShape shape;
-	for (const auto& e : ctx.state.borders) {
+	for (const auto& e : ctx.gameState.borders) {
 		if (auto b = ctx.reg.try_get<BodyComponent>(e)) {
 			auto edgeShape = static_cast<b2EdgeShape*>(b->body->GetFixtureList()->GetShape());
 			shape.set(edgeShape->m_vertex1, edgeShape->m_vertex2, { 200,0,0 });
@@ -28,17 +28,17 @@ void RenderSystem::update(float dt, GameCtx& ctx) {
 }
 
 void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
-	rdr.updateGameRender(ctx.state.cameraPos * NWindow::scale.gameRenderScale - NWindow::scale.gameRenderOffset);
+	rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::scale.gameRenderScale - NWindow::scale.gameRenderOffset);
 
 	rdr.clear(sf::Color(100, 100, 100));
 
 	sf::RectangleShape arenaShape;
-	arenaShape.setSize(ctx.state.bound.size);
+	arenaShape.setSize(ctx.gameState.bound.size);
 	arenaShape.setFillColor(sf::Color(170, 170, 170));
-	arenaShape.setPosition(ctx.state.bound.position);
+	arenaShape.setPosition(ctx.gameState.bound.position);
 	rdr.drawGame(arenaShape);
 
-	if (ctx.state.debugMode) {
+	if (ctx.gameState.debugMode) {
 		sf::RectangleShape testShape;
 		testShape.setSize({ 4,4 });
 		testShape.setFillColor({ 100,100,100 });
@@ -78,11 +78,11 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 		*c.sprite = old;
 	}
 
-	for (auto& wand : ctx.state.wands) {
+	for (auto& wand : ctx.gameState.wands) {
 		wand->render(rdr);
 	}
 
-	if (ctx.state.debugMode) {
+	if (ctx.gameState.debugMode) {
 		debugRender(rdr, ctx);
 	}
 }

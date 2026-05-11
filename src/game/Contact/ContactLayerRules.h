@@ -6,24 +6,19 @@ enum ContactLayer : size_t {
 	None,
 	Player,
 	Enemy,
-	Projectile,			//hits player and enemy
+	Projectile, //hits player and enemy
 	PlayerProjectile,
 	EnemyProjectile,
 	Wall,
-	Collectable
+	Collectible,
+	Collector,
+	Detector
 };
-
-using EntityType = ContactLayer;
-
-enum class ContactMaskFilter : unsigned short {
-	Default = 1 << 0,
-	Collectable = 1 << 1,
-};
-
 
 class ContactLayerRules {
 public:
-	static constexpr size_t max_type_size = 10;
+	static constexpr size_t max_type_size = 16;
+
 private:
 	using contact_info = std::array<std::array<bool, max_type_size>, max_type_size>;
 
@@ -32,7 +27,10 @@ private:
 	struct _ContactArg {
 		ContactLayer a, b;
 		bool enabled;
-		_ContactArg(ContactLayer a, ContactLayer b, bool enabled = true) :a(a), b(b), enabled(enabled) {}
+
+		_ContactArg(ContactLayer a, ContactLayer b, bool enabled = true) : a(a), b(b),
+		                                                                   enabled(enabled) {
+		}
 	};
 
 	void setContacts(std::initializer_list<_ContactArg> contacts) {
@@ -40,6 +38,7 @@ private:
 			setContact(contact.a, contact.b, contact.enabled);
 		}
 	}
+
 public:
 	ContactLayerRules() {
 		for (auto& i : m_contacts) {
@@ -49,20 +48,26 @@ public:
 		}
 		setContact(Wall, true);
 		setContact(Wall, Wall, false);
-		setContact(Collectable, Collectable, true);
-		std::initializer_list<_ContactArg> contacts = {
-					{Player,Enemy},
-					{Player,Projectile},
-					{Player,EnemyProjectile},
-					{Enemy,Projectile},
-					{Enemy,PlayerProjectile},
-					{Enemy,Enemy},
+		setContact(Collector, Wall, false);
+		setContact(Collectible, false);
+		setContact(Collector, Collectible, true);
+		setContact(Collectible, Collectible, true);
+		setContact(Detector, true);
+		setContact(Detector, Detector, false);
+		const std::initializer_list<_ContactArg> contacts = {
+			{Player, Enemy},
+			{Player, Projectile},
+			{Player, EnemyProjectile},
+			{Enemy, Projectile},
+			{Enemy, PlayerProjectile},
+			{Enemy, Enemy},
 		};
 		setContacts(contacts);
 	}
 
 	void setContact(ContactLayer a, ContactLayer b, bool enabled) {
-		if (a == None || b == None)return;
+		if (a == None || b == None)
+			return;
 		//a>=b
 		if (b < a) {
 			std::swap(a, b);
@@ -76,7 +81,7 @@ public:
 		}
 	}
 
-	bool shouldContact(ContactLayer a, ContactLayer b) {
+	bool shouldContact(ContactLayer a, ContactLayer b) const {
 		if (b < a) {
 			std::swap(a, b);
 		}

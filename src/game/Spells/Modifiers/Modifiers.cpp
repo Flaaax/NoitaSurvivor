@@ -20,18 +20,20 @@ void AddExplosionSpell::apply(GameCtx& ctx, myecs::entity p) {
 
 void HomingShot::apply(GameCtx& ctx, myecs::entity p) {
 	auto& reg = ctx.reg;
-	auto detector = reg.create();
+	//todo entity must have entityComponent!
+	const auto detector = reg.create();
 	reg.emplace<BodyComponent>(detector);
-	BodyArg arg{
+	const BodyArg arg{
 		.type = BodyArg::Static,
 		.fixedRotation = true,
 		.shape = BodyArg::Circle,
 		.radius = radius
 	};
-	PhysicsBodyService().createBody(ctx, detector, arg);
-	reg.emplace<EntityComponent>(detector).layer = ContactLayer::PlayerProjectile;
 
-	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingScript(ctx, detector, p));
+	PhysicsBodyService().createBody(ctx, detector, arg);
+	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
+
+	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));
 }
 
 void MultiShots::modifyShot(std::vector<ShotData>& data) {
@@ -44,7 +46,7 @@ void MultiShots::modifyShot(std::vector<ShotData>& data) {
 			ret.push_back({
 				.pos = dat.pos,
 				.arg = cur_scatter
-						  });
+			});
 			cur_scatter -= scatter_step;
 		}
 	}
@@ -110,13 +112,15 @@ public:
 */
 
 void Parasite::apply(GameCtx& ctx, myecs::entity p) {
-	class ParasiteScript :public Script {
+	class ParasiteScript : public Script {
 	private:
 		Parasite* this_spell;
-	public:
-		ParasiteScript(Parasite* this_spell) :this_spell(this_spell) {}
 
-		void onDeath(GameCtx& ctx, myecs::entity self)override {
+	public:
+		ParasiteScript(Parasite* this_spell) : this_spell(this_spell) {
+		}
+
+		void onDeath(GameCtx& ctx, myecs::entity self) override {
 			auto& reg = ctx.reg;
 			auto& p = reg.get<ProjectileComponent>(self);
 			auto& b = reg.get<BodyComponent>(self);
@@ -129,10 +133,10 @@ void Parasite::apply(GameCtx& ctx, myecs::entity p) {
 				}
 			}
 			auto left = nmath::ROT_LEFT * dir;
-			for (auto& new_dir : { left, -left }) {
+			for (auto& new_dir : {left, -left}) {
 				auto proj1 = Shot::clone(ctx, self, pos, Util::to_rad(new_dir));
 				auto& p1 = reg.get_or_emplace<MultiContactComponent>(proj1);
-				p1.disabled.merge(reg.get<MultiContactComponent>(self).disabled);
+				p1.banned.merge(reg.get<MultiContactComponent>(self).banned);
 			}
 			//todo damage modifier
 			//std::cout << "triggered!\n";

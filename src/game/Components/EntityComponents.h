@@ -15,7 +15,8 @@ struct EntityComponent {
 	int health = -1;
 
 	void takeDamage(int damage) {
-		if (health <= 0)return;
+		if (health <= 0)
+			return;
 		health -= damage;
 		if (health <= 0) {
 			health = 0;
@@ -26,7 +27,7 @@ struct EntityComponent {
 		health = 0;
 	}
 
-	bool isAlive()const {
+	bool isAlive() const {
 		return health != 0;
 	}
 };
@@ -66,26 +67,26 @@ struct ProjectileComponent {
 	float impulse = 0;
 	float maxSpeed = 35.f;
 
-	int pierce = 0;		//-1 = always pierce
+	int pierce = 0; //-1 = always pierce
 
-	N_NOINIT n_shared<ProjectileSpell> spell;			//todo change all these pointers to raw pointer
-	N_NOINIT std::vector<n_shared<ModifierSpell>> mods;
+	//Should disable physical contact and give impulse manually
+	bool isBullet = true;
 
-	bool canPierce()const { return pierce != 0; }
-	void doPierce() { if (pierce > 0) pierce--; }
+	N_NOINIT n_shared<ProjectileSpell> spell; //todo change all these pointers to raw pointer
+	N_NOINIT std::vector<n_shared<ModifierSpell> > mods;
 };
 
 //mark an enemy
 struct EnemyComponent {
-	N_NOINIT nvec2 impulse;			//impulse recieved during last iteration
+	N_NOINIT nvec2 impulse; //impulse recieved during last iteration, used for death animation
 };
 
 struct DirectionComponent {
-	N_NOINIT nvec2 dir;				//The dir this entity intends to go. Resets each frame.
+	N_NOINIT nvec2 dir; //The dir this entity intends to go. Resets each frame.
 };
 
-N_NOINIT struct SpellOnDeathComponent { 
-	SpellBlock spellBlock; 
+N_NOINIT struct SpellOnDeathComponent {
+	SpellBlock spellBlock;
 	nvec2 impulseDir;
 	nvec2 impulsePosFix;
 };
@@ -94,15 +95,17 @@ N_NOINIT struct SpellOnDeathComponent {
 //maybe use std pmr (so I think it can be 10x faster)
 struct MultiContactComponent {
 	float contact_interval = 0.1f;
-	N_NOINIT myecs::DenseMap<myecs::entity, Timer> disabled;
+	N_NOINIT myecs::DenseMap<myecs::entity, Timer> banned;
 
-	void addContact(myecs::entity e, float interval) {
-		disabled[e].set(interval).start();
+	void add(myecs::entity e, float interval) {
+		banned[e].set(interval).start();
 	}
-	void addContact(myecs::entity e) {
-		disabled[e].set(contact_interval).start();
+
+	void add(myecs::entity e) {
+		banned[e].set(contact_interval).start();
 	}
-	bool isBannedContact(myecs::entity e) const {
-		return disabled.contains(e);
+
+	bool isBanned(myecs::entity e) const {
+		return banned.contains(e);
 	}
 };

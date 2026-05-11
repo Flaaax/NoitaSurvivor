@@ -15,11 +15,11 @@ using namespace myecs;
 void GameSystem::update(float dt, GameCtx& ctx) {
 	auto& reg = ctx.reg;
 	{
-		const auto mydir = ctx.state.mousePos - ctx.state.playerPos;
-		auto& wand = *ctx.state.wands.front();
-		wand.setGeometry(ctx.state.playerPos, mydir.rad());
+		const auto mydir = ctx.gameState.mousePos - ctx.gameState.playerPos;
+		auto& wand = *ctx.gameState.wands.front();
+		wand.setGeometry(ctx.gameState.playerPos, mydir.rad());
 		wand.update(dt);
-		if (ctx.state.player.isShooting) {
+		if (ctx.gameState.player.isShooting) {
 			wand.use(ctx);
 		}
 	}
@@ -50,7 +50,7 @@ void GameSystem::update(float dt, GameCtx& ctx) {
 }
 
 void GameSystem::handleEvent(const sf::Event& event, GameCtx& ctx) {
-	auto& p = ctx.state.player;
+	auto& p = ctx.gameState.player;
 	bool updateDir = false;
 	if (event.type == sf::Event::MouseButtonPressed) {
 		if (event.key.code == sf::Mouse::Left) p.isShooting = true;

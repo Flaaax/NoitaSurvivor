@@ -1,7 +1,7 @@
 #include "PlayerService.h"
 
 void PlayerService::gainMaterial(GameCtx& ctx, int value) {
-	auto& state = ctx.state;
+	auto& state = ctx.gameState;
 	state.player.material += value;
 	state.player.exp += value;
 	while (state.player.exp >= state.player.maxExp) {

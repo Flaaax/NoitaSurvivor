@@ -16,8 +16,8 @@ void EntityFactory::initEntityComponents() {
 		for (auto& [componentName, jj] : j.items()) {
 			if (auto gen = ComponentMeta::getInitializerFactory(componentName)) {
 				components.emplace_back(gen(jj));
-			}
-			else Logger::warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
+			} else
+				Logger::warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
 		}
 		entityInitializers[entityType] = std::move(components);
 	}
@@ -37,7 +37,7 @@ void EntityFactory::initFactories() {
 	}
 }
 
-EntityFactory::EntityFactory(Game& game) :game(game) {
+EntityFactory::EntityFactory(Game& game) : game(game) {
 	initEntityComponents();
 	initFactories();
 }
@@ -48,7 +48,7 @@ myecs::entity EntityFactory::createPlayer() {
 	static auto& factory = factories["player"];
 	auto e = factory();
 	auto ctx = game.getContext();
-	auto effect = new BouncyMoveEffect({ 1.2f,0.8f }, { 0.8f,1.2f }, 0.5f);
+	auto effect = new BouncyMoveEffect({1.2f, 0.8f}, {0.8f, 1.2f}, 0.5f);
 	ctx.reg.emplace<SpriteEffectComponent>(e)
 		.effectList
 		.emplace_back(effect);
@@ -58,7 +58,7 @@ myecs::entity EntityFactory::createPlayer() {
 }
 
 myecs::entity EntityFactory::createBullet(const nvec2& position, const nvec2& velocity) {
-	//todo ÈÃbullet¸úËæÍæ¼ÒËÙ¶È
+	//todo
 	static auto& factory = factories["bullet"];
 	auto e = factory();
 	auto ctx = game.getContext();
@@ -98,7 +98,7 @@ myecs::entity EntityFactory::createBorder(const nvec2& start, const nvec2& end) 
 myecs::entity EntityFactory::createEnemy(const nvec2& pos) {
 	static auto& factory = factories["enemy"];
 	auto e = factory();
-	auto ctx = game.getContext();
+	const auto ctx = game.getContext();
 
 	auto& body = ctx.reg.get<BodyComponent>(e);
 	body.setPosition(pos);
@@ -114,14 +114,14 @@ myecs::entity EntityFactory::createExplosion(const nvec2& pos, float radius, flo
 	auto& reg = ctx.reg;
 	reg.emplace<BodyComponent>(e);
 
-	BodyArg arg{
+	const BodyArg arg{
 		.type = BodyArg::Static,
 		.fixedRotation = true,
 		.shape = BodyArg::Circle,
 		.radius = radius
 	};
 	PhysicsBodyService().createBody(ctx, e, arg);
-	auto& body = reg.get<BodyComponent>(e);
+	const auto& body = reg.get<BodyComponent>(e);
 	body.body->SetTransform(pos, 0.f);
 
 	auto& p = reg.emplace<ProjectileComponent>(e);
@@ -129,11 +129,12 @@ myecs::entity EntityFactory::createExplosion(const nvec2& pos, float radius, flo
 	p.impulse = impulse;
 	p.damage = 4;
 
-	float lifetime = 0.075f;
+	constexpr float lifetime = 0.075f;
 	reg.emplace<LifetimeComponent>(e).lifeTimer.start(lifetime);
 
 	reg.emplace<MultiContactComponent>(e);
-	ctx.reg.emplace<SpriteEffectComponent>(e).effectList += Util::make_unique(new Transition({}, { .opacity = 0 }, lifetime, Easing::ease_out_quad));
+	ctx.reg.emplace<SpriteEffectComponent>(e).effectList += Util::make_unique(
+		new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
 
 	return e;
 }
@@ -156,12 +157,10 @@ myecs::entity EntityFactory::createCollector(float radius) {
 	fixtureDef.density = 0.0f;
 	fixtureDef.friction = 0.0f;
 	fixtureDef.restitution = 0.0f;
-	fixtureDef.filter.categoryBits = (uint16)ContactMaskFilter::Collectable;
-	fixtureDef.filter.maskBits = (uint16)ContactMaskFilter::Collectable;
 
 	PhysicsBodyService().createBody(ctx, collector, bodyDef, fixtureDef);
 
-	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collectable;
+	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
 	//reg.emplace<RenderComponent>(collector).rp = EntityRenderManager::getRender<ExplosionRender>();
 
 	return collector;
@@ -174,15 +173,9 @@ myecs::entity EntityFactory::createMaterial(const nvec2& pos, int value) {
 	auto& reg = ctx.reg;
 
 	auto& body = reg.get<BodyComponent>(e);
-	b2Filter filter;
-	filter.categoryBits = (uint16)ContactMaskFilter::Collectable;
-	filter.maskBits = (uint16)ContactMaskFilter::Collectable;
-	body.body->GetFixtureList()->SetFilterData(filter);
-
 	body.setPosition(pos);
 
 	reg.emplace<MaterialComponent>(e).value = value;
 
 	return e;
 }
-

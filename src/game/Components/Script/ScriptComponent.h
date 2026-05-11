@@ -1,20 +1,29 @@
 #pragma once
 #include"src/ecs/entity.h"
-#include<deque>
-
-class b2Contact;
+#include"src/game/States/ContactState.h"
 
 class Script {
 public:
 	bool isDone = false;
 
-	virtual ~Script() {}
-	virtual void onUpdate(GameCtx& ctx, myecs::entity self, float dt) {}
+	virtual ~Script() {
+	}
+
+	virtual void onUpdate(GameCtx& ctx, myecs::entity self, float dt) {
+	}
+
 	//triggered on removal of the entity
-	virtual void onDeath(GameCtx& ctx, myecs::entity self) {}
-	virtual void onContact(GameCtx& ctx, myecs::entity self, myecs::entity other, b2Contact* contact) {}
+	virtual void onDeath(GameCtx& ctx, myecs::entity self) {
+	}
+
+	virtual void modifyContactSettings(GameCtx& ctx, myecs::entity self, myecs::entity other,
+	                                ContactSettings& settings) {
+	}
+
+	virtual void onContact(GameCtx& ctx, const ContactEvent& event) {
+	}
 };
 
 struct ScriptComponent {
-	std::vector<n_shared<Script>> scripts;
+	std::vector<n_shared<Script> > scripts;
 };

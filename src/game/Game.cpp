@@ -12,6 +12,7 @@
 #include"Systems/GameStateSystem.h"
 #include"Systems/PhysicsSystem.h"
 #include"Services/PhysicsBodyService.h"
+#include "Systems/ContactSystem.h"
 #include "Systems/EntityDestroySystem.h"
 
 
@@ -44,7 +45,7 @@ GameCtx Game::getContext() {
 		*factory,
 		contactRules,
 		state,
-		debug_dt
+		contactState
 	};
 }
 
@@ -56,7 +57,7 @@ void Game::init() {
 	isInitialized = true;
 	using namespace Util;
 
-	world = make_unique(new b2World({ 0.f,0.f }));
+	world = make_unique(new b2World({0.f, 0.f}));
 	factory = make_unique(new EntityFactory(*this));
 
 	world->SetContinuousPhysics(true);
@@ -73,7 +74,6 @@ void Game::init() {
 
 void Game::draw(Renderer& rdr) {
 
-
 	auto ctx = getContext();
 	RenderSystem().render(rdr, ctx);
 }
@@ -83,15 +83,15 @@ void Game::update(float dt) {
 		return;
 	}
 
-	debug_dt = dt;	//todo
-
 	GameCtx ctx = getContext();
 
 	GameStateSystem().updateBeforePhysics(ctx);
-	PhysicsSystem().update(dt, ctx);
+	PhysicsSystem().step(dt, ctx);
+	ContactSystem().update(ctx, dt);
+	PhysicsSystem().update(dt,ctx);
 	GameSystem().update(dt, ctx);
 
-	ctx.state.enemySpawnTimer.update(dt);
+	ctx.gameState.enemySpawnTimer.update(dt);
 
 	EntityDestroySystem().destroyDeadEntities(ctx);
 

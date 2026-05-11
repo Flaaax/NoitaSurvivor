@@ -95,20 +95,22 @@
 //};
 
 
-class CircleTrackingScript :public Script {
+//todo fix the name of this class, the owner of the script
+class CircleTrackingDetectorScript : public Script {
 public:
 	struct Contact {
 		myecs::entity other;
 		nvec2 shift;
 		float lengthSquared;
 	};
+
 	myecs::entity proj;
 	myecs::entity target = myecs::null_entity;
 	std::vector<Contact> contacts;
 	std::unordered_set<myecs::entity> entities;
 	bool hasTarget = false;
 
-	CircleTrackingScript(GameCtx& ctx, myecs::entity detector, myecs::entity proj) {
+	CircleTrackingDetectorScript(GameCtx& ctx, myecs::entity detector, myecs::entity proj) {
 		auto& reg = ctx.reg;
 		this->proj = proj;
 		auto& self_body = reg.get<BodyComponent>(detector);
@@ -116,7 +118,7 @@ public:
 		self_body.setPosition(proj_body.getPosition());
 	}
 
-	void onUpdate(GameCtx& ctx, myecs::entity self, float dt)override {
+	void onUpdate(GameCtx& ctx, myecs::entity self, float dt) override {
 		auto& reg = ctx.reg;
 		if (!reg.valid(proj) || !reg.get<EntityComponent>(proj).isAlive()) {
 			reg.get<EntityComponent>(self).kill();
@@ -136,40 +138,40 @@ public:
 		if (target != myecs::null_entity && hasTarget) {
 			auto& target_body = reg.get<BodyComponent>(target);
 			shift = target_body.getPosition() - self_body.getPosition();
-		}
-		else if (!contacts.empty()) {
+		} else if (!contacts.empty()) {
 			auto it = std::max_element(contacts.begin(), contacts.end(), [](const auto& a, const auto& b) {
 				return a.lengthSquared < b.lengthSquared;
 			});
 			shift = it->shift;
 			target = it->other;
 			contacts.clear();
-		}
-		else return;
+		} else
+			return;
 
 		auto dir = proj_body.getVelocity().normalized();
-		nmat22 rot = { dir.y,-dir.x,dir.x,dir.y };
+		nmat22 rot = {dir.y, -dir.x, dir.x, dir.y};
 		nvec2 newShift = rot * shift;
 		if (std::abs(newShift.x) < nmath::n_epsilon) {
 			return;
 		}
 		float radius = newShift.lengthSquared() / (2.f * std::abs(newShift.x));
-		nvec2 forceDir = nvec2{ dir.y,-dir.x }*(newShift.x > 0.f ? 1.f : -1.f);
+		nvec2 forceDir = nvec2{dir.y, -dir.x} * (newShift.x > 0.f ? 1.f : -1.f);
 		float forceSize = proj_body.getVelocity().lengthSquared() * proj_body.body->GetMass() / radius;
 		forceSize = std::min(forceSize, 15.f);
 		proj_body.body->ApplyForceToCenter(forceDir * forceSize, true);
 		hasTarget = false;
 	}
 
-	void onContact(GameCtx& ctx, myecs::entity self, myecs::entity other, b2Contact* contact)override {
-		contact->SetEnabled(false);
+	void modifyContactSettings(GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) override {
+		settings.emitEvent = false;
+
 		if (target != myecs::null_entity) {
 			if (other == target) {
 				hasTarget = true;
 			}
 			return;
 		}
-		if (auto it = entities.find(other); it != entities.end()) {
+		if (entities.contains(other)) {
 			return;
 		}
 		auto& reg = ctx.reg;
@@ -180,10 +182,10 @@ public:
 			.other = other,
 			.shift = shift,
 			.lengthSquared = shift.lengthSquared()
-						   });
+		});
 	}
 
-	void onDeath(GameCtx& ctx, myecs::entity self)override {
+	void onDeath(GameCtx& ctx, myecs::entity self) override {
 		auto& reg = ctx.reg;
 		if (auto ec = reg.try_get<EntityComponent>(self)) {
 			ec->kill();
