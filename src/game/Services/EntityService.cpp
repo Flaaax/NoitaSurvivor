@@ -1,0 +1,24 @@
+﻿#include "EntityService.h"
+
+#include "src/game/Components/EntityComponents.h"
+void EntityService::damage(const GameCtx& ctx, myecs::entity source, myecs::entity target, int damage) {
+	auto& reg = ctx.reg;
+	auto& ec = reg.get<EntityComponent>(target);
+
+	if (ec.health <= 0)
+		return;
+	ec.health -= damage;
+	if (ec.health <= 0) {
+		ec.health = 0;
+	}
+}
+void EntityService::kill(const GameCtx& ctx, myecs::entity e) {
+	auto& [layer, health] = ctx.reg.get<EntityComponent>(e);
+	health = 0;
+
+	// todo Invoke death events...
+}
+bool EntityService::isAlive(const GameCtx& ctx, myecs::entity e) {
+	auto& [layer, health] = ctx.reg.get<EntityComponent>(e);
+	return health != 0;
+}

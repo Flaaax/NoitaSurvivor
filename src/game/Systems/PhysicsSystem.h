@@ -8,6 +8,6 @@ struct nvec2;
 
 class PhysicsSystem {
 public:
-	static void step(float dt,GameCtx& ctx);
-	static void update(float dt, GameCtx& ctx);
+	static void step(const GameCtx& ctx, float dt);
+	static void updateAfterContactSystem(const GameCtx& ctx, float dt);
 };

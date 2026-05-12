@@ -1,6 +1,6 @@
 #pragma once
 
-#include<box2d/b2_math.h>
+#include<box2d/types.h>
 #include<SFML/System/Vector2.hpp>
 #include<SFML/Graphics/Rect.hpp>
 #include<optional>

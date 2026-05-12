@@ -1,4 +1,6 @@
-/resources/
+/resources/*
+!/resources/data/
+!/resources/data/**
 /bin/
 /CodeGenerator/bin/
 /CodeGenerator/obj/
@@ -22,3 +24,6 @@ cmake_install.cmake
 .idea/
 imgui.ini
 *.log
+
+src.zip
+src.7z

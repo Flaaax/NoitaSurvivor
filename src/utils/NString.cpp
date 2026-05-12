@@ -4,6 +4,6 @@
 
 
 NString::operator sf::String() const {
-	auto converted = boost::locale::conv::to_utf<wchar_t>(m_data, "utf-8");
+	const auto converted = boost::locale::conv::to_utf<wchar_t>(m_data, "utf-8");
 	return sf::String(converted);
 }

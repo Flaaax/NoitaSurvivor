@@ -115,6 +115,7 @@ namespace myecs {
 		ComponentPoolProxy& operator=(ComponentPoolProxy&& other)noexcept {
 			table = move_and_reset(other.table);
 			data = move_and_reset(other.data);
+			return *this;
 		}
 
 		template<class T>

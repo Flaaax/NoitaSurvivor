@@ -2,7 +2,7 @@
 
 struct GameCtx;
 
-class EntityDestroySystem {
+class LifeTimeSystem {
 public:
 	static void destroyDeadEntities(GameCtx& ctx);
 

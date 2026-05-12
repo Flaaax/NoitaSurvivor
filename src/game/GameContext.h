@@ -2,18 +2,23 @@
 #include"src/ecs/entity.h"
 #include "States/GameState.h"
 #include"States/ContactState.h"
+#include<box2d/types.h>
 
 
-class b2World;
 class EntityFactory;
 class ContactLayerRules;
 
-//Lightweight, stable(its reference), copyable reference of the game context
+struct WorldCtx {
+	b2WorldId world = b2_nullWorldId;
+	bool isStepping{};
+};
+
+//Lightweight, copyable reference of the game context
 struct GameCtx {
 	myecs::Registry& reg;
-	b2World& world;
+	const WorldCtx& worldCtx;
 	EntityFactory& factory;
 	const ContactLayerRules& contactRules;
 	GameState& gameState;
-	ContactState& contactState;
+	//ContactState& contactState;
 };

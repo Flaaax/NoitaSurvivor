@@ -2,6 +2,7 @@
 #include"ScriptComponent.h"
 #include"../EntityComponents.h"
 #include"src/game/Components/PhysicsComponents.h"
+#include "src/game/Services/EntityService.h"
 #include"src/utils/Mat22.h"
 #include<unordered_set>
 
@@ -120,8 +121,8 @@ public:
 
 	void onUpdate(GameCtx& ctx, myecs::entity self, float dt) override {
 		auto& reg = ctx.reg;
-		if (!reg.valid(proj) || !reg.get<EntityComponent>(proj).isAlive()) {
-			reg.get<EntityComponent>(self).kill();
+		if (!reg.valid(proj) || !EntityService::isAlive(ctx, proj)) {
+			EntityService::kill(ctx, self);
 			isDone = true;
 			return;
 		}
@@ -188,7 +189,7 @@ public:
 	void onDeath(GameCtx& ctx, myecs::entity self) override {
 		auto& reg = ctx.reg;
 		if (auto ec = reg.try_get<EntityComponent>(self)) {
-			ec->kill();
+			EntityService::kill(ctx, self);
 		}
 	}
 };

@@ -40,7 +40,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 			}
 		}
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<EntityComponent>(e);
 
 			if (p.layer.storage) {
@@ -86,7 +86,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 			}
 		}
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<ProjectileComponent>(e);
 
 			if (p.damage.storage) {
@@ -109,7 +109,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 		struct __EnemyComponentParser {
 		} p;
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<EnemyComponent>(e);
 		};
 	};
@@ -119,7 +119,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 		struct __DirectionComponentParser {
 		} p;
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<DirectionComponent>(e);
 		};
 	};
@@ -127,7 +127,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 	componentInitializerFactories["MultiContactComponent"] =
 		[](const json& jsonData) -> ComponentInitializer {
 		using __contact_interval_t =
-			ValueWrapper<decltype(MultiContactComponent::contact_interval)>;
+			ValueWrapper<decltype(MultiContactComponent::default_duration)>;
 		struct __MultiContactComponentParser {
 			__contact_interval_t contact_interval{};
 		} p;
@@ -139,11 +139,11 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 			}
 		}
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<MultiContactComponent>(e);
 
 			if (p.contact_interval.storage) {
-				c.contact_interval = p.contact_interval.value();
+				c.default_duration = p.contact_interval.value();
 			}
 		};
 	};
@@ -175,7 +175,7 @@ void ComponentMeta::initGeneratedComponentInitializers() {
 			}
 		}
 
-		return [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {
+		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 			auto& c = ctx.reg.emplace<SmoothMovementComponent>(e);
 
 			if (p.acc.storage) {

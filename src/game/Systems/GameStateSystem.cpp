@@ -7,7 +7,7 @@
 #include"src/utils/VectorHelper.h"
 
 
-void GameStateSystem::initStates(GameCtx& ctx) {
+void GameStateSystem::initGameState(GameCtx& ctx) {
 	using namespace Util;
 
 	auto& state = ctx.gameState;

@@ -3,6 +3,6 @@
 
 class ContactSystem {
 public:
-	static void update(GameCtx& ctx, float dt);
-	static void clearEvent(GameCtx& ctx);
+	static void handleContactEvent(GameCtx& ctx);
+	static void updateAfterHandleEvent(const GameCtx& ctx,float dt);
 };

@@ -1,24 +1,24 @@
-#include "EntityDestroySystem.h"
-#include"src/game/GameContext.h"
-#include"src/ecs/entity.h"
-#include"src/game/Components/EntityComponents.h"
+#include "LifeTimeSystem.h"
+#include "src/ecs/entity.h"
+#include "src/game/Components/EntityComponents.h"
+#include "src/game/Components/Render/SpriteEffects.h"
+#include "src/game/GameContext.h"
+#include "src/game/Services/EntityService.h"
+#include "src/game/Services/PhysicsService.h"
+#include "src/utils/Pointer.h"
 #include <src/game/Components/PhysicsComponents.h>
+#include <src/game/Components/Render/RenderComponent.h>
 #include <src/game/Components/Script/ScriptComponent.h>
 #include <src/game/Services/GameService.h>
 #include <src/utils/Random.h>
-#include <src/game/Components/Render/RenderComponent.h>
-#include"src/utils/Pointer.h"
-#include"src/game/Components/Render/SpriteEffects.h"
-#include"src/game/Services/PhysicsBodyService.h"
 
-
-void EntityDestroySystem::destroyDeadEntities(GameCtx &ctx) {
+void LifeTimeSystem::destroyDeadEntities(GameCtx &ctx) {
     auto &reg = ctx.reg;
     using namespace myecs;
     std::vector<entity> entityToDestroy;
 
     for (const auto &[e, c]: reg.view<EntityComponent>()) {
-        if (!c.isAlive()) {
+        if (!EntityService::isAlive(ctx, e)) {
             entityToDestroy.emplace_back(e);
         }
     }
@@ -64,7 +64,7 @@ void EntityDestroySystem::destroyDeadEntities(GameCtx &ctx) {
         }
 
         if (reg.try_get<BodyComponent>(e)) {
-            PhysicsBodyService().destroyBody(ctx, e);
+            PhysicsService().destroyBody(ctx, e);
         }
 
         //Logger::info("Destroyed entity {}", e.string());

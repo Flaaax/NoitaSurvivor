@@ -1,20 +1,20 @@
 #include "Game.h"
-#include"Components/EntityComponents.h"
-#include"Components/PhysicsComponents.h"
-#include"src/gui/Renderer.h"
-#include"src/gui/NWindow.h"
-#include"src/utils/Logger.h"
-#include"Contact/ContactListener.h"
-#include"Contact/ContactFilter.h"
-#include"Wands/Wand.h"
-#include"Systems/GameSystem.h"
-#include"Systems/RenderSystem.h"
-#include"Systems/GameStateSystem.h"
-#include"Systems/PhysicsSystem.h"
-#include"Services/PhysicsBodyService.h"
+#include "Components/EntityComponents.h"
+#include "Components/PhysicsComponents.h"
+#include "Contact/ContactFilter.h"
+#include "Contact/ContactListener.h"
+#include "Contact/GameContactCallbacks.h"
+#include "Services/PhysicsService.h"
 #include "Systems/ContactSystem.h"
-#include "Systems/EntityDestroySystem.h"
-
+#include "Systems/GameStateSystem.h"
+#include "Systems/GameSystem.h"
+#include "Systems/LifeTimeSystem.h"
+#include "Systems/PhysicsSystem.h"
+#include "Systems/RenderSystem.h"
+#include "Wands/Wand.h"
+#include "src/gui/NWindow.h"
+#include "src/gui/Renderer.h"
+#include "src/utils/Logger.h"
 
 Game::Game() {
 	Logger::info("Game instance created");
@@ -26,27 +26,22 @@ Game::~Game() {
 	Logger::info("max entity count: {}", reg.max_entity_count());
 	Logger::info("max component count: {}", reg.max_component_count());
 
-	auto ctx = getContext();
+	const auto ctx = getContext();
 	for (auto [e, bc] : reg.view<BodyComponent>()) {
-		PhysicsBodyService().destroyBody(ctx, e);
+		PhysicsService().destroyBody(ctx, e);
 	}
 
 	reg.reset();
 
-	if (world->GetBodyCount() > 0) {
-		Logger::warn("Undestroyed body remaining: {}", world->GetBodyCount());
+	if (int count = b2World_GetCounters(worldCtx.world).bodyCount; count > 0) {
+		Logger::warn("Undestroyed body remaining: {}", count);
 	}
+
+	b2DestroyWorld(worldCtx.world);
 }
 
 GameCtx Game::getContext() {
-	return GameCtx{
-		reg,
-		*world,
-		*factory,
-		contactRules,
-		state,
-		contactState
-	};
+	return GameCtx{reg, worldCtx, *factory, contactRules, state};
 }
 
 void Game::init() {
@@ -54,22 +49,34 @@ void Game::init() {
 		throw std::runtime_error("Dont initialize more than once");
 	}
 
+	// todo move this to another place
+	b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {
+		Logger::error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
+		return 1;
+	});
+
 	isInitialized = true;
 	using namespace Util;
 
-	world = make_unique(new b2World({0.f, 0.f}));
-	factory = make_unique(new EntityFactory(*this));
+	b2WorldDef worldDef = b2DefaultWorldDef();
+	worldDef.enableContinuous = true;
+	worldDef.gravity = {0, 0};
+	worldCtx.world = b2CreateWorld(&worldDef);
 
-	world->SetContinuousPhysics(true);
+	factory = make_unique(new EntityFactory(*this));
 
 	auto ctx = getContext();
 
-	contactListener = make_unique(new GameContactListener(ctx));
-	contactFilter = make_unique(new GameContactFilter(ctx));
-	world->SetContactListener(contactListener.get());
-	world->SetContactFilter(contactFilter.get());
+	// contactListener = make_unique(new GameContactListener(ctx));
+	// contactFilter = make_unique(new GameContactFilter(ctx));
+	// world->SetContactListener(contactListener.get());
+	// world->SetContactFilter(contactFilter.get());
 
-	GameStateSystem().initStates(ctx);
+	ctxInternal = make_unique(new GameCtx(getContext()));
+
+	b2World_SetCustomFilterCallback(ctx.worldCtx.world, GameContactCallbacks::FilterCallback, &ctxInternal);
+
+	GameStateSystem().initGameState(ctx);
 }
 
 void Game::draw(Renderer& rdr) {
@@ -86,14 +93,15 @@ void Game::update(float dt) {
 	GameCtx ctx = getContext();
 
 	GameStateSystem().updateBeforePhysics(ctx);
-	PhysicsSystem().step(dt, ctx);
-	ContactSystem().update(ctx, dt);
-	PhysicsSystem().update(dt,ctx);
+	PhysicsSystem().step(ctx, dt);
+	ContactSystem().handleContactEvent(ctx);
+	ContactSystem().updateAfterHandleEvent(ctx, dt);
+	PhysicsSystem().updateAfterContactSystem(ctx, dt);
 	GameSystem().update(dt, ctx);
 
 	ctx.gameState.enemySpawnTimer.update(dt);
 
-	EntityDestroySystem().destroyDeadEntities(ctx);
+	LifeTimeSystem().destroyDeadEntities(ctx);
 
 	RenderSystem().update(dt, ctx);
 }

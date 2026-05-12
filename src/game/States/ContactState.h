@@ -5,19 +5,19 @@
 
 #include<vector>
 
-struct ContactEvent {
-	myecs::entity a{};
-	myecs::entity b{};
-	nvec2 normal{};
-	n_pair<nvec2> points{};
-	bool isPhysicsEnabled{};
-};
-
-struct ContactSettings {
-	bool emitEvent{};
-	bool enablePhysics{};
-};
-
-struct ContactState {
-	std::vector<ContactEvent> events;
-};
+// struct ContactEvent {
+// 	myecs::entity a{};
+// 	myecs::entity b{};
+// 	nvec2 normal{};
+// 	n_pair<nvec2> points{};
+// 	bool isPhysicsEnabled{};
+// };
+//
+// struct ContactSettings {
+// 	bool emitEvent{};
+// 	bool enablePhysics{};
+// };
+//
+// struct ContactState {
+// 	std::vector<ContactEvent> events;
+// };

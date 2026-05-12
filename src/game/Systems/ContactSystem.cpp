@@ -3,18 +3,22 @@
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Script/ScriptComponent.h"
+#include "src/game/Services/ContactService.h"
+#include "src/game/Services/EntityService.h"
+#include "src/game/Services/PhysicsService.h"
 #include "src/game/Services/PlayerService.h"
+
+#include <boost/unordered/unordered_flat_map.hpp>
+#include <span>
 
 using namespace myecs;
 
-template <class T>
-struct Ref {
+template <class T> struct Ref {
 	entity e;
 	T& data;
 };
 
-template <class T>
-bool match_and_handle(entity a, T& dataA, entity b, T& dataB, auto&& valid, auto&& fn) {
+template <class T> bool match_and_handle(entity a, T& dataA, entity b, T& dataB, auto&& valid, auto&& fn) {
 	auto refa = Ref<T>{a, dataA};
 	auto refb = Ref<T>{b, dataB};
 	if (valid(refa, refb)) {
@@ -27,79 +31,90 @@ bool match_and_handle(entity a, T& dataA, entity b, T& dataB, auto&& valid, auto
 	return false;
 }
 
-void ContactSystem::update(GameCtx& ctx, float dt) {
+void ContactSystem::handleContactEvent(GameCtx& ctx) {
+	const b2ContactEvents allEvents = b2World_GetContactEvents(ctx.worldCtx.world);
 	auto& reg = ctx.reg;
 
-	//handle contact events
-	for (const auto& event : ctx.contactState.events) {
-		//handle if the entity is collectable
-		entity a = event.a;
-		entity b = event.b;
-		//n_pair<entity> pairs[2] = {{a, b}, {b, a}};
-		auto [ea,eb] = reg.get<EntityComponent>(a, b);
+	boost::unordered_flat_map<std::pair<u64, u64>, bool> handledPairs{};
 
-		if (!(ea.isAlive() && eb.isAlive())) {
+	for (const auto& event : std::span(allEvents.beginEvents, allEvents.beginCount)) {
+
+		auto [a, b] = ContactService().getEntitiesFromShapes(event.shapeIdA, event.shapeIdB);
+
+		if (bool& handled = handledPairs[std::minmax(a._entity, b._entity)]; !handled) {
+			handled = true;
+		} else {
+			continue;
+		}
+
+		auto [ea, eb] = reg.get<EntityComponent>(a, b);
+
+		if (!(EntityService().isAlive(ctx, a) && EntityService().isAlive(ctx, b))) {
 			continue;
 		}
 
 		{
 			using Ref = Ref<EntityComponent>;
-			auto side = [&](Ref a, Ref b) {
-				return a.e == ctx.gameState.player.collector && b.data.layer == Collectible;
-			};
-			auto fn = [&](Ref a, Ref b) {
-				if (const auto mc = reg.try_get<MaterialComponent>(b.e)) {
-					const auto& b1 = reg.get<BodyComponent>(a.e);
-					const auto& b2 = reg.get<BodyComponent>(b.e);
-					auto dir = b1.getPosition() - b2.getPosition();
+			auto side = [&](Ref ra, Ref rb) { return ra.e == ctx.gameState.player.collector && rb.data.layer == Collectible; };
+			auto fn = [&](Ref ra, Ref rb) {
+				if (const auto mc = reg.try_get<MaterialComponent>(rb.e)) {
+					const auto& b1 = reg.get<BodyComponent>(ra.e);
+					const auto& b2 = reg.get<BodyComponent>(rb.e);
+					nvec2 dir = PhysicsService().getPosition(b1) - PhysicsService().getPosition(b2);
 					if (const float len = dir.normalize(); len < 0.5f) {
-						b.data.kill();
+						EntityService::kill(ctx, rb.e);
 						PlayerService().gainMaterial(ctx, mc->value);
 					} else {
-						reg.get<DirectionComponent>(b.e).dir = dir;
+						reg.get<DirectionComponent>(rb.e).dir = dir;
 					}
 				}
 			};
 
 			if (match_and_handle(a, ea, b, eb, side, fn)) {
+				// Collectibles
 				continue;
 			}
 		}
 
-		std::initializer_list<n_pair<entity> > pairs = {{a, b}, {b, a}};
+		std::initializer_list<n_pair<entity>> pairs = {{a, b}, {b, a}};
 
-		//currently, projectiles shouldn't contact each other
+		for (auto [a,b]:pairs) {
+
+		}
+
+		// currently, projectiles shouldn't contact each other
 		auto onProjectileContact = [&](entity self, entity other) {
-			b2Body* otherBody = reg.get<BodyComponent>(other).body;
+			const auto& otherBody = reg.get<BodyComponent>(other);
 			const auto& pc = reg.get<ProjectileComponent>(self);
 
-			const nvec2 impulseDir = other == a ? event.normal : -event.normal;
+			const nvec2 impulseDir = other == a ? event.manifold.normal : -event.manifold.normal;
 
-			//If target is not projectile, then don't apply impulse
-			if (auto [p1,p2] = reg.try_get<ProjectileComponent>(self, other); !p2) {
-				nvec2 impulseApplied = p1->impulse * -impulseDir;
-				otherBody->ApplyLinearImpulseToCenter(impulseApplied, true);
+			// If target is not projectile, then don't apply impulse
+			if (auto [p1, p2] = reg.try_get<ProjectileComponent>(self, other); !p2) {
+				const nvec2 impulseApplied = p1->impulse * -impulseDir;
+				PhysicsService().applyLinearImpulse(otherBody, impulseApplied);
 				if (const auto ec = reg.try_get<EnemyComponent>(other)) {
 					ec->impulse += impulseApplied;
 				}
 			}
 
 			if (pc.pierce == 0) {
-				reg.get<EntityComponent>(self).kill();
+				EntityService().kill(ctx, self);
 			}
 
-			if (auto [e, s] = reg.try_get<EntityComponent, SpellOnDeathComponent>(self); (!e->isAlive()) && s) {
+			if (auto [e, s] = reg.try_get<EntityComponent, SpellOnDeathComponent>(self);
+				e && !EntityService::isAlive(ctx, self) && s) {
 				const auto& bc = reg.get<BodyComponent>(self);
 				s->impulseDir = impulseDir;
-				s->impulsePosFix = -bc.getVelocity() * (dt * 1.5f);
+				// todo This could cause different behavior
+				// s->impulsePosFix = -bc.getVelocity() * (dt * 1.5f);
 			}
 
-			//Deal damage
-			//todo move this to a service
-			reg.get<EntityComponent>(other).takeDamage(pc.damage);
+			// Deal damage
+			EntityService().damage(ctx, self, other, pc.damage);
 		};
 
-		//warning: projectiles shouldn't collide each other, for now
+		// warning: projectiles shouldn't collide each other, for now
 
 		if (reg.has<ProjectileComponent>(a)) {
 			onProjectileContact(a, b);
@@ -107,7 +122,7 @@ void ContactSystem::update(GameCtx& ctx, float dt) {
 			onProjectileContact(b, a);
 		}
 
-		for (auto [a,b] : pairs) {
+		for (auto [a, b] : pairs) {
 			if (const auto sc = reg.try_get<ScriptComponent>(a); sc) {
 				for (const auto& script : sc->scripts) {
 					script->onContact(ctx, event);
@@ -115,22 +130,10 @@ void ContactSystem::update(GameCtx& ctx, float dt) {
 			}
 		}
 	}
-
-	//update Multi Contact
-	for (const auto& [e, c] : reg.view<MultiContactComponent>()) {
-		for (auto it = c.banned.begin(); it != c.banned.end();) {
-			it->second.update(dt);
-			if (!it->second.isRunning()) {
-				it = c.banned.erase(it);
-			} else {
-				++it;
-			}
-		}
-	}
-
-	clearEvent(ctx);
 }
 
-void ContactSystem::clearEvent(GameCtx& ctx) {
-	ctx.contactState.events.clear();
+void ContactSystem::updateAfterHandleEvent(const GameCtx& ctx, float dt) {
+	for (auto [e, mc] : ctx.reg.view<MultiContactComponent>()) {
+		ContactService().updateMultiContacts(mc, dt);
+	}
 }

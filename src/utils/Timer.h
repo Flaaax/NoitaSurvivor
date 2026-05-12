@@ -129,10 +129,6 @@ public:
 		return *this;
 	}
 
-	void setDuration(float duration) {
-		m_duration = duration;
-	}
-
 	void start() {
 		reset();
 		m_isRunning = true;

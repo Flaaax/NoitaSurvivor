@@ -88,7 +88,7 @@ namespace myecs {
 			}
 		};
 
-		//All functions doesn't check vadility
+		//All functions don't check vadility
 		template<class T, class Alloc = std::allocator<void>>
 		class Pool :public BasePool<u64, Alloc> {
 		private:

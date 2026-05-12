@@ -1,0 +1,109 @@
+{
+    "player": {
+        "EntityComponent": {
+            "layer": "Player"
+        },
+        "DirectionComponent": { },
+        "SmoothMovementComponent": {
+            "acc": 32,
+            "dec": 40,
+            "spd": 15
+        },
+        "BodyComponent": {
+            "type": "Dynamic",
+            "fixedRotation": true,
+            "shape": "Circle",
+            "radius": 0.5
+        },
+        "SpriteComponent": {
+            "sprite": "player",
+            "followPosition": true
+        }
+    },
+    "bullet": {
+        "EntityComponent": {
+            "layer": "PlayerProjectile"
+        },
+        "BodyComponent": {
+            "type": "Dynamic",
+            "fixedRotation": true,
+            "shape": "Box",
+            "size": [ 0.4, 0.2 ],
+            "density": 0.3,
+            "friction": 0.0,
+            "restitution": 1.0
+        },
+        "ProjectileComponent": {
+            "impulse": 10,
+            "damage": 6,
+            "pierce": 1
+        },
+        "SpriteComponent": {
+            "sprite": "bullet",
+            "followPosition": true,
+            "followAngle": true
+        }
+    },
+    "enemy": {
+        "EntityComponent": {
+            "layer": "Enemy",
+            "health": 10
+        },
+        "EnemyComponent": { },
+        "SmoothMovementComponent": {
+            "acc": 20,
+            "dec": 40,
+            "spd": 8
+        },
+        "DirectionComponent": { },
+        "BodyComponent": {
+            "type": "Dynamic",
+            "fixedRotation": true,
+            "shape": "Circle",
+            "radius": 0.5,
+            "density": 1.0,
+            "friction": 0.0,
+            "restitution": 0.0
+        },
+        "SpriteComponent": {
+            "sprite": "enemy",
+            "followPosition": true
+        }
+    },
+    "border": {
+        "EntityComponent": {
+            "layer": "Wall"
+        }
+    },
+    "explosion": {
+        "EntityComponent": {
+            "layer": "PlayerProjectile"
+        },
+        "SpriteComponent": {
+            "sprite": "explosion",
+            "followPosition": true,
+            "dynamicScale": true
+        }
+    },
+    "material": {
+        "EntityComponent": {
+            "layer": "Collectable"
+        },
+        "DirectionComponent": { },
+        "SmoothMovementComponent": {
+            "spd": 50,
+            "acc": 35,
+            "dec": 75
+        },
+        "BodyComponent": {
+            "shape": "Box",
+            "type": "Dynamic",
+            "fixedRotation": true,
+            "size": [ 0.2, 0.2 ]
+        },
+        "SpriteComponent": {
+            "sprite": "material",
+            "followPosition": true
+        }
+    }
+}

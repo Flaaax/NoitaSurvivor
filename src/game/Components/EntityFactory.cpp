@@ -1,12 +1,12 @@
-#include"EntityFactory.h"
-#include"EntityComponents.h"
-#include"PhysicsComponents.h"
-#include"src/game/Game.h"
-#include"Render/RenderComponent.h"
-#include"src/global/DataManager.h"
-#include"Render/SpriteEffects.h"
-#include"src/meta/ComponentMeta.h"
-#include"src/game/Services/PhysicsBodyService.h"
+#include "EntityFactory.h"
+#include "EntityComponents.h"
+#include "PhysicsComponents.h"
+#include "Render/RenderComponent.h"
+#include "Render/SpriteEffects.h"
+#include "src/game/Game.h"
+#include "src/game/Services/PhysicsService.h"
+#include "src/global/DataManager.h"
+#include "src/meta/ComponentMeta.h"
 
 using namespace myecs;
 
@@ -90,7 +90,7 @@ myecs::entity EntityFactory::createBorder(const nvec2& start, const nvec2& end) 
 	fixtureDef.restitution = 0.0f;
 	fixtureDef.isSensor = false;
 
-	PhysicsBodyService().createBody(ctx, e, bodyDef, fixtureDef);
+	PhysicsService().createBody(ctx, e, bodyDef, fixtureDef);
 
 	return e;
 }
@@ -120,7 +120,7 @@ myecs::entity EntityFactory::createExplosion(const nvec2& pos, float radius, flo
 		.shape = BodyArg::Circle,
 		.radius = radius
 	};
-	PhysicsBodyService().createBody(ctx, e, arg);
+	PhysicsService().createBody(ctx, e, arg);
 	const auto& body = reg.get<BodyComponent>(e);
 	body.body->SetTransform(pos, 0.f);
 
@@ -158,7 +158,7 @@ myecs::entity EntityFactory::createCollector(float radius) {
 	fixtureDef.friction = 0.0f;
 	fixtureDef.restitution = 0.0f;
 
-	PhysicsBodyService().createBody(ctx, collector, bodyDef, fixtureDef);
+	PhysicsService().createBody(ctx, collector, bodyDef, fixtureDef);
 
 	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
 	//reg.emplace<RenderComponent>(collector).rp = EntityRenderManager::getRender<ExplosionRender>();

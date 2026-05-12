@@ -11,3 +11,4 @@ DerivePointerAlignment: false
 ReferenceAlignment: Left
 Standard: c++20
 SpacesInAngles: Never
+AllowShortFunctionsOnASingleLine: None

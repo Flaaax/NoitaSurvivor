@@ -4,6 +4,7 @@
   "builtin-baseline": "4c5ae6b55f3e3e39d291679f89822f496cf190ee",
   "dependencies": [
     "boost-locale",
+    "boost-unordered",
     "box2d",
     "fmt",
     "glew",
@@ -12,5 +13,36 @@
     "nlohmann-json",
     "sfml",
     "spdlog"
+  ],
+  "overrides": [
+    {
+      "name": "boost-locale",
+      "version": "1.89.0"
+    },
+    {
+      "name": "box2d",
+      "version": "3.1.1"
+    },
+    {
+      "name": "fmt",
+      "version": "10.2.1"
+    },
+    {
+      "name": "sfml",
+      "version": "2.6.1"
+    },
+    {
+      "name": "imgui-sfml",
+      "version": "2.6",
+      "port-version": 1
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.11.3"
+    },
+    {
+      "name": "spdlog",
+      "version": "1.13.0"
+    }
   ]
 }

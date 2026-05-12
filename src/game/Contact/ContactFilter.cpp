@@ -2,6 +2,7 @@
 #include<box2d/box2d.h>
 #include"src/utils/Pointer.h"
 #include <src/game/Components/EntityComponents.h>
+#include "src/game/Services/EntityService.h"
 #include"src/utils/Logger.h"
 
 
@@ -21,7 +22,7 @@ bool GameContactFilter::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB) 
 	auto eb = reg.try_get<EntityComponent>(b);
 
 	//disable if one is not alive
-	if (!(ea && eb) || !(ea->isAlive() && eb->isAlive())) {
+	if (!(ea && eb) || !(EntityService::isAlive(ctx, a) && EntityService::isAlive(ctx, b))) {
 		return false;
 	}
 

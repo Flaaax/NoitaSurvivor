@@ -6,6 +6,7 @@
 #include <src/utils/Random.h>
 #include"src/game/Wands/Wand.h"
 #include"../Components/EntityFactory.h"
+#include "src/game/Services/EntityService.h"
 #include <src/utils/VectorHelper.h>
 #include"src/game/GameContext.h"
 
@@ -40,7 +41,7 @@ void GameSystem::update(float dt, GameCtx& ctx) {
 	for (auto [e, c] : reg.view<LifetimeComponent>()) {
 		c.lifeTimer.update(dt);
 		if (!c.lifeTimer.isRunning()) {
-			reg.get<EntityComponent>(e).kill();
+			EntityService::kill(ctx, e);
 		}
 	}
 

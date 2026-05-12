@@ -1,16 +1,15 @@
-#include"Modifiers.h"
-#include"src/game/Game.h"
-#include"src/game/Components/Script/Scripts.h"
-#include"src/game/Components/EntityComponents.h"
-#include"src/game/Spells/SpellBlock.h"
-#include"src/game/Spells/Projectiles/Projectiles.h"
+#include "Modifiers.h"
+#include "src/game/Components/EntityComponents.h"
+#include "src/game/Components/Script/Scripts.h"
+#include "src/game/Game.h"
+#include "src/game/Services/PhysicsService.h"
+#include "src/game/Spells/Projectiles/Projectiles.h"
+#include "src/game/Spells/SpellBlock.h"
+#include "src/utils/VectorHelper.h"
+#include <memory>
 #include <src/game/Components/PhysicsComponents.h>
 #include <src/game/Components/Render/RenderComponent.h>
-#include<memory>
 #include <src/game/Spells/Shot.h>
-#include"src/utils/VectorHelper.h"
-#include"src/game/Services/PhysicsBodyService.h"
-
 
 void AddExplosionSpell::apply(GameCtx& ctx, myecs::entity p) {
 	auto& reg = ctx.reg;
@@ -30,7 +29,7 @@ void HomingShot::apply(GameCtx& ctx, myecs::entity p) {
 		.radius = radius
 	};
 
-	PhysicsBodyService().createBody(ctx, detector, arg);
+	PhysicsService().createBody(ctx, detector, arg);
 	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
 
 	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));

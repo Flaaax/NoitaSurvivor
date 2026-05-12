@@ -1,90 +1,87 @@
 #pragma once
-#include<array>
-
+#include <array>
+#include <initializer_list>
 
 enum ContactLayer : size_t {
 	None,
 	Player,
 	Enemy,
-	Projectile, //hits player and enemy
+	Projectile, // hits player and enemy
 	PlayerProjectile,
 	EnemyProjectile,
 	Wall,
 	Collectible,
 	Collector,
-	Detector
+	Detector,
+
+	ContactLayerCount
 };
 
 class ContactLayerRules {
 public:
-	static constexpr size_t max_type_size = 16;
+	static constexpr size_t MAX_LAYER_COUNT = ContactLayerCount;
+	static_assert(MAX_LAYER_COUNT <= 16, "too many types!");
 
 private:
-	using contact_info = std::array<std::array<bool, max_type_size>, max_type_size>;
+	using LayerRules = std::array<std::array<bool, MAX_LAYER_COUNT>, MAX_LAYER_COUNT>;
 
-	contact_info m_contacts{};
+	LayerRules m_rules{};
 
-	struct _ContactArg {
-		ContactLayer a, b;
-		bool enabled;
-
-		_ContactArg(ContactLayer a, ContactLayer b, bool enabled = true) : a(a), b(b),
-		                                                                   enabled(enabled) {
-		}
+	struct ContactLayerPair {
+		ContactLayer a;
+		ContactLayer b;
+		bool enabled = true;
 	};
 
-	void setContacts(std::initializer_list<_ContactArg> contacts) {
-		for (auto& contact : contacts) {
-			setContact(contact.a, contact.b, contact.enabled);
+	void setContacts(std::initializer_list<ContactLayerPair> contacts) {
+		for (const auto& [a, b, enabled] : contacts) {
+			setContact(a, b, enabled);
 		}
 	}
 
 public:
 	ContactLayerRules() {
-		for (auto& i : m_contacts) {
-			for (auto& j : i) {
-				j = false;
-			}
-		}
 		setContact(Wall, true);
 		setContact(Wall, Wall, false);
+
 		setContact(Collector, Wall, false);
+
 		setContact(Collectible, false);
 		setContact(Collector, Collectible, true);
 		setContact(Collectible, Collectible, true);
+
 		setContact(Detector, true);
 		setContact(Detector, Detector, false);
-		const std::initializer_list<_ContactArg> contacts = {
+
+		setContacts({
 			{Player, Enemy},
 			{Player, Projectile},
 			{Player, EnemyProjectile},
 			{Enemy, Projectile},
 			{Enemy, PlayerProjectile},
 			{Enemy, Enemy},
-		};
-		setContacts(contacts);
+		});
 	}
 
+	// Should only be called during game init.
+	// This function preserves the symmetric invariant:
+	// m_contacts[a][b] == m_contacts[b][a]
 	void setContact(ContactLayer a, ContactLayer b, bool enabled) {
 		if (a == None || b == None)
 			return;
-		//a>=b
-		if (b < a) {
-			std::swap(a, b);
-		}
-		m_contacts[a][b] = enabled;
+
+		m_rules[a][b] = enabled;
+		m_rules[b][a] = enabled;
 	}
 
 	void setContact(ContactLayer t, bool enabled) {
-		for (size_t i = 0; i < m_contacts.size(); i++) {
+		if (t == None)
+			return;
+
+		for (size_t i = 0; i < m_rules.size(); ++i) {
 			setContact(t, static_cast<ContactLayer>(i), enabled);
 		}
 	}
 
-	bool shouldContact(ContactLayer a, ContactLayer b) const {
-		if (b < a) {
-			std::swap(a, b);
-		}
-		return m_contacts[a][b];
-	}
+	bool shouldContact(ContactLayer a, ContactLayer b) const { return m_rules[a][b]; }
 };
