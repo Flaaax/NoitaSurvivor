@@ -25,22 +25,17 @@ public:
 private:
 	using LayerRules = std::array<std::array<bool, MAX_LAYER_COUNT>, MAX_LAYER_COUNT>;
 
-	LayerRules m_rules{};
-
-	struct ContactLayerPair {
-		ContactLayer a;
-		ContactLayer b;
-		bool enabled = true;
-	};
-
-	void setContacts(std::initializer_list<ContactLayerPair> contacts) {
-		for (const auto& [a, b, enabled] : contacts) {
-			setContact(a, b, enabled);
-		}
-	}
+	LayerRules rules{};
+	LayerRules physicsRules{};
 
 public:
 	ContactLayerRules() {
+		for (auto& b1 : physicsRules) {
+			for (auto& b : b1) {
+				b = true;
+			}
+		}
+
 		setContact(Wall, true);
 		setContact(Wall, Wall, false);
 
@@ -49,18 +44,29 @@ public:
 		setContact(Collectible, false);
 		setContact(Collector, Collectible, true);
 		setContact(Collectible, Collectible, true);
+		setContact(Collectible, Wall, true);
 
 		setContact(Detector, true);
 		setContact(Detector, Detector, false);
 
-		setContacts({
+		std::initializer_list<std::pair<ContactLayer, ContactLayer>> contacts = {
 			{Player, Enemy},
 			{Player, Projectile},
 			{Player, EnemyProjectile},
 			{Enemy, Projectile},
 			{Enemy, PlayerProjectile},
 			{Enemy, Enemy},
-		});
+		};
+		for (const auto& [a, b] : contacts) {
+			setContact(a, b, true);
+		}
+
+		setPhysicsContact(Projectile, false);
+		setPhysicsContact(PlayerProjectile, false);
+		setPhysicsContact(EnemyProjectile, false);
+		setPhysicsContact(Collectible, false);
+		setPhysicsContact(Collectible, Collectible, true);
+		setPhysicsContact(Wall, Collectible, true);
 	}
 
 	// Should only be called during game init.
@@ -70,18 +76,41 @@ public:
 		if (a == None || b == None)
 			return;
 
-		m_rules[a][b] = enabled;
-		m_rules[b][a] = enabled;
+		rules[a][b] = enabled;
+		rules[b][a] = enabled;
 	}
 
 	void setContact(ContactLayer t, bool enabled) {
 		if (t == None)
 			return;
 
-		for (size_t i = 0; i < m_rules.size(); ++i) {
+		for (size_t i = 0; i < rules.size(); ++i) {
 			setContact(t, static_cast<ContactLayer>(i), enabled);
 		}
 	}
 
-	bool shouldContact(ContactLayer a, ContactLayer b) const { return m_rules[a][b]; }
+	void setPhysicsContact(ContactLayer a, ContactLayer b, bool enabled) {
+		if (a == None || b == None)
+			return;
+
+		physicsRules[a][b] = enabled;
+		physicsRules[b][a] = enabled;
+	}
+
+	void setPhysicsContact(ContactLayer t, bool enabled) {
+		if (t == None)
+			return;
+
+		for (size_t i = 0; i < rules.size(); ++i) {
+			setPhysicsContact(t, static_cast<ContactLayer>(i), enabled);
+		}
+	}
+
+	bool shouldContact(ContactLayer a, ContactLayer b) const {
+		return rules[a][b];
+	}
+
+	bool shouldContactPhysics(ContactLayer a, ContactLayer b) const {
+		return physicsRules[a][b];
+	}
 };

@@ -1,9 +1,7 @@
 #pragma warning(disable:5105)
 #include "GameSystem.h"
 #include"../Components/EntityComponents.h"
-#include"../Components/PhysicsComponents.h"
 #include"../Components/Script/ScriptComponent.h"
-#include <src/utils/Random.h>
 #include"src/game/Wands/Wand.h"
 #include"../Components/EntityFactory.h"
 #include "src/game/Services/EntityService.h"

@@ -13,8 +13,8 @@
 using namespace myecs;
 
 bool PhysicalContactCallbacks::FilterCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, void* context) {
-	const GameCtx& ctx = *static_cast<GameCtx*>(context);
-	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdA);
+	const GameCtx& ctx = *static_cast<const GameCtx*>(context);
+	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdB);
 
 	n_pair<entity> pairs[2] = {{a, b}, {b, a}};
 	auto& reg = ctx.reg;
@@ -45,10 +45,12 @@ bool PhysicalContactCallbacks::FilterCallback(b2ShapeId shapeIdA, b2ShapeId shap
 
 	return true;
 }
+
 bool PhysicalContactCallbacks::PresolveCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold* manifold, void* context) {
-	const GameCtx& ctx = *static_cast<GameCtx*>(context);
-	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdA);
+	const GameCtx& ctx = *static_cast<const GameCtx*>(context);
+	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdB);
 	auto& reg = ctx.reg;
+
 	if (!(reg.valid(a) && reg.valid(b))) {
 		Logger::warn("A shape attached to invalid entity!");
 		return true;
@@ -56,11 +58,14 @@ bool PhysicalContactCallbacks::PresolveCallback(b2ShapeId shapeIdA, b2ShapeId sh
 
 	ContactSettings settings{true, true};
 
-	if (auto [p1, p2] = reg.try_get<ProjectileComponent>(a, b); p1 || p2) {
-		settings.enablePhysics = false;
-	} else if (auto [ea, eb] = reg.try_get<EntityComponent>(a, b); ea->layer == Collector || eb->layer == Collector) {
-		settings.enablePhysics = false;
-	}
+	const auto layerA = EntityService().getLayer(ctx, a);
+	const auto layerB = EntityService().getLayer(ctx, b);
+
+	settings.enablePhysics = ctx.contactRules.shouldContactPhysics(layerA, layerB);
+
+	// else if (auto [ea, eb] = reg.try_get<EntityComponent>(a, b); ea->layer == Collector || eb->layer == Collector) {
+	// 	settings.enablePhysics = false;
+	// }
 	// else if (ContactService().isBanned(mc1, b) || ContactService().isBanned(mc2, a)) {
 	// 	settings.enablePhysics = false;
 	// 	settings.emitEvent = false;

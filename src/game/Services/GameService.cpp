@@ -12,5 +12,6 @@ void GameService::dropMaterial(const GameCtx& ctx, nvec2 pos) {
 	const auto arg = Util::random.get<float>(0.f, 2 * Util::PI);
 	const auto dir = Util::from_rad<nvec2>(arg);
 	const auto material = ctx.factory.createMaterial(ctx, pos);
-	PhysicsService().applyImpulse(ctx, material, dir * 2.5f);
+	const float k = Util::random.getFloat(0.55, 0.75);
+	PhysicsService().applyImpulse(ctx, material, dir * k);
 }

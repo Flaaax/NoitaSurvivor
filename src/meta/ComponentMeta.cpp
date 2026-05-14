@@ -39,8 +39,8 @@ void ComponentMeta::initCustomComponentInitializers() {
 		return [=](const GameCtx& ctx, myecs::entity e) {
 			ctx.reg.get_or_emplace<BodyComponent>(e);
 			PhysicsService().createBody(ctx, e, arg);
-			Logger::info("Created body for entity {}", e.string());
-			Logger::info("Entity {} has BodyComponent: {}", e.string(), ctx.reg.has<BodyComponent>(e));
+			// Logger::info("Created body for entity {}", e.string());
+			// Logger::info("Entity {} has BodyComponent: {}", e.string(), ctx.reg.has<BodyComponent>(e));
 		};
 	};
 

@@ -7,6 +7,7 @@
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Services/PlayerService.h"
+#include "src/utils/Logger.h"
 
 #include <boost/unordered/unordered_flat_map.hpp>
 #include <span>
@@ -14,12 +15,14 @@
 
 using namespace myecs;
 
-template <class T> struct Ref {
+template <class T>
+struct Ref {
 	entity e;
 	T& data;
 };
 
-template <class T> bool match_and_handle(entity a, T& dataA, entity b, T& dataB, auto&& valid, auto&& fn) {
+template <class T>
+bool match_and_handle(entity a, T& dataA, entity b, T& dataB, auto&& valid, auto&& fn) {
 	auto refa = Ref<T>{a, dataA};
 	auto refb = Ref<T>{b, dataB};
 	if (valid(refa, refb)) {
@@ -83,14 +86,23 @@ static void handleContactEvents(const GameCtx& ctx) {
 
 		for (auto [a, b] : pairs) {
 			if (auto pa = reg.try_get<ProjectileComponent>(a); pa) {
+				// Logger::info("Contact event: p = {}, other = {}", a.string(), b.string());
+
 				const auto& otherBody = reg.get<BodyComponent>(b);
 				auto& pc = reg.get<ProjectileComponent>(a);
 
-				const nvec2 impulseDir = PhysicsService().getVelocity(reg.get<BodyComponent>(a)).normalized();
+				nvec2 impulseDir{};
+				if (reg.has<ExplosionComponent>(a)) {
+					nvec2 posA = PhysicsService().getPosition(ctx, a);
+					nvec2 posB = PhysicsService().getPosition(otherBody);
+					impulseDir = (posB - posA).normalized();
+				} else {
+					impulseDir = PhysicsService().getVelocity(reg.get<BodyComponent>(a)).normalized();
+				}
 
 				// If target is not projectile, then don't apply impulse
 				if (auto [p1, p2] = reg.try_get<ProjectileComponent>(a, b); !p2) {
-					const nvec2 impulseApplied = p1->impulse * -impulseDir;
+					const nvec2 impulseApplied = p1->impulse * impulseDir;
 					PhysicsService().applyImpulse(otherBody, impulseApplied);
 					if (const auto ec = reg.try_get<EnemyComponent>(b)) {
 						ec->impulse += impulseApplied;

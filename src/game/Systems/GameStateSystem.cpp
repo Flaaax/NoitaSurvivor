@@ -17,12 +17,6 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 	state.player.collector = ctx.factory.createCollector(ctx, 3.f);
 	state.player.maxExp = 20;
 
-	if (ctx.reg.has<BodyComponent>(state.player.id)) {
-		ctx.reg.get<BodyComponent>(state.player.id);
-	}
-
-	PhysicsService().setPosition(ctx, state.player.id, {0, 0});
-
 	ctx.factory.createMaterial(ctx, {6.f, 6.f});
 
 	// test

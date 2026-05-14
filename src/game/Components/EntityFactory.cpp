@@ -50,7 +50,7 @@ myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
 	Logger::info("Player entity created: {}", e.string());
-	Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
+	// Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
 	return e;
 }
 
@@ -60,7 +60,7 @@ myecs::entity EntityFactory::createBullet(const GameCtx& ctx, const nvec2& posit
 	auto e = factory(ctx);
 	const auto& body = ctx.reg.get<BodyComponent>(e);
 	PhysicsService().setTransform(body, position, Util::to_rad(velocity));
-
+	PhysicsService().setVelocity(body, velocity);
 	return e;
 }
 
@@ -121,7 +121,9 @@ myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& po
 	reg.emplace<LifetimeComponent>(e).lifeTimer.start(lifetime);
 
 	reg.emplace<MultiContactComponent>(e);
-	ctx.reg.emplace<SpriteEffectComponent>(e).effectList += Util::make_unique(new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
+	ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
+		Util::make_unique(new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
+	ctx.reg.emplace<ExplosionComponent>(e);
 
 	return e;
 }

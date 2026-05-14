@@ -77,3 +77,7 @@ struct MultiContactComponent {
 	float default_duration = 0.1f;
 	N_NOINIT myecs::DenseMap<myecs::entity, Timer> banned;
 };
+
+//Marks an explosion
+struct ExplosionComponent {
+};

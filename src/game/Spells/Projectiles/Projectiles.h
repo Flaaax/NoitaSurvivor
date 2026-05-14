@@ -15,7 +15,7 @@ public:
 		ID = getID<BulletSpell>();
 	}
 
-	myecs::entity createProjectile(const GameCtx& ctx, const nvec2& worldPos, const nvec2& dir) override;
+	myecs::entity createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) override;
 };
 
 
@@ -25,5 +25,5 @@ public:
 		ID = getID<ExplosionSpell>();
 	}
 
-	myecs::entity createProjectile(const GameCtx& ctx, const nvec2& worldPos, const nvec2& dir) override;
+	myecs::entity createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) override;
 };

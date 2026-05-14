@@ -44,7 +44,7 @@ void LifeTimeSystem::destroyDeadEntities(GameCtx& ctx) {
 			reg.destroy<EnemyComponent>(e);
 			// add death animation
 			const float duration = Util::random.getFloat(0.22, 0.27);
-			const float k = Util::random.getFloat(0.03, 0.07);
+			const float k = Util::random.getFloat(0.05, 0.08);
 			const float darg = Util::to_rad(Util::random.getFloat(-30, 30));
 			const float arg = Util::random.getFloat(30.f, 120.f);
 			const float spin = Util::random.getBool() ? 1.f : -1.f;

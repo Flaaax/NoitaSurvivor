@@ -110,10 +110,10 @@ public:
 	std::unordered_set<myecs::entity> entities;
 	bool hasTarget = false;
 
-	CircleTrackingDetectorScript(const GameCtx& ctx, myecs::entity detector, myecs::entity proj) {
+	CircleTrackingDetectorScript(const GameCtx& ctx, myecs::entity self, myecs::entity proj) {
 		auto& reg = ctx.reg;
 		this->proj = proj;
-		const auto& self_body = reg.get<BodyComponent>(detector);
+		const auto& self_body = reg.get<BodyComponent>(self);
 		const auto& proj_body = reg.get<BodyComponent>(proj);
 		PhysicsService ps{};
 		ps.setPosition(self_body, ps.getPosition(proj_body));
@@ -167,6 +167,7 @@ public:
 
 	void modifyContactSettings(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) override {
 		settings.emitEvent = false;
+		settings.enablePhysics = false;
 
 		if (!target.is_null()) {
 			if (other == target) {

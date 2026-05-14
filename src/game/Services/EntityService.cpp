@@ -16,9 +16,12 @@ void EntityService::kill(const GameCtx& ctx, myecs::entity e) {
 	auto& [layer, health] = ctx.reg.get<EntityComponent>(e);
 	health = 0;
 
-	// todo Invoke death events...
+	// todo Invoke death events...here?
 }
 bool EntityService::isAlive(const GameCtx& ctx, myecs::entity e) {
 	auto& [layer, health] = ctx.reg.get<EntityComponent>(e);
 	return health != 0;
+}
+ContactLayer EntityService::getLayer(const GameCtx& ctx, myecs::entity e) {
+	return ctx.reg.get<EntityComponent>(e).layer;
 }

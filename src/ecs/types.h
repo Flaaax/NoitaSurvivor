@@ -65,7 +65,9 @@ struct entity {
 	}
 
 	std::string string() const {
-		return "id:" + (id == u32_max ? std::to_string(id) : "null") + "/v:" + (id == u32_max ? std::to_string(version) : "null");
+		if (is_null())
+			return "null";
+		return "id:" + std::to_string(id) + "/v:" + std::to_string(version);
 	}
 
 	constexpr bool is_null() const {

@@ -1,7 +1,7 @@
 #include "Projectiles.h"
 #include "src/game/Components/EntityFactory.h"
 
-myecs::entity BulletSpell::createProjectile(const GameCtx& ctx, const nvec2& worldPos, const nvec2& dir) {
+myecs::entity BulletSpell::createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) {
 	/*auto bullet = EntityManager::instance().getEntity<Bullet>();
 		if (!bullet) {
 			MYASSERT(true, "invalid entity");
@@ -14,6 +14,6 @@ myecs::entity BulletSpell::createProjectile(const GameCtx& ctx, const nvec2& wor
 	return ctx.factory.createBullet(ctx, worldPos, 30.f * dir);
 }
 
-myecs::entity ExplosionSpell::createProjectile(const GameCtx& ctx, const nvec2& worldPos, const nvec2& dir) {
+myecs::entity ExplosionSpell::createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) {
 	return ctx.factory.createExplosion(ctx, worldPos, 2.5, 30);
 }

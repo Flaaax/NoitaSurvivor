@@ -26,7 +26,7 @@
 		},
 		"BodyComponent": {
 			"type": "Dynamic",
-			"fixedRotation": true,
+			"fixedRotation": false,
 			"shape": "Box",
 			"size": [
 				0.4,
