@@ -11,7 +11,7 @@ private:
 	sf::RenderTexture accumTexture;
 	sf::RenderStates gameContentState;
 	sf::RenderStates guiContentState;
-	bool enableMotionBlur = false;
+	bool enableMotionBlur = true;
 
 public:
 	Renderer() {

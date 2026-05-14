@@ -94,8 +94,8 @@
 		},
 		"DirectionComponent": {},
 		"SmoothMovementComponent": {
-			"spd": 50,
-			"acc": 35,
+			"spd": 60,
+			"acc": 45,
 			"dec": 75
 		},
 		"BodyComponent": {

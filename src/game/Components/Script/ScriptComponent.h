@@ -16,10 +16,11 @@ public:
 	virtual void onDeath(const GameCtx& ctx, myecs::entity self) {
 	}
 
-	virtual void modifyContactSettings(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) {
+	//Should NOT handle game logic!
+	virtual void configureContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) {
 	}
 
-	virtual void onContact(const GameCtx& ctx, const ContactEvent& event) {
+	virtual void onContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, const ContactEvent& event) {
 	}
 };
 

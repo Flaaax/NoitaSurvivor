@@ -76,10 +76,10 @@ static void handleContactEvents(const GameCtx& ctx) {
 			continue;
 		}
 
-		for (const auto e : {a, b}) {
-			if (const auto sc = reg.try_get<ScriptComponent>(e); sc) {
+		for (const auto [a, b] : pairs) {
+			if (const auto sc = reg.try_get<ScriptComponent>(a); sc) {
 				for (const auto& script : sc->scripts) {
-					script->onContact(ctx, event);
+					script->onContact(ctx, a, b, event);
 				}
 			}
 		}

@@ -19,21 +19,21 @@ void AddExplosionSpell::apply(const GameCtx& ctx, myecs::entity p) {
 }
 
 void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
-	// auto& reg = ctx.reg;
-	// // todo entity must have entityComponent!
-	// const auto detector = reg.create();
-	// reg.emplace<BodyComponent>(detector);
-	// const BodyArg arg{
-	// 	.type = BodyArg::Static,
-	// 	.fixedRotation = true,
-	// 	.shape = BodyArg::Circle,
-	// 	.radius = radius,
-	// };
-	//
-	// PhysicsService().createBody(ctx, detector, arg);
-	// reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
-	//
-	// reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));
+	auto& reg = ctx.reg;
+	const auto detector = reg.create();
+	reg.emplace<BodyComponent>(detector);
+
+	const BodyArg arg{
+		.type = BodyArg::Static,
+		.fixedRotation = true,
+		.shape = BodyArg::Circle,
+		.radius = radius,
+	};
+
+	PhysicsService().createBody(ctx, detector, arg);
+	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
+
+	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));
 }
 
 void MultiShots::modifyShot(std::vector<ShotData>& data) {

@@ -76,7 +76,7 @@ bool PhysicalContactCallbacks::PresolveCallback(b2ShapeId shapeIdA, b2ShapeId sh
 	for (auto& [a, b] : pairs) {
 		if (const auto s = reg.try_get<ScriptComponent>(a)) {
 			for (const auto& sc : s->scripts) {
-				sc->modifyContactSettings(ctx, a, b, settings);
+				sc->configureContact(ctx, a, b, settings);
 			}
 		}
 	}

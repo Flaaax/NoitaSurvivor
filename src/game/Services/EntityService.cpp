@@ -22,6 +22,9 @@ bool EntityService::isAlive(const GameCtx& ctx, myecs::entity e) {
 	auto& [layer, health] = ctx.reg.get<EntityComponent>(e);
 	return health != 0;
 }
+bool EntityService::isValidAndAlive(const GameCtx& ctx, myecs::entity e) {
+	return ctx.reg.valid(e) && isAlive(ctx, e);
+}
 ContactLayer EntityService::getLayer(const GameCtx& ctx, myecs::entity e) {
 	return ctx.reg.get<EntityComponent>(e).layer;
 }
