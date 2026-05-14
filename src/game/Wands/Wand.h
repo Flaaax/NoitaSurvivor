@@ -65,13 +65,13 @@ public:
 		reloadTimer.update(deltaTime);
 	}
 
-	void use(GameCtx& ctx) {
+	void use(const GameCtx& ctx) {
 		if (!castTimer.isRunning() && !reloadTimer.isRunning()) {
 			cast(ctx);
 		}
 	}
 
-	void cast(GameCtx& ctx);
+	void cast(const GameCtx& ctx);
 
 	//Clear all the spells but keep the delays
 	void clear();

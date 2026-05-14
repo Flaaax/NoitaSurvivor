@@ -15,5 +15,5 @@ myecs::entity BulletSpell::createProjectile(const GameCtx& ctx, nvec2 worldPos, 
 }
 
 myecs::entity ExplosionSpell::createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) {
-	return ctx.factory.createExplosion(ctx, worldPos, 2.5, 30);
+	return ctx.factory.createExplosion(ctx, worldPos, 2.5, 15);
 }

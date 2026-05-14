@@ -38,9 +38,9 @@ void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
 
 void MultiShots::modifyShot(std::vector<ShotData>& data) {
 	std::vector<ShotData> ret;
-	for (auto& dat : data) {
-		float scatter = Util::to_rad(Util::min(static_cast<float>(shots * 15 + 15), 180.F));
-		float scatter_step = scatter / static_cast<float>(shots - 1);
+	for (const auto& dat : data) {
+		const float scatter = Util::to_rad(Util::min(static_cast<float>(shots * 15 + 15), 180.F));
+		const float scatter_step = scatter / static_cast<float>(shots - 1);
 		float cur_scatter = scatter / 2.f + dat.arg;
 		for (int i = 0; i < shots; i++) {
 			ret.push_back({.pos = dat.pos,

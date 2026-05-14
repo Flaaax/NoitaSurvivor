@@ -95,7 +95,7 @@ myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, const nvec2& pos) {
 	return e;
 }
 
-myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& pos, float radius, float impulse = 30) {
+myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& pos, float radius, float impulse) {
 	// Logger::error("Creating explosion entity at position ({}, {}) with radius {} and impulse {}", pos.x, pos.y, radius, impulse);
 	static auto& factory = factories["explosion"];
 	auto e = factory(ctx);

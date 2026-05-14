@@ -65,7 +65,7 @@ Wand::Wand() {
 	inventory.back() = std::make_shared<BulletSpell>();
 }
 
-void Wand::cast(GameCtx& ctx) {
+void Wand::cast(const GameCtx& ctx) {
 	int drawCount = this->castAmount;
 	SpellBlock block;
 	bool hasReturned = false;

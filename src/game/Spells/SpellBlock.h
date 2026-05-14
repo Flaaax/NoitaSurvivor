@@ -15,5 +15,5 @@ public:
 	std::vector<std::shared_ptr<ModifierSpell>> shotModifiers;
 
 	void add(const std::shared_ptr<Spell>& spell);
-	void cast(GameCtx& ctx, nvec2 pos, float arg);
+	void cast(const GameCtx& ctx, nvec2 pos, float arg);
 };

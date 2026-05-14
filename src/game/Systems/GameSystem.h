@@ -10,10 +10,11 @@ struct nvec2;
 
 class GameSystem {
 public:
-	static void update(float dt, GameCtx& ctx);
+	static void update(const GameCtx& ctx, float dt);
 
-	static void handleEvent(const sf::Event& event, GameCtx& ctx);
+	static void handleEvent(const GameCtx& ctx, const sf::Event& event);
 
+	static void updateAfterCleanup(const GameCtx& ctx);
 };
 
 #endif

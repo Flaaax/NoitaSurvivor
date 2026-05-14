@@ -101,16 +101,19 @@ void Game::update(float dt) {
 	ContactSystem().handleEvents(ctx);
 	ContactSystem().updateAfterHandleEvent(ctx, dt);
 	PhysicsSystem().updateAfterContactSystem(ctx, dt);
-	GameSystem().update(dt, ctx);
+	GameSystem().update(ctx, dt);
 
+	//todo Test
 	ctx.gameState.enemySpawnTimer.update(dt);
 
 	LifeTimeSystem().destroyDeadEntities(ctx);
+
+	GameSystem().updateAfterCleanup(ctx);
 
 	RenderSystem().update(dt, ctx);
 }
 
 void Game::handleEvent(const sf::Event& event) {
 	GameCtx ctx = getContext();
-	GameSystem().handleEvent(event, ctx);
+	GameSystem().handleEvent(ctx, event);
 }
