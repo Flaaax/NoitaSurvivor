@@ -11,8 +11,9 @@ struct GameCtx;
 
 //Should init after EnumMeta
 class ComponentMeta {
-public:
 	N_DECL_SINGLETON(ComponentMeta);
+
+public:
 	using ComponentInitializer = std::function<void(const GameCtx& ctx, myecs::entity e)>;
 	using ComponentInitializerFactory = ComponentInitializer(*)(const json& componentJson);
 

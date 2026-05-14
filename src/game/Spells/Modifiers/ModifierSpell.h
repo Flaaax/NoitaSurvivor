@@ -1,7 +1,6 @@
 #pragma once
 #include"../Spell.h"
 #include"../Projectiles/ProjectileSpell.h"
-#include"src/ecs/entity.h"
 #include"src/utils/Exception.h"
 
 
@@ -19,7 +18,7 @@ public:
 
 	SpellType getSpellType()const override { return Spell::MODIFIER_SPELL; }
 
-	virtual void apply(GameCtx& ctx, myecs::entity p) {}
+	virtual void apply(const GameCtx& ctx, myecs::entity p) {}
 
 	//Do anything to the original data
 	virtual void modifyShot(std::vector<ShotData>& data) {

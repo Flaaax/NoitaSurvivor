@@ -96,33 +96,33 @@ private:
 public:
 	template<typename... Args>
 	static void info(std::string_view fmt, Args&&... args) {
-		logger()->info(fmt::runtime(fmt), std::forward<Args>(args)...);
+		mt()->info(fmt::runtime(fmt), std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
 	static void warn(std::string_view fmt, Args&&... args) {
-		logger()->warn(fmt::runtime(fmt), std::forward<Args>(args)...);
+		mt()->warn(fmt::runtime(fmt), std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
 	static void error(std::string_view fmt, Args&&... args) {
-		st_logger()->error(fmt::runtime(fmt), std::forward<Args>(args)...);
+		st()->error(fmt::runtime(fmt), std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
 	static void trace(std::string_view fmt, Args&&... args) {
-		logger()->trace(fmt::runtime(fmt), std::forward<Args>(args)...);
+		mt()->trace(fmt::runtime(fmt), std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
 	static void critical(std::string_view fmt, Args&&... args) {
-		logger()->critical(fmt::runtime(fmt), std::forward<Args>(args)...);
+		mt()->critical(fmt::runtime(fmt), std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
 	static void debug(std::string_view fmt, Args&&... args) {
 		if constexpr (n_debug_log) {
-			st_logger()->debug(fmt::runtime(fmt), std::forward<Args>(args)...);
+			st()->debug(fmt::runtime(fmt), std::forward<Args>(args)...);
 		}
 	}
 
@@ -135,8 +135,8 @@ public:
 		throw std::runtime_error(err_string);
 	}
 
-	static logptr& logger() { return Logger::inst().m_logger; }
-	static logptr& st_logger() { return Logger::inst().m_st_logger; }
+	static logptr& mt() { return Logger::inst().m_logger; }
+	static logptr& st() { return Logger::inst().m_st_logger; }
 };
 
 

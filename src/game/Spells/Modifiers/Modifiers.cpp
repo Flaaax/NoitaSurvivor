@@ -2,6 +2,7 @@
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/Script/Scripts.h"
 #include "src/game/Game.h"
+#include "src/game/Services/ContactService.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Spells/Projectiles/Projectiles.h"
 #include "src/game/Spells/SpellBlock.h"
@@ -11,23 +12,22 @@
 #include <src/game/Components/Render/RenderComponent.h>
 #include <src/game/Spells/Shot.h>
 
-void AddExplosionSpell::apply(GameCtx& ctx, myecs::entity p) {
+void AddExplosionSpell::apply(const GameCtx& ctx, myecs::entity p) {
 	auto& reg = ctx.reg;
 	auto& pc = reg.get<ProjectileComponent>(p);
 	reg.get_or_emplace<SpellOnDeathComponent>(p).spellBlock.add(std::make_shared<ExplosionSpell>());
 }
 
-void HomingShot::apply(GameCtx& ctx, myecs::entity p) {
+void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
 	auto& reg = ctx.reg;
-	//todo entity must have entityComponent!
+	// todo entity must have entityComponent!
 	const auto detector = reg.create();
 	reg.emplace<BodyComponent>(detector);
 	const BodyArg arg{
 		.type = BodyArg::Static,
 		.fixedRotation = true,
 		.shape = BodyArg::Circle,
-		.radius = radius
-	};
+		.radius = radius};
 
 	PhysicsService().createBody(ctx, detector, arg);
 	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
@@ -42,16 +42,13 @@ void MultiShots::modifyShot(std::vector<ShotData>& data) {
 		float scatter_step = scatter / static_cast<float>(shots - 1);
 		float cur_scatter = scatter / 2.f + dat.arg;
 		for (int i = 0; i < shots; i++) {
-			ret.push_back({
-				.pos = dat.pos,
-				.arg = cur_scatter
-			});
+			ret.push_back({.pos = dat.pos,
+						   .arg = cur_scatter});
 			cur_scatter -= scatter_step;
 		}
 	}
 	ret.swap(data);
 }
-
 
 /*
 class TrackingDetectorScript :public Script {
@@ -110,7 +107,7 @@ public:
 };
 */
 
-void Parasite::apply(GameCtx& ctx, myecs::entity p) {
+void Parasite::apply(const GameCtx& ctx, myecs::entity p) {
 	class ParasiteScript : public Script {
 	private:
 		Parasite* this_spell;
@@ -119,26 +116,26 @@ void Parasite::apply(GameCtx& ctx, myecs::entity p) {
 		ParasiteScript(Parasite* this_spell) : this_spell(this_spell) {
 		}
 
-		void onDeath(GameCtx& ctx, myecs::entity self) override {
+		void onDeath(const GameCtx& ctx, myecs::entity self) override {
 			auto& reg = ctx.reg;
 			auto& p = reg.get<ProjectileComponent>(self);
-			auto& b = reg.get<BodyComponent>(self);
-			auto dir = b.getVelocity().normalized();
-			auto pos = b.getPosition();
+			const auto& b = reg.get<BodyComponent>(self);
+			PhysicsService ps{};
+			const auto dir = ps.getVelocity(b).normalized();
+			auto pos = ps.getPosition(b);
 			for (auto& mod : p.mods) {
 				if (mod.get() == this_spell) {
 					mod = {};
 					break;
 				}
 			}
-			auto left = nmath::ROT_LEFT * dir;
-			for (auto& new_dir : {left, -left}) {
-				auto proj1 = Shot::clone(ctx, self, pos, Util::to_rad(new_dir));
+			for (auto left = nmath::ROT_LEFT * dir; auto& new_dir : {left, -left}) {
+				const auto proj1 = Shot::clone(ctx, self, pos, Util::to_rad(new_dir));
 				auto& p1 = reg.get_or_emplace<MultiContactComponent>(proj1);
 				p1.banned.merge(reg.get<MultiContactComponent>(self).banned);
 			}
-			//todo damage modifier
-			//std::cout << "triggered!\n";
+			// todo damage modifier
+			// std::cout << "triggered!\n";
 		}
 	};
 	if (!script) {

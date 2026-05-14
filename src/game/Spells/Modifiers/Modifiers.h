@@ -11,7 +11,7 @@ public:
 		ID = getID<AddExplosionSpell>();
 	}
 
-	void apply(GameCtx& ctx, myecs::entity p) override;
+	void apply(const GameCtx& ctx, myecs::entity p) override;
 };
 
 
@@ -56,7 +56,7 @@ public:
 		ID = getID<HomingShot>();
 	}
 
-	void apply(GameCtx& ctx, myecs::entity p) override;
+	void apply(const GameCtx& ctx, myecs::entity p) override;
 };
 
 
@@ -73,5 +73,5 @@ public:
 		ID = getID<Parasite>();
 	}
 
-	void apply(GameCtx& ctx, myecs::entity p) override;
+	void apply(const GameCtx& ctx, myecs::entity p) override;
 };

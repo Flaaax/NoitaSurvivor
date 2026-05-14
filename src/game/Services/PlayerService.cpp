@@ -1,6 +1,6 @@
 #include "PlayerService.h"
 
-void PlayerService::gainMaterial(GameCtx& ctx, int value) {
+void PlayerService::gainMaterial(const GameCtx& ctx, int value) {
 	auto& state = ctx.gameState;
 	state.player.material += value;
 	state.player.exp += value;

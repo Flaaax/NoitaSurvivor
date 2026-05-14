@@ -1,48 +1,52 @@
-#include"GameStateSystem.h"
-#include"../GameContext.h"
-#include"src/game/Components/PhysicsComponents.h"
-#include"src/utils/Pointer.h"
-#include"src/game/Wands/Wand.h"
-#include"src/game/Components/EntityFactory.h"
-#include"src/utils/VectorHelper.h"
+#include "GameStateSystem.h"
+#include "../GameContext.h"
+#include "src/game/Components/EntityFactory.h"
+#include "src/game/Services/PhysicsService.h"
+#include "src/game/Wands/Wand.h"
+#include "src/utils/Pointer.h"
+#include "src/utils/VectorHelper.h"
 
-
-void GameStateSystem::initGameState(GameCtx& ctx) {
+void GameStateSystem::initGameState(const GameCtx& ctx) {
 	using namespace Util;
 
 	auto& state = ctx.gameState;
 
 	state.wands += make_unique(new Wand());
-	
-	state.player.id = ctx.factory.createPlayer();
-	state.player.collector = ctx.factory.createCollector(3.f);
+
+	state.player.id = ctx.factory.createPlayer(ctx);
+	state.player.collector = ctx.factory.createCollector(ctx, 3.f);
 	state.player.maxExp = 20;
 
-	ctx.factory.createMaterial({ 6.f,6.f });
+	if (ctx.reg.has<BodyComponent>(state.player.id)) {
+		ctx.reg.get<BodyComponent>(state.player.id);
+	}
 
-	//test
-	state.enemySpawnTimer.set(1.0f, [factory=&ctx.factory] {
-		factory->createEnemy({ 0,0 });
-	}).start(-1);
+	PhysicsService().setPosition(ctx, state.player.id, {0, 0});
 
-	nrect bound = state.bound;
+	ctx.factory.createMaterial(ctx, {6.f, 6.f});
+
+	// test
+	state.enemySpawnTimer.set(1.0f, [ctx] {
+							 ctx.factory.createEnemy(ctx, {0, 0});
+						 })
+		.start(-1);
+
+	const nrect bound = state.bound;
 
 	std::vector<std::pair<nvec2, nvec2>> borderEdges = {
-		{bound.topLeft(),		bound.topRight()	},
-		{bound.topRight(),		bound.bottomRight()	},
-		{bound.bottomRight(),	bound.bottomLeft()	},
-		{bound.bottomLeft(),	bound.topLeft()		}
-	};
-	for (auto& edge : borderEdges) {
-		state.borders += ctx.factory.createBorder(edge.first, edge.second);
+		{bound.topLeft(), bound.topRight()},
+		{bound.topRight(), bound.bottomRight()},
+		{bound.bottomRight(), bound.bottomLeft()},
+		{bound.bottomLeft(), bound.topLeft()}};
+	for (auto& [fst, snd] : borderEdges) {
+		state.borders += ctx.factory.createBorder(ctx, fst, snd);
 	}
 }
 
-void GameStateSystem::updateBeforePhysics(GameCtx& ctx) {
+void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 	auto& state = ctx.gameState;
 	state.mousePos = (NWindow::mouseRenderPos - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
-	myecs::entity player = ctx.gameState.player.id;
-	auto& playerBody = ctx.reg.get<BodyComponent>(player);
-	state.playerPos = playerBody.getPosition();
+	const myecs::entity player = ctx.gameState.player.id;
+	state.playerPos = PhysicsService().getPosition(ctx, player);
 	state.cameraPos = state.playerPos;
 }

@@ -3,17 +3,17 @@
 #define MYECS_TYPES_H
 
 #include <format>
-#include<limits>
+#include <limits>
 #include <stdexcept>
-#include<string_view>
-#include<string>
+#include <string>
+#include <string_view>
 
 #undef max
 #define MYECS_NODISCARD [[nodiscard]]
 
 namespace myecs {
 
-//1-debug, 0-release
+// 1-debug, 0-release
 #ifdef MYECS_DEBUG_LEVEL
 inline constexpr int myecs_debug_level = MYECS_DEBUG_LEVEL;
 #elif _DEBUG
@@ -32,7 +32,7 @@ inline constexpr u64 u64_max = ::std::numeric_limits<u64>::max();
 
 struct entity {
 	union {
-		u64 _entity = 0;
+		u64 _entity;
 
 		struct {
 			u32 id;
@@ -40,8 +40,7 @@ struct entity {
 		};
 	};
 
-	constexpr explicit entity() {
-	};
+	constexpr entity() : entity(u32_max, u32_max) {};
 
 	constexpr entity(const entity& other) : _entity(other._entity) {
 	}
@@ -61,14 +60,22 @@ struct entity {
 		return *this;
 	}
 
-	constexpr u64 get_id() const { return static_cast<u64>(id); }
+	constexpr u64 get_id() const {
+		return static_cast<u64>(id);
+	}
 
 	std::string string() const {
-		return "id:" + std::to_string(id) + "/v:" + std::to_string(version);
+		return "id:" + (id == u32_max ? std::to_string(id) : "null") + "/v:" + (id == u32_max ? std::to_string(version) : "null");
 	}
-};
 
-inline constexpr entity null_entity = entity(u32_max, u32_max);
+	constexpr bool is_null() const {
+		return id == u32_max && version == u32_max;
+	}
+
+	// constexpr explicit operator bool() const {
+	// 	return !is_null();
+	// }
+};
 
 namespace types {
 template <typename Type>
@@ -114,30 +121,28 @@ namespace detail {
 inline u64 _id_count = 0;
 }
 
-//Generates unique type id
+// Generates unique type id
 template <class T>
 [[nodiscard]] inline u64 type_id() noexcept {
 	static const u64 id = random_map(detail::_id_count++);
 	return id;
 }
 
-} //namespace types
+} // namespace types
 
 template <class... Args>
 [[noreturn]] void throw_format(std::string_view fmt, Args&&... args) {
-	throw std::runtime_error(
-		std::vformat(fmt, std::make_format_args(args...))
-		);
+	throw std::runtime_error(std::vformat(fmt, std::make_format_args(args...)));
 }
 
 template <class... Args>
-[[noreturn]] void throw_if(bool cond, std::string_view fmt, Args&&... args) {
+void throw_if(bool cond, std::string_view fmt, Args&&... args) {
 	if (cond) {
 		throw_format(fmt, std::forward<Args>(args)...);
 	}
 }
 
-} //namespace myecs
+} // namespace myecs
 
 namespace std {
 template <>
@@ -146,6 +151,6 @@ struct hash<myecs::entity> {
 		return hash<::myecs::u64>()(e._entity);
 	}
 };
-} //namespace std
+} // namespace std
 
 #endif

@@ -11,7 +11,9 @@ EnumMeta::EnumMeta() {
 		"PlayerProjectile",
 		"EnemyProjectile",
 		"Wall",
-		"Collectable"});
+		"Collectible",
+		"Collector",
+		"Detector"});
 
 	addEnum("ShapeType", { "Circle","Box" });
 	addEnum("BodyType", { "Static","Kinematic","Dynamic" });

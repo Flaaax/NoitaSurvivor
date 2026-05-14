@@ -1,10 +1,8 @@
 #pragma once
 #pragma warning(disable:5105)
 #include"Components/EntityFactory.h"
-#include"src/utils/Macro.h"
 #include"src/utils/Singleton.h"
 #include"Contact/ContactLayerRules.h"
-#include"src/utils/Timer.h"
 #include"src/ecs/entity.h"
 #include"GameContext.h"
 
@@ -20,7 +18,7 @@ class Game {
 	friend class GameScene;
 private:
 	GameState state;
-	//ContactState contactState;
+	ContactState contactState;
 	WorldCtx worldCtx;
 	n_unique<GameCtx> ctxInternal;
 

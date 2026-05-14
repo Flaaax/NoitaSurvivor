@@ -3,7 +3,7 @@
 #include <src/utils/Random.h>
 
 
-void Shot::modify(GameCtx& ctx, myecs::entity proj, n_shared<ProjectileSpell>& ps, std::vector<n_shared<ModifierSpell>>& projMods) {
+void Shot::modify(const GameCtx& ctx, myecs::entity proj, const n_shared<ProjectileSpell>& ps, const std::vector<n_shared<ModifierSpell>>& projMods) {
 	auto& p = ctx.reg.get<ProjectileComponent>(proj);
 	p.spell = ps;
 	p.mods = projMods;
@@ -14,7 +14,7 @@ void Shot::modify(GameCtx& ctx, myecs::entity proj, n_shared<ProjectileSpell>& p
 	}
 }
 
-myecs::entity Shot::fire(GameCtx& ctx, n_shared<ProjectileSpell>& ps, std::vector<n_shared<ModifierSpell>>& projMods, const nvec2& shotPos, float arg) {
+myecs::entity Shot::fire(const GameCtx& ctx, n_shared<ProjectileSpell>& ps, std::vector<n_shared<ModifierSpell>>& projMods, const nvec2& shotPos, float arg) {
 	float proj_scatter = ps->scatter;
 	for (const auto& mod : projMods) {
 		if (!mod)continue;
@@ -26,7 +26,7 @@ myecs::entity Shot::fire(GameCtx& ctx, n_shared<ProjectileSpell>& ps, std::vecto
 	return p;
 }
 
-myecs::entity Shot::clone(GameCtx& ctx, myecs::entity proj, nvec2 shotPos, float arg) {
+myecs::entity Shot::clone(const GameCtx& ctx, myecs::entity proj, nvec2 shotPos, float arg) {
 	auto& s = ctx.reg.get<ProjectileComponent>(proj);
 	return fire(ctx, s.spell, s.mods, shotPos, arg);
 }

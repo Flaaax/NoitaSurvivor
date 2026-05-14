@@ -3,5 +3,5 @@
 
 class PlayerService {
 public:
-	void gainMaterial(GameCtx& ctx, int value);
+	static void gainMaterial(const GameCtx& ctx, int value);
 };

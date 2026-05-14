@@ -1,19 +1,17 @@
 #pragma once
-#include"src/ecs/entity.h"
-#include"src/utils/Vec2.h"
-#include"src/utils/Container.h"
-#include<functional>
-#include<vector>
-
+#include "src/ecs/entity.h"
+#include "src/meta/ComponentMeta.h"
+#include "src/utils/Container.h"
+#include "src/utils/Vec2.h"
+#include <functional>
+#include <vector>
 
 class Game;
 struct GameCtx;
 
 class EntityFactory {
-private:
-	Game& game;
-	using ComponentInitializer = std::function<void(GameCtx& ctx, myecs::entity e)>;
-	using Factory = std::function<myecs::entity()>;
+	using ComponentInitializer = ComponentMeta::ComponentInitializer;
+	using Factory = std::function<myecs::entity(const GameCtx& ctx)>;
 	Util::StdMap<std::vector<ComponentInitializer>> entityInitializers;
 	Util::StdMap<Factory> factories;
 
@@ -22,13 +20,13 @@ private:
 	void initFactories();
 
 public:
-	explicit EntityFactory(Game& game);
+	EntityFactory();
 
-	myecs::entity createPlayer();
-	myecs::entity createBullet(const nvec2& position, const nvec2& velocity);
-	myecs::entity createBorder(const nvec2& start, const nvec2& end);
-	myecs::entity createEnemy(const nvec2& pos);
-	myecs::entity createExplosion(const nvec2& pos, float radius, float impulse);
-	myecs::entity createCollector(float radius);
-	myecs::entity createMaterial(const nvec2& pos, int value = 1);
+	myecs::entity createPlayer(const GameCtx& ctx);
+	myecs::entity createBullet(const GameCtx& ctx, const nvec2& position, const nvec2& velocity);
+	myecs::entity createBorder(const GameCtx& ctx, const nvec2& start, const nvec2& end);
+	myecs::entity createEnemy(const GameCtx& ctx, const nvec2& pos);
+	myecs::entity createExplosion(const GameCtx& ctx, const nvec2& pos, float radius, float impulse);
+	myecs::entity createCollector(const GameCtx& ctx, float radius);
+	myecs::entity createMaterial(const GameCtx& ctx, const nvec2& pos, int value = 1);
 };

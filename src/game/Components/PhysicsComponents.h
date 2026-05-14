@@ -5,9 +5,17 @@
 #include <box2d/box2d.h>
 
 struct N_NOINIT BodyArg {
-	enum ShapeType { Circle, Box };
+	enum ShapeType {
+		Circle,
+		Box,
+		Segment
+	};
 
-	enum BodyType { Static, Kinematic, Dynamic };
+	enum BodyType {
+		Static,
+		Kinematic,
+		Dynamic
+	};
 
 	BodyType type = Static;
 	bool fixedRotation = false;
@@ -16,12 +24,16 @@ struct N_NOINIT BodyArg {
 	union {
 		nvec2 size{};
 		float radius;
+		struct {
+			nvec2 point1;
+			nvec2 point2;
+		};
 	};
 
 	float density = 1.f;
 	float friction = 0.f;
 	float restitution = 0.f;
-	float isSensor = false;		//Enable if it is a projectile
+	float isSensor = false; // Enable if it is a projectile
 };
 
 struct N_NOINIT BodyComponent {

@@ -7,7 +7,7 @@ struct GameCtx;
 
 class RenderSystem {
 public:
-	void update(float dt, GameCtx& ctx);
-	void render(Renderer& renderer, GameCtx& ctx);
-	void debugRender(Renderer& renderer, GameCtx& ctx);
+	static void update(float dt, GameCtx& ctx);
+	static void render(Renderer& renderer, GameCtx& ctx);
+	static void debugRender(const GameCtx& ctx, Renderer& rdr);
 };

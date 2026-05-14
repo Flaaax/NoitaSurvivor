@@ -3,6 +3,6 @@
 
 class ContactSystem {
 public:
-	static void handleContactEvent(GameCtx& ctx);
+	static void handleEvents(const GameCtx& ctx);
 	static void updateAfterHandleEvent(const GameCtx& ctx,float dt);
 };

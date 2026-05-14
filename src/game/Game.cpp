@@ -1,9 +1,7 @@
 #include "Game.h"
 #include "Components/EntityComponents.h"
 #include "Components/PhysicsComponents.h"
-#include "Contact/ContactFilter.h"
-#include "Contact/ContactListener.h"
-#include "Contact/GameContactCallbacks.h"
+#include "Contact/PhysicalContactCallbacks.h"
 #include "Services/PhysicsService.h"
 #include "Systems/ContactSystem.h"
 #include "Systems/GameStateSystem.h"
@@ -12,8 +10,6 @@
 #include "Systems/PhysicsSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Wands/Wand.h"
-#include "src/gui/NWindow.h"
-#include "src/gui/Renderer.h"
 #include "src/utils/Logger.h"
 
 Game::Game() {
@@ -41,7 +37,14 @@ Game::~Game() {
 }
 
 GameCtx Game::getContext() {
-	return GameCtx{reg, worldCtx, *factory, contactRules, state};
+	return GameCtx{
+		.reg = reg,
+		.worldCtx = worldCtx,
+		.factory = *factory,
+		.contactRules = contactRules,
+		.gameState = state,
+		.contactState = contactState,
+	};
 }
 
 void Game::init() {
@@ -63,9 +66,9 @@ void Game::init() {
 	worldDef.gravity = {0, 0};
 	worldCtx.world = b2CreateWorld(&worldDef);
 
-	factory = make_unique(new EntityFactory(*this));
+	factory = make_unique(new EntityFactory());
 
-	auto ctx = getContext();
+	const auto ctx = getContext();
 
 	// contactListener = make_unique(new GameContactListener(ctx));
 	// contactFilter = make_unique(new GameContactFilter(ctx));
@@ -74,7 +77,8 @@ void Game::init() {
 
 	ctxInternal = make_unique(new GameCtx(getContext()));
 
-	b2World_SetCustomFilterCallback(ctx.worldCtx.world, GameContactCallbacks::FilterCallback, &ctxInternal);
+	b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::FilterCallback, ctxInternal.get());
+	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::PresolveCallback, ctxInternal.get());
 
 	GameStateSystem().initGameState(ctx);
 }
@@ -94,7 +98,7 @@ void Game::update(float dt) {
 
 	GameStateSystem().updateBeforePhysics(ctx);
 	PhysicsSystem().step(ctx, dt);
-	ContactSystem().handleContactEvent(ctx);
+	ContactSystem().handleEvents(ctx);
 	ContactSystem().updateAfterHandleEvent(ctx, dt);
 	PhysicsSystem().updateAfterContactSystem(ctx, dt);
 	GameSystem().update(dt, ctx);

@@ -34,6 +34,8 @@ public:
 
 	static void setRotation(const BodyComponent& bc, float rad);
 
+	static float getRotation(const BodyComponent& bc);
+
 	static nvec2 getVelocity(const BodyComponent& bc);
 
 	static nvec2 getVelocity(const GameCtx& ctx, myecs::entity e);
@@ -46,7 +48,13 @@ public:
 
 	static float getRadius(const GameCtx& ctx, myecs::entity e);
 
-	static void applyLinearImpulse(const BodyComponent& bc, nvec2 impulse);
+	static void applyImpulse(const BodyComponent& bc, nvec2 impulse);
+
+	static void applyImpulse(const GameCtx& ctx, myecs::entity e, nvec2 impulse);
+
+	static void applyForce(const BodyComponent& bc, nvec2 force);
 
 	static float getMass(const BodyComponent& bc);
+
+	static void setType(const BodyComponent& bc, BodyArg::BodyType type);
 };

@@ -1,6 +1,6 @@
 #pragma once
-#include"src/ecs/entity.h"
-#include"src/game/States/ContactState.h"
+#include "src/ecs/entity.h"
+#include "src/game/States/ContactState.h"
 
 class Script {
 public:
@@ -9,21 +9,20 @@ public:
 	virtual ~Script() {
 	}
 
-	virtual void onUpdate(GameCtx& ctx, myecs::entity self, float dt) {
+	virtual void onUpdate(const GameCtx& ctx, myecs::entity self, float dt) {
 	}
 
-	//triggered on removal of the entity
-	virtual void onDeath(GameCtx& ctx, myecs::entity self) {
+	// triggered on removal of the entity
+	virtual void onDeath(const GameCtx& ctx, myecs::entity self) {
 	}
 
-	virtual void modifyContactSettings(GameCtx& ctx, myecs::entity self, myecs::entity other,
-	                                ContactSettings& settings) {
+	virtual void modifyContactSettings(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) {
 	}
 
-	virtual void onContact(GameCtx& ctx, const ContactEvent& event) {
+	virtual void onContact(const GameCtx& ctx, const ContactEvent& event) {
 	}
 };
 
 struct ScriptComponent {
-	std::vector<n_shared<Script> > scripts;
+	std::vector<n_shared<Script>> scripts;
 };

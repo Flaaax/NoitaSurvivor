@@ -41,13 +41,13 @@ void PhysicsSystem::updateAfterContactSystem(const GameCtx& ctx, float dt) {
 			// speed fix, very important in low frames
 			ps.setVelocity(bc, {0, 0});
 		} else {
-			force += -cur_dir * sc.dec * bc.body->GetMass();
+			force += -cur_dir * sc.dec * PhysicsService().getMass(bc);
 		}
 		if (length < sc.spd) {
-			force += dc.dir * (sc.acc + sc.dec) * bc.body->GetMass();
+			force += dc.dir * (sc.acc + sc.dec) * PhysicsService().getMass(bc);
 		}
 
-		bc.body->ApplyForceToCenter(force, true);
+		PhysicsService().applyForce(bc, force);
 	}
 
 	// kill bodies out of the bound

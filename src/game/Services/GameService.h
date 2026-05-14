@@ -5,6 +5,6 @@ struct GameCtx;
 
 class GameService {
 public:
-	void dropMaterial(nvec2 pos, GameCtx& ctx);
+	static void dropMaterial(const GameCtx& ctx, nvec2 pos);
 
 };

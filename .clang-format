@@ -1,11 +1,11 @@
-Language:        Cpp
-BasedOnStyle:    LLVM
+Language: Cpp
+BasedOnStyle: LLVM
 BreakBeforeBraces: Attach
 UseTab: Always
 IndentWidth: 4
 TabWidth: 4
 AccessModifierOffset: -4
-ColumnLimit:     150
+ColumnLimit: 0
 PointerAlignment: Left
 DerivePointerAlignment: false
 ReferenceAlignment: Left

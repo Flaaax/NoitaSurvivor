@@ -1,19 +1,19 @@
-#include"../Components/Render/RenderComponent.h"
-#include"RenderSystem.h"
-#include"src/gui/Renderer.h"
-#include"src/gui/shapes/NLineShape.h"
-#include<src/game/Components/PhysicsComponents.h>
-#include"src/global/DataManager.h"
-#include"src/utils/Assert.h"
-#include"src/game/Wands/Wand.h"
+#include "RenderSystem.h"
+#include "../Components/Render/RenderComponent.h"
+#include "src/game/Services/PhysicsService.h"
+#include "src/game/Wands/Wand.h"
+#include "src/global/DataManager.h"
+#include "src/gui/Renderer.h"
+#include "src/gui/shapes/NLineShape.h"
+#include <src/game/Components/PhysicsComponents.h>
 
 
-void RenderSystem::debugRender(Renderer& rdr, GameCtx& ctx) {
+void RenderSystem::debugRender(const GameCtx& ctx, Renderer& rdr) {
 	NLineShape shape;
 	for (const auto& e : ctx.gameState.borders) {
-		if (auto b = ctx.reg.try_get<BodyComponent>(e)) {
-			auto edgeShape = static_cast<b2EdgeShape*>(b->body->GetFixtureList()->GetShape());
-			shape.set(edgeShape->m_vertex1, edgeShape->m_vertex2, { 200,0,0 });
+		if (const auto b = ctx.reg.try_get<BodyComponent>(e)) {
+			auto [point1, point2] = b2Shape_GetSegment(b->shape);
+			shape.set(point1, point2, {200, 0, 0});
 			rdr.drawGame(shape);
 		}
 	}
@@ -21,7 +21,7 @@ void RenderSystem::debugRender(Renderer& rdr, GameCtx& ctx) {
 
 void RenderSystem::update(float dt, GameCtx& ctx) {
 	for (const auto& [e, tc] : ctx.reg.view<SpriteEffectComponent>()) {
-		for (auto& effect : tc.effectList) {
+		for (const auto& effect : tc.effectList) {
 			effect->update(dt);
 		}
 	}
@@ -40,24 +40,24 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 
 	if (ctx.gameState.debugMode) {
 		sf::RectangleShape testShape;
-		testShape.setSize({ 4,4 });
-		testShape.setFillColor({ 100,100,100 });
+		testShape.setSize({4, 4});
+		testShape.setFillColor({100, 100, 100});
 		testShape.setPosition(0, 0);
 		rdr.drawGame(testShape);
 	}
 
-	//Logger::info("begin render");
+	// Logger::info("begin render");
 	for (const auto& [e, c, bc] : ctx.reg.view<SpriteComponent, BodyComponent>()) {
-		auto& c = ctx.reg.get<SpriteComponent>(e);
-		//restore to default state
+		// restore to default state
 		sf::Sprite old = *c.sprite;
+		PhysicsService ps{};
 
 		if (c.info->followPosition)
-			c.sprite->setPosition(bc.getPosition() + c.info->positionOffset);
+			c.sprite->setPosition(ps.getPosition(bc) + c.info->positionOffset);
 		if (c.info->followAngle)
-			c.sprite->setRotation(Util::to_deg(bc.body->GetAngle()) + c.info->rotationOffset);
+			c.sprite->setRotation(Util::to_deg(ps.getRotation(bc)) + c.info->rotationOffset);
 		if (c.info->dynamicScale) {
-			float r = bc.getRadius();
+			float r = ps.getRadius(bc);
 			c.sprite->scale(r, r);
 		}
 
@@ -68,8 +68,8 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 
 				if ((*it)->isDone()) {
 					it = ts.erase(it);
-				}
-				else it++;
+				} else
+					++it;
 			}
 		}
 
@@ -83,6 +83,6 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 	}
 
 	if (ctx.gameState.debugMode) {
-		debugRender(rdr, ctx);
+		debugRender(ctx, rdr);
 	}
 }

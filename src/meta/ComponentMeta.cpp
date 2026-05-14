@@ -7,7 +7,8 @@
 #include "src/game/Services/PhysicsService.h"
 #include <src/global/SpriteManager.h>
 
-template <class T> void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {
+template <class T>
+void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {
 	auto s = json_parse<std::string>(j, key);
 	if (!s)
 		return;
@@ -38,6 +39,8 @@ void ComponentMeta::initCustomComponentInitializers() {
 		return [=](const GameCtx& ctx, myecs::entity e) {
 			ctx.reg.get_or_emplace<BodyComponent>(e);
 			PhysicsService().createBody(ctx, e, arg);
+			Logger::info("Created body for entity {}", e.string());
+			Logger::info("Entity {} has BodyComponent: {}", e.string(), ctx.reg.has<BodyComponent>(e));
 		};
 	};
 

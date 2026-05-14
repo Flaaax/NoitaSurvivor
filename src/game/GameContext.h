@@ -20,5 +20,5 @@ struct GameCtx {
 	EntityFactory& factory;
 	const ContactLayerRules& contactRules;
 	GameState& gameState;
-	//ContactState& contactState;
+	ContactState& contactState;
 };

@@ -1,24 +1,30 @@
 ﻿#pragma once
 #include "src/game/Components/EntityComponents.h"
+#include "src/game/States/ContactState.h"
 #include "src/utils/Pointer.h"
 
 #include <box2d/box2d.h>
 
 class ContactService {
 public:
-	static n_pair<myecs::entity> getEntitiesFromShapes(b2ShapeId sa, b2ShapeId sb) {
+	// The return pair is sorted
+	static EntityPair getEntityPairFromShapes(b2ShapeId sa, b2ShapeId sb) {
 		using namespace myecs;
 		const auto a = entity(reinterpret_cast<u64>(b2Shape_GetUserData(sa)));
 		const auto b = entity(reinterpret_cast<u64>(b2Shape_GetUserData(sb)));
 		return {a, b};
 	}
 
-	static void addMultiContact(MultiContactComponent& mc, myecs::entity target, float duration) {
-		mc.banned[target].set(duration).start();
+	static void addMultiContact(MultiContactComponent* mc, myecs::entity target, float duration) {
+		if (!mc)
+			return;
+		mc->banned[target].set(duration).start();
 	}
 
-	static void addMultiContact(MultiContactComponent& mc, myecs::entity target) {
-		addMultiContact(mc, target, mc.default_duration);
+	static void addMultiContact(MultiContactComponent* mc, myecs::entity target) {
+		if (!mc)
+			return;
+		addMultiContact(mc, target, mc->default_duration);
 	}
 
 	static void updateMultiContacts(MultiContactComponent& mc, float dt) {
@@ -32,7 +38,7 @@ public:
 		}
 	}
 
-	static bool isBanned(const MultiContactComponent& mc, myecs::entity e) {
-		return mc.banned.contains(e);
+	static bool isBanned(const MultiContactComponent* mc, myecs::entity e) {
+		return mc && mc->banned.contains(e);
 	}
 };

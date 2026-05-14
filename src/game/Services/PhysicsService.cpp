@@ -32,7 +32,7 @@ void PhysicsService::destroyBody(const GameCtx& ctx, const BodyComponent& bc, my
 void PhysicsService::createBody(const GameCtx& ctx, myecs::entity e, const BodyArg& arg) {
 	const auto bc = ctx.reg.try_get<BodyComponent>(e);
 	if (!bc) {
-		Logger::warn("Entity {} does not have BodyComponent, failed to create body!", e.string());
+		Logger::warn("A BodyComponent is required to create a physical body!");
 		return;
 	}
 	if (b2Body_IsValid(bc->body)) {
@@ -56,18 +56,24 @@ void PhysicsService::createBody(const GameCtx& ctx, myecs::entity e, const BodyA
 	shapeDef.density = arg.density;
 	shapeDef.material.friction = arg.friction;
 	shapeDef.material.restitution = arg.restitution;
+	shapeDef.isSensor = arg.isSensor;
+	shapeDef.enablePreSolveEvents = true;
 
 	if (arg.shape == BodyArg::Box) {
 		const b2Polygon shape = b2MakeBox(arg.size.x / 2.f, arg.size.y / 2.f);
-		b2CreatePolygonShape(bc->body, &shapeDef, &shape);
+		bc->shape = b2CreatePolygonShape(bc->body, &shapeDef, &shape);
 	} else if (arg.shape == BodyArg::Circle) {
 		b2Circle shape{};
 		shape.radius = arg.radius;
-		b2CreateCircleShape(bc->body, &shapeDef, &shape);
+		bc->shape = b2CreateCircleShape(bc->body, &shapeDef, &shape);
+	} else if (arg.shape == BodyArg::Segment) {
+		const b2Segment shape = {arg.point1, arg.point2};
+		bc->shape = b2CreateSegmentShape(bc->body, &shapeDef, &shape);
 	} else {
 		Logger::warn("Shape type not supported: {}", static_cast<int>(arg.shape));
 	}
 }
+
 bool PhysicsService::isValid(const BodyComponent& bc) {
 	return b2Body_IsValid(bc.body) && b2Shape_IsValid(bc.shape);
 }
@@ -92,6 +98,12 @@ void PhysicsService::setTransform(const BodyComponent& bc, nvec2 position, float
 void PhysicsService::setRotation(const BodyComponent& bc, float rad) {
 	assertValid(bc);
 	b2Body_SetTransform(bc.body, b2Body_GetPosition(bc.body), b2MakeRot(rad));
+}
+
+float PhysicsService::getRotation(const BodyComponent& bc) {
+	assertValid(bc);
+	const auto rot = b2Body_GetRotation(bc.body);
+	return b2Rot_GetAngle(rot);
 }
 
 void PhysicsService::setPosition(const BodyComponent& bc, nvec2 position) {
@@ -140,11 +152,28 @@ float PhysicsService::getRadius(const BodyComponent& bc) {
 float PhysicsService::getRadius(const GameCtx& ctx, myecs::entity e) {
 	return getRadius(getBody(ctx, e));
 }
-void PhysicsService::applyLinearImpulse(const BodyComponent& bc, nvec2 impulse) {
+
+void PhysicsService::applyImpulse(const BodyComponent& bc, nvec2 impulse) {
 	assertValid(bc);
 	b2Body_ApplyLinearImpulseToCenter(bc.body, impulse, true);
 }
+
+void PhysicsService::applyImpulse(const GameCtx& ctx, myecs::entity e, nvec2 impulse) {
+	return applyImpulse(getBody(ctx, e), impulse);
+}
+
+void PhysicsService::applyForce(const BodyComponent& bc, nvec2 force) {
+	assertValid(bc);
+	b2Body_ApplyForceToCenter(bc.body, force, true);
+}
+
 float PhysicsService::getMass(const BodyComponent& bc) {
 	assertValid(bc);
 	return b2Body_GetMass(bc.body);
+}
+
+void PhysicsService::setType(const BodyComponent& bc, BodyArg::BodyType type) {
+	assertValid(bc);
+	const auto b2Type = static_cast<b2BodyType>(type);
+	b2Body_SetType(bc.body, b2Type);
 }
