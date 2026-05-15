@@ -53,7 +53,7 @@ void LifeTimeSystem::destroyDeadEntities(const GameCtx& ctx) {
 			sc.effectList += Util::make_unique(new Transition(
 				EffectState{},
 				EffectState{
-					.arg = spin * arg,
+					.rotation = sf::degrees(spin * arg),
 					.offset = (impulse * k).rotated(darg),
 					.scale = {0.75, 0.75},
 					.opacity = 0.f},

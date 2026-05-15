@@ -1,11 +1,12 @@
-#include"SpriteManager.h"
-#include"DataManager.h"
-#include"AssetManager.h"
-#include<SFML/Graphics.hpp>
+#include "SpriteManager.h"
+#include "AssetManager.h"
+#include "DataManager.h"
+#include <SFML/Graphics.hpp>
 
 class SpriteMgrImpl {
 	N_DECL_SINGLETON(SpriteMgrImpl);
 	void initSprites();
+
 public:
 	Util::StdMap<sf::Sprite> sprites;
 	SpriteMgrImpl() {
@@ -19,19 +20,24 @@ static SpriteMgrImpl& inst() {
 
 void SpriteMgrImpl::initSprites() {
 	for (auto& [name, data] : DataMgr::getSpriteData()) {
-		auto& sprite = sprites[name];
-		sprite.setTexture(AssetMgr::getSpriteTexture(data.texture));
+		auto [it, state] = sprites.emplace(std::piecewise_construct,
+										   std::forward_as_tuple(name),
+										   std::forward_as_tuple(AssetMgr::getSpriteTexture(data.texture)));
+		if (!state) {
+			Logger::warn("Sprite name {} is dulplicated! Skipped loading.", name);
+			continue;
+		}
+		auto& sprite = it->second;
 		if (data.centerAligned) {
-			sprite.setOrigin(sprite.getLocalBounds().getSize() / 2.f);
+			sprite.setOrigin(sprite.getLocalBounds().size / 2.f);
 		}
 		sprite.setScale(data.scale);
 	}
 }
 
-sf::Sprite* SpriteMgr::getSprite(std::string_view name) {
-	if(name.empty()) {Logger::error_throw("Sprite name is empty");}
-	if (auto it = inst().sprites.find(name); it != inst().sprites.end()) {
-		return &it->second;
+const sf::Sprite& SpriteMgr::getSprite(std::string_view name) {
+	if (const auto sprite = inst().sprites.try_find(name)) {
+		return *sprite;
 	}
-	Logger::error_throw("No such sprite: {}", name);
+	Logger::error_and_throw("Cannot find sprite: {}", name);
 }

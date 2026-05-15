@@ -1,6 +1,6 @@
 #pragma once
 
-#include"./NObject.h"
+#include "../NObject.h"
 #include <SFML/Graphics/Text.hpp>
 
 
@@ -12,7 +12,7 @@ private:
 	mutable sf::Text text;
 
 public:
-	MaterialBar(nvec2 rightTop, float height);
+	MaterialBar(nvec2 topRight, float height);
 
 	void setData(int material) {
 		this->material = material;

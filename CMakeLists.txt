@@ -69,6 +69,7 @@ target_compile_options(NoitaSurvivor PRIVATE
         /W3
         /wd5260
         /wd5105
+        /utf-8
         $<$<CONFIG:Release>:/Zi>
 )
 

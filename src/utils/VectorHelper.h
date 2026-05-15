@@ -2,11 +2,6 @@
 #include<type_traits>
 #include<vector>
 
-template <class T, class Alloc, class U>
-T& operator+=(std::vector<T, Alloc>& vec, U&& elem) {
-	return vec.emplace_back(std::forward<U>(elem));
-}
-
 namespace Util {
 	//std::vector
 

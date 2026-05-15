@@ -8,11 +8,11 @@
 #ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
 #define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
 #endif
-#include"src/utils/Vec2.h"
-#include"src/utils/Container.h"
-#include<SFML/Graphics.hpp>
-#include"Renderer.h"
-#include"src/utils/TypeName.h"
+#include "../utils/Container/Container.h"
+#include "Renderer.h"
+#include "src/utils/TypeName.h"
+#include "src/utils/Vec2.h"
+#include <SFML/Graphics.hpp>
 
 class Renderer;
 class NWidget;

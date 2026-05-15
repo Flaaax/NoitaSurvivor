@@ -42,41 +42,43 @@ void GameSystem::update(const GameCtx& ctx, float dt) {
 void GameSystem::handleEvent(const GameCtx& ctx, const sf::Event& event) {
 	auto& p = ctx.gameState.player;
 	bool updateDir = false;
-	if (event.type == sf::Event::MouseButtonPressed) {
-		if (event.key.code == sf::Mouse::Left)
+	if (const auto e1 = event.getIf<sf::Event::MouseButtonPressed>()) {
+		if (e1->button == sf::Mouse::Button::Left) {
 			p.isShooting = true;
-	} else if (event.type == sf::Event::MouseButtonReleased) {
-		if (event.key.code == sf::Mouse::Left)
-			p.isShooting = false;
-	} else if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::W) {
+		}
+	} else if (const auto e2 = event.getIf<sf::Event::MouseButtonReleased>()) {
+		if (e2->button == sf::Mouse::Button::Left) {
+		}
+		p.isShooting = false;
+	} else if (const auto e3 = event.getIf<sf::Event::KeyPressed>()) {
+		if (e3->code == sf::Keyboard::Key::W) {
 			p.isUp = true;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::S) {
+		} else if (e3->code == sf::Keyboard::Key::S) {
 			p.isDown = true;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::A) {
+		} else if (e3->code == sf::Keyboard::Key::A) {
 			p.isLeft = true;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::D) {
+		} else if (e3->code == sf::Keyboard::Key::D) {
 			p.isRight = true;
 			updateDir = true;
 		}
-	} else if (event.type == sf::Event::KeyReleased) {
-		if (event.key.code == sf::Keyboard::W) {
+	} else if (const auto e4 = event.getIf<sf::Event::KeyReleased>()) {
+		if (e4->code == sf::Keyboard::Key::W) {
 			p.isUp = false;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::S) {
+		} else if (e4->code == sf::Keyboard::Key::S) {
 			p.isDown = false;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::A) {
+		} else if (e4->code == sf::Keyboard::Key::A) {
 			p.isLeft = false;
 			updateDir = true;
-		} else if (event.key.code == sf::Keyboard::D) {
+		} else if (e4->code == sf::Keyboard::Key::D) {
 			p.isRight = false;
 			updateDir = true;
 		}
-	} else if (event.type == sf::Event::LostFocus) {
+	} else if (event.is<sf::Event::FocusLost>()) {
 		p.isUp = p.isLeft = p.isDown = p.isRight = false;
 		updateDir = true;
 	}

@@ -1,7 +1,7 @@
 #pragma once
-#include"src/utils/Container.h"
-#include"src/utils/Vec2.h"
-
+#include "src/utils/Container/Vector.h"
+#include "src/utils/Pointer.h"
+#include "src/utils/Vec2.h"
 
 struct SpriteData;
 
@@ -18,8 +18,8 @@ struct SpriteInfo {
 };
 
 struct SpriteComponent {
-	const SpriteInfo* info;
-	sf::Sprite* sprite;
+	const SpriteInfo& info;
+	const sf::Sprite& sprite;
 };
 
 class BaseEffect {

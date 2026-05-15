@@ -12,6 +12,7 @@
 
 - Prepare the next major refactor: upgrade SFML from 2.x to 3.x and upgrade ImGui-SFML in the same migration. 
 - Keep these changes coordinated because window/event/rendering APIs and ImGui integration are coupled.
+- 在此之后：重构UI系统与系统事件分发机制
 
 
 ## 备注
@@ -21,4 +22,7 @@
 # AGENT行为准则
 - 发现用户指定任务之外的bug，接口不一致，代码语法错误等时，如果用户没指定你擅自修改，则仅报告。
 - git comment 应使用中英双语，英语标题，代码注释仅使用英语。
-- 严禁重构。除非，用户的要求中说“为我直接执行重构”。如果用户仅提到“重构”也不算。
+
+## 非常重要
+- 当你决定执行代码重构时，需谨慎，因为用户的发言比较随意，他可能不是真的想让你直接重构，而是让你评估是否执行重构。
+- 用户偏好先审核再代码重构。

@@ -1,11 +1,10 @@
 #pragma once
-#include"src/game/Spells/Spell.h"
-#include"src/utils/Container.h"
-#include"src/gui/Renderer.h"
-#include<deque>
-#include"src/utils/Timer.h"
-#include"src/game/GameContext.h"
-
+#include "../../utils/Container/Container.h"
+#include "src/game/GameContext.h"
+#include "src/game/Spells/Spell.h"
+#include "src/gui/Renderer.h"
+#include "src/utils/Timer.h"
+#include <deque>
 
 class Wand {
 protected:
@@ -38,8 +37,8 @@ public:
 	float arg = 0.f;
 	float length = 0.f;
 
-	bvec2 worldPos = {};
-	bvec2 castPos = {};
+	nvec2 worldPos = {};
+	nvec2 castPos = {};
 
 	Util::Vector<n_shared<Spell>> inventory;		//Not modified when shooting
 	std::deque<n_shared<Spell>> drawPile;
@@ -50,10 +49,10 @@ public:
 
 	void setGeometry(const bvec2& pos, float arg) {
 		worldPos = pos;
-		sprite.setPosition(worldPos.x, worldPos.y);
-		sprite.setRotation(Util::to_deg(arg));
+		sprite.setPosition(worldPos);
+		sprite.setRotation(sf::radians(arg));
 		this->arg = arg;
-		castPos = worldPos + length * Util::from_rad<bvec2>(arg);
+		castPos = worldPos + length * Util::from_rad(arg);
 	}
 
 	void render(Renderer& renderer) const {

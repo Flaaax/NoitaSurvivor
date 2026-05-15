@@ -1,8 +1,8 @@
 #pragma once
 
-#include"./NObject.h"
-#include"./shapes/NRoundRectShape.h"
-#include<SFML/Graphics.hpp>
+#include "../NObject.h"
+#include "../shapes/NRoundRectShape.h"
+#include <SFML/Graphics.hpp>
 
 
 //Used for both health bar and exp bar
@@ -33,7 +33,7 @@ public:
 	/// <param name="geometry: ">Determines the initial length and the right top position</param>
 	/// <param name="initialMaxHealth: ">The barLength of the health bar is linear to max health</param>
 	/// <param name="mode: ">Determines its style</param>
-	HealthBar(const nvec2& rightTop, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
+	HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
 	void setHealth(int health) {
 		m_health = health;
 		updateText();

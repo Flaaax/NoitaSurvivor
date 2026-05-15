@@ -14,8 +14,8 @@ class NWindow {
 private:
 	n_unique<sf::RenderWindow> window;
 
-	void updateWindowSize();
-	void updateMousePos();
+	void updateWindowSize() const;
+	void updateMousePos() const;
 
 public:
 	N_STATIC_VAR nvec2 mouseRealPos = {};
@@ -27,7 +27,7 @@ public:
 	NWindow();
 	~NWindow();
 	//should only run once
-	int loop();
+	int loop() const;
 
 	static sf::RenderWindow& getWindow() { return *inst().window; }
 };

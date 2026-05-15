@@ -1,36 +1,35 @@
 
-#include"src/global/AssetManager.h"
-#include"NWindow.h"
-#include"NButton.h"
-#include"./Renderer.h"
+#include "NButton.h"
+#include "./Renderer.h"
+#include "NWindow.h"
+#include "src/global/AssetManager.h"
 
-
+NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
+	m_geometry = geometry;
+	text.setFillColor({0, 0, 0});
+}
 bool NButton::handleEvent(const sf::Event& event) {
-	if (event.type == sf::Event::MouseMoved) {
+	if (event.is<sf::Event::MouseMoved>()) {
 		if (m_geometry.contains(NWindow::mouseRenderPos)) {
 			if (state != Pressed) {
 				state = Hovered;
 			}
-		}
-		else {
+		} else {
 			state = Normal;
 		}
-	}
-	else if (event.type == sf::Event::MouseButtonPressed) {
+	} else if (event.is<sf::Event::MouseButtonPressed>()) {
 		if (m_geometry.contains(NWindow::mouseRenderPos)) {
 			state = Pressed;
 			return true;
 		}
-	}
-	else if (event.type == sf::Event::MouseButtonReleased) {
+	} else if (event.is<sf::Event::MouseButtonReleased>()) {
 		if (m_geometry.contains(NWindow::mouseRenderPos)) {
 			state = Hovered;
 			if (onClick) {
 				onClick();
 			}
 			return true;
-		}
-		else {
+		} else {
 			state = Normal;
 		}
 	}
@@ -44,15 +43,13 @@ void NButton::draw(Renderer& renderer) const {
 		shape.setSize(getSize());
 		if (state == Normal) {
 			shape.setFillColor(sf::Color(190, 190, 190));
-		}
-		else if (state == Hovered) {
+		} else if (state == Hovered) {
 			shape.setFillColor(sf::Color(210, 210, 210));
-		}
-		else {
+		} else {
 			shape.setFillColor(sf::Color(195, 195, 195));
 		}
 		shape.setOutlineThickness(3.f);
-		shape.setOutlineColor({ 150,150,150 });
+		shape.setOutlineColor({150, 150, 150});
 		renderer.drawGui(shape);
 	}
 
@@ -64,11 +61,10 @@ void NButton::draw(Renderer& renderer) const {
 	}
 }
 
-sf::Text& NButton::getText() {
+sf::Text& NButton::getText() const {
 	return text;
 }
 
-void NButton::setText(const NString& text, unsigned int characterSize) {
+void NButton::setText(const NString& text, unsigned int characterSize) const {
 	this->text.setString(text);
-	this->text.setFont(AssetMgr::getDefaultFont());
 }

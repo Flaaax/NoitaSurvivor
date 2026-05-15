@@ -3,12 +3,12 @@
 #include"src/gui/NWindow.h"
 
 MenuScene::MenuScene() {
-	auto windowSize = NWindow::scale.defaultWindowSize;
-	auto startButton = new NButton(nrect(windowSize.x / 2, windowSize.y / 2, 200, 100, nrect::CenterRect));
+	constexpr auto windowSize = NWindow::scale.defaultWindowSizeF;
+	const auto startButton = new NButton(nrect(windowSize.x / 2, windowSize.y / 2, 200, 100, nrect::CenterRect));
 	startButton->setOnClick([] { 
 		NWindow::sceneManager.setCurrentScene("GameScene");
 	});
-	startButton->setText("¿ªÊ¼ÓÎÏ·");
+	startButton->setText("å¼€å§‹æ¸¸æˆ");
 	setWidget(new NWidget());
 	m_widget->add(startButton);
 

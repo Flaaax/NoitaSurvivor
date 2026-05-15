@@ -1,19 +1,18 @@
 #pragma once
-#include<SFML/Graphics.hpp>
-#include"src/utils/Vec2.h"
-
+#include "src/utils/Vec2.h"
+#include <SFML/Graphics.hpp>
 
 class NLineShape : public sf::Drawable {
 public:
 	explicit NLineShape() {
-		vertices.setPrimitiveType(sf::Lines);
+		vertices.setPrimitiveType(sf::PrimitiveType::Lines);
 		vertices.resize(2ull);
 	}
 
 	NLineShape(const nvec2& start, const nvec2& end, const sf::Color& color) {
-		vertices.setPrimitiveType(sf::Lines);
-		vertices.append({ start.as_fvec2, color });
-		vertices.append({ end.as_fvec2, color });
+		vertices.setPrimitiveType(sf::PrimitiveType::Lines);
+		vertices.append({start, color});
+		vertices.append({end, color});
 		/*vertices.resize(2);
 		vertices[0].position = start;
 		vertices[0].color = color;
@@ -22,16 +21,15 @@ public:
 	}
 
 	void set(const nvec2& start, const nvec2& end, const sf::Color& color) {
-		//vertices.setPrimitiveType(sf::Lines);
-		vertices[0] = { start.as_fvec2, color };
-		vertices[1] = { end.as_fvec2, color };
+		// vertices.setPrimitiveType(sf::Lines);
+		vertices[0] = {start, color};
+		vertices[1] = {end, color};
 	}
 
 	sf::VertexArray vertices;
 
-private:
-	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+protected:
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
 		target.draw(vertices, states);
 	}
 };
-

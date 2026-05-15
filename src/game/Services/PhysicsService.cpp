@@ -9,13 +9,13 @@ BodyComponent& PhysicsService::getBody(const GameCtx& ctx, myecs::entity e) {
 
 void PhysicsService::assertValid(const BodyComponent& bc) {
 	if (!b2Body_IsValid(bc.body) || !b2Shape_IsValid(bc.shape)) {
-		Logger::error_throw("Body or shape is invalid");
+		Logger::error_and_throw("Body or shape is invalid");
 	}
 }
 
 void PhysicsService::assertWorldMutable(const GameCtx& ctx) {
 	if (ctx.worldCtx.isStepping) {
-		Logger::error_throw("World is currently not mutable");
+		Logger::error_and_throw("World is currently not mutable");
 	}
 }
 
@@ -143,7 +143,7 @@ float PhysicsService::getRadius(const BodyComponent& bc) {
 		return polygon.radius;
 
 	default:
-		Logger::error_throw("Shape type {} not supported", static_cast<int>(type));
+		Logger::error_and_throw("Shape type {} not supported", static_cast<int>(type));
 	}
 
 	return 0.f;

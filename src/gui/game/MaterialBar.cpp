@@ -1,13 +1,12 @@
-#include"MaterialBar.h"
-#include"src/global/AssetManager.h"
+#include "MaterialBar.h"
+#include "src/global/AssetManager.h"
 #include <src/utils/NString.h>
 
-MaterialBar::MaterialBar(nvec2 topRight, float height) :topRight(topRight), height(height) {
-	text.setFillColor({ 240,240,240 });
-	text.setOutlineColor({ 0,0,0 });
+MaterialBar::MaterialBar(nvec2 topRight, float height) : topRight(topRight), height(height), text(AssetMgr::getDefaultFont()) {
+	text.setFillColor({240, 240, 240});
+	text.setOutlineColor({0, 0, 0});
 	text.setCharacterSize(static_cast<unsigned int>(this->height * 0.9));
 
-	text.setFont(AssetMgr::getDefaultFont());
 	text.setOutlineThickness(1.f);
 	text.setStyle(sf::Text::Bold);
 
@@ -15,7 +14,7 @@ MaterialBar::MaterialBar(nvec2 topRight, float height) :topRight(topRight), heig
 }
 
 void MaterialBar::updateText() {
-	text.setString(NString("{}≤ƒ¡œ", material));
+	text.setString(NString("{}ÊùêÊñô", material));
 }
 
 void MaterialBar::draw(Renderer& renderer) const {

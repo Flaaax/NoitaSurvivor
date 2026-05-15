@@ -1,4 +1,5 @@
 #pragma once
+#include "../../../utils/Container/Vector.h"
 #include "src/ecs/entity.h"
 #include "src/game/States/ContactState.h"
 
@@ -25,5 +26,5 @@ public:
 };
 
 struct ScriptComponent {
-	std::vector<n_shared<Script>> scripts;
+	Util::Vector<n_shared<Script>> scripts;
 };

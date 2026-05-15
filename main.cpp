@@ -3,7 +3,7 @@
 
 int main() {
 	Logger::info("------Application started------\n");
-    //return NWindow::inst().loop();
+    return NWindow::inst().loop();
 	try {
 		return NWindow::inst().loop();
 	}

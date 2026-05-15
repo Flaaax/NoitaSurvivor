@@ -47,16 +47,14 @@ void ComponentMeta::initCustomComponentInitializers() {
 	componentInitializerFactories["SpriteComponent"] = [](const json& j) -> ComponentInitializer {
 		struct {
 			std::string name;
-			sf::Sprite* sprite{};
+			const sf::Sprite* sprite{};
 			SpriteInfo info;
 
 			void operator()(const GameCtx& ctx, myecs::entity e) {
-				auto& sc = ctx.reg.emplace<SpriteComponent>(e);
 				if (!sprite) {
-					sprite = SpriteMgr::getSprite(name);
+					sprite = &SpriteMgr::getSprite(name);
 				}
-				sc.sprite = sprite;
-				sc.info = &info;
+				ctx.reg.emplace<SpriteComponent>(e, info, *sprite);
 			}
 		} ret;
 		json_init_field(ret.name, j, "sprite");

@@ -1,23 +1,24 @@
-#pragma warning(disable:5105)
-#include"AssetManager.h"
+#pragma warning(disable : 5105)
+#include "AssetManager.h"
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <filesystem>
 #include <regex>
 #include <src/utils/Random.h>
-#include<SFML/Audio.hpp>
-#include<SFML/Graphics.hpp>
-#include<filesystem>
 
 class AssetMgrImpl {
 	N_DECL_SINGLETON(AssetMgrImpl);
 	void loadTextures();
 	void loadFonts();
 	void loadSounds();
+
 public:
 	N_CONSTEXPR_VAR auto resource_path = "./resources";
 	N_CONSTEXPR_VAR auto font_path = "./resources/fonts";
 	N_CONSTEXPR_VAR auto sound_path = "./resources/sounds";
 	N_CONSTEXPR_VAR auto default_font = "msyh";
-	N_CONSTEXPR_VAR auto spell_gfx_path = "./resources/gfx/spells";					//32*32
-	N_CONSTEXPR_VAR auto spell_noita_gfx_path = "./resources/gfx/spells/noita";		//16*16
+	N_CONSTEXPR_VAR auto spell_gfx_path = "./resources/gfx/spells";				// 32*32
+	N_CONSTEXPR_VAR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
 	N_CONSTEXPR_VAR auto spell_gfx_default = "default";
 
 	Util::StdMap<sf::Font> fonts;
@@ -43,15 +44,14 @@ static AssetMgrImpl& inst() {
 
 namespace fs = std::filesystem;
 
-
 static void initTexture(Util::StdMap<sf::Texture>& textures, std::string& name, const std::filesystem::path& path) {
 	if (const auto it = textures.find(name); it != textures.end()) {
-		Logger::error_throw("duplicated texture name: {} with path {}", name, path.string());
+		Logger::error_and_throw("duplicated texture name: {} with path {}", name, path.string());
 		return;
 	}
 	auto& t = textures[std::move(name)];
 	if (!t.loadFromFile(path.string())) {
-		Logger::error_throw("failed to load texture {} from path {}", name, path.string());
+		Logger::error_and_throw("failed to load texture {} from path {}", name, path.string());
 	}
 	t.setSmooth(false);
 }
@@ -80,7 +80,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 		}
 
 		for (auto& sound : inst().sounds) {
-			if (sound->getStatus() != sf::Sound::Playing) {
+			if (sound->getStatus() != sf::Sound::Status::Playing) {
 				sound->setBuffer(*it->second[static_cast<size_t>(index)]);
 				sound->play();
 				return;
@@ -91,8 +91,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 		newSound->setVolume(50.f);
 		newSound->play();
 		inst().sounds.emplace_back(std::move(newSound));
-	}
-	else {
+	} else {
 		Logger::warn("Cant find sound: {}", name);
 	}
 }
@@ -126,10 +125,10 @@ const sf::Texture& AssetMgr::getSpriteTexture(std::string_view name) {
 	return inst().spriteTextures["default"];
 }
 
-//input: aaa_bbb_c_N.wav, output: aaa_bbb_c
+// input: aaa_bbb_c_N.wav, output: aaa_bbb_c
 static std::string remove_number_suffix(const std::string& filename) {
 	std::regex pattern(R"((.*)_\d+\.wav$)");
-	std::smatch match;	
+	std::smatch match;
 
 	if (std::regex_match(filename, match, pattern)) {
 		return match[1];
@@ -159,7 +158,7 @@ void AssetMgrImpl::loadFonts() {
 		auto fileType = entry.path().extension();
 		if (entry.is_regular_file() && (fileType == ".ttf" || fileType == ".ttc")) {
 			sf::Font font;
-			if (!font.loadFromFile(entry.path().string())) {
+			if (!font.openFromFile(entry.path().string())) {
 				throw std::runtime_error(fmt::format("failed to load font {}", entry.path().filename().string()));
 			}
 			auto fontName = entry.path().filename().stem().string();
@@ -182,11 +181,10 @@ void AssetMgrImpl::loadTextures() {
 	};
 
 	std::initializer_list<loadInfo> infos = {
-		{spellTextures,spell_gfx_path},
-		{UITextures,"./resources/gfx/ui"},
-		{wandTextures,"./resources/gfx/wands/noita","noita_"},
-		{spriteTextures,"./resources/gfx/sprites"}
-	};
+		{spellTextures, spell_gfx_path},
+		{UITextures, "./resources/gfx/ui"},
+		{wandTextures, "./resources/gfx/wands/noita", "noita_"},
+		{spriteTextures, "./resources/gfx/sprites"}};
 
 	for (auto& info : infos) {
 		Logger::info("loading textures in {}", info.path);

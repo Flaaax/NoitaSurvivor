@@ -1,11 +1,9 @@
 #include "SpellInventory.h"
+#include "../../utils/Container/Container.h"
 #include "../NWidget.h"
-#include "src/global/AssetManager.h"
+#include "../Renderer.h"
 #include "src/game/Spells/Spell.h"
-#include"src/utils/Assert.h"
-#include"../Renderer.h"
-#include"src/utils/VectorHelper.h"
-
+#include "src/utils/Assert.h"
 
 nvec2 NSpellInventory::calcSlotPosition(size_t index) const {
 	return getPosition() + nvec2{index * (NSpell::slotSize - NSpell::outLine), 0};
@@ -22,7 +20,7 @@ void NSpellInventory::updateSlots() {
 	}
 
 	m_geometry.size = {count * (NSpell::slotSize - NSpell::outLine) + NSpell::outLine,
-	                   NSpell::slotSize};
+					   NSpell::slotSize};
 }
 
 NSpellInventory::NSpellInventory(size_t count, const nvec2& pos) {
@@ -108,7 +106,7 @@ n_shared<Spell> NSpellInventory::getSpell(size_t index) const {
 	return slot.spell ? slot.spell->spell : nullptr;
 }
 
-void NSpellInventory::setFrom(const std::vector<n_shared<Spell> >& spells) {
+void NSpellInventory::setFrom(const std::vector<n_shared<Spell>>& spells) {
 	destroyAllSpell();
 	setCount(spells.size());
 	for (size_t i = 0; i < getCount(); i++) {
@@ -118,7 +116,7 @@ void NSpellInventory::setFrom(const std::vector<n_shared<Spell> >& spells) {
 	}
 }
 
-//NSpellInventory* NSpellInventory::create(NWidget* widget, Inventory& inventory, const nvec2& pos) {
+// NSpellInventory* NSpellInventory::create(NWidget* widget, Inventory& inventory, const nvec2& pos) {
 //	Inventory copy;
 //	inventory.swap(copy);
 //	inventory.resize(copy.size());
@@ -130,7 +128,7 @@ void NSpellInventory::setFrom(const std::vector<n_shared<Spell> >& spells) {
 //		ret->addSpell(nspell, i);
 //	}
 //	return ret;
-//}
+// }
 
 NSpell::NSpell(std::shared_ptr<Spell> spell, const nvec2& pos) : spell(std::move(spell)) {
 	assertNotNull(this->spell.get());
@@ -142,20 +140,20 @@ NSpell::NSpell(std::shared_ptr<Spell> spell, const nvec2& pos) : spell(std::move
 }
 
 bool NSpell::handleEvent(const sf::Event& event) {
-	if (event.type == sf::Event::MouseButtonPressed) {
+	if (event.is<sf::Event::MouseButtonPressed>()) {
 		if (m_geometry.contains(NWindow::mouseRenderPos)) {
 			stat = Dragged;
-			getParent()->moveToTop(this); //must have a parent
+			getParent()->moveToTop(this); // must have a parent
 			t = 0.f;
 			return true;
 		}
-	} else if (event.type == sf::Event::MouseButtonReleased) {
+	} else if (event.is<sf::Event::MouseButtonReleased>()) {
 		if (stat != Dragged) {
 			return false;
 		}
 		rotation = 0.f;
 		stat = Released;
-		std::vector<NSpellSlot*> slots;
+		Util::Vector<NSpellSlot*> slots;
 
 		for (const auto obj : getParent()->getObjects()) {
 			if (obj->ID == Util::TypeName<NSpellInventory>()) {
@@ -167,11 +165,11 @@ bool NSpell::handleEvent(const sf::Event& event) {
 			}
 		}
 
-		//no target slot
+		// no target slot
 		if (slots.size() == 0)
 			return true;
 
-		//find nearest slot
+		// find nearest slot
 		float minLength = std::numeric_limits<float>::max();
 		NSpellSlot* other_slot = slots.front();
 		for (auto myslot : slots) {
@@ -183,7 +181,7 @@ bool NSpell::handleEvent(const sf::Event& event) {
 		}
 		assertNotNull(other_slot);
 
-		//Need not change slots
+		// Need not change slots
 		if (other_slot == slot)
 			return true;
 
@@ -193,14 +191,14 @@ bool NSpell::handleEvent(const sf::Event& event) {
 		original_slot->inventory->removeSpell(original_slot->index);
 		other_slot->inventory->removeSpell(other_slot->index);
 
-		//bind the other spell to this slot
+		// bind the other spell to this slot
 		if (other_spell) {
-			//Logger::error("Other slot have spell: {}", other_spell->spell->texture);
+			// Logger::error("Other slot have spell: {}", other_spell->spell->texture);
 			original_slot->inventory->bindSpell(other_spell, original_slot->index);
 			other_spell->stat = Released;
 		}
 
-		//bind this to other slot
+		// bind this to other slot
 		other_slot->inventory->bindSpell(this, other_slot->index);
 
 		return true;
@@ -235,7 +233,7 @@ void NSpell::update(float dt) {
 			t -= 4 * p; // Loop the wave period.
 		float tt = (3 * p <= t && t <= 4 * p) ? (t - 4 * p) : (p - std::abs(t - p));
 		tt /= p; // Normalize to [-1, 1].
-		float sgn = std::abs(tt) < nmath::n_epsilon ? 0.f : (tt / abs(tt));
+		const float sgn = std::abs(tt) < nmath::n_epsilon ? 0.f : (tt / abs(tt));
 		rotation = sgn * (1 - 1 / std::exp(std::abs(tt))) * A;
 	}
 }
@@ -243,14 +241,13 @@ void NSpell::update(float dt) {
 void NSpell::draw(Renderer& renderer) const {
 	if (!spell)
 		return;
-	sf::Sprite sprite;
-	sprite.setTexture(spell->getTexture());
-	nvec2 size = sprite.getTexture()->getSize();
+	sf::Sprite sprite(spell->getTexture());
+	const nvec2 size = sprite.getTexture().getSize();
 	auto scale = NSpell::slotSize / size.x;
-	sprite.setRotation(rotation);
+	sprite.setRotation(sf::degrees(rotation));
 	sprite.setOrigin(size / 2.f);
 	sprite.setPosition(m_geometry.position + scale * size / 2.f);
-	sprite.setScale(scale, scale);
+	sprite.setScale({scale, scale});
 
 	renderer.drawGui(sprite);
 }

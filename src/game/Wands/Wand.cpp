@@ -1,15 +1,14 @@
-//#include"src/game/Spells/Modifiers/AddExplosionSpell.h"
-#include"src/game/Spells/Modifiers/Modifiers.h"
-#include"src/game/Spells/Projectiles/Projectiles.h"
-#include"src/gui/NWindow.h"
-#include"Wand.h"
-#include<iomanip>
-#include<sstream>
-#include"src/utils/Logger.h"
-#include"src/global/AssetManager.h"
-#include"src/game/Spells/SpellBlock.h"
-#include"src/utils/Random.h"
-
+// #include"src/game/Spells/Modifiers/AddExplosionSpell.h"
+#include "Wand.h"
+#include "src/game/Spells/Modifiers/Modifiers.h"
+#include "src/game/Spells/Projectiles/Projectiles.h"
+#include "src/game/Spells/SpellBlock.h"
+#include "src/global/AssetManager.h"
+#include "src/gui/NWindow.h"
+#include "src/utils/Logger.h"
+#include "src/utils/Random.h"
+#include <iomanip>
+#include <sstream>
 
 void Wand::reload() {
 	drawPile.clear();
@@ -38,19 +37,19 @@ std::string Wand::getWandTextureName(int number) {
 	return oss.str();
 }
 
-Wand::Wand() {
-	int randomNumber = Util::random.get(0, 1000);
-	auto name = getWandTextureName(randomNumber);
+Wand::Wand() : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
+	const int randomNumber = Util::random.get(0, 1000);
+	const auto name = getWandTextureName(randomNumber);
 	texture = AssetMgr::getWandTexture(name);
 
 	sprite.setTexture(texture);
 	auto textureSize = texture.getSize();
-	sprite.setOrigin(0, textureSize.y / 2.0f);
+	sprite.setOrigin({0, textureSize.y / 2.0f});
 	auto wand_scale = NWindow::scale.gfx_wand_scale;
 	length = 0.9f * wand_scale * static_cast<float>(textureSize.x);
-	sprite.setScale(wand_scale, wand_scale);
+	sprite.setScale({wand_scale, wand_scale});
 
-	//temp
+	// temp
 	castAmount = 1;
 	castDelay = 0.05f;
 	reloadDelay = 0.1f;
@@ -82,8 +81,7 @@ void Wand::cast(const GameCtx& ctx) {
 			hand.push_back(spell);
 			drawCount += spell->drawModifier;
 			drawPile.pop_front();
-		}
-		else {
+		} else {
 			break;
 		}
 	}
@@ -92,12 +90,10 @@ void Wand::cast(const GameCtx& ctx) {
 		auto type = spell->getSpellType();
 		if (type == Spell::SpellType::PROJECTILE_SPELL) {
 			block.add(spell);
-		}
-		else if (type == Spell::SpellType::MODIFIER_SPELL) {
+		} else if (type == Spell::SpellType::MODIFIER_SPELL) {
 			block.add(spell);
-		}
-		else {
-			//handle more types of spells...
+		} else {
+			// handle more types of spells...
 		}
 		discardPile.push_back(spell);
 
@@ -107,7 +103,7 @@ void Wand::cast(const GameCtx& ctx) {
 
 	hand.clear();
 
-	//std::cout << "cast!\n";
+	// std::cout << "cast!\n";
 	block.cast(ctx, castPos, arg);
 
 	currentCastDelay = Util::max(MIN_CAST_DELAY, currentCastDelay);

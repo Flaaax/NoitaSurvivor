@@ -12,13 +12,10 @@
 #include <algorithm>
 #include <array>
 #include <format>
-#include <imgui-SFML.h>
-#include <imgui.h>
-#include <imgui_internal.h>
 #include <numeric>
 
-void NWindow::updateWindowSize() {
-	auto sizeu = window->getSize();
+void NWindow::updateWindowSize() const {
+	const auto sizeu = window->getSize();
 	scale.updateWindowSize(sizeu);
 	// glViewport(0, 0, sizeu.x, sizeu.y);
 
@@ -29,20 +26,17 @@ void NWindow::updateWindowSize() {
 	window->setView(view);
 }
 
-void NWindow::updateMousePos() {
+void NWindow::updateMousePos() const {
 	mouseRealPos = sf::Mouse::getPosition(*window);
 	mouseRenderPos = scale.realPosToRenderPos(mouseRealPos);
 }
 
 NWindow::NWindow() {
 	auto windowSize = NScale::defaultWindowSize.to<sf::Vector2u>();
-	window = std::make_unique<sf::RenderWindow>(sf::VideoMode(windowSize.x, windowSize.y), "NoitaSurvivor: Test");
+	window = std::make_unique<sf::RenderWindow>(sf::VideoMode(windowSize), "NoitaSurvivor: Test");
 
 	Logger::info("Application starting...");
 
-	if (!ImGui::SFML::Init(*window)) {
-		throw std::runtime_error("imgui-sfml initialization failure");
-	}
 	AssetMgr::init(); // init
 
 	updateWindowSize();
@@ -51,10 +45,9 @@ NWindow::NWindow() {
 }
 
 NWindow::~NWindow() {
-	ImGui::SFML::Shutdown();
 }
 
-int NWindow::loop() {
+int NWindow::loop() const {
 	// Logger::info("Entering main loop...");
 	// fps
 	sf::Clock clock;
@@ -83,8 +76,8 @@ int NWindow::loop() {
 	bool isRunning = true;
 	bool enableImgui = false;
 
-	ImGui::GetStyle().ScaleAllSizes(1.5f);
-	// window->setFramerateLimit(120);
+	// ImGui::GetStyle().ScaleAllSizes(1.5f);
+	//  window->setFramerateLimit(120);
 
 	while (window->isOpen() && isRunning) {
 		// calculate deltatime
@@ -106,37 +99,36 @@ int NWindow::loop() {
 		// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
 
 		// handle event
-		sf::Event event;
-		while (window->pollEvent(event)) {
-			if (event.type == sf::Event::Closed) {
+		while (const auto event = window->pollEvent()) {
+			if (event->is<sf::Event::Closed>()) {
 				isRunning = false;
 				Logger::info("Window closed directly by user");
-			} else if (event.type == sf::Event::Resized) {
+			} else if (event->is<sf::Event::Resized>()) {
 				updateWindowSize();
 				renderer.updateGuiRender();
-			} else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+			} else if (const auto e = event->getIf<sf::Event::KeyPressed>(); e && e->code == sf::Keyboard::Key::Escape) {
 				isRunning = false;
 				Logger::info("Window closed by pressing Esc");
 			}
 			if (currentScene) {
 				if (currentScene->m_widget) {
-					bool handled = currentScene->m_widget->handleEvent(event);
+					const bool handled = currentScene->m_widget->handleEvent(*event);
 					if (!handled) {
-						currentScene->handleEvent(event);
+						currentScene->handleEvent(*event);
 					}
 				} else
-					currentScene->handleEvent(event);
+					currentScene->handleEvent(*event);
 			}
 
 			if (enableImgui) {
-				ImGui::SFML::ProcessEvent(*window, event);
+				//ImGui::SFML::ProcessEvent(*window, event);
 			}
 		}
 
 		updateMousePos(); // this is critical!!!
 
 		if (enableImgui) {
-			ImGui::SFML::Update(*window, dt);
+			//ImGui::SFML::Update(*window, dt);
 		}
 
 		// update
@@ -163,9 +155,9 @@ int NWindow::loop() {
 		renderer.draw(*window);
 
 		if (enableImgui) {
-			ImGui::Begin("Test Window");
-			ImGui::End();
-			ImGui::SFML::Render(*window);
+			// ImGui::Begin("Test Window");
+			// ImGui::End();
+			// ImGui::SFML::Render(*window);
 		}
 
 		window->display();

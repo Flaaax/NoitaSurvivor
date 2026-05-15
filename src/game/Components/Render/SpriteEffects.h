@@ -3,22 +3,23 @@
 #include "src/utils/Timer.h"
 #include "src/utils/Vec2.h"
 #include <SFML/Graphics/Sprite.hpp>
+#include"src/utils/Assert.h"
 
 struct EffectState {
-	float arg{}; // in degrees;
+	sf::Angle rotation{};
 	nvec2 offset;
 	nvec2 scale{1, 1};
 	float opacity = 1.f;
 	EffectState operator*(float w) const {
 		return EffectState{
-			.arg = w * arg,
+			.rotation = w * rotation,
 			.offset = w * offset,
 			.scale = w * scale,
 			.opacity = w * opacity};
 	}
 	EffectState operator+(const EffectState& e) const {
 		return EffectState{
-			.arg = arg + e.arg,
+			.rotation = rotation + e.rotation,
 			.offset = offset + e.offset,
 			.scale = scale + e.scale,
 			.opacity = opacity + e.opacity};
@@ -76,10 +77,10 @@ public:
 	// assume that the origin is the center
 	void apply(sf::Sprite& sprite) const override {
 		sprite.scale(currentState.scale);
-		sprite.rotate(currentState.arg);
+		sprite.rotate(currentState.rotation);
 		sprite.move(currentState.offset);
 		sf::Color color = sprite.getColor();
-		color.a = static_cast<sf::Uint8>(std::floorf(currentState.opacity * color.a));
+		color.a = static_cast<std::uint8_t>(std::floorf(currentState.opacity * color.a));
 		sprite.setColor(color);
 	}
 };
@@ -116,9 +117,9 @@ public:
 
 	// assume that the origin is the center
 	void apply(sf::Sprite& sprite) const override {
-		float height = sprite.getGlobalBounds().height;
+		float height = sprite.getGlobalBounds().size.y;
 		float yoffset = (height * currentScale.y - height) / 2.f;
 		sprite.scale(currentScale);
-		sprite.move(0.f, -yoffset);
+		sprite.move({0.f, -yoffset});
 	}
 };

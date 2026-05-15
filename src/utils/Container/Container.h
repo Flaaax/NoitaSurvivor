@@ -1,26 +1,27 @@
 #pragma once
-#include <type_traits>
+#include "../Assert.h"
+#include "../Pointer.h"
 #include <memory>
-#include"Assert.h"
-#include"Pointer.h"
+#include <type_traits>
 
 namespace Util {
-	template<class Base, class Deleter>
+	template <class Base, class Deleter>
 	class IntrusiveList;
 
 	struct IntrusiveNode {
 	private:
-		template<class Base, class Deleter>
+		template <class Base, class Deleter>
 		friend class IntrusiveList;
 		void* prev;
 		void* next;
 	};
 
-	//Polymorphic intrusive list
-	//Allows user to define deleter or let it do nothing.
-	template<class Base, class Deleter = std::default_delete<Base>>
+	// Polymorphic intrusive list
+	// Allows user to define deleter or let it do nothing.
+	template <class Base, class Deleter = std::default_delete<Base>>
 	class IntrusiveList {
 		static_assert(std::is_base_of_v<IntrusiveNode, Base>, "Base should derive IntrusiveNode");
+
 	private:
 		Base* head{};
 		Base* tail{};
@@ -34,49 +35,91 @@ namespace Util {
 			}
 		}
 
-		static Base*& next(Base* n) { return *reinterpret_cast<Base**>(&static_cast<IntrusiveNode*>(n)->next); }
-		static Base*& prev(Base* n) { return *reinterpret_cast<Base**>(&static_cast<IntrusiveNode*>(n)->prev); }
-		static const Base* next(const Base* n) { return reinterpret_cast<const Base*>(static_cast<const IntrusiveNode*>(n)->next); }
-		static const Base* prev(const Base* n) { return reinterpret_cast<const Base*>(static_cast<const IntrusiveNode*>(n)->prev); }
+		static Base*& next(Base* n) {
+			return *reinterpret_cast<Base**>(&static_cast<IntrusiveNode*>(n)->next);
+		}
+		static Base*& prev(Base* n) {
+			return *reinterpret_cast<Base**>(&static_cast<IntrusiveNode*>(n)->prev);
+		}
+		static const Base* next(const Base* n) {
+			return reinterpret_cast<const Base*>(static_cast<const IntrusiveNode*>(n)->next);
+		}
+		static const Base* prev(const Base* n) {
+			return reinterpret_cast<const Base*>(static_cast<const IntrusiveNode*>(n)->prev);
+		}
 
-		template<bool is_const>
+		template <bool is_const>
 		struct m_iterator {
 			using pointer = std::conditional_t<is_const, const Base*, Base*>;
 			pointer node;
 
-			m_iterator(pointer node = {}) :node(node) {}
-			bool operator==(const m_iterator&)const = default;
-			operator bool()const { return bool(node); }
-			Base* operator*()requires(!is_const) { return node; }
-			Base* operator->() requires (!is_const) { return node; }
-			const Base* operator*() { return node; }
-			const Base* operator->()const { return node; }
-			m_iterator& operator++() { node = next(node); return *this; }
-			m_iterator& operator--() { node = prev(node); return *this; }
-			m_iterator operator++(int) { m_iterator t(*this); return ++ * this, t; }
-			m_iterator operator--(int) { m_iterator t(*this); return -- * this, t; }
-			operator pointer()const { return get(); }
+			m_iterator(pointer node = {}) : node(node) {
+			}
+			bool operator==(const m_iterator&) const = default;
+			operator bool() const {
+				return bool(node);
+			}
+			Base* operator*()
+				requires(!is_const)
+			{
+				return node;
+			}
+			Base* operator->()
+				requires(!is_const)
+			{
+				return node;
+			}
+			const Base* operator*() {
+				return node;
+			}
+			const Base* operator->() const {
+				return node;
+			}
+			m_iterator& operator++() {
+				node = next(node);
+				return *this;
+			}
+			m_iterator& operator--() {
+				node = prev(node);
+				return *this;
+			}
+			m_iterator operator++(int) {
+				m_iterator t(*this);
+				return ++*this, t;
+			}
+			m_iterator operator--(int) {
+				m_iterator t(*this);
+				return --*this, t;
+			}
+			operator pointer() const {
+				return get();
+			}
 
-			pointer get()const { return node; }
+			pointer get() const {
+				return node;
+			}
 		};
 
 		using iterator = m_iterator<false>;
 		using const_iterator = m_iterator<true>;
 
 	public:
-		IntrusiveList() {}
-		IntrusiveList(Deleter deleter) :deleter(deleter) {}
-		IntrusiveList(IntrusiveList&& other)noexcept :
-			head(std::move(other.head)),
-			tail(std::move(other.tail)),
-			m_size(std::move(other.m_size)),
-			deleter(other.deleter) {
+		IntrusiveList() {
+		}
+		IntrusiveList(Deleter deleter) : deleter(deleter) {
+		}
+		IntrusiveList(IntrusiveList&& other) noexcept : head(std::move(other.head)),
+														tail(std::move(other.tail)),
+														m_size(std::move(other.m_size)),
+														deleter(other.deleter) {
 			other.head = {};
 			other.tail = {};
 			other.m_size = 0;
 		}
 		IntrusiveList(const IntrusiveList&) = delete;
-		~IntrusiveList() { clear(); }
+		~IntrusiveList() {
+			clear();
+		}
 
 		Base* emplace_back(Base* elem) {
 			assertNotNull(elem);
@@ -86,8 +129,7 @@ namespace Util {
 				tail = elem;
 				next(elem) = {};
 				prev(elem) = {};
-			}
-			else {
+			} else {
 				next(tail) = elem;
 				prev(elem) = tail;
 				tail = elem;
@@ -104,8 +146,7 @@ namespace Util {
 				tail = elem;
 				next(elem) = {};
 				prev(elem) = {};
-			}
-			else {
+			} else {
 				prev(head) = elem;
 				next(elem) = head;
 				head = elem;
@@ -124,8 +165,7 @@ namespace Util {
 			next(cur) = elem;
 			if (next_node) {
 				prev(next_node) = elem;
-			}
-			else if (cur == tail) {
+			} else if (cur == tail) {
 				tail = elem;
 			}
 			return elem;
@@ -141,8 +181,7 @@ namespace Util {
 			prev(cur) = elem;
 			if (prev_node) {
 				next(prev_node) = elem;
-			}
-			else if (cur == head) {
+			} else if (cur == head) {
 				head = elem;
 			}
 			return elem;
@@ -154,8 +193,10 @@ namespace Util {
 			}
 			Base* old_head = head;
 			head = next(head);
-			if (head)prev(head) = {};
-			else tail = {};
+			if (head)
+				prev(head) = {};
+			else
+				tail = {};
 			try_delete(old_head);
 			m_size--;
 		}
@@ -167,7 +208,8 @@ namespace Util {
 			tail = prev(tail);
 			if (tail)
 				next(tail) = {};
-			else head = {};
+			else
+				head = {};
 			try_delete(old_tail);
 			m_size--;
 		}
@@ -184,19 +226,23 @@ namespace Util {
 			return tail;
 		}
 
-		size_t size()const { return m_size; }
-		bool empty()const { return m_size == 0; }
+		size_t size() const {
+			return m_size;
+		}
+		bool empty() const {
+			return m_size == 0;
+		}
 
 		iterator begin() {
-			return iterator{ head };
+			return iterator{head};
 		}
-		const_iterator begin()const {
-			return const_iterator{ head };
+		const_iterator begin() const {
+			return const_iterator{head};
 		}
 		iterator end() {
 			return {};
 		}
-		const_iterator end()const {
+		const_iterator end() const {
 			return {};
 		}
 
@@ -214,7 +260,7 @@ namespace Util {
 			if (it.node == head) {
 				Base* ret = next(head);
 				pop_front();
-				return { ret };
+				return {ret};
 			}
 			if (it.node == tail) {
 				pop_back();
@@ -231,7 +277,7 @@ namespace Util {
 			try_delete(current);
 			m_size--;
 
-			return iterator{ next_node };
+			return iterator{next_node};
 		}
 
 		iterator erase(iterator first, iterator last) {
@@ -244,18 +290,18 @@ namespace Util {
 		iterator insert(iterator it, Base* elem) {
 			if (!it || !head || it.node == tail) {
 				emplace_back(elem);
-				return { tail };
+				return {tail};
 			}
 			if (it.node == head) {
 				emplace_front(elem);
-				return { head };
+				return {head};
 			}
 			Base* cur = it.node;
 			prev(next(cur)) = elem;
 			next(elem) = next(cur);
 			prev(elem) = cur;
 			next(cur) = elem;
-			return { elem };
+			return {elem};
 		}
 
 		void clear() {
@@ -277,14 +323,15 @@ namespace Util {
 
 		bool contains(Base* node) {
 			for (auto it = begin(); it != end; ++it) {
-				if (node == *it) return true;
+				if (node == *it)
+					return true;
 			}
 			return false;
 		}
 	};
 
 	struct NoDelete {};
-	struct StringViewHash :public std::hash<std::string_view> {
+	struct StringViewHash : public std::hash<std::string_view> {
 		using is_transparent = void;
 	};
 
@@ -293,12 +340,13 @@ namespace Util {
 		std::string,
 		T,
 		StringViewHash,
-		std::equal_to<>               // C++14+
-	>;
+		std::equal_to<> // C++14+
+		>;
 
-	template<class T>
-	class StdMap :public BaseStdMap<T> {
+	template <class T>
+	class StdMap : public BaseStdMap<T> {
 		using Base = BaseStdMap<T>;
+
 	public:
 		T& operator[](std::string_view key) {
 			if (auto it = this->find(key); it != this->end()) {
@@ -306,46 +354,28 @@ namespace Util {
 			}
 			return Base::operator[](std::string(key));
 		}
+
+		T* try_find(std::string_view key) {
+			const auto it = Base::find(key);
+			return it != Base::end() ? &it->second : nullptr;
+		}
 	};
 
-	template<class T>
+	template <class T>
 	struct Wrapper {
 		T value;
 		Wrapper() = default;
-		Wrapper(const T& val) :value(val) {}
-		Wrapper(T&& val) :value(std::move(val)) {}
-		operator T& () { return value; }
-		operator const T& ()const { return value; }
-	};
-
-	template<class T>
-	class BaseStdVector :public std::vector<T> {
-		using Base = std::vector<T>;
-		using Base::Base;
-	public:
-		template<std::integral I>
-		T& operator[](I index) { return Base::operator[](static_cast<size_t>(index)); }
-		template<std::integral I>
-		const T& operator[](I index)const { return Base::operator[](static_cast<size_t>(index)); }
-
-		void fill(T elem) {
-			for (size_t i = 0; i < this->size(); ++i) {
-				this->operator[](i) = elem;
-			}
+		Wrapper(const T& val) : value(val) {
 		}
-
-		operator Base& () { return static_cast<Base&>(*this); }
-		operator const Base& ()const { return static_cast<const Base&>(*this); }
-
-		template<class U>
-		void operator+=(U&& elem) {
-			this->emplace_back(std::forward<U>(elem));
+		Wrapper(T&& val) : value(std::move(val)) {
+		}
+		operator T&() {
+			return value;
+		}
+		operator const T&() const {
+			return value;
 		}
 	};
 
-	template<class T>
-	using StdVectorType = std::conditional_t<std::is_same_v<T, bool>, Wrapper<bool>, T>;
-
-	template <typename T>
-	using Vector = BaseStdVector<StdVectorType<T>>;
-}
+	using BoolWrapper = Wrapper<bool>;
+} // namespace Util

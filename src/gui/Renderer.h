@@ -1,11 +1,11 @@
 #pragma once
-#include<SFML/Graphics.hpp>
-#include"src/utils/Math.h"
-#include"NWindow.h"
-
+#include "NWindow.h"
+#include "src/utils/Math.h"
+#include <SFML/Graphics.hpp>
 
 class Renderer {
 	friend class NWidget;
+
 private:
 	sf::RenderTexture texture;
 	sf::RenderTexture accumTexture;
@@ -14,12 +14,11 @@ private:
 	bool enableMotionBlur = true;
 
 public:
-	Renderer() {
-		texture.create(NScale::defaultWindowSizeX, NScale::defaultWindowSizeY);
-		accumTexture.create(NScale::defaultWindowSizeX, NScale::defaultWindowSizeY);
+	Renderer() : texture(NScale::defaultWindowSize),
+				 accumTexture(NScale::defaultWindowSize) {
 	}
 
-	//should be called in class Game
+	// should be called in class Game
 	void updateGameRender(const fvec2& cameraRenderPos) {
 		gameContentState.transform = sf::Transform::Identity;
 		gameContentState.transform
@@ -29,9 +28,9 @@ public:
 
 	void updateGuiRender() {
 		guiContentState.transform = sf::Transform::Identity;
-		//guiContentState.transform.scale(1.f, -1.f);
-		//guiContentState.transform.translate(NScale::realRenderOffset);
-		//guiContentState.transform.scale(NScale::currentRenderScale.Fvec2());
+		// guiContentState.transform.scale(1.f, -1.f);
+		// guiContentState.transform.translate(NScale::realRenderOffset);
+		// guiContentState.transform.scale(NScale::currentRenderScale.Fvec2());
 	}
 
 	void drawGame(const sf::Drawable& gameContent) {
@@ -42,7 +41,7 @@ public:
 		texture.draw(guiContent, guiContentState);
 	}
 
-	void clear(const sf::Color color = { 0,0,0 }) {
+	void clear(const sf::Color color = {0, 0, 0}) {
 		texture.clear(color);
 	}
 
@@ -72,11 +71,10 @@ public:
 	}*/
 
 	static void clone(const sf::RenderTexture& from, sf::RenderTexture& to) {
-		sf::Sprite s;
-		s.setTexture(from.getTexture());
+		const sf::Sprite s(from.getTexture());
 		to.draw(s);
 	}
 
-	//Ensures that y=0 is at below
+	// Ensures that y=0 is at below
 	void draw(sf::RenderWindow& window);
 };

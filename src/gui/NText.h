@@ -3,49 +3,43 @@
 #ifndef NTEXT_H
 #define NTEXT_H
 
-#include"NObject.h"
-#include"src/utils/NString.h"
-#include<SFML/Graphics/Text.hpp>
+#include "NObject.h"
+#include "src/utils/NString.h"
+#include <SFML/Graphics/Text.hpp>
 
-
-class NText :public NObject {
+class NText : public NObject {
 private:
 public:
-	mutable sf::Text sfText;	//store text data
+	mutable sf::Text sfText; // store text data
 
-	enum :int {
+	enum AlignOption {
 		LeftTop,
 		Center
 	};
 	int align = LeftTop;
 
 	NText();
-	NText(const NString& str, int align = LeftTop, unsigned int characterSize = 20UL);
-	NText(const NString& str, const sf::Font& font, int align = LeftTop, unsigned int characterSize = 20UL) :sfText(str.c_str(), font, characterSize), align(align) {
-		sfText.setFillColor({});
-	}
-	//NText(const sf::Font& font, unsigned int characterSize = 20UL) :sfText({}, font, characterSize) {}
-	NText(const sf::Text& text) :sfText(text) {}
+	explicit NText(const NString& str = {}, AlignOption = LeftTop, unsigned int characterSize = 20UL);
+	explicit NText(const NString& str, const sf::Font& font, AlignOption align = LeftTop, unsigned int characterSize = 20UL);
+	// NText(const sf::Font& font, unsigned int characterSize = 20UL) :sfText({}, font, characterSize) {}
+	explicit NText(const sf::Text& text, AlignOption align = LeftTop);
 	NText(const NText&) = default;
 
-	void draw(Renderer& renderer)const override;
+	void draw(Renderer& renderer) const override;
 
-	void setText(const NString& str) {
-		sfText.setString(str.c_str());
+	void setText(const NString& str) const {
+		sfText.setString(str);
 	}
-
-	void setDefaultFont();
 };
 
-
-class NLineText :public NObject {
+class NLineText : public NObject {
 public:
 	std::vector<NString> strings;
-	mutable sf::Text sfText;	//store text data (except strings)
+	mutable sf::Text sfText; // store text data (except strings)
 	size_t lineLimit = 0xffffffff;
 
-	NLineText()noexcept {}
-	NLineText(const sf::Font& font, unsigned int characterSize = 20UL) :sfText({}, font, characterSize) {}
+	explicit NLineText(const sf::Font& font, unsigned int characterSize = 20UL) : sfText(font, {}, characterSize) {
+	}
 
 	void append(const NString& str) {
 		strings.push_back(str);
@@ -70,12 +64,11 @@ public:
 		return strings[i];
 	}
 
-	void draw(Renderer& renderer)const override;
+	void draw(Renderer& renderer) const override;
 
 	NString& operator[](size_t i) {
 		return getString(i);
 	}
 };
-
 
 #endif

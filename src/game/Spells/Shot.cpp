@@ -1,7 +1,6 @@
-#include"Shot.h"
+#include "Shot.h"
 #include <src/game/Components/EntityComponents.h>
 #include <src/utils/Random.h>
-
 
 void Shot::modify(const GameCtx& ctx, myecs::entity proj, const n_shared<ProjectileSpell>& ps, const std::vector<n_shared<ModifierSpell>>& projMods) {
 	auto& p = ctx.reg.get<ProjectileComponent>(proj);
@@ -17,11 +16,12 @@ void Shot::modify(const GameCtx& ctx, myecs::entity proj, const n_shared<Project
 myecs::entity Shot::fire(const GameCtx& ctx, n_shared<ProjectileSpell>& ps, std::vector<n_shared<ModifierSpell>>& projMods, const nvec2& shotPos, float arg) {
 	float proj_scatter = ps->scatter;
 	for (const auto& mod : projMods) {
-		if (!mod)continue;
+		if (!mod)
+			continue;
 		proj_scatter += mod->scatter;
 	}
-	float rand_scatter = Util::randomScatter(proj_scatter);
-	auto p = ps->createProjectile(ctx, shotPos, Util::from_rad<nvec2>(arg + rand_scatter));
+	const float rand_scatter = Util::randomScatter(proj_scatter);
+	auto p = ps->createProjectile(ctx, shotPos, Util::from_rad(arg + rand_scatter));
 	modify(ctx, p, ps, projMods);
 	return p;
 }

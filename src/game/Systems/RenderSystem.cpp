@@ -7,7 +7,6 @@
 #include "src/gui/shapes/NLineShape.h"
 #include <src/game/Components/PhysicsComponents.h>
 
-
 void RenderSystem::debugRender(const GameCtx& ctx, Renderer& rdr) {
 	NLineShape shape;
 	for (const auto& e : ctx.gameState.borders) {
@@ -27,7 +26,7 @@ void RenderSystem::update(const GameCtx& ctx, float dt) {
 	}
 }
 
-void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
+void RenderSystem::render(Renderer& rdr, const GameCtx& ctx) {
 	rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::scale.gameRenderScale - NWindow::scale.gameRenderOffset);
 
 	rdr.clear(sf::Color(100, 100, 100));
@@ -42,25 +41,25 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 		sf::RectangleShape testShape;
 		testShape.setSize({4, 4});
 		testShape.setFillColor({100, 100, 100});
-		testShape.setPosition(0, 0);
+		testShape.setPosition({0, 0});
 		rdr.drawGame(testShape);
 	}
 
 	// Logger::info("begin render");
 	for (const auto& [e, c, bc] : ctx.reg.view<SpriteComponent, BodyComponent>()) {
-		sf::Sprite copy = *c.sprite;
+		sf::Sprite copy = c.sprite;
 		PhysicsService ps{};
 
-		if (c.info->followPosition)
-			copy.setPosition(ps.getPosition(bc) + c.info->positionOffset);
-		if (c.info->followAngle)
-			copy.setRotation(Util::to_deg(ps.getRotation(bc)) + c.info->rotationOffset);
-		if (c.info->dynamicScale) {
+		if (c.info.followPosition)
+			copy.setPosition(ps.getPosition(bc) + c.info.positionOffset);
+		if (c.info.followAngle)
+			copy.setRotation(sf::radians(ps.getRotation(bc)) + sf::degrees(c.info.rotationOffset));
+		if (c.info.dynamicScale) {
 			float r = ps.getRadius(bc);
-			copy.scale(r, r);
+			copy.scale({r, r});
 		}
 
-		if (auto tc = ctx.reg.try_get<SpriteEffectComponent>(e)) {
+		if (const auto tc = ctx.reg.try_get<SpriteEffectComponent>(e)) {
 			auto& ts = tc->effectList;
 			for (auto it = ts.begin(); it != ts.end();) {
 				(*it)->apply(copy);

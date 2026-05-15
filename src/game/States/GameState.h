@@ -1,8 +1,9 @@
 #pragma once
-#include"src/ecs/entity.h"
-#include"src/utils/Vec2.h"
-#include"src/utils/Pointer.h"
-#include <src/utils/Timer.h>
+#include "src/ecs/entity.h"
+#include "src/utils/Container/Vector.h"
+#include "src/utils/Pointer.h"
+#include "src/utils/Timer.h"
+#include "src/utils/Vec2.h"
 
 struct PlayerData {
 	myecs::entity id;
@@ -26,16 +27,16 @@ struct GameState {
 
 	bool isPaused = false;
 
-	nrect bound = { 0, 0, 40, 40, nrect::CenterRect };
-	nrect maxBound = { 0, 0, 80, 80, nrect::CenterRect };
-	nrect enemyGenArea = { 0, 0, 35, 35, nrect::CenterRect };
+	nrect bound = {0, 0, 40, 40, nrect::CenterRect};
+	nrect maxBound = {0, 0, 80, 80, nrect::CenterRect};
+	nrect enemyGenArea = {0, 0, 35, 35, nrect::CenterRect};
 
 	nvec2 playerPos;
 	nvec2 mousePos;
 	nvec2 cameraPos;
 
-	std::vector<myecs::entity> borders;
-	std::vector<n_unique<Wand>> wands;
+	Util::Vector<myecs::entity> borders;
+	Util::Vector<n_unique<Wand>> wands;
 
 	CTimer enemySpawnTimer;
 

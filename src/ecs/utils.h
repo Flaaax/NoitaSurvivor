@@ -18,10 +18,10 @@ namespace myecs {
 
 	template <typename T>
 	concept Movable =
-		std::is_move_assignable_v<T> &&					 // 可移动赋值
-		std::is_move_constructible_v<T> &&				 // 可移动构造
-		!std::is_const_v<std::remove_reference_t<T>> &&  // 非const类型
-		!std::is_reference_v<T>;						 // 非引用类型
+		std::is_move_assignable_v<T> &&					 // Move assignable
+		std::is_move_constructible_v<T> &&				 // Move constructible
+		!std::is_const_v<std::remove_reference_t<T>> &&  // Non-const type
+		!std::is_reference_v<T>;						 // Non-reference type
 
 	//If a type is not movable, consider assign
 	template<Movable T>

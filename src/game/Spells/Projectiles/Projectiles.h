@@ -1,6 +1,5 @@
 #pragma once
 #pragma warning(disable:5260)
-#include <imgui.h>
 
 #include"ProjectileSpell.h"
 #include"src/global/EntityManager.h"

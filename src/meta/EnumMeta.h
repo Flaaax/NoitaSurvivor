@@ -1,10 +1,9 @@
 #pragma once
-#include<unordered_map>
-#include<string>
+#include "../utils/Container/Container.h"
+#include "src/utils/Singleton.h"
 #include <optional>
-#include"src/utils/Singleton.h"
-#include"src/utils/Container.h"
-
+#include <string>
+#include <unordered_map>
 
 class EnumMeta {
 	N_DECL_SINGLETON(EnumMeta);
