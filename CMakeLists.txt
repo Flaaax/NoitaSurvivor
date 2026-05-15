@@ -6,11 +6,9 @@ if (NOT MSVC)
     message(FATAL_ERROR "This first CMake migration target is intentionally MSVC-only.")
 endif ()
 
-find_package(SFML 2.6.1 EXACT COMPONENTS system window graphics audio CONFIG REQUIRED)
+find_package(SFML 3.0.2 EXACT COMPONENTS System Window Graphics Audio CONFIG REQUIRED)
 find_package(box2d 3.1.1 EXACT CONFIG REQUIRED)
 find_package(fmt 10.2.1 EXACT CONFIG REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(ImGui-SFML CONFIG REQUIRED)
 find_package(nlohmann_json 3.11.3 EXACT CONFIG REQUIRED)
 find_package(spdlog 1.13.0 EXACT CONFIG REQUIRED)
 
@@ -75,16 +73,14 @@ target_compile_options(NoitaSurvivor PRIVATE
 )
 
 target_link_libraries(NoitaSurvivor PRIVATE
-        ImGui-SFML::ImGui-SFML
-        GLEW::GLEW
         box2d::box2d
         fmt::fmt
         nlohmann_json::nlohmann_json
         spdlog::spdlog
-        sfml-audio
-        sfml-graphics
-        sfml-window
-        sfml-system
+        SFML::Audio
+        SFML::Graphics
+        SFML::Window
+        SFML::System
         dbghelp
         gdi32
         opengl32

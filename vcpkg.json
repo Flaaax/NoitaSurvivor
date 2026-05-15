@@ -6,9 +6,6 @@
     "boost-unordered",
     "box2d",
     "fmt",
-    "glew",
-    "imgui",
-    "imgui-sfml",
     "nlohmann-json",
     "sfml",
     "spdlog"
@@ -24,12 +21,7 @@
     },
     {
       "name": "sfml",
-      "version": "2.6.1"
-    },
-    {
-      "name": "imgui-sfml",
-      "version": "2.6",
-      "port-version": 1
+      "version": "3.0.2"
     },
     {
       "name": "nlohmann-json",
