@@ -19,7 +19,7 @@ void RenderSystem::debugRender(const GameCtx& ctx, Renderer& rdr) {
 	}
 }
 
-void RenderSystem::update(float dt, GameCtx& ctx) {
+void RenderSystem::update(const GameCtx& ctx, float dt) {
 	for (const auto& [e, tc] : ctx.reg.view<SpriteEffectComponent>()) {
 		for (const auto& effect : tc.effectList) {
 			effect->update(dt);
@@ -48,23 +48,22 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 
 	// Logger::info("begin render");
 	for (const auto& [e, c, bc] : ctx.reg.view<SpriteComponent, BodyComponent>()) {
-		// restore to default state
-		sf::Sprite old = *c.sprite;
+		sf::Sprite copy = *c.sprite;
 		PhysicsService ps{};
 
 		if (c.info->followPosition)
-			c.sprite->setPosition(ps.getPosition(bc) + c.info->positionOffset);
+			copy.setPosition(ps.getPosition(bc) + c.info->positionOffset);
 		if (c.info->followAngle)
-			c.sprite->setRotation(Util::to_deg(ps.getRotation(bc)) + c.info->rotationOffset);
+			copy.setRotation(Util::to_deg(ps.getRotation(bc)) + c.info->rotationOffset);
 		if (c.info->dynamicScale) {
 			float r = ps.getRadius(bc);
-			c.sprite->scale(r, r);
+			copy.scale(r, r);
 		}
 
 		if (auto tc = ctx.reg.try_get<SpriteEffectComponent>(e)) {
 			auto& ts = tc->effectList;
 			for (auto it = ts.begin(); it != ts.end();) {
-				(*it)->apply(*c.sprite);
+				(*it)->apply(copy);
 
 				if ((*it)->isDone()) {
 					it = ts.erase(it);
@@ -73,12 +72,10 @@ void RenderSystem::render(Renderer& rdr, GameCtx& ctx) {
 			}
 		}
 
-		rdr.drawGame(*c.sprite);
-
-		*c.sprite = old;
+		rdr.drawGame(copy);
 	}
 
-	for (auto& wand : ctx.gameState.wands) {
+	for (const auto& wand : ctx.gameState.wands) {
 		wand->render(rdr);
 	}
 

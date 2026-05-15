@@ -36,6 +36,18 @@ void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
 	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));
 }
 
+MultiShots::MultiShots(int shots) {
+	if (shots >= 2) {
+		this->shots = shots;
+	} else {
+		Logger::warn("MutiShots doesnt not accept shots: {}, fallback to default: 3", shots);
+	}
+	castDelay = 0.1f;
+	reloadDelay = 0.1f;
+	tags.add(Spell::Tag::SHOT_MODIFY);
+
+	ID = getID<MultiShots>();
+}
 void MultiShots::modifyShot(std::vector<ShotData>& data) {
 	std::vector<ShotData> ret;
 	for (const auto& dat : data) {

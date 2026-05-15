@@ -12,7 +12,7 @@
 #include <src/game/Services/GameService.h>
 #include <src/utils/Random.h>
 
-void LifeTimeSystem::destroyDeadEntities(GameCtx& ctx) {
+void LifeTimeSystem::destroyDeadEntities(const GameCtx& ctx) {
 	auto& reg = ctx.reg;
 	using namespace myecs;
 	std::vector<entity> entityToDestroy;

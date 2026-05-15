@@ -129,7 +129,9 @@ public:
 	operator std::string_view() const {
 		return m_data;
 	}
-	operator sf::String() const;
+	operator sf::String() const {
+		return sf::String::fromUtf8(m_data.begin(), m_data.end());
+	}
 
 	sf::String toSfString() const {
 		return static_cast<sf::String>(*this);

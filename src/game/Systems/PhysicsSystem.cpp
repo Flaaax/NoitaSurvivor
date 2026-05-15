@@ -10,7 +10,9 @@
 using namespace myecs;
 
 void PhysicsSystem::step(const GameCtx& ctx, float dt) {
+	ctx.worldCtx.isStepping = true;
 	b2World_Step(ctx.worldCtx.world, dt, 4);
+	ctx.worldCtx.isStepping = false;
 }
 
 void PhysicsSystem::updateAfterContactSystem(const GameCtx& ctx, float dt) {

@@ -18,7 +18,7 @@ namespace myecs {
 
 	namespace detail {
 		template<class T>
-		static T& raw(void* _data) { return *reinterpret_cast<T*>(_data); }
+		static T& raw(void* _data) { return *static_cast<T*>(_data); }
 
 		struct VariantVTable {
 			using destroy_func_t = void(*)(void* _data);
@@ -73,6 +73,7 @@ namespace myecs {
 			table = other.table;
 			other.table = {};
 			table->move_construct(other.data, data);
+			other.clear();
 		}
 		Variant(const Variant& other)requires (Traits.copy) {
 			if (other.empty())return;
@@ -85,6 +86,7 @@ namespace myecs {
 			clear();
 			table = other.table;
 			table->move_construct(other.data, data);
+			other.clear();
 			return *this;
 		}
 

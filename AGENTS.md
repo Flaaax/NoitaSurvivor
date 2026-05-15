@@ -10,14 +10,15 @@
 
 ## Backlog
 
-- Consider removing the project's direct `fmt` dependency. Replace project-owned `fmt::format` / `fmt::runtime` usage in `Logger` and `Assert` with `std::format` / `std::vformat`, then remove direct `fmt` entries from `vcpkg.json`, `find_package`, and `target_link_libraries`. `fmt` may remain as a transitive dependency of `spdlog`.
+- Prepare the next major refactor: upgrade SFML from 2.x to 3.x and upgrade ImGui-SFML in the same migration. 
+- Keep these changes coordinated because window/event/rendering APIs and ImGui integration are coupled.
 
 
 ## 备注
 - 项目box2d 2.x->3.x 迁移/重构已基本完成，目前可编译运行，核心玩法已基本还原。
-- 部分非核心功能可能仍处于临时禁用或待恢复状态，例如 imgui 和追踪子弹。
+- 部分非核心功能可能仍处于临时禁用或待恢复状态，例如 imgui。
 
-# AGENT行为准则~~~~~~~~
+# AGENT行为准则
 - 发现用户指定任务之外的bug，接口不一致，代码语法错误等时，如果用户没指定你擅自修改，则仅报告。
 - git comment 应使用中英双语，英语标题，代码注释仅使用英语。
 - 如果你要执行重构，除非任务直接要求重构，否则只报告，并待用户确认。

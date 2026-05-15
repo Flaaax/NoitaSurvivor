@@ -17,6 +17,8 @@ Game::Game() {
 }
 
 Game::~Game() {
+	if (!isInitialized)
+		return;
 	Logger::info("entity count: {}", reg.entity_count());
 	Logger::info("component count: {}", reg.component_count());
 	Logger::info("max entity count: {}", reg.max_entity_count());
@@ -94,7 +96,7 @@ void Game::update(float dt) {
 		return;
 	}
 
-	GameCtx ctx = getContext();
+	const GameCtx ctx = getContext();
 
 	GameStateSystem().updateBeforePhysics(ctx);
 	PhysicsSystem().step(ctx, dt);
@@ -103,17 +105,17 @@ void Game::update(float dt) {
 	PhysicsSystem().updateAfterContactSystem(ctx, dt);
 	GameSystem().update(ctx, dt);
 
-	//todo Test
+	// todo Test
 	ctx.gameState.enemySpawnTimer.update(dt);
 
 	LifeTimeSystem().destroyDeadEntities(ctx);
 
 	GameSystem().updateAfterCleanup(ctx);
 
-	RenderSystem().update(dt, ctx);
+	RenderSystem().update(ctx, dt);
 }
 
 void Game::handleEvent(const sf::Event& event) {
-	GameCtx ctx = getContext();
+	const GameCtx ctx = getContext();
 	GameSystem().handleEvent(ctx, event);
 }

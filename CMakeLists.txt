@@ -6,7 +6,6 @@ if (NOT MSVC)
     message(FATAL_ERROR "This first CMake migration target is intentionally MSVC-only.")
 endif ()
 
-find_package(boost_locale 1.89.0 EXACT CONFIG REQUIRED)
 find_package(SFML 2.6.1 EXACT COMPONENTS system window graphics audio CONFIG REQUIRED)
 find_package(box2d 3.1.1 EXACT CONFIG REQUIRED)
 find_package(fmt 10.2.1 EXACT CONFIG REQUIRED)
@@ -76,7 +75,6 @@ target_compile_options(NoitaSurvivor PRIVATE
 )
 
 target_link_libraries(NoitaSurvivor PRIVATE
-        Boost::locale
         ImGui-SFML::ImGui-SFML
         GLEW::GLEW
         box2d::box2d

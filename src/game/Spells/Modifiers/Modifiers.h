@@ -17,17 +17,10 @@ public:
 
 class MultiShots : public ModifierSpell {
 private:
-	int shots;
+	int shots=2;
 
 public:
-	MultiShots(int shots = 2) {
-		this->shots = shots;
-		castDelay = 0.1f;
-		reloadDelay = 0.1f;
-		tags.add(Spell::Tag::SHOT_MODIFY);
-
-		ID = getID<MultiShots>();
-	}
+	MultiShots(int shots = 2);
 
 	void modifyShot(std::vector<ShotData>& data) override;
 };

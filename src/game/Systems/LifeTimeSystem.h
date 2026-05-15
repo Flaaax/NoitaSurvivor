@@ -4,6 +4,6 @@ struct GameCtx;
 
 class LifeTimeSystem {
 public:
-	static void destroyDeadEntities(GameCtx& ctx);
+	static void destroyDeadEntities(const GameCtx& ctx);
 
 };

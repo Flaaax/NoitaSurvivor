@@ -10,7 +10,7 @@ class ContactLayerRules;
 
 struct WorldCtx {
 	b2WorldId world = b2_nullWorldId;
-	bool isStepping{};
+	mutable bool isStepping{};		//Do not modify outside PhysicsSystem!
 };
 
 //Lightweight, copyable reference of the game context

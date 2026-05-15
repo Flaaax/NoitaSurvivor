@@ -3,7 +3,6 @@
   "version-string": "0.1.0",
   "builtin-baseline": "4c5ae6b55f3e3e39d291679f89822f496cf190ee",
   "dependencies": [
-    "boost-locale",
     "boost-unordered",
     "box2d",
     "fmt",
@@ -15,10 +14,6 @@
     "spdlog"
   ],
   "overrides": [
-    {
-      "name": "boost-locale",
-      "version": "1.89.0"
-    },
     {
       "name": "box2d",
       "version": "3.1.1"
