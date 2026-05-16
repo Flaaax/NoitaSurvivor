@@ -39,13 +39,13 @@
 //		this->isRunning = false;
 //	});
 //	cancelButton->setParent(parent);
-//	cancelButton->setText("Ìø¹ı");
+//	cancelButton->setText("å–æ¶ˆ");
 //	cancelButton->setParent(ui);
 //	cancelButton->getText().setCharacterSize(18);
 //
 //	nrect textRect(m_geometry.center(), { 10,10 }, 1);
 //	textRect.y -= 65;
-//	NText* text = new NText("Ñ¡ÔñÒ»¸ö·¨Êõ", NText::Center, 25U);
+//	NText* text = new NText("å ä½ç¬¦", NText::Center, 25U);
 //	text->setGeometry(textRect);
 //	text->setParent(ui);
 //}

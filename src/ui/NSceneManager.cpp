@@ -1,8 +1,7 @@
-#include"NSceneManager.h"
-#include"src/utils/Assert.h"
-#include"src/gui/NScene.h"
-#include<format>
-
+#include "NSceneManager.h"
+#include "src/ui/NScene.h"
+#include "src/utils/Assert.h"
+#include <format>
 
 void NSceneManager::addScene(n_unique<NScene> scene) {
 	//Logger::info("Adding scene to SceneManager...");

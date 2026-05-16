@@ -3,8 +3,8 @@
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/global/DataManager.h"
-#include "src/gui/Renderer.h"
-#include "src/gui/shapes/NLineShape.h"
+#include "src/ui/Renderer.h"
+#include "src/ui/shapes/NLineShape.h"
 #include <src/game/Components/PhysicsComponents.h>
 
 void RenderSystem::debugRender(const GameCtx& ctx, Renderer& rdr) {

@@ -1,12 +1,12 @@
 #include "GameScene.h"
-#include "../gui/NButton.h"
-#include "../gui/game/HealthBar.h"
-#include "../gui/game/MaterialBar.h"
+#include "../ui/NButton.h"
+#include "../ui/game/HealthBar.h"
+#include "../ui/game/MaterialBar.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
-#include "src/gui/NText.h"
-#include "src/gui/game/SpellInventory.h"
-#include "src/gui/game/SpellSelector.h"
+#include "src/ui/NText.h"
+#include "src/ui/game/SpellInventory.h"
+#include "src/ui/game/SpellSelector.h"
 #include <src/utils/Logger.h>
 
 NText* pauseText = nullptr;

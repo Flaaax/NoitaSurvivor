@@ -1,5 +1,5 @@
 #pragma warning(disable:5260)
-#include"src/gui/NWindow.h"
+#include "src/ui/NWindow.h"
 
 int main() {
 	Logger::info("------Application started------\n");

@@ -4,7 +4,7 @@
 #include "src/game/Spells/Projectiles/Projectiles.h"
 #include "src/game/Spells/SpellBlock.h"
 #include "src/global/AssetManager.h"
-#include "src/gui/NWindow.h"
+#include "src/ui/NWindow.h"
 #include "src/utils/Logger.h"
 #include "src/utils/Random.h"
 #include <iomanip>

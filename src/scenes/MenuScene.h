@@ -1,6 +1,6 @@
 #pragma once
 
-#include"../gui/NScene.h"
+#include "../ui/NScene.h"
 
 class MenuScene :public NScene {
 	N_REG_SCENE(MenuScene)

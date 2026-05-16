@@ -5,7 +5,7 @@
 
 #include <src/game/Components/EntityComponents.h>
 #include <src/game/Components/PhysicsComponents.h>
-#include <src/gui/NWindow.h>
+#include <src/ui/NWindow.h>
 
 using namespace myecs;
 

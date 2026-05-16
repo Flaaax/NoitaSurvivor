@@ -2,8 +2,8 @@
 #ifndef GAMESCENE_H
 #define GAMESCENE_H
 
-#include"src/gui/NScene.h"
-#include"src/utils/Singleton.h"
+#include "src/ui/NScene.h"
+#include "src/utils/Singleton.h"
 
 class Game;
 

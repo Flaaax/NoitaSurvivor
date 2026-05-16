@@ -16,7 +16,7 @@ private:
 
 	NSpellSelector(const nvec2& center, int selectCount, NWidget* parent);
 public:
-	~NSpellSelector();
+	~NSpellSelector() override;
 	NSpellSelector* create(const nvec2& center, int selectCount);
 
 	void draw(Renderer& renderer)const override;

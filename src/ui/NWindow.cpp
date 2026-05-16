@@ -7,6 +7,8 @@
 #include "./shapes/NRoundRectShape.h"
 #include "NScene.h"
 #include "NText.h"
+#include "imgui-SFML.h"
+#include "imgui.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <algorithm>
@@ -32,12 +34,18 @@ void NWindow::updateMousePos() const {
 }
 
 NWindow::NWindow() {
-	auto windowSize = NScale::defaultWindowSize.to<sf::Vector2u>();
+	constexpr auto windowSize = NScale::defaultWindowSize.to<sf::Vector2u>();
 	window = std::make_unique<sf::RenderWindow>(sf::VideoMode(windowSize), "NoitaSurvivor: Test");
 
 	Logger::info("Application starting...");
 
 	AssetMgr::init(); // init
+
+	if (!ImGui::SFML::Init(*window)) {
+		Logger::error("Failed to initialize ImGui-SFML");
+	} else {
+		Logger::info("ImGui-SFML initialized");
+	}
 
 	updateWindowSize();
 
@@ -74,9 +82,9 @@ int NWindow::loop() const {
 	fpsCalcTimer.start(CTimer::infinite_trigger);
 
 	bool isRunning = true;
-	bool enableImgui = false;
+	bool enableImgui = true;
 
-	// ImGui::GetStyle().ScaleAllSizes(1.5f);
+	ImGui::GetStyle().ScaleAllSizes(1.5f);
 	//  window->setFramerateLimit(120);
 
 	while (window->isOpen() && isRunning) {
@@ -95,11 +103,15 @@ int NWindow::loop() const {
 		if (sceneManager.shouldChangeScene()) {
 			sceneManager.changeScene();
 		}
-		auto currentScene = sceneManager.getCurrentScene();
+		const auto currentScene = sceneManager.getCurrentScene();
 		// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
 
 		// handle event
 		while (const auto event = window->pollEvent()) {
+			if (enableImgui) {
+				ImGui::SFML::ProcessEvent(*window, *event);
+			}
+
 			if (event->is<sf::Event::Closed>()) {
 				isRunning = false;
 				Logger::info("Window closed directly by user");
@@ -119,16 +131,12 @@ int NWindow::loop() const {
 				} else
 					currentScene->handleEvent(*event);
 			}
-
-			if (enableImgui) {
-				//ImGui::SFML::ProcessEvent(*window, event);
-			}
 		}
 
 		updateMousePos(); // this is critical!!!
 
 		if (enableImgui) {
-			//ImGui::SFML::Update(*window, dt);
+			ImGui::SFML::Update(*window, dt);
 		}
 
 		// update
@@ -155,14 +163,38 @@ int NWindow::loop() const {
 		renderer.draw(*window);
 
 		if (enableImgui) {
-			// ImGui::Begin("Test Window");
-			// ImGui::End();
-			// ImGui::SFML::Render(*window);
+			static bool showDemo = false;
+			static float value = 0.5f;
+			static int clickCount = 0;
+
+			ImGui::Begin("Imgui");
+
+			ImGui::Text("If you can see this, ImGui-SFML is working.");
+			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+			ImGui::SliderFloat("Test slider", &value, 0.0f, 1.0f);
+
+			if (ImGui::Button("Click me")) {
+				clickCount++;
+				Logger::info("ImGui button clicked: {}", clickCount);
+			}
+
+			ImGui::Text("Button clicks: %d", clickCount);
+			ImGui::Checkbox("Show ImGui demo window", &showDemo);
+
+			ImGui::End();
+
+			if (showDemo) {
+				ImGui::ShowDemoWindow(&showDemo);
+			}
+
+			ImGui::SFML::Render(*window);
 		}
 
 		window->display();
 	}
 
 	window->close();
+	ImGui::SFML::Shutdown();
 	return 0;
 }

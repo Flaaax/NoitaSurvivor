@@ -2,7 +2,7 @@
 #include "../../utils/Container/Container.h"
 #include "src/game/GameContext.h"
 #include "src/game/Spells/Spell.h"
-#include "src/gui/Renderer.h"
+#include "src/ui/Renderer.h"
 #include "src/utils/Timer.h"
 #include <deque>
 

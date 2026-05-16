@@ -1,6 +1,6 @@
 #include"MenuScene.h"
-#include"../gui/NButton.h"
-#include"src/gui/NWindow.h"
+#include "../ui/NButton.h"
+#include "src/ui/NWindow.h"
 
 MenuScene::MenuScene() {
 	constexpr auto windowSize = NWindow::scale.defaultWindowSizeF;

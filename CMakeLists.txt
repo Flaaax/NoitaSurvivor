@@ -9,8 +9,15 @@ endif ()
 find_package(SFML 3.0.2 EXACT COMPONENTS System Window Graphics Audio CONFIG REQUIRED)
 find_package(box2d 3.1.1 EXACT CONFIG REQUIRED)
 find_package(fmt 10.2.1 EXACT CONFIG REQUIRED)
+
+find_package(ImGui-SFML CONFIG REQUIRED)
 find_package(nlohmann_json 3.11.3 EXACT CONFIG REQUIRED)
 find_package(spdlog 1.13.0 EXACT CONFIG REQUIRED)
+
+get_target_property(NOITA_IMGUI_SFML_LINK_LIBRARIES ImGui-SFML::ImGui-SFML INTERFACE_LINK_LIBRARIES)
+if (NOITA_IMGUI_SFML_LINK_LIBRARIES MATCHES "(^|;)sfml-(graphics|window|system)(;|$)")
+    message(FATAL_ERROR "ImGui-SFML is using SFML 2-style CMake targets. Install or provide an ImGui-SFML package that links SFML 3 targets for SFML 3.0.2.")
+endif ()
 
 add_executable(NoitaSurvivor)
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT NoitaSurvivor)
@@ -76,6 +83,7 @@ target_compile_options(NoitaSurvivor PRIVATE
 target_link_libraries(NoitaSurvivor PRIVATE
         box2d::box2d
         fmt::fmt
+        ImGui-SFML::ImGui-SFML
         nlohmann_json::nlohmann_json
         spdlog::spdlog
         SFML::Audio
