@@ -1,10 +1,9 @@
 #pragma once
 #ifndef NSCENE_H
 #define NSCENE_H
-#include<list>
-#include"NWidget.h"
-#include"src/global/Register.h"
-
+#include "src/global/Register.h"
+#include "widget/NWidget.h"
+#include <list>
 
 class NScene {
 	friend class NWindow;

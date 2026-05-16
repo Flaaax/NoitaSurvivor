@@ -99,10 +99,13 @@ int NWindow::loop() const {
 			index = 0;
 		fpsCalcTimer.update(deltaTime);
 
+		updateMousePos(); // this is critical!!!
+
 		// Logger::info("New frame started, deltaTime: {}", deltaTime);
 		if (sceneManager.shouldChangeScene()) {
 			sceneManager.changeScene();
 		}
+
 		const auto currentScene = sceneManager.getCurrentScene();
 		// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
 
@@ -132,8 +135,6 @@ int NWindow::loop() const {
 					currentScene->handleEvent(*event);
 			}
 		}
-
-		updateMousePos(); // this is critical!!!
 
 		if (enableImgui) {
 			ImGui::SFML::Update(*window, dt);

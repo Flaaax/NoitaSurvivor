@@ -1,7 +1,7 @@
 #include "SpellInventory.h"
 #include "../../utils/Container/Container.h"
-#include "../NWidget.h"
 #include "../Renderer.h"
+#include "../widget/NWidget.h"
 #include "src/game/Spells/Spell.h"
 #include "src/utils/Assert.h"
 

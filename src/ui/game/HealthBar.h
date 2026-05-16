@@ -27,12 +27,6 @@ private:
 	mutable sf::Text text;
 
 public:
-	/// <summary>
-	/// Creates a health bar that expands to the left (like Brotato)
-	/// </summary>
-	/// <param name="geometry: ">Determines the initial length and the right top position</param>
-	/// <param name="initialMaxHealth: ">The barLength of the health bar is linear to max health</param>
-	/// <param name="mode: ">Determines its style</param>
 	HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
 	void setHealth(int health) {
 		m_health = health;
@@ -42,7 +36,7 @@ public:
 	void setMaxHealth(int maxHealth) {
 		m_maxHealth = maxHealth;
 		m_geometry.w = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
-		m_geometry.x = m_right - m_geometry.x;
+		m_geometry.x = m_right - m_geometry.w;
 		updateText();
 	}
 

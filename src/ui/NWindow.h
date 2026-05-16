@@ -1,10 +1,10 @@
 #pragma once
-#include"src/utils/Vec2.h"
-#include"NScale.h"
-#include"src/utils/Singleton.h"
-#include"src/utils/Macro.h"
-#include"NSceneManager.h"
-
+#include "NScale.h"
+#include "NSceneManager.h"
+#include "context/NInputState.h"
+#include "src/utils/Macro.h"
+#include "src/utils/Singleton.h"
+#include "src/utils/Vec2.h"
 
 namespace sf { class RenderWindow; }
 
@@ -18,8 +18,7 @@ private:
 	void updateMousePos() const;
 
 public:
-	N_STATIC_VAR nvec2 mouseRealPos = {};
-	N_STATIC_VAR nvec2 mouseRenderPos = {};
+	NInputState inputState;
 
 	N_STATIC_VAR NScale scale;
 	N_STATIC_VAR NSceneManager sceneManager;

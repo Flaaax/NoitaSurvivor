@@ -13,36 +13,7 @@ struct NSpellSlot {
 	NSpellInventory* inventory{};
 };
 
-class NSpell :public NObject {
-private:
-	friend class NSpellInventory;
-	enum Stat {
-		None,
-		Dragged,
-		Released
-	}stat;
-
-	std::shared_ptr<Spell> spell;
-	NSpellSlot* slot{};
-
-	float rotation{};
-	float t{};
-
-	static constexpr float slotSize = 45.f;
-	static constexpr float outLine = 3.f;
-
-public:
-	NSpell(std::shared_ptr<Spell> spell, const nvec2& pos = {});
-
-	bool handleEvent(const sf::Event& event)override;
-	void update(float deltaTime)override;
-	void draw(Renderer& renderer)const override;
-
-
-	nrect getHitbox()const { return m_geometry.getExpand({ 15.f,15.f }); }
-};
-
-class NSpellInventory :public NObject {
+class NSpellInventoryOld :public NObject {
 private:
 	friend class NSpell;
 	std::vector<NSpellSlot> slots;
@@ -54,7 +25,7 @@ private:
 	void updateSlots();
 public:
 	//The inventory should be empty, but has proper size
-	NSpellInventory(size_t count, const nvec2& pos);
+	NSpellInventoryOld(size_t count, const nvec2& pos);
 
 	void setOnModify(auto&& callback) { onModify = std::forward<decltype(callback)>(callback); }
 	void setCount(size_t count);

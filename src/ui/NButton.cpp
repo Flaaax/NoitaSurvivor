@@ -67,4 +67,5 @@ sf::Text& NButton::getText() const {
 
 void NButton::setText(const NString& text, unsigned int characterSize) const {
 	this->text.setString(text);
+	this->text.setCharacterSize(characterSize);
 }

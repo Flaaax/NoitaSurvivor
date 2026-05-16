@@ -1,0 +1,52 @@
+#pragma once
+#include "NDragState.h"
+#include "NInputState.h"
+#include "src/ui/NScale.h"
+#include "src/utils/Vec2.h"
+
+#include <SFML/Window/Event.hpp>
+
+using NRawEvent = sf::Event;
+class NObject;
+
+struct NEventCtx {
+	const NRawEvent& event;
+	const NScale& scale;
+	const NInputState& input;
+};
+
+struct NWidgetCtx {
+	NDragState dragState;
+};
+
+struct NLocalEventCtx {
+	nvec2 mouseLocal;
+};
+
+struct NEvent {
+	const NEventCtx& ctx;
+	const NWidgetCtx& widgetCtx;
+	NLocalEventCtx localCtx;
+};
+
+struct NEventResult {
+	struct Clicked {
+	};
+	struct Dragged {
+	};
+	struct DropAccepted {
+	};
+
+	NObject* handler{};
+	std::variant<std::monostate, Clicked, Dragged, DropAccepted> result;
+
+	template<class T>
+	bool is()const {
+		return std::holds_alternative<T>(result);
+	}
+
+	template<class T>
+	T* getIf() {
+		return std::get_if<T>(result);
+	}
+};

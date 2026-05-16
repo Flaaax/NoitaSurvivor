@@ -2,14 +2,13 @@
 #include <vector>
 
 namespace Util {
-	//Wrapper for std::vector
+	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)
 	class Vector : public std::vector<T> {
 	public:
 		using Base = std::vector<T>;
 		using Base::Base;
-
 
 		template <std::integral I>
 		T& operator[](I index) {
@@ -37,5 +36,13 @@ namespace Util {
 		void operator+=(U&& elem) {
 			this->emplace_back(std::forward<U>(elem));
 		}
+
+		template <class... Args>
+		T& emplace_front(Args&&... args) {
+			auto it = this->emplace(
+				this->begin(),
+				std::forward<Args>(args)...);
+			return *it;
+		}
 	};
-}
+} // namespace Util
