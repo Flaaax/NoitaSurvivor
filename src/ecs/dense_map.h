@@ -5,6 +5,7 @@
 #include"container.h"
 
 namespace myecs {
+	// NOTE: Do not modify the keys
 	template<class Traits>
 	class BaseMap {
 	public:
@@ -13,7 +14,7 @@ namespace myecs {
 		static constexpr u64 expand_factor = 2;
 		static constexpr u64 invalid_index = u64_max;
 
-		inline static constexpr bool is_map = Traits::is_map;
+		static constexpr bool is_map = Traits::is_map;
 		using Key = typename Traits::Key;
 		using Val = typename Traits::Val;
 		using Hash = typename Traits::Hash;
@@ -45,7 +46,7 @@ namespace myecs {
 			return fast_mod(myHash(key), bucket_count());
 		}
 
-		const Key& get_key(const Val& val)const {
+		static const Key& get_key(const Val& val) {
 			if constexpr (is_map) return val.first;
 			else return val;
 		}
@@ -263,7 +264,7 @@ namespace myecs {
 
 	template<class _Key, class _Val, class _Hash, class _KeyEq, class _Alloc, bool _is_map>
 	struct MapTraits {
-		inline static constexpr bool is_map = _is_map;
+		static constexpr bool is_map = _is_map;
 		using Key = _Key;
 		using Val = _Val;
 		using Hash = _Hash;

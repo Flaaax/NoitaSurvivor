@@ -25,5 +25,5 @@ cmake_install.cmake
 imgui.ini
 *.log
 
-src.zip
-src.7z
+*.zip
+*.7z

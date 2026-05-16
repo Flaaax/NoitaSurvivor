@@ -104,8 +104,14 @@ namespace myecs {
 					storage.emplace_back();
 				}
 				u64 id = this->ids.get();
-				auto& ret = storage[id].emplace(std::forward<Args>(args)...);
-				return { id, ret };
+				try {
+					auto& ret = storage[id].emplace(std::forward<Args>(args)...);
+					return { id, ret };
+				}
+				catch (...) {
+					this->ids.ret(id);
+					throw;
+				}
 			}
 
 			//id must be valid
