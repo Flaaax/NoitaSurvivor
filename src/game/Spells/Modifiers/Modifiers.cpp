@@ -33,7 +33,7 @@ void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
 	PhysicsService().createBody(ctx, detector, arg);
 	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
 
-	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::make_shared(new CircleTrackingDetectorScript(ctx, detector, p));
+	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::makeShared(new CircleTrackingDetectorScript(ctx, detector, p));
 }
 
 MultiShots::MultiShots(int shots) {

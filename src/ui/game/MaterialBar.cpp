@@ -17,9 +17,9 @@ void MaterialBar::updateText() {
 	text.setString(NString("{}材料", material));
 }
 
-void MaterialBar::draw(Renderer& renderer) const {
+void MaterialBar::draw(const NCanvas& canvas) const {
 	nrect textRect = text.getGlobalBounds();
 	textRect.setTopRight(topRight);
 	text.setPosition(textRect.position);
-	renderer.drawGui(text);
+	canvas.draw(text);
 }

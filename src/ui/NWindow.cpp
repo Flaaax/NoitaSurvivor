@@ -9,6 +9,7 @@
 #include "NText.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "src/global/InputManager.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <algorithm>
@@ -29,8 +30,9 @@ void NWindow::updateWindowSize() const {
 }
 
 void NWindow::updateMousePos() const {
-	mouseRealPos = sf::Mouse::getPosition(*window);
-	mouseRenderPos = scale.realPosToRenderPos(mouseRealPos);
+	auto& state = InputManager::state;
+	state.mouseScreen = sf::Mouse::getPosition(*window);
+	state.mouseRender = scale.toRenderPos(state.mouseScreen);
 }
 
 NWindow::NWindow() {
@@ -55,7 +57,7 @@ NWindow::NWindow() {
 NWindow::~NWindow() {
 }
 
-int NWindow::loop() const {
+int NWindow::loop() {
 	// Logger::info("Entering main loop...");
 	// fps
 	sf::Clock clock;
@@ -70,34 +72,35 @@ int NWindow::loop() const {
 	sceneManager.setCurrentScene("MenuScene");
 
 	auto& font = AssetMgr::getFont("consola");
-	NLineText text(font);
-	text.setPosition({0, 0});
-	text.sfText.setFillColor(sf::Color::Black);
-	text.setSize(2);
+	auto text = new NLineText(font);
+	text->setPosition({0, 0});
+	text->sfText.setFillColor(sf::Color::Black);
+	text->setSize(2);
 	CTimer fpsCalcTimer(1.f, [&] {
-		float total = std::accumulate(frameTimes.begin(), frameTimes.end(), 0.F);
+		const float total = std::accumulate(frameTimes.begin(), frameTimes.end(), 0.F);
 		averageFPS = static_cast<float>(frameTimes.size()) / total;
-		text[0] = (std::format("FPS: {}", static_cast<int>(trunc(averageFPS))));
+		(*text)[0] = (std::format("FPS: {}", static_cast<int>(trunc(averageFPS))));
 	});
 	fpsCalcTimer.start(CTimer::infinite_trigger);
 
+	const auto globalWidget = Util::makeUnique(new NRootWidget());
+	globalWidget->addToTop(Util::makeUnique(std::move(text)));
+
 	bool isRunning = true;
 	bool enableImgui = true;
-
 	ImGui::GetStyle().ScaleAllSizes(1.5f);
-	//  window->setFramerateLimit(120);
 
 	while (window->isOpen() && isRunning) {
 		// calculate deltatime
 		constexpr float MAX_DELTA_TIME = 0.1f;
-		auto dt = clock.restart();
-		float deltaTime = std::min(dt.asSeconds(), MAX_DELTA_TIME);
+		auto sfDt = clock.restart();
+		const float dt = std::min(sfDt.asSeconds(), MAX_DELTA_TIME);
 
-		frameTimes[index] = deltaTime;
+		frameTimes[index] = dt;
 		index++;
 		if (index >= frameTimes.size())
 			index = 0;
-		fpsCalcTimer.update(deltaTime);
+		fpsCalcTimer.update(dt);
 
 		updateMousePos(); // this is critical!!!
 
@@ -120,32 +123,27 @@ int NWindow::loop() const {
 				Logger::info("Window closed directly by user");
 			} else if (event->is<sf::Event::Resized>()) {
 				updateWindowSize();
-				renderer.updateGuiRender();
 			} else if (const auto e = event->getIf<sf::Event::KeyPressed>(); e && e->code == sf::Keyboard::Key::Escape) {
 				isRunning = false;
 				Logger::info("Window closed by pressing Esc");
 			}
 			if (currentScene) {
-				if (currentScene->m_widget) {
-					const bool handled = currentScene->m_widget->handleEvent(*event);
-					if (!handled) {
-						currentScene->handleEvent(*event);
-					}
-				} else
-					currentScene->handleEvent(*event);
+				NEventCtx eventCtx{
+					.rawEvent = *event,
+					.scale = scale,
+					.input = InputManager::getState(),
+				};
+				currentScene->handleEvent(eventCtx);
 			}
 		}
 
 		if (enableImgui) {
-			ImGui::SFML::Update(*window, dt);
+			ImGui::SFML::Update(*window, sfDt);
 		}
 
 		// update
 		if (currentScene) {
-			if (currentScene->m_widget) {
-				currentScene->m_widget->update(deltaTime);
-			}
-			currentScene->update(deltaTime);
+			currentScene->update(dt);
 		}
 
 		// draw
@@ -153,13 +151,9 @@ int NWindow::loop() const {
 
 		if (currentScene) {
 			currentScene->draw(renderer);
-
-			if (currentScene->m_widget) {
-				currentScene->m_widget->draw(renderer);
-			}
 		}
 
-		text.draw(renderer);
+		globalWidget->draw(renderer);
 
 		renderer.draw(*window);
 

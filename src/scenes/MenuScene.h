@@ -3,10 +3,10 @@
 #include "../ui/NScene.h"
 
 class MenuScene :public NScene {
-	N_REG_SCENE(MenuScene)
 public:
 	MenuScene();
 
-	void draw(Renderer& renderer) override;
-	void update(float deltaTime) override;
+	void draw(Renderer& rdr) override;
+	void update(float dt) override;
+	std::string_view getName() const override;
 };

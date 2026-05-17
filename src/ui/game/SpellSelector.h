@@ -1,7 +1,7 @@
 #pragma once
 
 #include"../NObject.h"
-#include"SpellInventory.h"
+#include "NSpellInventory.h"
 
 class NWidget;
 class NButton;
@@ -19,6 +19,6 @@ public:
 	~NSpellSelector() override;
 	NSpellSelector* create(const nvec2& center, int selectCount);
 
-	void draw(Renderer& renderer)const override;
+	void draw(const NCanvas& canvas) const override;
 	bool getIsRunning()const { return isRunning; }
 };

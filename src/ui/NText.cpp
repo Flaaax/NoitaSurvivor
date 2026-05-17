@@ -20,19 +20,19 @@ NText::NText(const NString& str, const sf::Font& font, AlignOption align, unsign
 NText::NText(const sf::Text& text, AlignOption align) : sfText(text), align(align) {
 }
 
-void NText::draw(Renderer& renderer) const {
+void NText::draw(const NCanvas& canvas) const {
 	if (align == LeftTop) {
 		sfText.setPosition(this->getPosition());
-		renderer.drawGui(sfText);
+		canvas.draw(sfText);
 	} else if (align == Center) {
 		nrect bounds = sfText.getLocalBounds();
-		bounds.setCenter(m_geometry.center());
+		bounds.setCenter(geometry.center());
 		sfText.setPosition(bounds.position);
-		renderer.drawGui(sfText);
+		canvas.draw(sfText);
 	}
 }
 
-void NLineText::draw(Renderer& renderer) const {
+void NLineText::draw(const NCanvas& canvas) const {
 	NString text;
 	for (size_t i = 0; i < std::min(lineLimit, strings.size()); i++) {
 		if (i != 0)
@@ -41,5 +41,5 @@ void NLineText::draw(Renderer& renderer) const {
 	}
 	sfText.setString(text);
 	sfText.setPosition(this->getPosition());
-	renderer.drawGui(sfText);
+	canvas.draw(sfText);
 }

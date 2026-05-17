@@ -1,6 +1,6 @@
 #pragma once
-#include "NWindow.h"
-#include "src/utils/Math.h"
+#include "src/ui/NWindow.h"
+#include "src/ui/NScale.h"
 #include <SFML/Graphics.hpp>
 
 class Renderer {
@@ -10,7 +10,6 @@ private:
 	sf::RenderTexture texture;
 	sf::RenderTexture accumTexture;
 	sf::RenderStates gameContentState;
-	sf::RenderStates guiContentState;
 	bool enableMotionBlur = true;
 
 public:
@@ -26,22 +25,15 @@ public:
 			.scale(NScale::gameRenderScale);
 	}
 
-	void updateGuiRender() {
-		guiContentState.transform = sf::Transform::Identity;
-		// guiContentState.transform.scale(1.f, -1.f);
-		// guiContentState.transform.translate(NScale::realRenderOffset);
-		// guiContentState.transform.scale(NScale::currentRenderScale.Fvec2());
-	}
-
 	void drawGame(const sf::Drawable& gameContent) {
 		texture.draw(gameContent, gameContentState);
 	}
 
-	void drawGui(const sf::Drawable& guiContent) {
-		texture.draw(guiContent, guiContentState);
+	void drawUI(const sf::Drawable& guiContent, const sf::RenderStates states) {
+		texture.draw(guiContent, states);
 	}
 
-	void clear(const sf::Color color = {0, 0, 0}) {
+	void clear(sf::Color color = {0, 0, 0}) {
 		texture.clear(color);
 	}
 
@@ -75,6 +67,6 @@ public:
 		to.draw(s);
 	}
 
-	// Ensures that y=0 is at below
+	// Ensures that y=0 is at the bottom of the screen
 	void draw(sf::RenderWindow& window);
 };

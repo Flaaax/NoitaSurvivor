@@ -7,6 +7,7 @@
 
 class EntityFactory;
 class ContactLayerRules;
+struct NInputState;
 
 struct WorldCtx {
 	b2WorldId world = b2_nullWorldId;

@@ -13,11 +13,14 @@ namespace sf {
 class NWidget : public NObject {
 private:
 	friend class NObject;
+	friend class NRootWidget;
 	Util::Vector<n_unique<NObject>> objects;
-	NWidgetCtx widgetCtx;
 
 	void bind(NObject* obj) {
 		assertNotNull(obj);
+		if (obj == this) {
+			Logger::error_and_throw("Cannot bind a widget to itself!");
+		}
 		if (obj->parent) {
 			obj->parent->remove(obj);
 		}
@@ -26,10 +29,14 @@ private:
 
 public:
 	// geomoetry will be ignored if this is the root widget
-	explicit NWidget(nrect geometry, bool enableUpdate = true) : NObject(nullptr) {
-		updateEnabled = enableUpdate;
-		m_geometry = geometry;
+	explicit NWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) : NObject(nullptr) {
+		updateEnabled = updateEnabled_;
+		this->geometry = geometry;
 		isWidget_ = true;
+	}
+
+	NObject* add(n_unique<NObject> obj) {
+		return addToTop(std::move(obj));
 	}
 
 	NObject* addToTop(n_unique<NObject> obj) {
@@ -48,13 +55,10 @@ public:
 		return objects;
 	}
 
-	std::optional<NEventResult> handleEvent(const NEvent& event) override;
-
-	// Handle event as the root widget
-	bool handleEvent(const NEventCtx& ctx);
+	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
 	void update(float deltaTime) override;
-	void draw(Renderer& renderer) const override;
+	void draw(const NCanvas& canvas) const override;
 
 	bool has(const NObject* obj) const {
 		return obj->getParent() == this;
@@ -72,6 +76,5 @@ public:
 		addToBottom(remove(obj));
 	}
 
-	virtual void onDropAccepted(NDragState state) {
-	}
+	void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
 };

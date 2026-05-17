@@ -22,8 +22,8 @@ public:
 
 	explicit NButton(nrect geometry);
 
-	bool handleEvent(const sf::Event& event) override;
-	void draw(Renderer& renderer) const override;
+	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
+	void draw(const NCanvas& canvas) const override;
 
 	sf::Text& getText() const;
 	void setText(const NString& text, unsigned int characterSize = 30) const;

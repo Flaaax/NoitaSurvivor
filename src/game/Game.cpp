@@ -68,7 +68,7 @@ void Game::init() {
 	worldDef.gravity = {0, 0};
 	worldCtx.world = b2CreateWorld(&worldDef);
 
-	factory = make_unique(new EntityFactory());
+	factory = makeUnique(new EntityFactory());
 
 	const auto ctx = getContext();
 
@@ -77,7 +77,7 @@ void Game::init() {
 	// world->SetContactListener(contactListener.get());
 	// world->SetContactFilter(contactFilter.get());
 
-	ctxInternal = make_unique(new GameCtx(getContext()));
+	ctxInternal = makeUnique(new GameCtx(getContext()));
 
 	b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::FilterCallback, ctxInternal.get());
 	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::PresolveCallback, ctxInternal.get());

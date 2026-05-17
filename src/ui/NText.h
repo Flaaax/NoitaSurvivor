@@ -25,7 +25,7 @@ public:
 	explicit NText(const sf::Text& text, AlignOption align = LeftTop);
 	NText(const NText&) = default;
 
-	void draw(Renderer& renderer) const override;
+	void draw(const NCanvas& canvas) const override;
 
 	void setText(const NString& str) const {
 		sfText.setString(str);
@@ -64,7 +64,7 @@ public:
 		return strings[i];
 	}
 
-	void draw(Renderer& renderer) const override;
+	void draw(const NCanvas& canvas) const override;
 
 	NString& operator[](size_t i) {
 		return getString(i);

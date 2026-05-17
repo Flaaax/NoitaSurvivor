@@ -3,6 +3,7 @@
 #include "src/game/Components/EntityFactory.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
+#include "src/global/InputManager.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/VectorHelper.h"
 
@@ -11,7 +12,7 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 	auto& state = ctx.gameState;
 
-	state.wands += make_unique(new Wand());
+	state.wands += makeUnique(new Wand());
 
 	state.player.id = ctx.factory.createPlayer(ctx);
 	state.player.collector = ctx.factory.createCollector(ctx, 3.f);
@@ -39,7 +40,8 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 	auto& state = ctx.gameState;
-	state.mousePos = (NWindow::mouseRenderPos - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
+	auto& inputState = InputManager::getState();
+	state.mousePos = (inputState.mouseRender - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
 	const myecs::entity player = ctx.gameState.player.id;
 	state.playerPos = PhysicsService().getPosition(ctx, player);
 	state.cameraPos = state.playerPos;

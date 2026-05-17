@@ -13,7 +13,7 @@ void NSceneManager::addScene(n_unique<NScene> scene) {
 }
 
 NScene* NSceneManager::getScene(std::string_view name)const {
-	if (auto it = scenes.find(name); it != scenes.end()) {
+	if (const auto it = scenes.find(name); it != scenes.end()) {
 		return it->second.get();
 	}
 	throw std::runtime_error(std::format("Scene {} does not exist or not registered!", name));

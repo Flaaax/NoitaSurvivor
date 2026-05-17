@@ -1,9 +1,9 @@
 #pragma once
-#include "../../utils/Container/Container.h"
 #include "src/game/GameContext.h"
 #include "src/game/Spells/Spell.h"
-#include "src/ui/Renderer.h"
+#include "src/render/Renderer.h"
 #include "src/utils/Timer.h"
+#include <SFML/Graphics/Sprite.hpp>
 #include <deque>
 
 class Wand {

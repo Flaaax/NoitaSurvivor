@@ -1,17 +1,18 @@
 #include "GameScene.h"
 #include "../ui/NButton.h"
-#include "../ui/game/HealthBar.h"
 #include "../ui/game/MaterialBar.h"
+#include "../ui/game/ValueBar.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
 #include "src/ui/NText.h"
-#include "src/ui/game/SpellInventory.h"
-#include "src/ui/game/SpellSelector.h"
+#include "src/ui/game/NSpell.h"
+#include "src/ui/game/NSpellInventory.h"
 #include <src/utils/Logger.h>
 
-NText* pauseText = nullptr;
-MaterialBar* materialBar = nullptr;
-HealthBar* expBar = nullptr;
+NText* pauseText{};
+MaterialBar* materialBar{};
+ValueBar* expBar{};
+
 // NSpellSelector* spellSelector = nullptr;
 
 GameScene::GameScene()
@@ -19,13 +20,11 @@ GameScene::GameScene()
 	Logger::info("GameScene created");
 }
 
-GameScene::~GameScene() {
-}
+void GameScene::draw(Renderer& rdr) {
+	game.draw(rdr);
 
-void GameScene::draw(Renderer& renderer) {
-	game.draw(renderer);
-
-	pauseText->setVisible(game.isPaused());
+	pauseText->isVisible = game.isPaused();
+	NScene::draw(rdr);
 }
 
 void GameScene::update(float deltaTime) {
@@ -40,69 +39,87 @@ void GameScene::update(float deltaTime) {
 	expBar->setValue(p.exp, p.maxExp, p.level);
 }
 
-void GameScene::handleEvent(const sf::Event& event) {
-	if (const auto e = event.getIf<sf::Event::KeyPressed>()) {
-		if (e->code == sf::Keyboard::Key::Space) {
+bool GameScene::handleEvent(const NEventCtx& event) {
+	if (NScene::handleEvent(event)) {
+		return true;
+	}
+
+	if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
+		if (e->code == sf::Keyboard::Key::P) {
 			game.setPaused(!game.isPaused());
 		}
 	}
 
-	game.handleEvent(event);
+	game.handleEvent(event.rawEvent);
+
+	return true;
 }
 
 void GameScene::enter() {
-	init();
-}
-
-void GameScene::exit() {
-}
-
-void GameScene::onInit() {
+	if (init) {
+		return;
+	}
 	game.init();
-
 	initUI();
+	init = true;
+	Logger::info("GameScene initialized");
+}
 
-	Logger::info("game initialized");
+std::string_view GameScene::getName() const {
+	return NObject::makeTypeID<GameScene>();
 }
 
 void GameScene::initUI() {
-	auto widget = new NWidget();
-	setWidget(widget);
+	createWidget();
 	auto& wand = *game.state.wands.front();
 
-	auto inventory1 = new NSpellInventory(0, {100, 150});
-	widget->add(inventory1);
-	inventory1->setFrom(wand.inventory);
-	inventory1->setOnModify([&](const NSpellInventory& inv) {
-		wand.clear();
-		wand.inventory.clear();
-		for (size_t i = 0; i < inv.getCount(); i++) {
-			wand.inventory.emplace_back(inv.getSpell(i));
+	auto inventory1 = Util::makeUnique(new NSpellInventory({100, 150}, wand.inventory.size()));
+
+	for (const auto i : wand.inventory.indices()) {
+		if (!wand.inventory[i]) {
+			continue;
 		}
-	});
-	auto inventory2 = new NSpellInventory(5, {350, 50});
-	widget->add(inventory2);
+		auto spell = Util::makeUnique(new NSpell(wand.inventory[i], {i * 10, i * 10}));
+		inventory1->addItem(std::move(spell), static_cast<int>(i));
+	}
+
+	// inventory1->setFrom(wand.inventory);
+	// inventory1->setOnModify([&](const NSpellInventory& inv) {
+	// 	wand.clear();
+	// 	wand.inventory.clear();
+	// 	for (size_t i = 0; i < inv.getCount(); i++) {
+	// 		wand.inventory.emplace_back(inv.getSpell(i));
+	// 	}
+	// });
+
+	widget->addToTop(std::move(inventory1));
+
+	auto inventory2 = Util::makeUnique(new NSpellInventory({350, 50}, 5));
+	widget->addToTop(std::move(inventory2));
 
 	constexpr auto windowSize = NScale::defaultWindowSizeF;
-	const auto healthBar = new HealthBar({windowSize.x - 20, 20}, {320, 22}, 10, 2.f);
+	auto healthBar =
+		Util::makeUnique(new ValueBar(
+			{windowSize.x - 20, 20},
+			{320, 22}, 10, 2.f, ValueBar::HEALTH));
 	healthBar->setHealth(10);
-	widget->add(healthBar);
+	widget->addToTop(std::move(healthBar));
 
-	expBar = new HealthBar({windowSize.x - 20, 20 + 22 + 20}, {320, 22}, 20, 0.f, HealthBar::EXP);
+	expBar =
+		new ValueBar({windowSize.x - 20, 20 + 22 + 20}, {320, 22},
+					 20, 0.f, ValueBar::EXP);
 	expBar->setLevel(game.state.player.level);
 	expBar->setHealth(game.state.player.exp);
-	widget->add(expBar);
+	widget->add(Util::makeUnique(expBar));
 
 	materialBar = new MaterialBar({windowSize.x - 20, 20 + 22 + 20 + 22 + 20}, 27.f);
 	materialBar->setData(100);
-	widget->add(materialBar);
+	widget->add(Util::makeUnique(materialBar));
 
 	// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
 
 	pauseText = new NText("游戏暂停", NText::Center, 30U);
 	pauseText->setGeometry({0, 0, windowSize.x, windowSize.y / 4.f});
-	pauseText->setVisible(false);
-	widget->add(pauseText);
-
-	widget->setUpdate(true);
+	pauseText->isVisible = false;
+	widget->add(Util::makeUnique(pauseText));
 }

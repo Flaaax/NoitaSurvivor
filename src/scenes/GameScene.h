@@ -7,25 +7,22 @@
 
 class Game;
 
-class GameScene :public NScene {
-	N_REG_SCENE(GameScene);
-	N_DECL_INITABLE;
+class GameScene : public NScene {
 private:
 	Game& game;
 	logptr logger;
+	bool init = false;
 
-	void onInit();
 	void initUI();
+
 public:
 	GameScene();
-	~GameScene();
 
-	void draw(Renderer& renderer) override;
+	void draw(Renderer& rdr) override;
 	void update(float deltaTime) override;
-	void handleEvent(const sf::Event& event)override;
-	void enter()override;
-	void exit()override;
+	bool handleEvent(const NEventCtx& event) override;
+	void enter() override;
+	std::string_view getName() const override;
 };
-
 
 #endif

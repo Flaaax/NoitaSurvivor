@@ -50,7 +50,7 @@ void LifeTimeSystem::destroyDeadEntities(const GameCtx& ctx) {
 			const float spin = Util::random.getBool() ? 1.f : -1.f;
 			reg.emplace_or_replace<LifetimeComponent>(e).lifeTimer.start(duration);
 			auto& sc = reg.get_or_emplace<SpriteEffectComponent>(e);
-			sc.effectList += Util::make_unique(new Transition(
+			sc.effectList += Util::makeUnique(new Transition(
 				EffectState{},
 				EffectState{
 					.rotation = sf::degrees(spin * arg),

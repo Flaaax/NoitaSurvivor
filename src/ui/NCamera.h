@@ -3,7 +3,7 @@
 #include"src/utils/Math.h"
 
 
-class Camera {
+class NCamera {
 public:
 	nvec2 renderPos = { 0,0 };
 

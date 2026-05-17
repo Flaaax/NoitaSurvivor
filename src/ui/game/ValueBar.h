@@ -6,7 +6,7 @@
 
 
 //Used for both health bar and exp bar
-class HealthBar :public NObject {
+class ValueBar :public NObject {
 public:
 	inline static constexpr int HEALTH = 0;
 	inline static constexpr int EXP = 1;
@@ -27,7 +27,7 @@ private:
 	mutable sf::Text text;
 
 public:
-	HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
+	ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
 	void setHealth(int health) {
 		m_health = health;
 		updateText();
@@ -35,8 +35,8 @@ public:
 
 	void setMaxHealth(int maxHealth) {
 		m_maxHealth = maxHealth;
-		m_geometry.w = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
-		m_geometry.x = m_right - m_geometry.w;
+		geometry.w = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
+		geometry.x = m_right - geometry.w;
 		updateText();
 	}
 
@@ -54,5 +54,5 @@ public:
 
 	void updateText();
 
-	void draw(Renderer& renderer)const override;
+	void draw(const NCanvas& canvas) const override;
 };

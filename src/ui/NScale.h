@@ -43,7 +43,7 @@ public:
 	nrect currentWindowRect;
 	nvec2 realRenderOffset;
 
-	nvec2 realPosToRenderPos(const nvec2& pos) const {
-		return (pos - realRenderOffset) / currentRenderScale.x;
+	nvec2 toRenderPos(nvec2 screenPos) const {
+		return (screenPos - realRenderOffset) / currentRenderScale.x;
 	}
 };

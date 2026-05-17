@@ -1,45 +1,45 @@
 
 #include "NButton.h"
-#include "./Renderer.h"
 #include "NWindow.h"
 #include "src/global/AssetManager.h"
 
 NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
-	m_geometry = geometry;
+	this->geometry = geometry;
 	text.setFillColor({0, 0, 0});
 }
-bool NButton::handleEvent(const sf::Event& event) {
-	if (event.is<sf::Event::MouseMoved>()) {
-		if (m_geometry.contains(NWindow::mouseRenderPos)) {
+
+std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
+	auto& rawEvent = event.ctx.rawEvent;
+	if (rawEvent.is<sf::Event::MouseMoved>()) {
+		if (geometry.contains(event.ctx.input.mouseRender)) {
 			if (state != Pressed) {
 				state = Hovered;
 			}
 		} else {
 			state = Normal;
 		}
-	} else if (event.is<sf::Event::MouseButtonPressed>()) {
-		if (m_geometry.contains(NWindow::mouseRenderPos)) {
+	} else if (rawEvent.is<sf::Event::MouseButtonPressed>()) {
+		if (geometry.contains(event.ctx.input.mouseRender)) {
 			state = Pressed;
-			return true;
+			return NEventResult{this, NEventResult::Pressed{}};
 		}
-	} else if (event.is<sf::Event::MouseButtonReleased>()) {
-		if (m_geometry.contains(NWindow::mouseRenderPos)) {
+	} else if (rawEvent.is<sf::Event::MouseButtonReleased>()) {
+		if (geometry.contains(event.ctx.input.mouseRender)) {
 			state = Hovered;
 			if (onClick) {
 				onClick();
 			}
-			return true;
-		} else {
-			state = Normal;
+			return NEventResult{this, NEventResult::Clicked{}};
 		}
+		state = Normal;
 	}
-	return false;
+	return {};
 }
 
-void NButton::draw(Renderer& renderer) const {
+void NButton::draw(const NCanvas& canvas) const {
 	if (isButtonVisible) {
 		sf::RectangleShape shape;
-		shape.setPosition(m_geometry.position);
+		shape.setPosition(geometry.position);
 		shape.setSize(getSize());
 		if (state == Normal) {
 			shape.setFillColor(sf::Color(190, 190, 190));
@@ -50,14 +50,14 @@ void NButton::draw(Renderer& renderer) const {
 		}
 		shape.setOutlineThickness(3.f);
 		shape.setOutlineColor({150, 150, 150});
-		renderer.drawGui(shape);
+		canvas.draw(shape);
 	}
 
 	if (!text.getString().isEmpty()) {
 		nrect bounds = text.getGlobalBounds();
-		bounds.setCenter(m_geometry.center());
+		bounds.setCenter(geometry.center());
 		text.setPosition(bounds.position);
-		renderer.drawGui(text);
+		canvas.draw(text);
 	}
 }
 

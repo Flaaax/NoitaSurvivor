@@ -10,42 +10,47 @@ using NRawEvent = sf::Event;
 class NObject;
 
 struct NEventCtx {
-	const NRawEvent& event;
+	const NRawEvent& rawEvent;
 	const NScale& scale;
 	const NInputState& input;
 };
 
 struct NWidgetCtx {
-	NDragState dragState;
+	const NDragState& dragState;
 };
 
 struct NLocalEventCtx {
 	nvec2 mouseLocal;
 };
 
-struct NEvent {
+struct NUIEvent {
 	const NEventCtx& ctx;
 	const NWidgetCtx& widgetCtx;
 	NLocalEventCtx localCtx;
 };
 
 struct NEventResult {
+	struct Pressed {
+	};
+
 	struct Clicked {
 	};
+
 	struct Dragged {
 	};
-	struct DropAccepted {
-	};
+
+	// struct DropAccepted {
+	// };
 
 	NObject* handler{};
-	std::variant<std::monostate, Clicked, Dragged, DropAccepted> result;
+	std::variant<std::monostate, Clicked, Dragged, Pressed> result;
 
-	template<class T>
-	bool is()const {
+	template <class T>
+	bool is() const {
 		return std::holds_alternative<T>(result);
 	}
 
-	template<class T>
+	template <class T>
 	T* getIf() {
 		return std::get_if<T>(result);
 	}

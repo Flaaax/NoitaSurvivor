@@ -122,7 +122,7 @@ myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& po
 
 	reg.emplace<MultiContactComponent>(e);
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
-		Util::make_unique(new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
+		Util::makeUnique(new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
 	ctx.reg.emplace<ExplosionComponent>(e);
 
 	return e;

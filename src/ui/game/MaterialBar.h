@@ -21,5 +21,5 @@ public:
 
 	void updateText();
 
-	void draw(Renderer& renderer)const override;
+	void draw(const NCanvas& canvas) const override;
 };

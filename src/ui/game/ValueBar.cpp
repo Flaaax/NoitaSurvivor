@@ -1,9 +1,8 @@
-#include "HealthBar.h"
-#include "../Renderer.h"
+#include "ValueBar.h"
 #include "src/global/AssetManager.h"
 #include "src/utils/NString.h"
 
-HealthBar::HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth, int mode)
+ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth, int mode)
 	: m_initialHealth(initialMaxHealth),
 	  m_initialLength(size.x),
 	  lengthPerHealth(lengthPerHealth),
@@ -11,8 +10,8 @@ HealthBar::HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHea
 	  mode(mode), text(AssetMgr::getDefaultFont()) {
 	setHealth(initialMaxHealth);
 	setMaxHealth(initialMaxHealth);
-	m_geometry.size = size;
-	m_geometry.setTopRight(topRight);
+	geometry.size = size;
+	geometry.setTopRight(topRight);
 
 	text.setFillColor({240, 240, 240});
 	text.setOutlineColor({0, 0, 0});
@@ -30,7 +29,7 @@ HealthBar::HealthBar(const nvec2& topRight, const nvec2& size, int initialMaxHea
 	text.setStyle(sf::Text::Bold);
 }
 
-void HealthBar::updateText() {
+void ValueBar::updateText() {
 	if (mode == 1) {
 		text.setString(NString("等级{}", level));
 	} else if (mode == 0) {
@@ -38,29 +37,29 @@ void HealthBar::updateText() {
 	}
 }
 
-void HealthBar::draw(Renderer& renderer) const {
-	auto& renderPos = m_geometry.position;
-	const fvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * m_geometry.w, m_geometry.h};
+void ValueBar::draw(const NCanvas& canvas) const {
+	auto& renderPos = geometry.position;
+	const fvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.w, geometry.h};
 	healthShape.setSize(healthShapeSize);
-	healthShape.setPosition({renderPos.x + m_geometry.w - healthShapeSize.x, renderPos.y});
+	healthShape.setPosition({renderPos.x + geometry.w - healthShapeSize.x, renderPos.y});
 
-	nrect posRect = {renderPos, m_geometry.size};
+	nrect posRect = {renderPos, geometry.size};
 
-	healthBarShape.setSize(m_geometry.size);
+	healthBarShape.setSize(geometry.size);
 
 	healthBarShape.setPosition(posRect.position);
-	nrect backGroundRect({0, 0}, m_geometry.size + nvec2{8, 8});
+	nrect backGroundRect({0, 0}, geometry.size + nvec2{8, 8});
 	backGroundRect.setCenter(posRect.center());
 	backGroundShape.setSize(backGroundRect.size);
 	backGroundShape.setPosition(backGroundRect.position);
 
-	renderer.drawGui(backGroundShape);
-	renderer.drawGui(healthBarShape);
-	renderer.drawGui(healthShape);
+	canvas.draw(backGroundShape);
+	canvas.draw(healthBarShape);
+	canvas.draw(healthShape);
 
 	nrect textRect = text.getGlobalBounds();
 	nvec2 pos = textRect.setCenter(posRect.center()).position;
 	pos.y -= 0.5f;
 	text.setPosition(pos);
-	renderer.drawGui(text);
+	canvas.draw(text);
 }

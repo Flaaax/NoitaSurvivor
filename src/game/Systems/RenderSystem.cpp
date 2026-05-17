@@ -1,9 +1,9 @@
 #include "RenderSystem.h"
+#include "src/render/Renderer.h"
 #include "../Components/Render/RenderComponent.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/global/DataManager.h"
-#include "src/ui/Renderer.h"
 #include "src/ui/shapes/NLineShape.h"
 #include <src/game/Components/PhysicsComponents.h>
 

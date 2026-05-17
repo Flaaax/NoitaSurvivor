@@ -1,33 +1,33 @@
 #pragma once
 #include "src/ui/NObject.h"
 
-struct NSpellSlot;
 class Spell;
-class NSpell :public NObject {
+class NSpellInventory;
+
+class NSpell : public NObject {
 private:
 	friend class NSpellInventory;
-	enum Stat {
-		None,
-		Dragged,
-		Released
-	}stat;
+	bool isReleased{};
 
-	std::shared_ptr<Spell> spell;
-	NSpellSlot* slot{};
+	n_shared<Spell> spell;
+	int index{};
 
 	float rotation{};
 	float t{};
 
-	static constexpr float slotSize = 45.f;
+public:
+	static constexpr nvec2 slotSize = {45.f, 45.f};
 	static constexpr float outLine = 3.f;
 
-public:
-	NSpell(std::shared_ptr<Spell> spell, const nvec2& pos = {});
+	explicit NSpell(std::shared_ptr<Spell> spell, nvec2 pos = {});
 
-	bool handleEvent(const sf::Event& event)override;
-	void update(float dt)override;
-	void draw(Renderer& renderer)const override;
+	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
+	void update(float dt) override;
+	void draw(const NCanvas& canvas) const override;
 
+	nrect getHitbox() const override {
+		return geometry.getExpand({15.f, 15.f});
+	}
 
-	nrect getHitbox()const { return m_geometry.getExpand({ 15.f,15.f }); }
+	NSpellInventory* getInventory() const;
 };
