@@ -27,3 +27,5 @@ imgui.ini
 
 *.zip
 *.7z
+
+.codex/

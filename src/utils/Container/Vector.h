@@ -1,5 +1,7 @@
 ﻿#pragma once
+#include <array>
 #include <ranges>
+#include <stdexcept>
 #include <vector>
 
 namespace Util {

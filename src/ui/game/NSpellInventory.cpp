@@ -117,7 +117,6 @@
 // 		}
 // 	}
 // }
-
 // NSpellInventory* NSpellInventory::create(NWidget* widget, Inventory& inventory, const nvec2& pos) {
 //	Inventory copy;
 //	inventory.swap(copy);
@@ -147,13 +146,15 @@ void NSpellInventory::updateSlotsGeometry() {
 	};
 }
 
-std::pair<int, float> NSpellInventory::getBestSlot(nrect globalGeometry) const {
-	int bestSlot = static_cast<int>(slots.size());
+std::pair<int, float> NSpellInventory::getBestSlot(nrect globalHitbox) const {
+	int bestSlot = -1;
 	float bestDistance = std::numeric_limits<float>::max();
-	const nvec2 globalCenter = globalGeometry.center();
+	const nvec2 globalCenter = globalHitbox.center();
 	for (size_t i = 0; i < slots.size(); i++) {
-		if (const auto& slot = slots[i]; getGlobalGeometry(slot.geometry).overlaps(globalGeometry)) {
-			const float disntance = (slot.geometry.center() - globalCenter).lengthSquared();
+		const auto& slot = slots[i];
+		nrect globalSlotGeometry = getGlobalGeometry(slot.geometry).offset(getPosition());
+		if (globalSlotGeometry.overlaps(globalHitbox)) {
+			const float disntance = (globalSlotGeometry.center() - globalCenter).lengthSquared();
 			if (bestSlot == -1 || disntance < bestDistance) {
 				bestSlot = static_cast<int>(i);
 				bestDistance = disntance;
@@ -161,6 +162,19 @@ std::pair<int, float> NSpellInventory::getBestSlot(nrect globalGeometry) const {
 		}
 	}
 	return {bestSlot, bestDistance};
+}
+
+void NSpellInventory::updateHoveredSlot(nvec2 mouseLocal) {
+	hoveredSlot = -1;
+	if (getGeometry().contains(mouseLocal)) {
+		const nvec2 mouseLocal2 = mouseLocal - getGeometry();
+		for (const size_t i : slots.indices()) {
+			if (slots[i].geometry.contains(mouseLocal2)) {
+				hoveredSlot = static_cast<int>(i);
+				break;
+			}
+		}
+	}
 }
 
 NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
@@ -184,12 +198,14 @@ void NSpellInventory::draw(const NCanvas& canvas) const {
 	shape.setOutlineColor({0, 0, 0});
 
 	for (size_t i = 0; i < getCount(); i++) {
-		shape.setPosition(slots[i].geometry.position + nvec2{NSpell::outLine, NSpell::outLine});
+		shape.setPosition(getPosition() + slots[i].geometry.position + nvec2{NSpell::outLine, NSpell::outLine});
 		shape.setOutlineThickness(NSpell::outLine);
-		if (i != selectedSlot && shouldHighlight) {
-			shape.setFillColor({140, 140, 140});
-		} else {
+		const bool shouldHighlightSlot =
+			(shouldHighlight && i == selectedSlot) || i == hoveredSlot;
+		if (shouldHighlightSlot) {
 			shape.setFillColor({200, 200, 200});
+		} else {
+			shape.setFillColor({140, 140, 140});
 		}
 		constexpr float width = NSpell::slotSize.x - 2 * NSpell::outLine;
 		shape.setSize({width, width});
@@ -202,14 +218,13 @@ void NSpellInventory::draw(const NCanvas& canvas) const {
 void NSpellInventory::onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 	if (query.state.dragged->getTypeID() != makeTypeID<NSpell>() ||
 		!query.globalHitbox.overlaps(this->getGlobalGeometry())) {
+		selectedSlot = -1;
 		return;
 	}
 	auto [bestSlot, bestDistance] = getBestSlot(query.globalHitbox);
 	if (bestSlot != -1) {
 		collector.candidates.emplace_back(this, -bestDistance);
 		selectedSlot = bestSlot;
-	} else {
-		selectedSlot = -1;
 	}
 	shouldHighlight = false;
 }
@@ -227,16 +242,26 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 		Logger::error_and_throw("This should never happen...");
 	}
 	n_unique<NObject> spellObject;
-	NSpell* originalSpell = getSpell(selectedSlot);
+	n_unique<NObject> replacedSpellObject;
+	NSpell* replacedSpell = getSpell(selectedSlot);
 
-	if (originalSpell) {
+	if (spell == replacedSpell) {
+		spell->isReleased = true;
+		return;
+	}
+
+	const int oldIndex = spell->index;
+
+	updateSpellPosition(spell, this);
+
+	if (replacedSpell) {
 		if (!otherInventory) {
 			selectedSlot = -1;
 			// TODO
 			return;
 		}
-		n_unique<NObject> originalSpellObject = removeItem(originalSpell);
-		otherInventory->addItem(std::move(originalSpellObject), spell->index);
+		updateSpellPosition(replacedSpell, otherInventory);
+		replacedSpellObject = removeItem(replacedSpell);
 	}
 
 	if (otherInventory) {
@@ -245,9 +270,22 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 		spellObject = spellParent->remove(spell);
 	}
 
+	if (otherInventory && replacedSpellObject) {
+		otherInventory->addItem(std::move(replacedSpellObject), oldIndex);
+	}
+
 	addItem(std::move(spellObject), selectedSlot);
 
 	selectedSlot = -1;
+	shouldHighlight = false;
+}
+
+std::optional<NEventResult> NSpellInventory::handleEvent(const NUIEvent& event) {
+	if (event.ctx.rawEvent.is<sf::Event::MouseMoved>()) {
+		updateHoveredSlot(event.localCtx.mouseLocal);
+	}
+
+	return NWidget::handleEvent(event);
 }
 
 void NSpellInventory::addItem(n_unique<NObject> spell, int index) {
@@ -272,10 +310,20 @@ NSpell* NSpellInventory::getSpell(int index) {
 }
 
 n_unique<NObject> NSpellInventory::removeItem(NSpell* spell) {
+	slots.at(spell->index).spell = {};
 	spell->index = -1;
 	return this->remove(spell);
 }
 
 nrect NSpellInventory::getSlotGeometry(int index) const {
 	return slots.at(index).geometry;
+}
+
+// void NSpellInventory::onSpellReturn() {
+// 	shouldHighlight = false;
+// }
+
+void NSpellInventory::updateSpellPosition(NSpell* spell, const NSpellInventory* to) {
+	const nvec2 globalPosition = spell->getGlobalPosition();
+	spell->setPosition(globalPosition - to->getGlobalPosition());
 }

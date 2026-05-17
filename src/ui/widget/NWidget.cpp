@@ -4,12 +4,12 @@
 #include <ranges>
 
 std::optional<NEventResult> NWidget::handleEvent(const NUIEvent& event) {
+	NUIEvent localEvent = event;
+	localEvent.localCtx.mouseLocal = event.localCtx.mouseLocal - getPosition();
 	for (const auto& obj : objects | std::views::reverse) {
 		if (!obj->isVisible) {
 			continue;
 		}
-		NUIEvent localEvent = event;
-		localEvent.localCtx.mouseLocal = event.localCtx.mouseLocal - obj->getPosition();
 		if (const auto result = obj->handleEvent(localEvent)) {
 			return result;
 		}
@@ -37,7 +37,7 @@ void NWidget::draw(const NCanvas& canvas) const {
 	const NCanvas newCanvas = canvas.translated(getPosition());
 
 	for (const auto& obj : objects) {
-		if (obj->isVisible) {
+		if (obj->isVisible && !obj->isDragged()) {
 			obj->draw(newCanvas);
 		}
 	}

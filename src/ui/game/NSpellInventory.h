@@ -57,10 +57,12 @@ private:
 	};
 
 	int selectedSlot{};
+	int hoveredSlot{};
 	bool shouldHighlight{};
 	Util::Vector<Slot> slots;
 	void updateSlotsGeometry();
-	std::pair<int, float> getBestSlot(nrect globalGeometry) const;
+	std::pair<int, float> getBestSlot(nrect globalHitbox) const;
+	void updateHoveredSlot(nvec2 mouseLocal);
 
 public:
 	NSpellInventory(nvec2 position, size_t slotCount);
@@ -69,13 +71,17 @@ public:
 
 	void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
 	void onDropAccepted(const NDropQuery& query, bool shouldDrop) override;
+	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
 	void addItem(n_unique<NObject> spell, int index);
 	NSpell* getSpell(int index);
 	n_unique<NObject> removeItem(NSpell* spell);
 	nrect getSlotGeometry(int index)const;
+	//void onSpellReturn();
 
 	size_t getCount() const {
 		return slots.size();
 	}
+
+	static void updateSpellPosition(NSpell* spell, const NSpellInventory* to);
 };

@@ -15,14 +15,20 @@ NSpell::NSpell(std::shared_ptr<Spell> spell, nvec2 pos) : spell(std::move(spell)
 std::optional<NEventResult> NSpell::handleEvent(const NUIEvent& event) {
 	auto& raw = event.ctx.rawEvent;
 	if (const auto e = raw.getIf<sf::Event::MouseButtonPressed>()) {
-		if (e->button == sf::Mouse::Button::Left && this->getHitbox().contains(event.localCtx.mouseLocal)) {
-			isReleased = false;
+		if (e->button == sf::Mouse::Button::Left && this->geometry.contains(event.localCtx.mouseLocal)) {
+			isReleased = true;
+			geometry.setCenter(event.localCtx.mouseLocal);
 			return NEventResult{
 				.handler = this,
 				.result = NEventResult::Dragged{},
 			};
 		}
 	}
+	// else if (!isDragged() && raw.is<sf::Event::MouseMoved>()) {
+	// 	if (getHitbox().contains(event.localCtx.mouseLocal)) {
+	// 		isHovered = true;
+	// 	}
+	// }
 	return std::nullopt;
 }
 
@@ -105,15 +111,23 @@ void NSpell::update(float dt) {
 		tt /= p; // Normalize to [-1, 1].
 		const float sgn = std::abs(tt) < nmath::n_epsilon ? 0.f : (tt / abs(tt));
 		rotation = sgn * (1 - 1 / std::exp(std::abs(tt))) * A;
-	} else if (isReleased) {
-		const nrect slotGeometry = getInventory()->getSlotGeometry(index);
-		const nvec2 dir = slotGeometry.position - geometry.position;
+		return;
+	}
+	if (isReleased) {
+		rotation = 0.f;
+		const NSpellInventory* inventory = getInventory();
+		if (!inventory) {
+			Logger::error_and_throw("NSpell does not have an inventory, but released.");
+		}
+		const nvec2 target = inventory->getSlotGeometry(index).position;
+		const nvec2 dir = target - geometry.position;
+
 		const float len = dir.lengthSquared();
 
 		// Snap to the slot when it is close enough.
 		if (len < 0.5f) {
 			isReleased = false;
-			geometry.position = slotGeometry.position;
+			geometry.position = target;
 			return;
 		}
 

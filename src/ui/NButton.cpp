@@ -11,7 +11,7 @@ NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
 std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 	auto& rawEvent = event.ctx.rawEvent;
 	if (rawEvent.is<sf::Event::MouseMoved>()) {
-		if (geometry.contains(event.ctx.input.mouseRender)) {
+		if (geometry.contains(event.localCtx.mouseLocal)) {
 			if (state != Pressed) {
 				state = Hovered;
 			}
@@ -19,12 +19,12 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 			state = Normal;
 		}
 	} else if (rawEvent.is<sf::Event::MouseButtonPressed>()) {
-		if (geometry.contains(event.ctx.input.mouseRender)) {
+		if (geometry.contains(event.localCtx.mouseLocal)) {
 			state = Pressed;
 			return NEventResult{this, NEventResult::Pressed{}};
 		}
 	} else if (rawEvent.is<sf::Event::MouseButtonReleased>()) {
-		if (geometry.contains(event.ctx.input.mouseRender)) {
+		if (geometry.contains(event.localCtx.mouseLocal)) {
 			state = Hovered;
 			if (onClick) {
 				onClick();

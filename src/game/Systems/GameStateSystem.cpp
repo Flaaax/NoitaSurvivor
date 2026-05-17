@@ -1,9 +1,9 @@
 #include "GameStateSystem.h"
+#include "../../ui/global/InputManager.h"
 #include "../GameContext.h"
 #include "src/game/Components/EntityFactory.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
-#include "src/global/InputManager.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/VectorHelper.h"
 

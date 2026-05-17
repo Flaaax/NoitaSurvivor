@@ -19,7 +19,7 @@ public:
 	GameScene();
 
 	void draw(Renderer& rdr) override;
-	void update(float deltaTime) override;
+	void update(float dt) override;
 	bool handleEvent(const NEventCtx& event) override;
 	void enter() override;
 	std::string_view getName() const override;

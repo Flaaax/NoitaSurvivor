@@ -15,6 +15,8 @@ private:
 	float rotation{};
 	float t{};
 
+	//bool isHovered{};
+
 public:
 	static constexpr nvec2 slotSize = {45.f, 45.f};
 	static constexpr float outLine = 3.f;
@@ -26,7 +28,7 @@ public:
 	void draw(const NCanvas& canvas) const override;
 
 	nrect getHitbox() const override {
-		return geometry.getExpand({15.f, 15.f});
+		return geometry.getExpand({5.f, 5.f});
 	}
 
 	NSpellInventory* getInventory() const;

@@ -27,16 +27,18 @@ void GameScene::draw(Renderer& rdr) {
 	NScene::draw(rdr);
 }
 
-void GameScene::update(float deltaTime) {
+void GameScene::update(float dt) {
 	// if (spellSelector && !spellSelector->getIsRunning()) {
 	//	m_widget->destroy(spellSelector);
 	//	spellSelector = nullptr;
 	// }
 
-	game.update(deltaTime);
-	auto& p = game.state.player;
+	game.update(dt);
+	const auto& p = game.state.player;
 	materialBar->setData(p.material);
 	expBar->setValue(p.exp, p.maxExp, p.level);
+
+	NScene::update(dt);
 }
 
 bool GameScene::handleEvent(const NEventCtx& event) {
@@ -79,7 +81,7 @@ void GameScene::initUI() {
 		if (!wand.inventory[i]) {
 			continue;
 		}
-		auto spell = Util::makeUnique(new NSpell(wand.inventory[i], {i * 10, i * 10}));
+		auto spell = Util::makeUnique(new NSpell(wand.inventory[i], {i * 50, i * 50}));
 		inventory1->addItem(std::move(spell), static_cast<int>(i));
 	}
 

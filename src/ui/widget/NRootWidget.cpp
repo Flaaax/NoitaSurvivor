@@ -5,7 +5,6 @@ bool NRootWidget::handleDragEvent(const NEventCtx& event) {
 		const nvec2 newGlobalPosition = event.input.mouseRender - dragState.offset;
 		const nvec2 newLocalPosition = dragState.dragged->getLocalPosition(newGlobalPosition);
 		dragState.dragged->setPosition(newLocalPosition);
-		return true;
 	}
 
 	const NDropQuery query{
@@ -21,16 +20,20 @@ bool NRootWidget::handleDragEvent(const NEventCtx& event) {
 		};
 		candidate = collector.candidates.best(compare).target;
 	}
+
+	const auto e = event.rawEvent.getIf<sf::Event::MouseButtonReleased>();
+	const bool shouldDrop = e && e->button == sf::Mouse::Button::Left;
+
 	if (candidate) {
-		const auto e = event.rawEvent.getIf<sf::Event::MouseButtonReleased>();
-		const bool shouldDrop = e && e->button == sf::Mouse::Button::Left;
 		candidate->onDropAccepted(query, shouldDrop);
-		if (shouldDrop) {
-			dragState.dragged->isDragged_ = false;
-			dragState.dragged = {};
-			return true;
-		}
 	}
+
+	if (shouldDrop) {
+		dragState.dragged->isDragged_ = false;
+		dragState.dragged = {};
+		return true;
+	}
+
 	return false;
 }
 
@@ -41,6 +44,9 @@ bool NRootWidget::handleEvent(const NEventCtx& ctx) {
 	const NUIEvent event{
 		.ctx = ctx,
 		.widgetCtx = widgetCtx,
+		.localCtx = NLocalEventCtx{
+			.mouseLocal = ctx.input.mouseRender,
+		},
 	};
 
 	if (widgetCtx.dragState.dragged && handleDragEvent(ctx)) {
@@ -77,6 +83,10 @@ bool NRootWidget::handleEvent(const NEventCtx& ctx) {
 void NRootWidget::draw(Renderer& rdr) const {
 	const NCanvas canvas(rdr);
 	this->NWidget::draw(canvas);
+	if (dragState.dragged) {
+		const NCanvas localCanvas = canvas.translated(dragState.dragged->getParent()->getGlobalPosition());
+		dragState.dragged->draw(localCanvas);
+	}
 }
 
 void NRootWidget::update(float dt) {

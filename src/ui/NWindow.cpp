@@ -7,9 +7,9 @@
 #include "./shapes/NRoundRectShape.h"
 #include "NScene.h"
 #include "NText.h"
+#include "global/InputManager.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
-#include "src/global/InputManager.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <algorithm>
