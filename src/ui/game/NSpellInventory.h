@@ -60,9 +60,14 @@ private:
 	int hoveredSlot{};
 	bool shouldHighlight{};
 	Util::Vector<Slot> slots;
+
+	using OnModify = std::function<void(Util::ValEnumerableView<n_shared<Spell>>)>;
+	OnModify onModify{};
+
 	void updateSlotsGeometry();
 	std::pair<int, float> getBestSlot(nrect globalHitbox) const;
 	void updateHoveredSlot(nvec2 mouseLocal);
+	void invokeOnModify();
 
 public:
 	NSpellInventory(nvec2 position, size_t slotCount);
@@ -76,8 +81,11 @@ public:
 	void addItem(n_unique<NObject> spell, int index);
 	NSpell* getSpell(int index);
 	n_unique<NObject> removeItem(NSpell* spell);
-	nrect getSlotGeometry(int index)const;
-	//void onSpellReturn();
+	nrect getSlotGeometry(int index) const;
+
+	void setOnModify(OnModify onModify);
+
+	// void onSpellReturn();
 
 	size_t getCount() const {
 		return slots.size();

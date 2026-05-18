@@ -94,6 +94,13 @@ void GameScene::initUI() {
 	// 	}
 	// });
 
+	inventory1->setOnModify([&](Util::ValEnumerableView<n_shared<Spell>> spells) {
+		wand.inventory.clear();
+		for (auto spell : spells) {
+			wand.inventory.emplace_back(spell);
+		}
+	});
+
 	widget->addToTop(std::move(inventory1));
 
 	auto inventory2 = Util::makeUnique(new NSpellInventory({350, 50}, 5));

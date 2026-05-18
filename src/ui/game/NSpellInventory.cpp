@@ -177,6 +177,19 @@ void NSpellInventory::updateHoveredSlot(nvec2 mouseLocal) {
 	}
 }
 
+void NSpellInventory::invokeOnModify() {
+	if (!onModify)
+		return;
+	const auto spells = slots
+							.view()
+							.select([](const Slot& slot) -> n_shared<Spell> {
+								if (slot.spell)
+									return slot.spell->spell;
+								return {};
+							});
+	onModify(spells);
+}
+
 NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
 	setPosition(position);
 	slots.resize(slotCount);
@@ -252,8 +265,6 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 
 	const int oldIndex = spell->index;
 
-	updateSpellPosition(spell, this);
-
 	if (replacedSpell) {
 		if (!otherInventory) {
 			selectedSlot = -1;
@@ -263,6 +274,8 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 		updateSpellPosition(replacedSpell, otherInventory);
 		replacedSpellObject = removeItem(replacedSpell);
 	}
+
+	updateSpellPosition(spell, this);
 
 	if (otherInventory) {
 		spellObject = otherInventory->removeItem(spell);
@@ -278,6 +291,11 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 
 	selectedSlot = -1;
 	shouldHighlight = false;
+
+	invokeOnModify();
+	if (otherInventory) {
+		otherInventory->invokeOnModify();
+	}
 }
 
 std::optional<NEventResult> NSpellInventory::handleEvent(const NUIEvent& event) {
@@ -317,6 +335,10 @@ n_unique<NObject> NSpellInventory::removeItem(NSpell* spell) {
 
 nrect NSpellInventory::getSlotGeometry(int index) const {
 	return slots.at(index).geometry;
+}
+
+void NSpellInventory::setOnModify(OnModify onModify) {
+	this->onModify = std::move(onModify);
 }
 
 // void NSpellInventory::onSpellReturn() {

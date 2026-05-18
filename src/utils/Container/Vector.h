@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "EnumerableView.h"
+#include <algorithm>
 #include <array>
 #include <ranges>
 #include <stdexcept>
@@ -8,7 +10,7 @@ namespace Util {
 	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)
-	class Vector : public std::vector<T> {
+	class Vector : public std::vector<T>, public Viewable<Vector<T>> {
 	public:
 		using Base = std::vector<T>;
 		using Base::Base;
@@ -29,11 +31,11 @@ namespace Util {
 			}
 		}
 
-		operator Base&() {
+		explicit(false) operator Base&() {
 			return static_cast<Base&>(*this);
 		}
 
-		operator const Base&() const {
+		explicit(false) operator const Base&() const {
 			return static_cast<const Base&>(*this);
 		}
 
@@ -60,7 +62,7 @@ namespace Util {
 			return *std::ranges::min_element(*this, std::ref(better));
 		}
 
-		bool valid(int index) const {
+		[[nodiscard]] bool valid(int index) const {
 			return index >= 0 && index < this->size();
 		}
 
@@ -76,10 +78,11 @@ namespace Util {
 		std::is_enum_v<T>;
 
 	template <class T, std::size_t N>
-	class Array : public std::array<T, N> {
+	class Array : public std::array<T, N>, public Viewable<Array<T, N>> {
 	public:
 		using Base = std::array<T, N>;
-		using Base::Base;
+
+		// using Base::Base;
 
 		template <IntegerOrEnum I>
 		T& operator[](I i) {
