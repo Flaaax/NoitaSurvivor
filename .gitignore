@@ -29,3 +29,4 @@ imgui.ini
 *.7z
 
 .codex/
+/pack_src.bat

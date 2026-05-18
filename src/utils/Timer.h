@@ -23,7 +23,7 @@ private:
 public:
 	static constexpr int infinite_trigger = -1;
 
-	explicit CTimer() :m_duration(MIN_DURATION), m_onTimeout({}) {}
+	explicit CTimer() : m_onTimeout({}) {}
 
 	template<typename Func = callback_t> requires std::convertible_to<Func, callback_t>
 	explicit CTimer(float duration, Func&& onTimeout = {})
@@ -108,7 +108,7 @@ private:
 	bool m_isRunning = false;
 
 public:
-	explicit Timer() :m_duration(MIN_DURATION) {}
+	explicit Timer() {}
 
 	explicit Timer(float duration) :m_duration(Util::max(duration, MIN_DURATION)) {}
 	Timer(const Timer&) = default;

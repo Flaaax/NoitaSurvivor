@@ -10,6 +10,7 @@
 #include "Systems/PhysicsSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Wands/Wand.h"
+#include "src/global/DebugVariables.h"
 #include "src/utils/Logger.h"
 
 Game::Game() {
@@ -106,7 +107,12 @@ void Game::update(float dt) {
 	GameSystem().update(ctx, dt);
 
 	// todo Test
-	ctx.gameState.enemySpawnTimer.update(dt);
+	static const bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
+	static const float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
+	if (enableEnemySpawn) {
+		ctx.gameState.enemySpawnTimer.setDuration(1.f / enemySpawnFreq);
+		ctx.gameState.enemySpawnTimer.update(dt);
+	}
 
 	LifeTimeSystem().destroyDeadEntities(ctx);
 

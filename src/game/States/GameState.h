@@ -29,7 +29,7 @@ struct GameState {
 
 	nrect bound = {0, 0, 40, 40, nrect::CenterRect};
 	nrect maxBound = {0, 0, 80, 80, nrect::CenterRect};
-	nrect enemyGenArea = {0, 0, 35, 35, nrect::CenterRect};
+	nrect debugEnemySpawnArea = {0, 0, 35, 35, nrect::CenterRect};
 
 	nvec2 playerPos;
 	nvec2 mousePos;

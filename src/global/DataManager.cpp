@@ -1,6 +1,5 @@
 #include "DataManager.h"
-#include<fstream>
-#include"src/utils/Json.h"
+#include "src/utils/Json.h"
 
 void DataMgr::loadSpriteInfo() {
 	auto filename = "resources/data/sprite/entity.json";

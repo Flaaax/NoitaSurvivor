@@ -10,6 +10,7 @@
 #include "global/InputManager.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "src/global/DebugVariables.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <algorithm>
@@ -43,10 +44,27 @@ NWindow::NWindow() {
 
 	AssetMgr::init(); // init
 
-	if (!ImGui::SFML::Init(*window)) {
+	if (!ImGui::SFML::Init(*window, false)) {
 		Logger::error("Failed to initialize ImGui-SFML");
 	} else {
 		Logger::info("ImGui-SFML initialized");
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	const auto font = io.Fonts->AddFontFromFileTTF(
+		"./resources/fonts/msyh.ttc",
+		22.f,
+		nullptr,
+		io.Fonts->GetGlyphRangesChineseFull());
+
+	if (!font) {
+		Logger::error_and_throw("Failed to load Chinese font for ImGui");
+	}
+	io.FontDefault = font;
+
+	if (!ImGui::SFML::UpdateFontTexture()) {
+		Logger::error("Imgui-SFML Update font texture failed!");
 	}
 
 	updateWindowSize();
@@ -159,23 +177,19 @@ int NWindow::loop() {
 
 		if (enableImgui) {
 			static bool showDemo = false;
-			static float value = 0.5f;
-			static int clickCount = 0;
 
 			ImGui::Begin("Imgui");
 
-			ImGui::Text("If you can see this, ImGui-SFML is working.");
-			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+			ImGui::SeparatorText("游戏内容");
 
-			ImGui::SliderFloat("Test slider", &value, 0.0f, 1.0f);
-
-			if (ImGui::Button("Click me")) {
-				clickCount++;
-				Logger::info("ImGui button clicked: {}", clickCount);
+			static bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
+			if (ImGui::Button(!enableEnemySpawn ? "启用怪物生成" : "禁用怪物生成")) {
+				enableEnemySpawn = !enableEnemySpawn;
 			}
-
-			ImGui::Text("Button clicks: %d", clickCount);
-			ImGui::Checkbox("Show ImGui demo window", &showDemo);
+			if (enableEnemySpawn) {
+				static float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
+				ImGui::SliderFloat("怪物生成速率", &enemySpawnFreq, 0.5f, 10.f);
+			}
 
 			ImGui::End();
 

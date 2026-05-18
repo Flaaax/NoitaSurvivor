@@ -1,9 +1,7 @@
 #pragma once
 #pragma warning(push)
 #pragma warning(disable : 4251)
-#include "../utils/Container/Container.h"
 #include "../utils/Logger.h"
-#include "../utils/Macro.h"
 
 namespace std { namespace filesystem { class path; } }
 namespace sf { class Font; class Texture; class SoundBuffer; class Sound; }

@@ -2,8 +2,6 @@
 #pragma warning(disable:5260)
 
 #include"ProjectileSpell.h"
-#include"src/global/EntityManager.h"
-#include"src/global/AssetManager.h"
 
 
 class BulletSpell : public ProjectileSpell {

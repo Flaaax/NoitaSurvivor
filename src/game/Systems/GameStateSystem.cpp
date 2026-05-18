@@ -5,6 +5,7 @@
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/utils/Pointer.h"
+#include "src/utils/Random.h"
 #include "src/utils/VectorHelper.h"
 
 void GameStateSystem::initGameState(const GameCtx& ctx) {
@@ -20,9 +21,15 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 	ctx.factory.createMaterial(ctx, {6.f, 6.f});
 
+	nrect debugEnemySpawnArea = state.debugEnemySpawnArea;
+
 	// test
-	state.enemySpawnTimer.set(1.0f, [ctx] {
-							 ctx.factory.createEnemy(ctx, {0, 0});
+	state.enemySpawnTimer.set(1.0f, [ctx, debugEnemySpawnArea] {
+							 const nvec2 spawnPos{
+								 random.getFloat(debugEnemySpawnArea.x, debugEnemySpawnArea.x + debugEnemySpawnArea.w),
+								 random.getFloat(debugEnemySpawnArea.y, debugEnemySpawnArea.y + debugEnemySpawnArea.h),
+							 };
+							 ctx.factory.createEnemy(ctx, spawnPos);
 						 })
 		.start(-1);
 

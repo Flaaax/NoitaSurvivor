@@ -1,7 +1,5 @@
 #pragma once
 #include "../utils/Container/Container.h"
-#include "src/utils/Singleton.h"
-
 
 namespace sf { class Sprite; }
 
