@@ -24,7 +24,7 @@ add_executable(NoitaSurvivor)
 add_custom_target(NoitaSurvivor_PreBuildCheck
         COMMAND "python" "${CMAKE_CURRENT_SOURCE_DIR}/CodeGenerator/generate_meta.py"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Running pre-build check..."
+        COMMENT "Running pre-build tasks..."
         VERBATIM
         USES_TERMINAL
 )
