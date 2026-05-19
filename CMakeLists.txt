@@ -20,6 +20,17 @@ if (NOITA_IMGUI_SFML_LINK_LIBRARIES MATCHES "(^|;)sfml-(graphics|window|system)(
 endif ()
 
 add_executable(NoitaSurvivor)
+
+add_custom_target(NoitaSurvivor_PreBuildCheck
+        COMMAND "python" "${CMAKE_CURRENT_SOURCE_DIR}/CodeGenerator/generate_meta.py"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Running pre-build check..."
+        VERBATIM
+        USES_TERMINAL
+)
+
+add_dependencies(NoitaSurvivor NoitaSurvivor_PreBuildCheck)
+
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT NoitaSurvivor)
 
 target_compile_features(NoitaSurvivor PRIVATE cxx_std_20)

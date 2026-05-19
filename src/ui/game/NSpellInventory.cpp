@@ -1,5 +1,5 @@
 #include "NSpellInventory.h"
-#include "../../utils/Container/Container.h"
+#include "../../utils/Container/Map.h"
 #include "../widget/NWidget.h"
 #include "src/game/Spells/Spell.h"
 #include "src/ui/game/NSpell.h"

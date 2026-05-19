@@ -19,6 +19,7 @@ void json_init_enum(T& e, std::string_view name, const json& j, std::string_view
 }
 
 ComponentMeta::ComponentMeta() {
+	initGeneratedMetaInfo();
 	initGeneratedComponentInitializers();
 	initCustomComponentInitializers();
 }
@@ -44,6 +45,25 @@ void ComponentMeta::initCustomComponentInitializers() {
 		};
 	};
 
+	{
+		Util::Vector<std::string_view> keys = {
+			"type",
+			"fixedRotation",
+			"shape",
+			"size",
+			"radius",
+			"density",
+			"friction",
+			"restitution",
+			"isSensor",
+		};
+
+		componentMetaInfo["BodyComponent"]
+			.fields = keys.view()
+						  .select([](std::string_view key) { return Field{key}; })
+						  .to<Util::Vector>();
+	}
+
 	componentInitializerFactories["SpriteComponent"] = [](const json& j) -> ComponentInitializer {
 		struct {
 			std::string name;
@@ -67,9 +87,36 @@ void ComponentMeta::initCustomComponentInitializers() {
 		return ret;
 	};
 
+	{
+		Util::Vector<std::string_view> keys = {
+			"sprite",
+			"followPosition",
+			"followAngle",
+			"dynamicScale",
+			"rotationOffset",
+			"positionOffset",
+		};
+
+		componentMetaInfo["SpriteComponent"]
+			.fields = keys.view()
+						  .select([](std::string_view key) { return Field{key}; })
+						  .to<Util::Vector>();
+	}
+
 	componentInitializerFactories["LifetimeComponent"] = [](const json& j) -> ComponentInitializer {
 		float lifetime{};
 		json_init_field(lifetime, j, "lifetime");
 		return [=](const GameCtx& ctx, myecs::entity e) { ctx.reg.emplace<LifetimeComponent>(e).lifeTimer.set(lifetime).start(); };
 	};
+
+	{
+		Util::Vector<std::string_view> keys = {
+			"lifetime",
+		};
+
+		componentMetaInfo["LifetimeComponent"]
+			.fields = keys.view()
+						  .select([](std::string_view key) { return Field{key}; })
+						  .to<Util::Vector>();
+	}
 }

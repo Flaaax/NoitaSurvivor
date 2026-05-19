@@ -1,389 +1,468 @@
 #!/usr/bin/env python3
-"""Generate ComponentMeta initializers from component headers.
+# Generates component initializer and meta-info code.
+# Usage:
+#   python CodeGenerator/generate_meta.py
+#   python CodeGenerator/generate_meta.py test
 
-This is a lightweight replacement for the C# CodeGenerator project. It is
-intentionally narrow: it mirrors the current generator's simple token parser and
-is not a general-purpose C++ parser.
-"""
-
-from __future__ import annotations
-
-import argparse
-import dataclasses
-import pathlib
+import os
 import re
-import shutil
-import subprocess
 import sys
 import tempfile
-from typing import Iterable
+import subprocess
 
+INPUT_FILES = [
+	"src/game/Components/EntityComponents.h",
+	"src/game/Components/PhysicsComponents.h",
+]
 
-INPUT_FILES = (
-    "src/game/Components/EntityComponents.h",
-    "src/game/Components/PhysicsComponents.h",
-)
 OUTPUT_FILE = "src/meta/generated/Meta_initComponentInitGen.cpp"
 
 
-class StopIterationInTokens(Exception):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
 class Token:
-    name: str
-    kind: str
+	def __init__(self, text, kind):
+		self.text = text
+		self.kind = kind
 
 
-@dataclasses.dataclass
 class StructInfo:
-    name: str
-    fields: list[str] = dataclasses.field(default_factory=list)
+	def __init__(self, name):
+		self.name = name
+		self.fields = []
 
 
-TOKEN_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"//.*?(?=\r?\n|\r|$)"), "Comment"),
-    (re.compile(r"/\*[\s\S]*?\*/"), "Comment"),
-    (re.compile(r'"(?:\\.|[^"\\\r\n])*"'), "Literal"),
-    (re.compile(r"'(?:\\.|[^'\\\r\n])'"), "Literal"),
-    (re.compile(r"(?:\d+|(?:\d+\.|\d*\.\d+)f)"), "Literal"),
-    (re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*"), "Word"),
-    (re.compile(r"[=+*/&^#!{}()\[\]<>\?;:|,~\\%.\-]"), "Symbol"),
-)
+class TokenReader:
+	def __init__(self, tokens):
+		self.tokens = tokens
+		self.index = 0
+
+	def current(self):
+		if self.index >= len(self.tokens):
+			return None
+		return self.tokens[self.index]
+
+	def previous(self):
+		if self.index <= 0:
+			return None
+		return self.tokens[self.index - 1]
+
+	def next(self):
+		self.index += 1
+
+	def find(self, text, kind):
+		while self.current() is not None:
+			token = self.current()
+			text_ok = text is None or token.text == text
+			kind_ok = kind is None or token.kind == kind
+			if text_ok and kind_ok:
+				return True
+			self.next()
+		return False
+
+	def skip_brace_scope(self):
+		# Skip nested { ... } blocks.
+		if self.current() is None or self.current().text != "{":
+			return
+
+		depth = 1
+		self.next()
+
+		while self.current() is not None and depth > 0:
+			text = self.current().text
+			if text == "{":
+				depth += 1
+			elif text == "}":
+				depth -= 1
+			self.next()
+
+	def skip_field(self):
+		# Field initializers may contain braces, for example: Vec2 value{};
+		depth = 0
+
+		while self.current() is not None:
+			text = self.current().text
+
+			if text == "{":
+				depth += 1
+			elif text == "}":
+				if depth > 0:
+					depth -= 1
+			elif text == ";" and depth == 0:
+				self.next()
+				return
+
+			self.next()
+
+	def skip_function(self):
+		has_body = False
+		depth = 0
+
+		while self.current() is not None:
+			text = self.current().text
+
+			if text == "{":
+				has_body = True
+				depth += 1
+			elif text == "}":
+				depth -= 1
+				if has_body and depth <= 0:
+					self.next()
+					return
+			elif text == ";" and not has_body:
+				self.next()
+				return
+
+			self.next()
 
 
-def tokenize(code: str) -> list[Token]:
-    tokens: list[Token] = []
-    index = 0
-    while index < len(code):
-        while index < len(code) and code[index] in " \n\r\t":
-            index += 1
-        if index >= len(code):
-            break
-
-        for pattern, kind in TOKEN_PATTERNS:
-            match = pattern.match(code, index)
-            if match:
-                tokens.append(Token(match.group(0), kind))
-                index = match.end()
-                break
-        else:
-            index += 1
-    return tokens
+def read_file(path):
+	file = open(path, "r", encoding="utf-8-sig")
+	try:
+		return file.read()
+	finally:
+		file.close()
 
 
-class TokenIterator:
-    def __init__(self, tokens: list[Token], index: int = 0) -> None:
-        self.tokens = tokens
-        self.index = index
+def write_file(path, text):
+	folder = os.path.dirname(path)
+	if folder and not os.path.isdir(folder):
+		os.makedirs(folder)
 
-    def current(self) -> Token:
-        if self.index >= len(self.tokens):
-            raise StopIterationInTokens
-        return self.tokens[self.index]
-
-    def last(self) -> Token | None:
-        return self.tokens[self.index - 1] if self.index >= 1 else None
-
-    def next(self) -> None:
-        self.index += 1
-        if self.index >= len(self.tokens):
-            raise StopIterationInTokens
-
-    def find(self, name: str | None, kind: str | None = None) -> None:
-        while True:
-            token = self.current()
-            if (kind is None or token.kind == kind) and (name is None or token.name == name):
-                return
-            self.next()
-
-    def skip_scope(self) -> None:
-        if self.current().name != "{":
-            raise RuntimeError(f"skip_scope expected '{{', got {self.current().name!r}")
-        depth = 1
-        while depth:
-            self.next()
-            match self.current().name:
-                case "{":
-                    depth += 1
-                case "}":
-                    depth -= 1
-        self.next()
-
-    def skip_field(self) -> None:
-        depth = 0
-        while True:
-            match self.current().name:
-                case "{":
-                    depth += 1
-                case "}":
-                    depth -= 1
-                case ";":
-                    if depth == 0:
-                        self.next()
-                        return
-            self.next()
-
-    def skip_function(self) -> None:
-        depth = 0
-        has_body = False
-        while (not has_body) or depth != 0:
-            match self.current().name:
-                case "{":
-                    has_body = True
-                    depth += 1
-                case "}":
-                    depth -= 1
-                case ";":
-                    if not has_body:
-                        self.next()
-                        return
-            self.next()
+	file = open(path, "w", encoding="utf-8", newline="\n")
+	try:
+		file.write(text)
+	finally:
+		file.close()
 
 
-def skip_noinit_struct(iterator: TokenIterator) -> None:
-    iterator.find("{")
-    iterator.skip_scope()
+def tokenize(code):
+	patterns = [
+		("Comment", re.compile(r"//.*?(?=\r?\n|\r|$)")),
+		("Comment", re.compile(r"/\*[\s\S]*?\*/")),
+		("Literal", re.compile(r'"(?:\\.|[^"\\\r\n])*"')),
+		("Literal", re.compile(r"'(?:\\.|[^'\\\r\n])'")),
+		("Literal", re.compile(r"(?:\d+\.\d*|\d*\.\d+|\d+)(?:f)?")),
+		("Word", re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")),
+		("Symbol", re.compile(r"[=+*/&^#!{}()\[\]<>\?;:|,~\\%.\-]")),
+	]
+
+	tokens = []
+	index = 0
+
+	while index < len(code):
+		if code[index] in " \t\r\n":
+			index += 1
+			continue
+
+		matched = False
+
+		for item in patterns:
+			kind = item[0]
+			pattern = item[1]
+			match = pattern.match(code, index)
+
+			if match is not None:
+				tokens.append(Token(match.group(0), kind))
+				index = match.end()
+				matched = True
+				break
+
+		if not matched:
+			index += 1
+
+	return tokens
 
 
-def parse_structs(tokens: list[Token]) -> list[StructInfo]:
-    structs: list[StructInfo] = []
-    it = TokenIterator(tokens)
-
-    try:
-        while True:
-            it.find("struct", "Word")
-
-            if it.last() and it.last().name == "N_NOINIT":
-                skip_noinit_struct(it)
-                continue
-
-            it.next()
-            if it.current().kind == "Word" and it.current().name == "N_NOINIT":
-                skip_noinit_struct(it)
-                continue
-
-            if it.current().name == ";":
-                it.next()
-                continue
-
-            if it.current().kind != "Word":
-                it.next()
-                continue
-
-            name = it.current().name
-            it.next()
-            if it.current().name != "{":
-                it.find("{")
-            it.next()
-
-            info = StructInfo(name)
-            can_visit = True
-
-            while True:
-                while it.current().kind == "Comment":
-                    it.next()
-
-                token_name = it.current().name
-                if token_name == "}":
-                    structs.append(info)
-                    break
-                if token_name == "public":
-                    can_visit = True
-                    it.next()
-                    if it.current().name == ":":
-                        it.next()
-                    continue
-                if token_name in ("private", "protected"):
-                    can_visit = False
-                    it.next()
-                    if it.current().name == ":":
-                        it.next()
-                    continue
-                if token_name == "{":
-                    it.skip_scope()
-                    continue
-                if token_name in ("union", "struct", "class"):
-                    it.find("{")
-                    it.skip_scope()
-                    continue
-
-                should_skip = token_name in ("const", "volatile", "N_NOINIT") or not can_visit
-                last = it.current()
-                it.next()
-                is_field = False
-
-                while True:
-                    token_name = it.current().name
-                    if token_name == ";":
-                        is_field = True
-                        break
-                    if token_name == "(":
-                        break
-                    if token_name in ("{", "="):
-                        is_field = True
-                        break
-                    last = it.current()
-                    it.next()
-
-                if is_field:
-                    if not should_skip:
-                        info.fields.append(last.name)
-                    it.skip_field()
-                else:
-                    it.skip_function()
-    except StopIterationInTokens:
-        return structs
+def skip_noinit_struct(reader):
+	if reader.find("{", None):
+		reader.skip_brace_scope()
 
 
-def read_structs(repo_root: pathlib.Path, input_files: Iterable[str]) -> list[StructInfo]:
-    structs: list[StructInfo] = []
-    for input_file in input_files:
-        code = (repo_root / input_file).read_text(encoding="utf-8-sig")
-        structs.extend(parse_structs(tokenize(code)))
-    return structs
+def parse_structs(tokens):
+	structs = []
+	reader = TokenReader(tokens)
+
+	while reader.find("struct", "Word"):
+		previous = reader.previous()
+		reader.next()
+
+		if previous is not None and previous.text == "N_NOINIT":
+			skip_noinit_struct(reader)
+			continue
+
+		token = reader.current()
+		if token is None:
+			break
+
+		if token.kind == "Word" and token.text == "N_NOINIT":
+			skip_noinit_struct(reader)
+			continue
+
+		if token.text == ";":
+			reader.next()
+			continue
+
+		if token.kind != "Word":
+			reader.next()
+			continue
+
+		struct_name = token.text
+
+		if not reader.find("{", None):
+			break
+
+		info = StructInfo(struct_name)
+		reader.next()
+		can_visit = True
+
+		while reader.current() is not None:
+			while reader.current() is not None and reader.current().kind == "Comment":
+				reader.next()
+
+			token = reader.current()
+			if token is None:
+				break
+
+			text = token.text
+
+			if text == "}":
+				structs.append(info)
+				reader.next()
+				break
+
+			if text == "public":
+				can_visit = True
+				reader.next()
+				if reader.current() is not None and reader.current().text == ":":
+					reader.next()
+				continue
+
+			if text == "private" or text == "protected":
+				can_visit = False
+				reader.next()
+				if reader.current() is not None and reader.current().text == ":":
+					reader.next()
+				continue
+
+			if text == "{":
+				reader.skip_brace_scope()
+				continue
+
+			if text == "union" or text == "struct" or text == "class" or text == "enum":
+				if reader.find("{", None):
+					reader.skip_brace_scope()
+				continue
+
+			skip_this_field = False
+			if not can_visit:
+				skip_this_field = True
+			if text == "const" or text == "volatile" or text == "N_NOINIT":
+				skip_this_field = True
+
+			last_word = None
+			if token.kind == "Word":
+				last_word = token.text
+
+			reader.next()
+			is_field = False
+
+			while reader.current() is not None:
+				token = reader.current()
+				text = token.text
+
+				if text == ";":
+					is_field = True
+					break
+				if text == "(":
+					break
+				if text == "{" or text == "=":
+					is_field = True
+					break
+				if token.kind == "Word":
+					last_word = token.text
+
+				reader.next()
+
+			if is_field:
+				if not skip_this_field and last_word is not None:
+					info.fields.append(last_word)
+				reader.skip_field()
+			else:
+				reader.skip_function()
+
+	return structs
 
 
-def generate_code(structs: list[StructInfo], include_files: Iterable[str]) -> str:
-    lines: list[str] = [
-        '#include "../ComponentMeta.h"',
-        '#include "../CustomFieldParser.h"',
-        '#include "src/ecs/entity.h"',
-        '#include "src/game/GameContext.h"',
-    ]
-    lines.extend(f'#include "{include_file}"' for include_file in include_files)
-    lines.extend(
-        [
-            "",
-            "template <class T> struct ValueWrapper {",
-            "\tusing Parser = FieldParser<T>;",
-            "\tstatic constexpr bool enabled = Parser::enabled;",
-            "\tusing Storage = std::conditional_t<enabled, std::optional<T>, EmptyFieldType>;",
-            "\tStorage storage{};",
-            "",
-            "\tconst T& value() const {",
-            "\t\tif constexpr (enabled) {",
-            "\t\t\treturn storage.value();",
-            "\t\t}",
-            '\t\tthrow "Not supposed to be here...";',
-            "\t}",
-            "};",
-            "",
-            "void ComponentMeta::initGeneratedComponentInitializers() {",
-        ]
-    )
+def collect_structs(repo_root):
+	structs = []
 
-    for info in structs:
-        name = info.name
-        lines.extend(
-            [
-                f'\tcomponentInitializerFactories["{name}"] =',
-                "\t\t[](const json& jsonData) -> ComponentInitializer {",
-            ]
-        )
-        for field in info.fields:
-            lines.append(f"\t\tusing __{field}_t = ValueWrapper<decltype({name}::{field})>;")
-        lines.append(f"\t\tstruct __{name}Parser {{")
-        for field in info.fields:
-            lines.append(f"\t\t\t__{field}_t {field}{{}};")
-        lines.extend(["\t\t} p;", ""])
+	for input_file in INPUT_FILES:
+		path = os.path.join(repo_root, input_file)
+		code = read_file(path)
+		tokens = tokenize(code)
+		parsed = parse_structs(tokens)
 
-        for field in info.fields:
-            lines.extend(
-                [
-                    f"\t\tif constexpr (__{field}_t::enabled) {{",
-                    f'\t\t\tif (jsonData.contains("{field}")) {{',
-                    f'\t\t\t\tp.{field}.storage = std::move(__{field}_t::Parser::parse(jsonData["{field}"]));',
-                    "\t\t\t}",
-                    "\t\t}",
-                ]
-            )
-        lines.extend(
-            [
-                "",
-                "\t\treturn [p = std::move(p)](GameCtx& ctx, myecs::entity e) -> void {",
-                f"\t\t\tauto& c = ctx.reg.emplace<{name}>(e);",
-                "",
-            ]
-        )
-        for field in info.fields:
-            lines.extend(
-                [
-                    f"\t\t\tif (p.{field}.storage) {{",
-                    f"\t\t\t\tc.{field} = p.{field}.value();",
-                    "\t\t\t}",
-                ]
-            )
-        lines.extend(["\t\t};", "\t};", ""])
+		for info in parsed:
+			structs.append(info)
 
-    lines.append("}")
-    return "\n".join(lines) + "\n"
+	return structs
 
 
-def maybe_clang_format(code: str, clang_format: str | None, repo_root: pathlib.Path) -> str:
-    if not clang_format:
-        return code
-
-    # Keep the formatting probe in the repository root so clang-format resolves
-    # the project-level .clang-format instead of src/meta/generated/.clang-format.
-    with tempfile.NamedTemporaryFile(
-        "w+",
-        prefix=".generate_meta_",
-        suffix=".cpp",
-        dir=repo_root,
-        delete=False,
-        encoding="utf-8",
-    ) as temp:
-        temp_path = pathlib.Path(temp.name)
-        temp.write(code)
-
-    try:
-        subprocess.run([clang_format, "-i", str(temp_path)], check=True)
-        return temp_path.read_text(encoding="utf-8")
-    finally:
-        temp_path.unlink(missing_ok=True)
+def add(lines, text):
+	lines.append(text)
 
 
-def update_file(path: pathlib.Path, code: str, check_only: bool) -> bool:
-    old_code = path.read_text(encoding="utf-8") if path.exists() else None
-    if old_code == code:
-        print("Generated file is up to date.")
-        return False
+def generate_header(lines):
+	add(lines, "// This file is generated by CodeGenerator/generate_meta.py.")
+	add(lines, "// It registers JSON component initializers and generated component meta information.")
+	add(lines, "// Do not edit this file by hand.")
+	add(lines, "")
+	add(lines, '#include "src/meta/MetaHeader.h"')
 
-    if check_only:
-        print(f"Generated file is out of date: {path}")
-        return True
+	for input_file in INPUT_FILES:
+		add(lines, '#include "' + input_file + '"')
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(code, encoding="utf-8")
-    print(f"Updated generated file: {path}")
-    return True
+	add(lines, "")
 
 
-def main(argv: list[str]) -> int:
-    script_dir = pathlib.Path(__file__).resolve().parent
-    default_repo_root = script_dir.parent
+def generate_component_initializers(lines, structs):
+	add(lines, "void ComponentMeta::initGeneratedComponentInitializers() {")
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repo-root", type=pathlib.Path, default=default_repo_root)
-    parser.add_argument("--output", type=pathlib.Path, default=None)
-    parser.add_argument("--check", action="store_true", help="Report stale output without writing.")
-    parser.add_argument("--no-format", action="store_true", help="Do not run clang-format even if present.")
-    args = parser.parse_args(argv)
+	for info in structs:
+		add(lines, 'componentInitializerFactories["' + info.name + '"] =')
+		add(lines, "[](const json& jsonData) -> ComponentInitializer {")
 
-    repo_root = args.repo_root.resolve()
-    output = args.output if args.output else repo_root / OUTPUT_FILE
-    if not output.is_absolute():
-        output = repo_root / output
+		for field in info.fields:
+			add(lines, "using __" + field + "_t = ValueWrapper<decltype(" + info.name + "::" + field + ")>;")
 
-    structs = read_structs(repo_root, INPUT_FILES)
-    code = generate_code(structs, INPUT_FILES)
-    clang_format = None if args.no_format else shutil.which("clang-format")
-    code = maybe_clang_format(code, clang_format, repo_root)
-    changed = update_file(output, code, args.check)
-    return 1 if args.check and changed else 0
+		add(lines, "struct __" + info.name + "Parser {")
+		for field in info.fields:
+			add(lines, "__" + field + "_t " + field + "{};")
+		add(lines, "} p;")
+
+		for field in info.fields:
+			add(lines, "if constexpr (__" + field + "_t::enabled) {")
+			add(lines, 'if (jsonData.contains("' + field + '")) {')
+			add(lines, 'p.' + field + '.storage = std::move(__' + field + '_t::Parser::parse(jsonData["' + field + '"]));')
+			add(lines, "}")
+			add(lines, "}")
+
+		add(lines, "return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {")
+		add(lines, "auto& c = ctx.reg.emplace<" + info.name + ">(e);")
+
+		for field in info.fields:
+			add(lines, "if (p." + field + ".storage) {")
+			add(lines, "c." + field + " = p." + field + ".value();")
+			add(lines, "}")
+
+		add(lines, "};")
+		add(lines, "};")
+		add(lines, "")
+
+	add(lines, "}")
+	add(lines, "")
+
+
+def generate_meta_info(lines, structs):
+	add(lines, "void ComponentMeta::initGeneratedMetaInfo() {")
+
+	for info in structs:
+		add(lines, "{")
+		add(lines, 'auto& info = componentMetaInfo["' + info.name + '"];')
+
+		for field in info.fields:
+			field_type = "decltype(" + info.name + "::" + field + ")"
+			alias = "__" + info.name + "_" + field + "_t"
+
+			add(lines, "using " + alias + " = ValueWrapper<" + field_type + ">;")
+			add(lines, "if constexpr (" + alias + "::enabled) {")
+			add(lines, 'info.fields.emplace_back(Field{"' + field + '", Util::typeFullName<' + field_type + ">()});")
+			add(lines, "}")
+
+		add(lines, "}")
+		add(lines, "")
+
+	add(lines, "}")
+
+
+def generate_code(structs):
+	lines = []
+	generate_header(lines)
+	generate_component_initializers(lines, structs)
+	generate_meta_info(lines, structs)
+	return "\n".join(lines) + "\n"
+
+
+def clang_format(repo_root, code):
+	# Temp file is placed in repo root so clang-format uses the project .clang-format.
+	temp = tempfile.NamedTemporaryFile(
+		mode="w",
+		encoding="utf-8",
+		newline="\n",
+		suffix=".cpp",
+		prefix=".generate_meta_",
+		dir=repo_root,
+		delete=False,
+	)
+
+	temp_path = temp.name
+
+	try:
+		temp.write(code)
+		temp.close()
+
+		try:
+			result = subprocess.run(
+				["clang-format", "-i", temp_path],
+				stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE,
+				text=True,
+			)
+		except FileNotFoundError:
+			raise RuntimeError("clang-format was not found in PATH.")
+
+		if result.returncode != 0:
+			raise RuntimeError("clang-format failed:\n" + result.stderr)
+
+		return read_file(temp_path)
+	finally:
+		if not temp.closed:
+			temp.close()
+		if os.path.exists(temp_path):
+			os.remove(temp_path)
+
+
+def main():
+	print("Launching code generator...")
+	script_dir = os.path.dirname(os.path.abspath(__file__))
+	repo_root = os.path.abspath(os.path.join(script_dir, ".."))
+	output_path = os.path.join(repo_root, OUTPUT_FILE)
+
+	test_mode = False
+	if len(sys.argv) > 1 and sys.argv[1] == "test":
+		test_mode = True
+
+	structs = collect_structs(repo_root)
+	code = generate_code(structs)
+	code = clang_format(repo_root, code)
+
+	if test_mode:
+		test_path = output_path + ".test"
+		write_file(test_path, code)
+		print("Generated test file: " + test_path)
+		return 0
+
+	old_code = None
+	if os.path.isfile(output_path):
+		old_code = read_file(output_path)
+
+	if old_code == code:
+		print("Generated file is up to date.")
+		return 0
+
+	write_file(output_path, code)
+	print("Updated generated file: " + output_path)
+	return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+	sys.exit(main())

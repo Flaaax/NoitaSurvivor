@@ -10,10 +10,25 @@
 
 using namespace myecs;
 
+void validateComponentConfig(std::string_view entity, std::string_view name, const json& j) {
+
+	const auto metaData = ComponentMeta::getMetaInfo(name);
+	if (!metaData) {
+		Logger::warn("Cannot find MetaInfo for component {}", name);
+		return;
+	}
+	for (auto& [fieldName, _] : j.items()) {
+		if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
+			Logger::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}\n\t", fieldName, name, entity);
+		}
+	}
+}
+
 void EntityFactory::initEntityComponents() {
 	for (auto& [entityType, j] : DataMgr::getEntityComponentData().items()) {
 		std::vector<ComponentInitializer> components;
 		for (auto& [componentName, jj] : j.items()) {
+			validateComponentConfig(entityType, componentName, jj);
 			if (const auto gen = ComponentMeta::getInitializerFactory(componentName)) {
 				components.emplace_back(gen(jj));
 			} else
