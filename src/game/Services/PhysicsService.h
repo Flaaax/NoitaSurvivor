@@ -1,7 +1,7 @@
 #pragma once
 #include "src/ecs/entity.h"
 #include "src/game/Components/PhysicsComponents.h"
-#include "src/utils/Pointer.h"
+#include "src/game/Contact/ContactLayerRules.h"
 
 struct GameCtx;
 
@@ -57,4 +57,9 @@ public:
 	static float getMass(const BodyComponent& bc);
 
 	static void setType(const BodyComponent& bc, BodyArg::BodyType type);
+
+	static void applySoftCollision(const GameCtx& ctx, myecs::entity a, myecs::entity b);
+
+	using queryCallbackFcn = bool(myecs::entity e, void* customContext);
+	static void queryCircle(const GameCtx& ctx, ContactLayer layer, u64 maskBits, nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext);
 };

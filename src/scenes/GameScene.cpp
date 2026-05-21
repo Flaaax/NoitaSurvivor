@@ -47,8 +47,9 @@ bool GameScene::handleEvent(const NEventCtx& event) {
 	}
 
 	if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
-		if (e->code == sf::Keyboard::Key::P) {
+		if (e->code == sf::Keyboard::Key::Space) {
 			game.setPaused(!game.isPaused());
+			return true;
 		}
 	}
 

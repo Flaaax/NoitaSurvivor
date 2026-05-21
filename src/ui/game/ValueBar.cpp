@@ -39,11 +39,11 @@ void ValueBar::updateText() {
 
 void ValueBar::draw(const NCanvas& canvas) const {
 	auto& renderPos = geometry.position;
-	const fvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.w, geometry.h};
+	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.w, geometry.h};
 	healthShape.setSize(healthShapeSize);
 	healthShape.setPosition({renderPos.x + geometry.w - healthShapeSize.x, renderPos.y});
 
-	nrect posRect = {renderPos, geometry.size};
+	const nrect posRect = {renderPos, geometry.size};
 
 	healthBarShape.setSize(geometry.size);
 

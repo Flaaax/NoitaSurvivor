@@ -4,12 +4,12 @@
 #include "../scenes/GameScene.h"
 #include "../scenes/MenuScene.h"
 #include "../utils/Timer.h"
-#include "./shapes/NRoundRectShape.h"
 #include "NScene.h"
 #include "NText.h"
 #include "global/InputManager.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "src/game/Services/EntityService.h"
 #include "src/global/DebugVariables.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
@@ -17,6 +17,31 @@
 #include <array>
 #include <format>
 #include <numeric>
+
+bool DrawStringCombo(const char* label, const Util::Vector<std::string_view>& items, int& current_index) {
+	if (items.empty())
+		return false;
+
+	const char* preview = items[current_index].data();
+	bool changed = false;
+
+	if (ImGui::BeginCombo(label, preview)) {
+		for (const int i : items.indices<int>()) {
+			const bool selected = (current_index == i);
+
+			if (ImGui::Selectable(items[i].data(), selected)) {
+				current_index = i;
+				changed = true;
+			}
+
+			if (selected)
+				ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::EndCombo();
+	}
+	return changed;
+}
 
 void NWindow::updateWindowSize() const {
 	const auto sizeu = window->getSize();
@@ -134,6 +159,15 @@ int NWindow::loop() {
 		while (const auto event = window->pollEvent()) {
 			if (enableImgui) {
 				ImGui::SFML::ProcessEvent(*window, *event);
+				const bool isMouseEvent =
+					event->is<sf::Event::MouseButtonPressed>() ||
+					event->is<sf::Event::MouseButtonReleased>() ||
+					event->is<sf::Event::MouseMoved>() ||
+					event->is<sf::Event::MouseWheelScrolled>();
+
+				if (isMouseEvent && ImGui::GetIO().WantCaptureMouse) {
+					continue; // ImGui 吃掉鼠标事件
+				}
 			}
 
 			if (event->is<sf::Event::Closed>()) {
@@ -182,6 +216,11 @@ int NWindow::loop() {
 
 			ImGui::SeparatorText("游戏内容");
 
+			if (ImGui::Button("清除实体")) {
+				static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", true);
+				shouldClear = true;
+			}
+
 			static bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
 			if (ImGui::Button(!enableEnemySpawn ? "启用怪物生成" : "禁用怪物生成")) {
 				enableEnemySpawn = !enableEnemySpawn;
@@ -189,6 +228,22 @@ int NWindow::loop() {
 			if (enableEnemySpawn) {
 				static float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
 				ImGui::SliderFloat("怪物生成速率", &enemySpawnFreq, 0.5f, 10.f);
+			}
+
+			static Util::Vector<std::string_view> trackers = {
+				"none",
+				"circle",
+				"seek",
+				"weakSeek",
+				"leadSeek",
+				"lateral",
+				"navigation",
+			};
+
+			static int& selectedTracker = DebugVariables::try_emplace("tracker", 1);
+
+			if (DrawStringCombo("跟踪算法", trackers, selectedTracker)) {
+				// Logger::info("选择了 {}", trackers[selected]);
 			}
 
 			ImGui::End();

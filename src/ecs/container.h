@@ -310,44 +310,47 @@ public:
 	}
 };
 
-template <class T>
-struct Iterable {
-	struct Iter {
-		Iterable* it{};
-		bool stop = true;
-
-		Iter() {
-		}
-		Iter(Iterable* it) : it(it), stop(it->cur.stop()) {
-		}
-
-		Iter& operator++() {
-			it->cur.next();
-			stop = it->cur.stop();
-			return *this;
-		}
-		decltype(auto) operator*() const {
-			return it->cur.get();
-		}
-		decltype(auto) operator*() {
-			return it->cur.get();
-		}
-		bool operator==(const Iter& other) const {
-			return stop && other.stop;
-		}
-	};
-
-	T cur;
-	Iterable(T cur) : cur(cur) {
-	}
-
-	Iter begin() {
-		return Iter(this);
-	}
-	Iter end() {
-		return {};
-	}
-};
+// template <class T>
+// struct Iterable {
+// 	struct Iter {
+// 		Iterable* it{};
+// 		bool stop = true;
+//
+// 		Iter() {
+// 		}
+//
+// 		explicit Iter(Iterable* it) : it(it), stop(it->cur.stop()) {
+// 		}
+//
+// 		Iter& operator++() {
+// 			it->cur.next();
+// 			stop = it->cur.stop();
+// 			return *this;
+// 		}
+// 		decltype(auto) operator*() const {
+// 			return it->cur.get();
+// 		}
+// 		decltype(auto) operator*() {
+// 			return it->cur.get();
+// 		}
+// 		bool operator==(const Iter& other) const {
+// 			return stop && other.stop;
+// 		}
+// 	};
+//
+// 	T cur;
+//
+// 	explicit Iterable(T cur) : cur(cur) {
+// 	}
+//
+// 	Iter begin() {
+// 		return Iter(this);
+// 	}
+//
+// 	static Iter end() {
+// 		return {};
+// 	}
+// };
 
 } // namespace myecs
 

@@ -19,14 +19,14 @@ namespace Util {
 		[[nodiscard]] virtual bool hasNext() = 0;
 	};
 
-	template <class T, class Ref>
+	template <class Ref>
 	struct IEnumerable {
 		virtual ~IEnumerable() = default;
 
 		[[nodiscard]] virtual std::unique_ptr<IEnumerator<Ref>> getEnumerator() = 0;
 	};
 
-	template <class T, class Ref, class Iter, class Sent>
+	template <class Ref, class Iter, class Sent>
 	struct DefaultEnumerator : IEnumerator<Ref> {
 		Iter cur;
 		Sent end;
@@ -48,8 +48,8 @@ namespace Util {
 		}
 	};
 
-	template <class T, class Ref, class Range>
-	struct RangeEnumerable : IEnumerable<T, Ref> {
+	template <class Ref, class Range>
+	struct RangeEnumerable : IEnumerable<Ref> {
 		Range self;
 
 		explicit RangeEnumerable(Range&& self)
@@ -61,15 +61,19 @@ namespace Util {
 			using Sent = decltype(self.end());
 
 			return std::unique_ptr<IEnumerator<Ref>>(
-				new DefaultEnumerator<T, Ref, Iter, Sent>(self.begin(), self.end()));
+				new DefaultEnumerator<Ref, Iter, Sent>(self.begin(), self.end()));
 		}
 	};
 
-	template <class T, class Ref = T&>
+	namespace internal {
+		struct DefaultTypeTag;
+	};
+
+	template <class T = internal::DefaultTypeTag, class Ref = T&>
 		requires(!std::is_reference_v<T>)
 	class EnumerableView {
 	private:
-		std::shared_ptr<IEnumerable<T, Ref>> enumerable{};
+		std::shared_ptr<IEnumerable<Ref>> enumerable{};
 
 		template <bool IsConst>
 		class Iterator {
@@ -126,8 +130,8 @@ namespace Util {
 				return !it.enumerator;
 			}
 
-			friend bool operator==(std::default_sentinel_t s, const Iterator& it) noexcept {
-				return it == s;
+			friend bool operator==(std::default_sentinel_t, const Iterator& it) noexcept {
+				return !it.enumerator;
 			}
 		};
 
@@ -138,7 +142,7 @@ namespace Util {
 
 		EnumerableView() = default;
 
-		explicit EnumerableView(std::shared_ptr<IEnumerable<T, Ref>> e)
+		explicit EnumerableView(std::shared_ptr<IEnumerable<Ref>> e)
 			: enumerable(std::move(e)) {
 		}
 
@@ -146,14 +150,14 @@ namespace Util {
 		}
 
 		template <class Range>
-		static EnumerableView getView(Range&& range) {
+		static EnumerableView from(Range&& range) {
 			using StoredRange = std::conditional_t<
 				std::is_lvalue_reference_v<Range&&>,
 				Range,
 				std::remove_cvref_t<Range>>;
 
-			auto e = std::shared_ptr<IEnumerable<T, Ref>>(
-				new RangeEnumerable<T, Ref, StoredRange>(std::forward<Range>(range)));
+			auto e = std::shared_ptr<IEnumerable<Ref>>(
+				new RangeEnumerable<Ref, StoredRange>(std::forward<Range>(range)));
 
 			return EnumerableView(e);
 		}
@@ -187,27 +191,31 @@ namespace Util {
 		}
 
 		template <class Pred>
+		[[nodiscard]]
 		bool any(Pred&& pred) const {
 			return std::ranges::any_of(*this, std::forward<Pred>(pred));
 		}
 
 		template <class Pred>
-		[[nodiscard]] EnumerableView where(Pred pred) const {
+		[[nodiscard]]
+		EnumerableView where(Pred pred) const {
 			auto source = *this;
 
 			auto filtered = std::views::filter(
 				std::move(source),
 				std::move(pred));
 
-			return EnumerableView::getView(std::move(filtered));
+			return EnumerableView::from(std::move(filtered));
 		}
 
-		[[nodiscard]] bool empty() const {
+		[[nodiscard]]
+		bool empty() const {
 			return begin() == end();
 		}
 
 		template <template <class...> class Container>
-		[[nodiscard]] Container<std::remove_cv_t<T>> to() const {
+		[[nodiscard]]
+		Container<std::remove_cv_t<T>> to() const {
 			using Value = std::remove_cv_t<T>;
 
 			Container<Value> result;
@@ -220,7 +228,8 @@ namespace Util {
 			requires std::invocable<Func&, Ref> &&
 					 (!std::is_reference_v<std::invoke_result_t<Func&, Ref>>) &&
 					 (!std::is_void_v<std::invoke_result_t<Func&, Ref>>)
-		[[nodiscard]] auto select(Func func) const
+		[[nodiscard]]
+		auto select(Func func) const
 			-> EnumerableView<
 				std::remove_cv_t<std::invoke_result_t<Func&, Ref>>,
 				std::remove_cv_t<std::invoke_result_t<Func&, Ref>>> {
@@ -232,7 +241,7 @@ namespace Util {
 				std::move(source),
 				std::move(func));
 
-			return EnumerableView<Result, Result>::getView(std::move(transformed));
+			return EnumerableView<Result, Result>::from(std::move(transformed));
 		}
 
 		template <class Pred = std::identity>
@@ -251,21 +260,46 @@ namespace Util {
 		}
 	};
 
+	template <>
+	class EnumerableView<internal::DefaultTypeTag, internal::DefaultTypeTag&> {
+	public:
+		template <std::ranges::range Range>
+		[[nodiscard]]
+		static auto from(Range&& range) {
+			using Ref = std::ranges::range_reference_t<Range&&>;
+			using T = std::remove_cvref_t<Ref>;
+			return EnumerableView<T, Ref>::from(std::forward<Range>(range));
+		}
+	};
+
+	struct Enumerable {
+		template <std::ranges::range Range>
+		[[nodiscard]]
+		static auto from(Range&& range) {
+			using StoredRange = std::conditional_t<
+				std::is_lvalue_reference_v<Range&&>,
+				Range,
+				std::remove_cvref_t<Range>>;
+
+			using Ref = std::ranges::range_reference_t<StoredRange&>;
+			using T = std::remove_cvref_t<Ref>;
+
+			return EnumerableView<T, Ref>::from(std::forward<Range>(range));
+		}
+	};
+
 	template <class T>
 	using ValEnumerableView = EnumerableView<T, T>;
 
-	template <class Derived>
-	class Viewable {
-	public:
-		constexpr Viewable() noexcept = default;
-
+	template <class Derived, class T>
+	struct Viewable {
 		auto view() & {
 			auto& self = static_cast<Derived&>(*this);
 
 			using Ref = std::ranges::range_reference_t<Derived&>;
 			using Elem = std::remove_cvref_t<Ref>;
 
-			return EnumerableView<Elem, Ref>::getView(self);
+			return EnumerableView<Elem, Ref>::from(self);
 		}
 
 		auto view() const& {
@@ -274,13 +308,34 @@ namespace Util {
 			using Ref = std::ranges::range_reference_t<const Derived&>;
 			using Elem = std::remove_cvref_t<Ref>;
 
-			return EnumerableView<Elem, Ref>::getView(self);
+			return EnumerableView<Elem, Ref>::from(self);
 		}
 
 		auto view() && = delete;
 		auto view() const&& = delete;
 	};
 
+	template <class Derived, class T>
+	struct Indexable {
+		template <std::integral i = std::size_t>
+		auto indices() const {
+			const auto& self = static_cast<const Derived&>(*this);
+			return std::views::iota(i{0}, i(self.size()));
+		}
+	};
+
+	template <class Derived, class T>
+	struct Fillable {
+		void fill(T elem) {
+			auto& self = static_cast<Derived&>(*this);
+			for (size_t i = 0; i < self.size(); ++i) {
+				self.operator[](i) = elem;
+			}
+		}
+	};
+
+	template <class Derived, class T, template <class, class> class... Features>
+	struct ContainerFeature : Features<Derived, T>... {};
 } // namespace Util
 
 namespace std::ranges { // NOLINT(*-dcl58-cpp)

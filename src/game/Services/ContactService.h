@@ -1,18 +1,21 @@
 ﻿#pragma once
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/States/ContactState.h"
-#include "src/utils/Pointer.h"
-
 #include <box2d/box2d.h>
 
 class ContactService {
 public:
 	// The return pair is sorted
-	static EntityPair getEntityPairFromShapes(b2ShapeId sa, b2ShapeId sb) {
+	static EntityPair getEntityPair(b2ShapeId sa, b2ShapeId sb) {
 		using namespace myecs;
 		const auto a = entity(reinterpret_cast<u64>(b2Shape_GetUserData(sa)));
 		const auto b = entity(reinterpret_cast<u64>(b2Shape_GetUserData(sb)));
 		return {a, b};
+	}
+
+	static myecs::entity getEntity(b2ShapeId shape) {
+		using namespace myecs;
+		return entity(reinterpret_cast<u64>(b2Shape_GetUserData(shape)));
 	}
 
 	static void addMultiContact(MultiContactComponent* mc, myecs::entity target, float duration) {

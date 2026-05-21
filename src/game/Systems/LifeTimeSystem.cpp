@@ -12,7 +12,7 @@
 #include <src/game/Services/GameService.h>
 #include <src/utils/Random.h>
 
-void LifeTimeSystem::destroyDeadEntities(const GameCtx& ctx) {
+void LifeTimeSystem::cleanupDeadEntities(const GameCtx& ctx) {
 	auto& reg = ctx.reg;
 	using namespace myecs;
 	std::vector<entity> entityToDestroy;
@@ -24,41 +24,43 @@ void LifeTimeSystem::destroyDeadEntities(const GameCtx& ctx) {
 	}
 
 	for (const entity& e : entityToDestroy) {
-		if (auto [sc, bc] = reg.try_get<SpellOnDeathComponent, BodyComponent>(e); sc) {
-			sc->spellBlock.cast(ctx, PhysicsService().getPosition(*bc) + sc->impulsePosFix, sc->impulsePosFix.rad());
-		}
-		if (const auto sc = reg.try_get<ScriptComponent>(e)) {
-			for (const auto& s : sc->scripts) {
-				s->onDeath(ctx, e);
+		if (!reg.has<DieSilentComponent>(e)) {
+			if (auto [sc, bc] = reg.try_get<SpellOnDeathComponent, BodyComponent>(e); sc) {
+				sc->spellBlock.cast(ctx, PhysicsService().getPosition(*bc) + sc->impulsePosFix, sc->impulsePosFix.rad());
 			}
-		}
-		if (const auto ec = reg.try_get<EnemyComponent>(e)) {
-			GameService().dropMaterial(ctx, PhysicsService().getPosition(ctx, e));
-			// disable the enemy
-			auto& body = reg.get<BodyComponent>(e);
-			auto& ee = reg.get<EntityComponent>(e);
-			ee.layer = None; // disable all contact
-			ee.health = -1;
-			PhysicsService().setType(body, BodyArg::Static);
-			nvec2 impulse = ec->impulse;
-			reg.destroy<EnemyComponent>(e);
-			// add death animation
-			const float duration = Util::random.getFloat(0.22, 0.27);
-			const float k = Util::random.getFloat(0.05, 0.08);
-			const float darg = Util::to_rad(Util::random.getFloat(-30, 30));
-			const float arg = Util::random.getFloat(30.f, 120.f);
-			const float spin = Util::random.getBool() ? 1.f : -1.f;
-			reg.emplace_or_replace<LifetimeComponent>(e).lifeTimer.start(duration);
-			auto& sc = reg.get_or_emplace<SpriteEffectComponent>(e);
-			sc.effectList += Util::makeUnique(new Transition(
-				EffectState{},
-				EffectState{
-					.rotation = sf::degrees(spin * arg),
-					.offset = (impulse * k).rotated(darg),
-					.scale = {0.75, 0.75},
-					.opacity = 0.f},
-				duration));
-			continue;
+			if (const auto sc = reg.try_get<ScriptComponent>(e)) {
+				for (const auto& s : sc->scripts) {
+					s->onDeath(ctx, e);
+				}
+			}
+			if (const auto ec = reg.try_get<EnemyComponent>(e)) {
+				GameService().dropMaterial(ctx, PhysicsService().getPosition(ctx, e));
+				// disable the enemy
+				auto& body = reg.get<BodyComponent>(e);
+				auto& ee = reg.get<EntityComponent>(e);
+				ee.layer = None; // disable all contact
+				ee.health = -1;
+				PhysicsService().setType(body, BodyArg::Static);
+				nvec2 impulse = ec->impulse;
+				reg.destroy<EnemyComponent>(e);
+				// add death animation
+				const float duration = Util::random.getFloat(0.22, 0.27);
+				const float k = Util::random.getFloat(0.05, 0.08);
+				const float darg = Util::to_rad(Util::random.getFloat(-30, 30));
+				const float arg = Util::random.getFloat(30.f, 120.f);
+				const float spin = Util::random.getBool() ? 1.f : -1.f;
+				reg.emplace_or_replace<LifetimeComponent>(e).lifeTimer.start(duration);
+				auto& sc = reg.get_or_emplace<SpriteEffectComponent>(e);
+				sc.effectList += Util::makeUnique(new Transition(
+					EffectState{},
+					EffectState{
+						.rotation = sf::degrees(spin * arg),
+						.offset = (impulse * k).rotated(darg),
+						.scale = {0.75, 0.75},
+						.opacity = 0.f},
+					duration));
+				continue;
+			}
 		}
 
 		if (reg.try_get<BodyComponent>(e)) {

@@ -10,8 +10,6 @@
 #include "src/utils/Logger.h"
 
 #include <boost/unordered/unordered_flat_map.hpp>
-#include <span>
-#include <windows.h>
 
 using namespace myecs;
 
@@ -43,6 +41,11 @@ static void handleContactEvents(const GameCtx& ctx) {
 
 		if (!(EntityService().isAlive(ctx, a) && EntityService().isAlive(ctx, b))) {
 			continue;
+		}
+
+		auto [ea, eb] = reg.get<EntityComponent>(a, b);
+		if (ctx.contactRules.softContact.get(ea.layer, eb.layer)) {
+			PhysicsService().applySoftCollision(ctx, a, b);
 		}
 
 		std::initializer_list<n_pair<entity>> pairs = {{a, b}, {b, a}};

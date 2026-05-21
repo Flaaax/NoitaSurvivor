@@ -10,7 +10,7 @@ namespace Util {
 	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)
-	class Vector : public std::vector<T>, public Viewable<Vector<T>> {
+	class Vector : public std::vector<T>, public ContainerFeature<Vector<T>, T, Viewable, Indexable, Fillable> {
 	public:
 		using Base = std::vector<T>;
 		using Base::Base;
@@ -23,12 +23,6 @@ namespace Util {
 		template <std::integral I>
 		const T& operator[](I index) const {
 			return Base::operator[](static_cast<size_t>(index));
-		}
-
-		void fill(T elem) {
-			for (size_t i = 0; i < this->size(); ++i) {
-				this->operator[](i) = elem;
-			}
 		}
 
 		explicit(false) operator Base&() {
@@ -65,11 +59,6 @@ namespace Util {
 		[[nodiscard]] bool valid(int index) const {
 			return index >= 0 && index < this->size();
 		}
-
-		auto indices() const {
-			using size_type = typename Base::size_type;
-			return std::views::iota(size_type{0}, this->size());
-		}
 	};
 
 	template <typename T>
@@ -78,11 +67,9 @@ namespace Util {
 		std::is_enum_v<T>;
 
 	template <class T, std::size_t N>
-	class Array : public std::array<T, N>, public Viewable<Array<T, N>> {
+	class Array : public std::array<T, N>, public ContainerFeature<Array<T, N>, T, Viewable, Indexable> {
 	public:
 		using Base = std::array<T, N>;
-
-		// using Base::Base;
 
 		template <IntegerOrEnum I>
 		T& operator[](I i) {

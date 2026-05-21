@@ -1,24 +1,16 @@
 # AGENT Instructions
 
-- This project was migrated from a Visual Studio project to CMake for CLion compatibility. The main migration/refactor
-  work is now complete
+- 这个项目从旧项目迁移，为了兼容Cmake和Clion IDE，且拥有独立git仓库。
 - 旧项目的绝对类路径位于：`E:\VisualC++\.SFML projects\NoitaSurvivor`，当你想知道某功能在老版本如何实现，这可能有用。
-- Prefer preserving behavior from the original project when investigating behavior regressions or migration-related
-  issues.
-- Do not manually run compile, build, generation, or codegen commands.
-- Do not invoke tools such as `cmake --build`, `make`, `ninja`, `msbuild`, Visual Studio build commands, or
-  project-specific generator scripts unless the user explicitly asks for it.
-- When changes may require generated files or a build to verify, explain what should be run instead of running it
-  yourself.
-- Keep edits focused on source/configuration files and avoid modifying generated output by hand.
+- 不要跑任何构建或编译命令。后面会再次提到这点。
 
 ## Backlog
 
 - 无
 
 ## 备注
-- 项目已从 Visual Studio 工程迁移到 CMake，以兼容 CLion；主要迁移和 Box2D 2.x -> 3.x 重构已基本完成，目前可编译运行，核心玩法已基本还原。
-- 当前项目进入 UI 系统、事件分发机制和调试工具链重构阶段，部分代码可能处于过渡状态。
+
+- 当前项目进入时不时处于重构阶段，部分代码可能处于过渡状态。
 - 已引入 ImGui 调试面板与 DebugVariables，用于暴露运行期调试开关和参数。
 - 此文件被预期用中文编写。
 
@@ -36,7 +28,8 @@
 # AGENT行为准则
 
 - 发现用户指定任务之外的bug，接口不一致，代码语法错误等时，如果用户没指定你擅自修改，则仅报告。
-- git comment 应使用中英双语，英语标题，代码注释仅使用英语。
+- git comment 应使用中文。
+- 必须遵守后一项“非常重要，必看！”
 
 ## 非常重要，必看！
 

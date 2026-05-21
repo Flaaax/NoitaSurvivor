@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <vector>
 
-using json = nlohmann::json;
+using json = nlohmann::ordered_json;
 
 inline std::fstream openFile(std::string_view filename, std::ios_base::openmode mode = std::ios::in | std::ios::out) {
 	std::fstream file(filename.data(), mode);

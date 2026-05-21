@@ -2,6 +2,7 @@
 #include "Components/EntityComponents.h"
 #include "Components/PhysicsComponents.h"
 #include "Contact/PhysicalContactCallbacks.h"
+#include "Services/EntityService.h"
 #include "Services/PhysicsService.h"
 #include "Systems/ContactSystem.h"
 #include "Systems/GameStateSystem.h"
@@ -80,8 +81,8 @@ void Game::init() {
 
 	ctxInternal = makeUnique(new GameCtx(getContext()));
 
-	b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::FilterCallback, ctxInternal.get());
-	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::PresolveCallback, ctxInternal.get());
+	b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::filterCallback, ctxInternal.get());
+	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::presolveCallback, ctxInternal.get());
 
 	GameStateSystem().initGameState(ctx);
 }
@@ -114,7 +115,13 @@ void Game::update(float dt) {
 		ctx.gameState.enemySpawnTimer.update(dt);
 	}
 
-	LifeTimeSystem().destroyDeadEntities(ctx);
+	static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", false);
+	if (shouldClear) {
+		shouldClear = false;
+		EntityService().clearMostEntities(ctx);
+	}
+
+	LifeTimeSystem().cleanupDeadEntities(ctx);
 
 	GameSystem().updateAfterCleanup(ctx);
 

@@ -14,12 +14,12 @@ void validateComponentConfig(std::string_view entity, std::string_view name, con
 
 	const auto metaData = ComponentMeta::getMetaInfo(name);
 	if (!metaData) {
-		Logger::warn("Cannot find MetaInfo for component {}", name);
+		Logger::warn("Invalid component: {}\n\nfor entity{}", name, entity);
 		return;
 	}
 	for (auto& [fieldName, _] : j.items()) {
 		if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
-			Logger::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}\n\t", fieldName, name, entity);
+			Logger::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 		}
 	}
 }
@@ -147,6 +147,8 @@ myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
 	auto& reg = ctx.reg;
 	auto collector = reg.create();
 
+	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
+
 	reg.emplace<BodyComponent>(collector);
 
 	const BodyArg arg{
@@ -161,7 +163,6 @@ myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
 
 	PhysicsService().createBody(ctx, collector, arg);
 
-	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
 	// reg.emplace<RenderComponent>(collector).rp = EntityRenderManager::getRender<ExplosionRender>();
 
 	return collector;

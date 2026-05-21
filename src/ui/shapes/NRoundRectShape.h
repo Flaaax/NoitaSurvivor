@@ -6,7 +6,7 @@
 class NRoundRectShape : public sf::Shape {
 public:
 	explicit NRoundRectShape() : m_radius(0) {}
-	explicit NRoundRectShape(fvec2 size, float radius)
+	explicit NRoundRectShape(nvec2 size, float radius)
 		: m_size(size), m_radius(radius) {
 		updatePoints();
 	}
@@ -15,11 +15,11 @@ public:
 		return m_points.size();
 	}
 
-	virtual fvec2 getPoint(size_t index) const override {
+	virtual sf::Vector2f getPoint(size_t index) const override {
 		return m_points[index];
 	}
 
-	void setSize(const fvec2& size) {
+	void setSize(nvec2 size) {
 		m_size = size;
 		updatePoints();
 	}
@@ -29,7 +29,7 @@ public:
 		updatePoints();
 	}
 
-	void set(const fvec2& size, float radius) {
+	void set(nvec2 size, float radius) {
 		m_size = size;
 		m_radius = radius;
 		updatePoints();
@@ -38,8 +38,8 @@ public:
 private:
 	void updatePoints();
 
-	fvec2 m_size;
+	nvec2 m_size;
 	float m_radius;
-	std::vector<fvec2> m_points;
+	std::vector<nvec2> m_points;
 	size_t m_segments = 10; // Rounded-corner segment count.
 };

@@ -12,10 +12,7 @@
 
 using namespace myecs;
 
-bool PhysicalContactCallbacks::FilterCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, void* context) {
-	const GameCtx& ctx = *static_cast<const GameCtx*>(context);
-	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdB);
-
+bool PhysicalContactCallbacks::filter(const GameCtx& ctx, myecs::entity a, myecs::entity b) {
 	n_pair<entity> pairs[2] = {{a, b}, {b, a}};
 	auto& reg = ctx.reg;
 
@@ -32,9 +29,9 @@ bool PhysicalContactCallbacks::FilterCallback(b2ShapeId shapeIdA, b2ShapeId shap
 	}
 
 	// disable for the basic contact rules
-	if (!ctx.contactRules.shouldContact(ea->layer, eb->layer)) {
-		return false;
-	}
+	// if (!ctx.contactRules.preSolve.get(ea->layer, eb->layer)) {
+	// 	return false;
+	// }
 
 	// disable if in multicontact list
 	for (auto& [a, b] : pairs) {
@@ -46,9 +43,15 @@ bool PhysicalContactCallbacks::FilterCallback(b2ShapeId shapeIdA, b2ShapeId shap
 	return true;
 }
 
-bool PhysicalContactCallbacks::PresolveCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold* manifold, void* context) {
+bool PhysicalContactCallbacks::filterCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, void* context) {
 	const GameCtx& ctx = *static_cast<const GameCtx*>(context);
-	auto [a, b] = ContactService().getEntityPairFromShapes(shapeIdA, shapeIdB);
+	auto [a, b] = ContactService().getEntityPair(shapeIdA, shapeIdB);
+	return filter(ctx, a, b);
+}
+
+bool PhysicalContactCallbacks::presolveCallback(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold* manifold, void* context) {
+	const GameCtx& ctx = *static_cast<const GameCtx*>(context);
+	auto [a, b] = ContactService().getEntityPair(shapeIdA, shapeIdB);
 	auto& reg = ctx.reg;
 
 	if (!(reg.valid(a) && reg.valid(b))) {
@@ -61,7 +64,7 @@ bool PhysicalContactCallbacks::PresolveCallback(b2ShapeId shapeIdA, b2ShapeId sh
 	const auto layerA = EntityService().getLayer(ctx, a);
 	const auto layerB = EntityService().getLayer(ctx, b);
 
-	settings.enablePhysics = ctx.contactRules.shouldContactPhysics(layerA, layerB);
+	settings.enablePhysics = ctx.contactRules.physics.get(layerA, layerB);
 
 	// else if (auto [ea, eb] = reg.try_get<EntityComponent>(a, b); ea->layer == Collector || eb->layer == Collector) {
 	// 	settings.enablePhysics = false;

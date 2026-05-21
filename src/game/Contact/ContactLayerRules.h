@@ -1,8 +1,11 @@
 #pragma once
-#include <array>
-#include <initializer_list>
 
-enum ContactLayer : size_t {
+#include "src/utils/Container/Vector.h"
+#include "src/utils/Integers.h"
+#include <initializer_list>
+#include <utility>
+
+enum ContactLayer : u64 {
 	None,
 	Player,
 	Enemy,
@@ -17,37 +20,103 @@ enum ContactLayer : size_t {
 	ContactLayerCount
 };
 
-class ContactLayerRules {
-public:
-	static constexpr size_t MAX_LAYER_COUNT = ContactLayerCount;
-	static_assert(MAX_LAYER_COUNT <= 16, "too many types!");
+struct LayerRules {
+	static constexpr u64 MAX_LAYER_COUNT = ContactLayerCount;
+	static_assert(MAX_LAYER_COUNT <= 63, "too many types!");
 
-private:
-	using LayerRules = std::array<std::array<bool, MAX_LAYER_COUNT>, MAX_LAYER_COUNT>;
+	using Mask = u64;
+	using Rules = Util::Array<Mask, MAX_LAYER_COUNT>;
 
-	LayerRules rules{};
-	LayerRules physicsRules{};
+	Rules rules{};
 
-public:
-	ContactLayerRules() {
-		for (auto& b1 : physicsRules) {
-			for (auto& b : b1) {
-				b = true;
+	static constexpr Mask bit(ContactLayer layer) noexcept {
+		return Mask{1} << layer;
+	}
+
+	static constexpr Mask validLayerBits() noexcept {
+		return ((Mask{1} << MAX_LAYER_COUNT) - Mask{1}) & ~bit(None);
+	}
+
+	void sanitizeNone() noexcept {
+		rules[None] = Mask{0};
+
+		for (auto& mask : rules) {
+			mask &= ~bit(None);
+		}
+	}
+
+	void set(ContactLayer a, bool enabled) noexcept {
+		const Mask aBit = bit(a);
+
+		if (enabled) {
+			rules[a] = validLayerBits();
+
+			for (auto& mask : rules) {
+				mask |= aBit;
+			}
+		} else {
+			rules[a] = Mask{0};
+
+			for (auto& mask : rules) {
+				mask &= ~aBit;
 			}
 		}
 
-		setContact(Wall, true);
-		setContact(Wall, Wall, false);
+		sanitizeNone();
+	}
 
-		setContact(Collector, Wall, false);
+	void set(ContactLayer a, ContactLayer b, bool enabled = true) noexcept {
+		const Mask aBit = bit(a);
+		const Mask bBit = bit(b);
 
-		setContact(Collectible, false);
-		setContact(Collector, Collectible, true);
-		setContact(Collectible, Collectible, true);
-		setContact(Collectible, Wall, true);
+		if (enabled) {
+			rules[a] |= bBit;
+			rules[b] |= aBit;
+		} else {
+			rules[a] &= ~bBit;
+			rules[b] &= ~aBit;
+		}
 
-		setContact(Detector, true);
-		setContact(Detector, Detector, false);
+		sanitizeNone();
+	}
+
+	void setAll(bool enabled) noexcept {
+		const Mask mask = enabled ? validLayerBits() : Mask{0};
+
+		for (auto& rule : rules) {
+			rule = mask;
+		}
+
+		sanitizeNone();
+	}
+
+	bool get(ContactLayer a, ContactLayer b) const noexcept {
+		return (rules[a] & bit(b)) != 0;
+	}
+
+	Mask getCollisionBits(ContactLayer a) const noexcept {
+		return rules[a];
+	}
+};
+
+struct ContactLayerRules {
+	LayerRules preSolve{};
+	LayerRules physics{};
+	LayerRules softContact{};
+
+	ContactLayerRules() {
+		preSolve.set(Wall, true);
+		preSolve.set(Wall, Wall, false);
+
+		preSolve.set(Collector, Wall, false);
+
+		preSolve.set(Collectible, false);
+		preSolve.set(Collector, Collectible);
+		preSolve.set(Collectible, Collectible);
+		preSolve.set(Collectible, Wall);
+
+		preSolve.set(Detector, true);
+		preSolve.set(Detector, Detector, false);
 
 		std::initializer_list<std::pair<ContactLayer, ContactLayer>> contacts = {
 			{Player, Enemy},
@@ -57,60 +126,20 @@ public:
 			{Enemy, PlayerProjectile},
 			{Enemy, Enemy},
 		};
+
 		for (const auto& [a, b] : contacts) {
-			setContact(a, b, true);
+			preSolve.set(a, b, true);
 		}
 
-		setPhysicsContact(Projectile, false);
-		setPhysicsContact(PlayerProjectile, false);
-		setPhysicsContact(EnemyProjectile, false);
-		setPhysicsContact(Collectible, false);
-		setPhysicsContact(Collectible, Collectible, true);
-		setPhysicsContact(Wall, Collectible, true);
+		physics.set(Wall, Player);
+		physics.set(Wall, Enemy);
+		physics.set(Wall, Collectible);
+
+		softContact.set(Enemy, Enemy);
+		softContact.set(Player, Enemy);
 	}
 
-	// Should only be called during game init.
-	// This function preserves the symmetric invariant:
-	// m_contacts[a][b] == m_contacts[b][a]
-	void setContact(ContactLayer a, ContactLayer b, bool enabled) {
-		if (a == None || b == None)
-			return;
-
-		rules[a][b] = enabled;
-		rules[b][a] = enabled;
-	}
-
-	void setContact(ContactLayer t, bool enabled) {
-		if (t == None)
-			return;
-
-		for (size_t i = 0; i < rules.size(); ++i) {
-			setContact(t, static_cast<ContactLayer>(i), enabled);
-		}
-	}
-
-	void setPhysicsContact(ContactLayer a, ContactLayer b, bool enabled) {
-		if (a == None || b == None)
-			return;
-
-		physicsRules[a][b] = enabled;
-		physicsRules[b][a] = enabled;
-	}
-
-	void setPhysicsContact(ContactLayer t, bool enabled) {
-		if (t == None)
-			return;
-
-		for (size_t i = 0; i < rules.size(); ++i) {
-			setPhysicsContact(t, static_cast<ContactLayer>(i), enabled);
-		}
-	}
-
-	bool shouldContact(ContactLayer a, ContactLayer b) const {
-		return rules[a][b];
-	}
-
-	bool shouldContactPhysics(ContactLayer a, ContactLayer b) const {
-		return physicsRules[a][b];
+	static constexpr uint64_t bit(ContactLayer layer) noexcept {
+		return u64{1} << layer;
 	}
 };

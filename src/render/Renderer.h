@@ -18,7 +18,7 @@ public:
 	}
 
 	// should be called in class Game
-	void updateGameRender(const fvec2& cameraRenderPos) {
+	void updateGameRender(nvec2 cameraRenderPos) {
 		gameContentState.transform = sf::Transform::Identity;
 		gameContentState.transform
 			.translate(-cameraRenderPos)

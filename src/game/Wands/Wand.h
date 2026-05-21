@@ -47,7 +47,7 @@ public:
 
 	Wand();
 
-	void setGeometry(const bvec2& pos, float arg) {
+	void setGeometry(nvec2 pos, float arg) {
 		worldPos = pos;
 		sprite.setPosition(worldPos);
 		sprite.setRotation(sf::radians(arg));

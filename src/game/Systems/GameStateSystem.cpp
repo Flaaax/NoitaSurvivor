@@ -16,7 +16,7 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 	state.wands += makeUnique(new Wand());
 
 	state.player.id = ctx.factory.createPlayer(ctx);
-	state.player.collector = ctx.factory.createCollector(ctx, 3.f);
+	state.player.collector = ctx.factory.createCollector(ctx, 4.5f);
 	state.player.maxExp = 20;
 
 	ctx.factory.createMaterial(ctx, {6.f, 6.f});

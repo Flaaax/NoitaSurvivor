@@ -28,7 +28,8 @@ imgui.ini
 *.zip
 *.7z
 
-src/meta/generated/*.cache
+*.h.cache
+*.cpp.cache
 
 .codex/
 /pack_src.bat

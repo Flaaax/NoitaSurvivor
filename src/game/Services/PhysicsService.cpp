@@ -1,5 +1,8 @@
 #include "PhysicsService.h"
+
+#include "ContactService.h"
 #include "src/game/GameContext.h"
+#include "src/utils/Lambda.h"
 #include "src/utils/Logger.h"
 #include <src/game/Components/PhysicsComponents.h>
 
@@ -44,6 +47,12 @@ void PhysicsService::createBody(const GameCtx& ctx, myecs::entity e, const BodyA
 		return;
 	}
 
+	const auto ec = ctx.reg.try_get<EntityComponent>(e);
+	if (!ec) {
+		Logger::error_and_throw("Entity must have EntityComponent to create a body");
+	}
+	const auto layer = ec->layer;
+
 	b2BodyDef bodyDef = b2DefaultBodyDef();
 	bodyDef.type = static_cast<b2BodyType>(arg.type);
 	bodyDef.fixedRotation = arg.fixedRotation;
@@ -58,6 +67,8 @@ void PhysicsService::createBody(const GameCtx& ctx, myecs::entity e, const BodyA
 	shapeDef.material.restitution = arg.restitution;
 	shapeDef.isSensor = arg.isSensor;
 	shapeDef.enablePreSolveEvents = true;
+	shapeDef.filter.categoryBits = ctx.contactRules.bit(layer);
+	shapeDef.filter.maskBits = ctx.contactRules.preSolve.getCollisionBits(layer);
 
 	if (arg.shape == BodyArg::Box) {
 		const b2Polygon shape = b2MakeBox(arg.size.x / 2.f, arg.size.y / 2.f);
@@ -95,6 +106,7 @@ void PhysicsService::setTransform(const BodyComponent& bc, nvec2 position, float
 	assertValid(bc);
 	b2Body_SetTransform(bc.body, position, b2MakeRot(rad));
 }
+
 void PhysicsService::setRotation(const BodyComponent& bc, float rad) {
 	assertValid(bc);
 	b2Body_SetTransform(bc.body, b2Body_GetPosition(bc.body), b2MakeRot(rad));
@@ -176,4 +188,90 @@ void PhysicsService::setType(const BodyComponent& bc, BodyArg::BodyType type) {
 	assertValid(bc);
 	const auto b2Type = static_cast<b2BodyType>(type);
 	b2Body_SetType(bc.body, b2Type);
+}
+
+void PhysicsService::applySoftCollision(const GameCtx& ctx, myecs::entity a, myecs::entity b) {
+	if (a == b) {
+		Logger::warn("PhysicsService::applySoftCollision does not accept same entities");
+		return;
+	}
+
+	const auto& [ba, bb] = ctx.reg.get<BodyComponent>(a, b);
+	assertValid(ba);
+	assertValid(bb);
+	const auto shapeA = ba.shape;
+	const auto shapeB = bb.shape;
+
+	const auto bodyA = b2Shape_GetBody(shapeA);
+	const auto bodyB = b2Shape_GetBody(shapeB);
+
+	const float radiusA = getRadius(ba);
+	const float radiusB = getRadius(bb);
+
+	const float targetDist = radiusA + radiusB;
+
+	const nvec2 posA = b2Body_GetWorldCenterOfMass(bodyA);
+	const nvec2 posB = b2Body_GetWorldCenterOfMass(bodyB);
+
+	const nvec2 delta = posB - posA;
+	float dist = delta.lengthSquared();
+
+	b2Vec2 normal;
+	if (dist > nmath::n_epsilon) {
+		dist = nmath::sqrt(dist);
+		normal = (1.0f / dist) * delta;
+	} else {
+		normal = {0.0f, 1.f};
+		dist = 0.01f;
+	}
+
+	constexpr float maxForce = 100.f;
+
+	const float compression = targetDist - dist;
+	if (compression <= 0.f) {
+		return;
+	}
+
+	const nvec2 velA = b2Body_GetLinearVelocity(bodyA);
+	const nvec2 velB = b2Body_GetLinearVelocity(bodyB);
+
+	const float normalVelocity = (velB - velA).dot(normal);
+
+	constexpr float stiffness = 25.f;
+	constexpr float damping = 10.f;
+
+	float x = compression / targetDist;
+	x = std::clamp(x, 0.f, 1.f);
+
+	// smoothstep
+	const float s = x * x * (3.0f - 2.0f * x);
+
+	const float forceMagnitude = Util::max(stiffness * s - damping * normalVelocity, maxForce);
+
+	if (forceMagnitude <= 0.0f)
+		return;
+
+	const nvec2 force = forceMagnitude * normal;
+
+	b2Body_ApplyForceToCenter(bodyA, -force, true);
+
+	b2Body_ApplyForceToCenter(bodyB, force, true);
+}
+
+void PhysicsService::queryCircle(const GameCtx& ctx, ContactLayer layer, u64 maskBits, nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext) {
+	// circle proxy：1 个点 + 半径
+	const b2Vec2 center1 = center;
+	const b2ShapeProxy proxy = b2MakeProxy(&center1, 1, radius);
+
+	// 可选：只查询某些 category
+	b2QueryFilter filter = b2DefaultQueryFilter();
+	filter.categoryBits = ctx.contactRules.bit(layer);
+	filter.maskBits = maskBits;
+	auto queryCallback = Util::unwrapLambda([=](b2ShapeId shapeId) {
+		// Logger::info("Called1111 yeah");
+		const auto e = ContactService().getEntity(shapeId);
+		return customCallback(e, customContext);
+	});
+
+	b2World_OverlapShape(ctx.worldCtx.world, &proxy, filter, queryCallback.fn, queryCallback.ctx());
 }

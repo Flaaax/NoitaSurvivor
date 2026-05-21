@@ -42,7 +42,7 @@ class HomingShot : public ModifierSpell {
 public:
 	float radius;
 
-	HomingShot(float radius = 4.f) : radius(radius) {
+	explicit HomingShot(float radius = 4.f) : radius(radius) {
 		castDelay += 0.2f;
 		reloadDelay += 0.4f;
 

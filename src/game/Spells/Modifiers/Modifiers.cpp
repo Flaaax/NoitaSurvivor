@@ -19,21 +19,21 @@ void AddExplosionSpell::apply(const GameCtx& ctx, myecs::entity p) {
 }
 
 void HomingShot::apply(const GameCtx& ctx, myecs::entity p) {
-	auto& reg = ctx.reg;
-	const auto detector = reg.create();
-	reg.emplace<BodyComponent>(detector);
-
-	const BodyArg arg{
-		.type = BodyArg::Static,
-		.fixedRotation = true,
-		.shape = BodyArg::Circle,
-		.radius = radius,
-	};
-
-	PhysicsService().createBody(ctx, detector, arg);
-	reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
-
-	reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::makeShared(new CircleTrackingDetectorScript(ctx, detector, p));
+	ctx.reg.get_or_emplace<ScriptComponent>(p).scripts += Util::makeShared(new TrackingScript(radius));
+	// const auto detector = reg.create();
+	// reg.emplace<BodyComponent>(detector);
+	// reg.emplace<EntityComponent>(detector).layer = PlayerProjectile;
+	//
+	// const BodyArg arg{
+	// 	.type = BodyArg::Static,
+	// 	.fixedRotation = true,
+	// 	.shape = BodyArg::Circle,
+	// 	.radius = radius,
+	// };
+	//
+	// PhysicsService().createBody(ctx, detector, arg);
+	//
+	// reg.get_or_emplace<ScriptComponent>(detector).scripts += Util::makeShared(new CircleTrackingDetectorScript(ctx, detector, p));
 }
 
 MultiShots::MultiShots(int shots) {
@@ -44,10 +44,11 @@ MultiShots::MultiShots(int shots) {
 	}
 	castDelay = 0.1f;
 	reloadDelay = 0.1f;
-	tags.add(Spell::Tag::SHOT_MODIFY);
+	tags.add(Tag::SHOT_MODIFY);
 
 	ID = getID<MultiShots>();
 }
+
 void MultiShots::modifyShot(std::vector<ShotData>& data) {
 	std::vector<ShotData> ret;
 	for (const auto& dat : data) {
@@ -126,7 +127,7 @@ void Parasite::apply(const GameCtx& ctx, myecs::entity p) {
 		Parasite* this_spell;
 
 	public:
-		ParasiteScript(Parasite* this_spell) : this_spell(this_spell) {
+		explicit ParasiteScript(Parasite* this_spell) : this_spell(this_spell) {
 		}
 
 		void onDeath(const GameCtx& ctx, myecs::entity self) override {
@@ -151,6 +152,7 @@ void Parasite::apply(const GameCtx& ctx, myecs::entity p) {
 			// std::cout << "triggered!\n";
 		}
 	};
+
 	if (!script) {
 		script = std::make_shared<ParasiteScript>(this);
 	}

@@ -9,9 +9,12 @@
 #include "src/utils/Vec2.h"
 
 struct EntityComponent {
+	// Do not modify this after initialized
 	ContactLayer layer = ContactLayer::None;
 	int health = -1;
 };
+
+N_NOINIT struct DieSilentComponent {};
 
 N_NOINIT struct MaterialComponent {
 	int value = 1;
@@ -78,6 +81,6 @@ struct MultiContactComponent {
 	N_NOINIT myecs::DenseMap<myecs::entity, Timer> banned;
 };
 
-//Marks an explosion
+// Marks an explosion
 struct ExplosionComponent {
 };

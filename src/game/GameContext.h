@@ -6,7 +6,7 @@
 
 
 class EntityFactory;
-class ContactLayerRules;
+struct ContactLayerRules;
 struct NInputState;
 
 struct WorldCtx {
