@@ -1,6 +1,6 @@
 #include "ValueBar.h"
+#include "../../utils/Text/NString.h"
 #include "src/global/AssetManager.h"
-#include "src/utils/NString.h"
 
 ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth, int mode)
 	: m_initialHealth(initialMaxHealth),
@@ -11,7 +11,7 @@ ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealt
 	setHealth(initialMaxHealth);
 	setMaxHealth(initialMaxHealth);
 	geometry.size = size;
-	geometry.setTopRight(topRight);
+	geometry.setRightTop(topRight);
 
 	text.setFillColor({240, 240, 240});
 	text.setOutlineColor({0, 0, 0});
@@ -39,9 +39,9 @@ void ValueBar::updateText() {
 
 void ValueBar::draw(const NCanvas& canvas) const {
 	auto& renderPos = geometry.position;
-	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.w, geometry.h};
+	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.size.x, geometry.size.y};
 	healthShape.setSize(healthShapeSize);
-	healthShape.setPosition({renderPos.x + geometry.w - healthShapeSize.x, renderPos.y});
+	healthShape.setPosition({renderPos.x + geometry.size.x - healthShapeSize.x, renderPos.y});
 
 	const nrect posRect = {renderPos, geometry.size};
 

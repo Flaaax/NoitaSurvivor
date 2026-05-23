@@ -167,7 +167,7 @@ std::pair<int, float> NSpellInventory::getBestSlot(nrect globalHitbox) const {
 void NSpellInventory::updateHoveredSlot(nvec2 mouseLocal) {
 	hoveredSlot = -1;
 	if (getGeometry().contains(mouseLocal)) {
-		const nvec2 mouseLocal2 = mouseLocal - getGeometry();
+		const nvec2 mouseLocal2 = mouseLocal - getPosition();
 		for (const size_t i : slots.indices()) {
 			if (slots[i].geometry.contains(mouseLocal2)) {
 				hoveredSlot = static_cast<int>(i);

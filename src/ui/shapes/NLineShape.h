@@ -9,7 +9,7 @@ public:
 		vertices.resize(2ull);
 	}
 
-	NLineShape(const nvec2& start, const nvec2& end, const sf::Color& color) {
+	NLineShape(nvec2 start, nvec2 end, sf::Color color) {
 		vertices.setPrimitiveType(sf::PrimitiveType::Lines);
 		vertices.append({start, color});
 		vertices.append({end, color});
@@ -20,7 +20,7 @@ public:
 		vertices[1].color = color;*/
 	}
 
-	void set(const nvec2& start, const nvec2& end, const sf::Color& color) {
+	void set(nvec2 start, nvec2 end, sf::Color color) {
 		// vertices.setPrimitiveType(sf::Lines);
 		vertices[0] = {start, color};
 		vertices[1] = {end, color};

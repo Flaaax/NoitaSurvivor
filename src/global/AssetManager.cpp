@@ -80,7 +80,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 
 	if (auto it = inst().soundBuffers.find(name); it != inst().soundBuffers.end()) {
 		if (index == -1) {
-			index = Util::random.get<int>(0, static_cast<int>(it->second.size()) - 1);
+			index = Util::random.nextVal<int>(0, static_cast<int>(it->second.size()) - 1);
 		}
 
 		for (auto& sound : inst().sounds) {

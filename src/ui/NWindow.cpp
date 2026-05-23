@@ -9,6 +9,7 @@
 #include "global/InputManager.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "shapes/NRichTextShape.h"
 #include "src/game/Services/EntityService.h"
 #include "src/global/DebugVariables.h"
 #include "src/utils/Logger.h"
@@ -107,7 +108,7 @@ int NWindow::loop() {
 	std::array<float, 1000> frameTimes = {};
 	float averageFPS = 0;
 	size_t index = 0;
-	Renderer renderer;
+	Renderer rdr;
 
 	// Logger::info("Initializing scenes...");
 	sceneManager.addScene(std::make_unique<GameScene>());
@@ -131,6 +132,14 @@ int NWindow::loop() {
 
 	bool isRunning = true;
 	bool enableImgui = true;
+
+	NRichTextShape richText(font, "Hello, [blue]world[/]!\n[i]Rich[/] [sine]Text[/] 1");
+	richText.setPosition({200, 200});
+	sf::RectangleShape rectangle;
+	rectangle.setPosition(richText.getPosition());
+	rectangle.setSize(richText.getLayoutSize());
+	rectangle.setFillColor(sf::Color::Cyan);
+
 	ImGui::GetStyle().ScaleAllSizes(1.5f);
 
 	while (window->isOpen() && isRunning) {
@@ -199,15 +208,18 @@ int NWindow::loop() {
 		}
 
 		// draw
-		renderer.clear();
+		rdr.clear();
 
 		if (currentScene) {
-			currentScene->draw(renderer);
+			currentScene->draw(rdr);
 		}
 
-		globalWidget->draw(renderer);
+		globalWidget->draw(rdr);
 
-		renderer.draw(*window);
+		rdr.drawUI(rectangle);
+		rdr.drawUI(richText);
+
+		rdr.draw(*window);
 
 		if (enableImgui) {
 			static bool showDemo = false;

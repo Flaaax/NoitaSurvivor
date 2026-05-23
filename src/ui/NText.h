@@ -3,8 +3,8 @@
 #ifndef NTEXT_H
 #define NTEXT_H
 
+#include "../utils/Text/NString.h"
 #include "NObject.h"
-#include "src/utils/NString.h"
 #include <SFML/Graphics/Text.hpp>
 
 class NText : public NObject {

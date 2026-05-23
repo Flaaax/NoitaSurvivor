@@ -1,6 +1,6 @@
 #include "MaterialBar.h"
 #include "src/global/AssetManager.h"
-#include <src/utils/NString.h>
+#include "src/utils/Text/NString.h"
 
 MaterialBar::MaterialBar(nvec2 topRight, float height) : topRight(topRight), height(height), text(AssetMgr::getDefaultFont()) {
 	text.setFillColor({240, 240, 240});
@@ -19,7 +19,7 @@ void MaterialBar::updateText() {
 
 void MaterialBar::draw(const NCanvas& canvas) const {
 	nrect textRect = text.getGlobalBounds();
-	textRect.setTopRight(topRight);
+	textRect.setRightTop(topRight);
 	text.setPosition(textRect.position);
 	canvas.draw(text);
 }

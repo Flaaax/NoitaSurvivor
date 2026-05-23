@@ -38,7 +38,7 @@ std::string Wand::getWandTextureName(int number) {
 }
 
 Wand::Wand() : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
-	const int randomNumber = Util::random.get(0, 1000);
+	const int randomNumber = Util::random.nextVal(0, 1000);
 	const auto name = getWandTextureName(randomNumber);
 	texture = AssetMgr::getWandTexture(name);
 

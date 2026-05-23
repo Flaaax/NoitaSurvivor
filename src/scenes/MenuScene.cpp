@@ -5,7 +5,7 @@
 MenuScene::MenuScene() {
 	constexpr nvec2 windowSize = NWindow::scale.defaultWindowSizeF;
 	auto startButton =
-		Util::makeUnique(new NButton(nrect(windowSize.x / 2, windowSize.y / 2, 200, 100, nrect::CenterRect)));
+		Util::makeUnique(new NButton(nrect::fromCenter(windowSize / 2.f, {200, 100})));
 	startButton->setOnClick([] {
 		NWindow::sceneManager.setCurrentScene("GameScene");
 	});

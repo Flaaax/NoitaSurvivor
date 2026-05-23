@@ -61,7 +61,8 @@ myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
 	Logger::info("Creating player entity...");
 	static auto& factory = factories["player"];
 	auto e = factory(ctx);
-	auto effect = new BouncyMoveEffect({1.2f, 0.8f}, {0.8f, 1.2f}, 0.5f);
+	auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
+	effect->easing_function = Easing::ease_out_cubic;
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
 	Logger::info("Player entity created: {}", e.string());
@@ -137,7 +138,7 @@ myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& po
 
 	reg.emplace<MultiContactComponent>(e);
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
-		Util::makeUnique(new Transition({}, {.opacity = 0}, lifetime, Easing::ease_out_quad));
+		Util::makeUnique(new Tween({}, {.opacity = 0}, lifetime, 0, Easing::ease_out_quad));
 	ctx.reg.emplace<ExplosionComponent>(e);
 
 	return e;

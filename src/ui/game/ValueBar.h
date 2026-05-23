@@ -4,12 +4,12 @@
 #include "../shapes/NRoundRectShape.h"
 #include <SFML/Graphics.hpp>
 
-
-//Used for both health bar and exp bar
-class ValueBar :public NObject {
+// Used for both health bar and exp bar
+class ValueBar : public NObject {
 public:
 	inline static constexpr int HEALTH = 0;
 	inline static constexpr int EXP = 1;
+
 private:
 	const int m_initialHealth;
 	const float m_initialLength;
@@ -28,6 +28,7 @@ private:
 
 public:
 	ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
+
 	void setHealth(int health) {
 		m_health = health;
 		updateText();
@@ -35,8 +36,8 @@ public:
 
 	void setMaxHealth(int maxHealth) {
 		m_maxHealth = maxHealth;
-		geometry.w = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
-		geometry.x = m_right - geometry.w;
+		geometry.size.x = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
+		geometry.position.x = m_right - geometry.size.x;
 		updateText();
 	}
 

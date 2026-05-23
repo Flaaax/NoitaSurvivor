@@ -26,8 +26,8 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 	// test
 	state.enemySpawnTimer.set(1.0f, [ctx, debugEnemySpawnArea] {
 							 const nvec2 spawnPos{
-								 random.getFloat(debugEnemySpawnArea.x, debugEnemySpawnArea.x + debugEnemySpawnArea.w),
-								 random.getFloat(debugEnemySpawnArea.y, debugEnemySpawnArea.y + debugEnemySpawnArea.h),
+								 random.nextFloat(debugEnemySpawnArea.left(), debugEnemySpawnArea.right()),
+								 random.nextFloat(debugEnemySpawnArea.top(), debugEnemySpawnArea.bottom()),
 							 };
 							 ctx.factory.createEnemy(ctx, spawnPos);
 						 })
@@ -36,10 +36,10 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 	const nrect bound = state.bound;
 
 	std::vector<std::pair<nvec2, nvec2>> borderEdges = {
-		{bound.topLeft(), bound.topRight()},
-		{bound.topRight(), bound.bottomRight()},
-		{bound.bottomRight(), bound.bottomLeft()},
-		{bound.bottomLeft(), bound.topLeft()}};
+		{bound.leftTop(), bound.rightTop()},
+		{bound.rightTop(), bound.rightBottom()},
+		{bound.rightBottom(), bound.leftBottom()},
+		{bound.leftBottom(), bound.leftTop()}};
 	for (auto& [fst, snd] : borderEdges) {
 		state.borders += ctx.factory.createBorder(ctx, fst, snd);
 	}

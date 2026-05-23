@@ -44,14 +44,14 @@ void LifeTimeSystem::cleanupDeadEntities(const GameCtx& ctx) {
 				nvec2 impulse = ec->impulse;
 				reg.destroy<EnemyComponent>(e);
 				// add death animation
-				const float duration = Util::random.getFloat(0.22, 0.27);
-				const float k = Util::random.getFloat(0.05, 0.08);
-				const float darg = Util::to_rad(Util::random.getFloat(-30, 30));
-				const float arg = Util::random.getFloat(30.f, 120.f);
-				const float spin = Util::random.getBool() ? 1.f : -1.f;
+				const float duration = Util::random.nextFloat(0.22f, 0.27f);
+				const float k = Util::random.nextFloat(0.05f, 0.08f);
+				const float darg = Util::to_rad(Util::random.nextFloat(-30.f, 30.f));
+				const float arg = Util::random.nextFloat(30.f, 120.f);
+				const float spin = Util::random.nextBool() ? 1.f : -1.f;
 				reg.emplace_or_replace<LifetimeComponent>(e).lifeTimer.start(duration);
 				auto& sc = reg.get_or_emplace<SpriteEffectComponent>(e);
-				sc.effectList += Util::makeUnique(new Transition(
+				sc.effectList += Util::makeUnique(new Tween(
 					EffectState{},
 					EffectState{
 						.rotation = sf::degrees(spin * arg),

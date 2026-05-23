@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../utils/Text/NString.h"
 #include "./NObject.h"
-#include "src/utils/NString.h"
 #include <functional>
 
 class NButton : public NObject {

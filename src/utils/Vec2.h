@@ -35,10 +35,10 @@ namespace nmath {
 namespace Util::internal {
 	template <class Derived, class T>
 	struct vec2_base {
-		T x, y;
+		T x{};
+		T y{};
 
-		constexpr vec2_base() noexcept : x(0), y(0) {
-		}
+		constexpr vec2_base() noexcept = default;
 
 		constexpr vec2_base(T x, T y) noexcept : x(x), y(y) {
 		}
@@ -154,7 +154,7 @@ namespace Util::internal {
 using Util::internal::operator*;
 using Util::internal::operator/;
 
-struct nvec2 : public Util::internal::vec2_base<nvec2, float> {
+struct nvec2 : Util::internal::vec2_base<nvec2, float> {
 	using Base = vec2_base;
 	using Base::Base;
 
@@ -240,50 +240,29 @@ struct nvec2u : public Util::internal::vec2_base<nvec2u, unsigned int> {
 };
 
 struct nrect {
-	using rect_type = size_t;
+	nvec2 position{};
+	nvec2 size{};
 
-	enum : rect_type {
-		CenterRect = 0
-	};
+	constexpr nrect() = default;
 
-	union {
-		struct {
-			float x, y, w, h;
-		};
-
-		struct {
-			nvec2 position;
-			nvec2 size;
-		};
-	};
-
-	constexpr nrect() : x(0), y(0), w(0), h(0) {
+	constexpr nrect(float x, float y, float w, float h) : position(x, y), size(w, h) {
 	}
 
-	constexpr nrect(float x, float y, float w, float h) : x(x), y(y), w(w), h(h) {
+	constexpr nrect(nvec2 pos, nvec2 size)
+		: position(pos), size(size) {
 	}
 
-	constexpr nrect(float cx, float cy, float w, float h, [[maybe_unused]] rect_type)
-		: x(cx - w / 2.f), y(cy - h / 2.f), w(w), h(h) {
+	constexpr static nrect fromCenter(nvec2 center, nvec2 size) {
+		return {center - size / 2.f, size};
 	}
 
-	constexpr nrect(const nvec2& pos, const nvec2& _size)
-		: x(pos.x), y(pos.y), w(_size.x), h(_size.y) {
-	}
-
-	constexpr nrect(const nvec2& center, const nvec2& _size, int)
-		: x(center.x - _size.x / 2), y(center.y - _size.y / 2), w(_size.x), h(_size.y) {
-	}
-
-	explicit(false) constexpr nrect(const sf::FloatRect& rect)
+	explicit(false) constexpr nrect(sf::FloatRect rect)
 		: position(rect.position), size(rect.size) {
 	}
 
 	constexpr nrect(const nrect& other) = default;
 
-	constexpr bool operator==(nrect other) const {
-		return position == other.position && size == other.size;
-	}
+	constexpr bool operator==(const nrect& other) const = default;
 
 	constexpr nrect& operator=(nrect other) {
 		position = other.position;
@@ -292,76 +271,119 @@ struct nrect {
 	}
 
 	constexpr nrect& setCenter(nvec2 center) {
-		x = center.x - w / 2.f;
-		y = center.y - h / 2.f;
+		position = center - size / 2.f;
 		return *this;
 	}
 
 	constexpr nrect& offset(nvec2 off) {
-		x += off.x;
-		y += off.y;
+		position += off;
 		return *this;
 	}
 
 	constexpr nvec2 center() const {
-		return {x + w / 2.f, y + h / 2.f};
+		return position + size / 2.f;
 	}
 
-	constexpr nvec2 topLeft() const {
-		return {x, y};
+	constexpr nvec2 leftTop() const {
+		return {left(), top()};
 	}
 
-	constexpr nvec2 topRight() const {
-		return {x + w, y};
+	constexpr nvec2 rightTop() const {
+		return {right(), top()};
 	}
 
-	constexpr void setTopRight(const nvec2& tr) {
-		y = tr.y;
-		x = tr.x - w;
+	constexpr nvec2 leftBottom() const {
+		return {left(), bottom()};
 	}
 
-	constexpr nvec2 bottomLeft() const {
-		return {x, y + h};
+	constexpr nvec2 rightBottom() const {
+		return {right(), bottom()};
 	}
 
-	constexpr nvec2 bottomRight() const {
-		return {x + w, y + h};
+	constexpr void setRightTop(nvec2 rightTop) {
+		position.y = rightTop.y;
+		position.x = rightTop.x - size.x;
 	}
 
 	constexpr bool contains(nvec2 vec) const {
-		return x <= vec.x && x + w >= vec.x && y <= vec.y && y + h >= vec.y;
+		return left() <= vec.x &&
+			   right() >= vec.x &&
+			   top() <= vec.y &&
+			   bottom() >= vec.y;
+	}
+
+	constexpr float right() const {
+		return position.x + size.x;
+	}
+
+	constexpr float bottom() const {
+		return position.y + size.y;
+	}
+
+	constexpr float left() const {
+		return position.x;
+	}
+
+	constexpr float top() const {
+		return position.y;
 	}
 
 	constexpr bool overlaps(nrect other) const {
-		return x < other.x + other.w && x + w > other.x && y < other.y + other.h && y + h > other.y;
+		return left() < other.right() && right() > other.left() && top() < other.bottom() && bottom() > other.top();
 	}
 
 	// Returns the intersection
 	constexpr std::optional<nrect> getOverlap(nrect other) const {
-		const float x1 = std::max(x, other.x);
-		const float y1 = std::max(y, other.y);
-		const float x2 = std::min(x + w, other.x + other.w);
-		const float y2 = std::min(y + h, other.y + other.h);
+		const float x1 = std::max(left(), other.left());
+		const float y1 = std::max(top(), other.top());
+		const float x2 = std::min(right(), other.right());
+		const float y2 = std::min(bottom(), other.bottom());
 
 		if (x1 < x2 && y1 < y2) {
 			return nrect{x1, y1, x2 - x1, y2 - y1};
 		}
-		return std::nullopt;
+		return {};
 	}
 
 	// increase width and height but remain the center
 	constexpr nrect getExpand(nvec2 outLine) const {
-		return nrect(center(), size + outLine * 2.f, CenterRect);
+		return fromCenter(center(), size + outLine * 2.f);
 	}
 
 	explicit(false) operator sf::FloatRect() const {
 		return {position, size};
 	}
+};
 
-	//
-	// explicit(false) operator const sf::FloatRect&() const {
-	// 	return *reinterpret_cast<const sf::FloatRect*>(this);
-	// }
+struct nquad {
+	nvec2 lt{}; // leftTop
+	nvec2 rt{}; // rightTop
+	nvec2 lb{}; // leftBottom
+	nvec2 rb{}; // rightBottom
+
+	constexpr nquad() = default;
+
+	constexpr nquad(nvec2 leftTop, nvec2 rightTop, nvec2 leftBottom, nvec2 rightBottom)
+		: lt(leftTop), rt(rightTop), lb(leftBottom), rb(rightBottom) {}
+
+	constexpr static nquad fromRect(nrect rect) {
+		const float left = rect.left();
+		const float top = rect.top();
+		const float right = rect.right();
+		const float bottom = rect.bottom();
+
+		return {{left, top},
+				{right, top},
+				{left, bottom},
+				{right, bottom}};
+	}
+
+	constexpr void offset(nvec2 off) {
+		lt += off;
+		rt += off;
+		lb += off;
+		rb += off;
+	}
 };
 
 #pragma pop_macro("max")

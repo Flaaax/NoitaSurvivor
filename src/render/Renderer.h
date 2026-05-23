@@ -1,6 +1,6 @@
 #pragma once
-#include "src/ui/NWindow.h"
 #include "src/ui/NScale.h"
+#include "src/ui/NWindow.h"
 #include <SFML/Graphics.hpp>
 
 class Renderer {
@@ -29,7 +29,7 @@ public:
 		texture.draw(gameContent, gameContentState);
 	}
 
-	void drawUI(const sf::Drawable& guiContent, const sf::RenderStates states) {
+	void drawUI(const sf::Drawable& guiContent, const sf::RenderStates& states = sf::RenderStates::Default) {
 		texture.draw(guiContent, states);
 	}
 

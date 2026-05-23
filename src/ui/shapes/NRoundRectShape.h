@@ -11,11 +11,11 @@ public:
 		updatePoints();
 	}
 
-	virtual size_t getPointCount() const override {
+	size_t getPointCount() const override {
 		return m_points.size();
 	}
 
-	virtual sf::Vector2f getPoint(size_t index) const override {
+	sf::Vector2f getPoint(size_t index) const override {
 		return m_points[index];
 	}
 

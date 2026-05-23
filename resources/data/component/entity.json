@@ -99,13 +99,10 @@
 			"dec": 75
 		},
 		"BodyComponent": {
-			"shape": "Box",
+			"shape": "Circle",
 			"type": "Dynamic",
 			"fixedRotation": true,
-			"size": [
-				0.2,
-				0.2
-			]
+			"radius": 0.2
 		},
 		"SpriteComponent": {
 			"sprite": "material",

@@ -1,8 +1,7 @@
 #pragma once
-#include<stdexcept>
-#include"NString.h"
+#include "Text/NString.h"
 #include <source_location>
-
+#include <stdexcept>
 
 class NException :public std::exception {
 public:
