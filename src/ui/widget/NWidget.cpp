@@ -4,6 +4,11 @@
 
 #include <ranges>
 
+void NWidget::drawWithChildCanvas(const NCanvas& canvas, const NObject& obj) {
+	const NCanvas localCanvas = canvas.translated(obj.getPosition());
+	obj.draw(localCanvas);
+}
+
 std::optional<NEventResult> NWidget::handleEvent(const NUIEvent& event) {
 	NUIEvent localEvent = event;
 	localEvent.localCtx.mouseLocal = event.localCtx.mouseLocal - getPosition();
@@ -29,17 +34,9 @@ void NWidget::update(float deltaTime) {
 }
 
 void NWidget::draw(const NCanvas& canvas) const {
-	/*sf::RectangleShape shape;
-	shape.setSize(m_geometry.size());
-	shape.setPosition(renderPos);
-	shape.setFillColor(sf::Color(200, 200, 200));
-	renderer.drawGui(shape);*/
-
-	const NCanvas newCanvas = canvas.translated(getPosition());
-
 	for (const auto& obj : objects) {
 		if (obj->isVisible && !obj->isDragged()) {
-			obj->draw(newCanvas);
+			drawWithChildCanvas(canvas, *obj);
 		}
 	}
 }

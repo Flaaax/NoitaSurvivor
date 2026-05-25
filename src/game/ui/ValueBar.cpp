@@ -3,7 +3,7 @@
 #include "src/global/AssetManager.h"
 #include "src/ui/render/NCanvas.h"
 
-ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth, int mode)
+ValueBar::ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengthPerHealth, int mode)
 	: m_initialHealth(initialMaxHealth),
 	  m_initialLength(size.x),
 	  lengthPerHealth(lengthPerHealth),
@@ -11,8 +11,8 @@ ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealt
 	  mode(mode), text(AssetMgr::getDefaultFont()) {
 	setHealth(initialMaxHealth);
 	setMaxHealth(initialMaxHealth);
-	geometry.size = size;
-	geometry.setRightTop(topRight);
+	frame.size = size;
+	frame.setRightTop(topRight);
 
 	text.setFillColor({240, 240, 240});
 	text.setOutlineColor({0, 0, 0});
@@ -39,17 +39,15 @@ void ValueBar::updateText() {
 }
 
 void ValueBar::draw(const NCanvas& canvas) const {
-	auto& renderPos = geometry.position;
-	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * geometry.size.x, geometry.size.y};
+	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * frame.size.x, frame.size.y};
 	healthShape.setSize(healthShapeSize);
-	healthShape.setPosition({renderPos.x + geometry.size.x - healthShapeSize.x, renderPos.y});
+	healthShape.setPosition({frame.size.x - healthShapeSize.x, 0});
 
-	const nrect posRect = {renderPos, geometry.size};
+	const nrect posRect = getLocalBounds();
 
-	healthBarShape.setSize(geometry.size);
+	healthBarShape.setSize(getSize());
 
-	healthBarShape.setPosition(posRect.position);
-	nrect backGroundRect({0, 0}, geometry.size + nvec2{8, 8});
+	nrect backGroundRect({0, 0}, getSize() + nvec2{8, 8});
 	backGroundRect.setCenter(posRect.center());
 	backGroundShape.setSize(backGroundRect.size);
 	backGroundShape.setPosition(backGroundRect.position);

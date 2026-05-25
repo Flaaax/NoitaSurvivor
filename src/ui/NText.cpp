@@ -24,11 +24,11 @@ NText::NText(const sf::Text& text, AlignOption align) : sfText(text), align(alig
 
 void NText::draw(const NCanvas& canvas) const {
 	if (align == LeftTop) {
-		sfText.setPosition(this->getPosition());
+		//sfText.setPosition(this->getPosition());
 		canvas.draw(sfText);
 	} else if (align == Center) {
 		nrect bounds = sfText.getLocalBounds();
-		bounds.setCenter(geometry.center());
+		bounds.setCenter(getLocalBounds().center());
 		sfText.setPosition(bounds.position);
 		canvas.draw(sfText);
 	}
@@ -42,6 +42,5 @@ void NLineText::draw(const NCanvas& canvas) const {
 		text += strings[i];
 	}
 	sfText.setString(text);
-	sfText.setPosition(this->getPosition());
 	canvas.draw(sfText);
 }

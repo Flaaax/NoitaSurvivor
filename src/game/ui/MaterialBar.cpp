@@ -3,7 +3,7 @@
 #include "src/ui/render/NCanvas.h"
 #include "src/utils/Text/NString.h"
 
-MaterialBar::MaterialBar(nvec2 topRight, float height) : topRight(topRight), height(height), text(AssetMgr::getDefaultFont()) {
+MaterialBar::MaterialBar(nvec2 rightTop, float height) : rightTop(rightTop), height(height), text(AssetMgr::getDefaultFont()) {
 	text.setFillColor({240, 240, 240});
 	text.setOutlineColor({0, 0, 0});
 	text.setCharacterSize(static_cast<unsigned int>(this->height * 0.9));
@@ -16,11 +16,10 @@ MaterialBar::MaterialBar(nvec2 topRight, float height) : topRight(topRight), hei
 
 void MaterialBar::updateText() {
 	text.setString(NString("{}材料", material));
+	frame = text.getLocalBounds();
+	frame.setRightTop(rightTop);
 }
 
 void MaterialBar::draw(const NCanvas& canvas) const {
-	nrect textRect = text.getGlobalBounds();
-	textRect.setRightTop(topRight);
-	text.setPosition(textRect.position);
 	canvas.draw(text);
 }

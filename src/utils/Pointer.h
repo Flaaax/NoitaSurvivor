@@ -17,12 +17,12 @@ using n_pair = std::array<T, 2>;
 
 namespace Util {
 	template <class T>
-	inline n_shared<T> makeShared(T* ptr) {
+	n_shared<T> makeShared(T* ptr) {
 		return n_shared<T>(ptr);
 	}
 
 	template <class T>
-	inline n_unique<T> makeUnique(T* ptr) {
+	n_unique<T> makeUnique(T* ptr) {
 		return n_unique<T>(ptr);
 	}
 } // namespace Util

@@ -3,7 +3,6 @@
 #define MYECS_ENTITY_H
 #include "component.h"
 #include "dense_map.h"
-#include <format>
 
 /*
 	Triggering exceptions will cause ub in some cases!
@@ -11,9 +10,8 @@
 
 namespace myecs {
 	namespace latest {
-		// Single thread only
-		// Doesn't require component move/copy constructible/movable
-		// Safe to use multiple instances per program
+		// Thread-unsafe
+		// Move/Copy requirement for compmonents: None
 		template <class Alloc = std::allocator<void>>
 		class Registry {
 		private:
@@ -53,41 +51,6 @@ namespace myecs {
 			}
 
 			Registry(const Registry&) = delete;
-
-			// template <class T, class... Types>
-			// struct poly_view_iterator {
-			// 	using it_t = SparseSet<entity>::const_iterator;
-			// 	it_t cur;
-			// 	it_t end;
-			// 	Registry& reg;
-			//
-			// 	bool shouldKeep() const {
-			// 		return (reg.template has<Types>(*cur) && ...);
-			// 	}
-			//
-			// 	poly_view_iterator(it_t cur, it_t end, Registry& reg) : cur(cur), end(end), reg(reg) {
-			// 		move();
-			// 	}
-			//
-			// 	void move() {
-			// 		while ((!stop()) && (!shouldKeep())) {
-			// 			++cur;
-			// 		}
-			// 	}
-			//
-			// 	bool stop() const {
-			// 		return cur == end;
-			// 	}
-			//
-			// 	void next() {
-			// 		++cur;
-			// 		move();
-			// 	}
-			//
-			// 	auto get() {
-			// 		return std::tuple<entity, T&, Types&...>(*cur, reg.get<T>(*cur), reg.get<Types>(*cur)...);
-			// 	}
-			// };
 
 		public:
 			explicit Registry() = default;
@@ -145,7 +108,7 @@ namespace myecs {
 				return (has<Types>(e) && ...);
 			}
 
-			// warning: when you emplace new component, the reference may expire!
+			// The reference NEVER expires, until the component is removed
 			template <class T>
 			MYECS_NODISCARD T& get(entity e) {
 				throw_if(!valid(e), "Entity {} is invalid", e.string());
@@ -236,12 +199,6 @@ namespace myecs {
 				return ids.active(e);
 			}
 
-			// template<class ...Args>
-			//	requires (std::is_same_v<Args, entity> && ...) && (sizeof...(Args) >= 2)
-			// MYECS_NODISCARD bool all_valid(Args... es)const {
-			//	return (valid(es) && ...);
-			// }
-
 			template <class T>
 			MYECS_NODISCARD decltype(auto) view() {
 				return get_pool<T>().view();
@@ -250,10 +207,6 @@ namespace myecs {
 			template <class T, class... Types>
 				requires(sizeof...(Types) >= 1)
 			MYECS_NODISCARD decltype(auto) view() {
-				// using T1 = std::tuple_element_t<0, std::tuple<Types...>>;
-				// auto& es = get_pool<T1>().entity_view();
-				// return Iterable(poly_view_iterator<Types...>{es.begin(), es.end(), *this});
-
 				auto& es = get_pool<T>().entity_view();
 
 				return std::views::all(es) |
@@ -266,7 +219,7 @@ namespace myecs {
 					   });
 			}
 
-			// clear all the items inside the register
+			// Clear everything inside the register
 			void reset() {
 				ids.clear();
 				entity_components.clear();

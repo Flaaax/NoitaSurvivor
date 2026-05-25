@@ -10,13 +10,12 @@ private:
 	sf::RenderStates states;
 
 public:
-	NCanvas translated(const nvec2& offset) const {
-		NCanvas child{rdr, states};
-		child.states.transform.translate(offset);
-		return child;
+	NCanvas translated(nvec2 offset) const {
+		return NCanvas(rdr, offset, states);
 	}
 
-	explicit NCanvas(Renderer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+	explicit NCanvas(Renderer& rdr, nvec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+		this->states.transform.translate(translate);
 	}
 
 	void draw(const sf::Drawable& drawable) const {

@@ -7,14 +7,14 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 
 NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
-	this->geometry = geometry;
+	this->frame = geometry;
 	text.setFillColor({0, 0, 0});
 }
 
 std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 	auto& rawEvent = event.ctx.rawEvent;
 	if (rawEvent.is<sf::Event::MouseMoved>()) {
-		if (geometry.contains(event.localCtx.mouseLocal)) {
+		if (frame.contains(event.localCtx.mouseLocal)) {
 			if (state != Pressed) {
 				state = Hovered;
 			}
@@ -22,12 +22,12 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 			state = Normal;
 		}
 	} else if (rawEvent.is<sf::Event::MouseButtonPressed>()) {
-		if (geometry.contains(event.localCtx.mouseLocal)) {
+		if (frame.contains(event.localCtx.mouseLocal)) {
 			state = Pressed;
 			return NEventResult{this, NEventResult::Pressed{}};
 		}
 	} else if (rawEvent.is<sf::Event::MouseButtonReleased>()) {
-		if (geometry.contains(event.localCtx.mouseLocal)) {
+		if (frame.contains(event.localCtx.mouseLocal)) {
 			state = Hovered;
 			if (onClick) {
 				onClick();
@@ -42,7 +42,6 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 void NButton::draw(const NCanvas& canvas) const {
 	if (isButtonVisible) {
 		sf::RectangleShape shape;
-		shape.setPosition(geometry.position);
 		shape.setSize(getSize());
 		if (state == Normal) {
 			shape.setFillColor(sf::Color(190, 190, 190));
@@ -58,7 +57,7 @@ void NButton::draw(const NCanvas& canvas) const {
 
 	if (!text.getString().isEmpty()) {
 		nrect bounds = text.getGlobalBounds();
-		bounds.setCenter(geometry.center());
+		bounds.setCenter(getLocalBounds().center());
 		text.setPosition(bounds.position);
 		canvas.draw(text);
 	}

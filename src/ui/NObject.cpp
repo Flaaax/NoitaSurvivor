@@ -4,14 +4,14 @@
 #include <windows.h>
 
 nvec2 NObject::getGlobalPosition() const {
-	return getGlobalPosition(geometry.position);
+	return toGlobalPosition(frame.position);
 }
 
-nrect NObject::getGlobalGeometry() const {
+nrect NObject::getGlobalBounds() const {
 	return nrect{getGlobalPosition(), getSize()};
 }
 
-nvec2 NObject::getGlobalPosition(nvec2 localPosition) const {
+nvec2 NObject::toGlobalPosition(nvec2 localPosition) const {
 	nvec2 ret = localPosition;
 	if (const NWidget* parent = getParent()) {
 		ret += parent->getGlobalPosition();
@@ -19,11 +19,11 @@ nvec2 NObject::getGlobalPosition(nvec2 localPosition) const {
 	return ret;
 }
 
-nrect NObject::getGlobalGeometry(nrect localGeomery) const {
-	return nrect{getGlobalPosition(localGeomery.position), localGeomery.size};
+nrect NObject::toGlobalBounds(nrect parentLocalBounds) const {
+	return nrect{toGlobalPosition(parentLocalBounds.position), parentLocalBounds.size};
 }
 
-nvec2 NObject::getLocalPosition(nvec2 globalPosition) const {
+nvec2 NObject::getParentLocalPosition(nvec2 globalPosition) const {
 	nvec2 ret = globalPosition;
 	if (const NWidget* parent = getParent()) {
 		ret -= parent->getGlobalPosition();
@@ -31,8 +31,8 @@ nvec2 NObject::getLocalPosition(nvec2 globalPosition) const {
 	return ret;
 }
 
-nrect NObject::getLocalGeometry(nrect globalGeometry) const {
-	return {getLocalPosition(globalGeometry.position), globalGeometry.size};
+nrect NObject::getLocalBounds() const {
+	return {{}, getSize()};
 }
 
 NWidget* NObject::asWidget() {

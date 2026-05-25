@@ -9,6 +9,7 @@
 #include "../utils/Vec2/Vec2.h"
 #include "context/NUIEvent.h"
 #include "src/utils/ID.h"
+#include "src/utils/Pointer.h"
 
 class NCanvas;
 
@@ -20,10 +21,12 @@ private:
 	NWidget* parent{};
 	bool isWidget_{};
 	bool isDragged_{};
+	// bool isHovered_{};
 
 protected:
-	nrect geometry;
+	nrect frame;
 	std::string_view typeID{};
+	n_unique<NTooltipSpec> tooltipSpec;
 
 public:
 	bool enableDragging{};
@@ -34,8 +37,7 @@ public:
 		: parent(parent) {
 	}
 
-	virtual ~NObject() {
-	}
+	virtual ~NObject() = default;
 
 	bool isWidget() const {
 		return this->isWidget_;
@@ -44,6 +46,10 @@ public:
 	bool isDragged() const {
 		return this->isDragged_;
 	}
+
+	// bool isHovered() const {
+	// 	return this->isHovered_;
+	// }
 
 	virtual std::optional<NEventResult> handleEvent(const NUIEvent& event) {
 		return {};
@@ -55,28 +61,28 @@ public:
 	virtual void draw(const NCanvas& canvas) const = 0;
 
 	// Generally, these values should not be changed inside Objects whose geometries are determined by user
-	void setPosition(const nvec2& pos) {
-		geometry.position = pos;
+	void setPosition(nvec2 pos) {
+		frame.position = pos;
 	}
 
-	void setSize(const nvec2& pos) {
-		geometry.size = pos;
+	void setSize(nvec2 pos) {
+		frame.size = pos;
 	}
 
-	void setGeometry(const nrect geometry) {
-		this->geometry = geometry;
+	void setGeometry(nrect geometry) {
+		this->frame = geometry;
 	}
 
 	nvec2 getPosition() const {
-		return geometry.position;
+		return frame.position;
 	}
 
-	nrect getGeometry() const {
-		return geometry;
+	nrect getFrame() const {
+		return frame;
 	}
 
 	nvec2 getSize() const {
-		return geometry.size;
+		return frame.size;
 	}
 
 	NWidget* getParent() const {
@@ -84,11 +90,11 @@ public:
 	}
 
 	nvec2 getGlobalPosition() const;
-	nrect getGlobalGeometry() const;
-	nvec2 getGlobalPosition(nvec2 localPosition) const;
-	nrect getGlobalGeometry(nrect localGeomery) const;
-	nvec2 getLocalPosition(nvec2 globalPosition) const;
-	nrect getLocalGeometry(nrect globalGeometry) const;
+	nrect getGlobalBounds() const;
+	nvec2 toGlobalPosition(nvec2 localPosition) const;
+	nrect toGlobalBounds(nrect parentLocalBounds) const;
+	nvec2 getParentLocalPosition(nvec2 globalPosition) const;
+	nrect getLocalBounds()const;
 
 	virtual void onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 	}
@@ -97,11 +103,11 @@ public:
 	}
 
 	virtual nrect getHitbox() const {
-		return geometry;
+		return frame;
 	}
 
 	nrect getGlobalHitbox() const {
-		return getGlobalGeometry(getHitbox());
+		return toGlobalBounds(getHitbox());
 	}
 
 	NWidget* asWidget();

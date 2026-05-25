@@ -1,18 +1,19 @@
 #pragma once
 
-#include "../NObject.h"
+#include "src/ui/NObject.h"
+
 #include <SFML/Graphics/Text.hpp>
 
 
 class MaterialBar :public NObject {
 private:
 	int material = 0;
-	nvec2 topRight;
+	nvec2 rightTop;
 	float height;
 	mutable sf::Text text;
 
 public:
-	MaterialBar(nvec2 topRight, float height);
+	MaterialBar(nvec2 rightTop, float height);
 
 	void setData(int material) {
 		this->material = material;

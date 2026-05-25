@@ -2,7 +2,6 @@
 #include "EnumerableView.h"
 #include <algorithm>
 #include <array>
-#include <ranges>
 #include <stdexcept>
 #include <vector>
 
@@ -56,8 +55,14 @@ namespace Util {
 			return *std::ranges::min_element(*this, std::ref(better));
 		}
 
-		[[nodiscard]] bool valid(int index) const {
-			return index >= 0 && index < this->size();
+		template <class Compare = std::ranges::less, class Projection = std::identity>
+			requires std::indirect_strict_weak_order<Compare, std::projected<std::ranges::iterator_t<Vector&>, Projection>>
+		T& best(Compare compare, Projection projection) {
+			if (this->empty()) {
+				throw std::out_of_range("Util::Vector::best() called on empty Vector");
+			}
+
+			return *std::ranges::max_element(*this, std::move(compare), std::move(projection));
 		}
 	};
 

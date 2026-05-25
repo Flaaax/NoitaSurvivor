@@ -1,6 +1,6 @@
 #pragma once
-#include "NDragState.h"
 #include "NInputState.h"
+#include "States.h"
 #include "src/ui/NScale.h"
 
 #include <SFML/Window/Event.hpp>
@@ -14,7 +14,7 @@ struct NEventCtx {
 	const NInputState& input;
 };
 
-struct NWidgetCtx {
+struct NRootCtx {
 	const NDragState& dragState;
 };
 
@@ -24,7 +24,7 @@ struct NLocalEventCtx {
 
 struct NUIEvent {
 	const NEventCtx& ctx;
-	const NWidgetCtx& widgetCtx;
+	const NRootCtx& widgetCtx;
 	NLocalEventCtx localCtx;
 };
 
@@ -35,14 +35,14 @@ struct NEventResult {
 	struct Clicked {
 	};
 
-	struct Dragged {
+	struct DragIntent {
 	};
 
-	// struct DropAccepted {
-	// };
+	struct HoverIntent {
+	};
 
 	NObject* handler{};
-	std::variant<std::monostate, Clicked, Dragged, Pressed> result;
+	std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
 
 	template <class T>
 	bool is() const {

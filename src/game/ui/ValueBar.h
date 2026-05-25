@@ -1,14 +1,15 @@
 #pragma once
 
-#include "../NObject.h"
-#include "../shapes/NRoundRectShape.h"
+#include "src/ui/shapes/NRoundRectShape.h"
+#include "src/ui/NObject.h"
+
 #include <SFML/Graphics.hpp>
 
 // Used for both health bar and exp bar
 class ValueBar : public NObject {
 public:
-	inline static constexpr int HEALTH = 0;
-	inline static constexpr int EXP = 1;
+	static constexpr int HEALTH = 0;
+	static constexpr int EXP = 1;
 
 private:
 	const int m_initialHealth;
@@ -27,7 +28,7 @@ private:
 	mutable sf::Text text;
 
 public:
-	ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
+	ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
 
 	void setHealth(int health) {
 		m_health = health;
@@ -36,8 +37,8 @@ public:
 
 	void setMaxHealth(int maxHealth) {
 		m_maxHealth = maxHealth;
-		geometry.size.x = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
-		geometry.position.x = m_right - geometry.size.x;
+		frame.size.x = lengthPerHealth * (m_maxHealth - m_initialHealth) + m_initialLength;
+		frame.position.x = m_right - frame.size.x;
 		updateText();
 	}
 

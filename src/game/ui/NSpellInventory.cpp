@@ -1,137 +1,13 @@
 #include "NSpellInventory.h"
 #include "../../utils/Container/Map.h"
-#include "../widget/NWidget.h"
 #include "src/game/Spells/Spell.h"
-#include "src/ui/game/NSpell.h"
+#include "src/game/ui/NSpell.h"
 #include "src/ui/render/NCanvas.h"
+#include "src/ui/widget/NWidget.h"
 #include "src/utils/Assert.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <windows.h>
-
-// nvec2 NSpellInventoryOld::calcSlotPosition(size_t index) const {
-// 	return getPosition() + nvec2{index * (NSpell::slotSize - NSpell::outLine), 0};
-// }
-//
-// void NSpellInventoryOld::updateSlots() {
-// 	size_t count = getCount();
-// 	for (size_t i = 0; i < count; i++) {
-// 		auto& slot = slots[i];
-// 		slot.geometry.size = {NSpell::slotSize, NSpell::slotSize};
-// 		slot.geometry.position = calcSlotPosition(i);
-// 		slot.index = i;
-// 		slot.inventory = this;
-// 	}
-//
-// 	geometry.size = {count * (NSpell::slotSize - NSpell::outLine) + NSpell::outLine,
-// 					 NSpell::slotSize};
-// }
-//
-// NSpellInventoryOld::NSpellInventory(size_t count, const nvec2& pos) {
-// 	setPosition(pos);
-// 	slots.resize(count);
-// 	updateSlots();
-// 	setUpdate(true);
-// 	ID = Util::TypeName<NSpellInventory>();
-// }
-//
-// void NSpellInventoryOld::setCount(size_t count) {
-// 	slots.resize(count);
-// 	updateSlots();
-// 	modified = true;
-// }
-//
-// void NSpellInventoryOld::draw(const NCanvas& canvas) const {
-// 	for (size_t i = 0; i < getCount(); i++) {
-// 		sf::RectangleShape shape;
-// 		shape.setPosition(calcSlotPosition(i) + nvec2{NSpell::outLine, NSpell::outLine});
-// 		shape.setOutlineThickness(NSpell::outLine);
-// 		shape.setFillColor({140, 140, 140});
-// 		shape.setOutlineColor({0, 0, 0});
-// 		auto width = NSpell::slotSize - 2 * NSpell::outLine;
-// 		shape.setSize({width, width});
-// 		canvas.drawUI(shape);
-// 	}
-// }
-//
-// void NSpellInventoryOld::bindSpell(NSpell* spell, size_t index) {
-// 	assertNotNull(spell);
-// 	assertNotNull(spell->spell.get());
-// 	assertNotNull(getParent());
-// 	assertWithMsg(!slots[index].spell, "Spell already exists!");
-// 	assertValidIndex(index, getCount());
-// 	getParent()->addAfter(this, spell);
-// 	slots[index].spell = spell;
-// 	spell->slot = &slots[index];
-// 	modified = true;
-// }
-//
-// void NSpellInventoryOld::addSpell(NSpell* spell, size_t index) {
-// 	bindSpell(spell, index);
-// 	spell->setPosition(spell->slot->geometry.position);
-// }
-//
-// void NSpellInventoryOld::addSpell(n_shared<Spell> spell, size_t index) {
-// 	addSpell(new NSpell(std::move(spell)), index);
-// }
-//
-// NSpell* NSpellInventoryOld::removeSpell(size_t index) {
-// 	assertValidIndex(index, getCount());
-// 	NSpell* ret{};
-// 	std::swap(ret, slots[index].spell);
-// 	if (ret) {
-// 		ret->slot = nullptr;
-// 		modified = true;
-// 	}
-// 	return ret;
-// }
-//
-// void NSpellInventoryOld::destroyAllSpell() {
-// 	for (auto& slot : slots) {
-// 		if (slot.spell) {
-// 			getParent()->destroy(slot.spell);
-// 			slot.spell = {};
-// 			modified = true;
-// 		}
-// 	}
-// }
-//
-// void NSpellInventoryOld::update(float dt) {
-// 	if (modified) {
-// 		modified = false;
-// 		if (onModify)
-// 			onModify(*this);
-// 	}
-// }
-//
-// n_shared<Spell> NSpellInventoryOld::getSpell(size_t index) const {
-// 	assertValidIndex(index, getCount());
-// 	auto& slot = slots[index];
-// 	return slot.spell ? slot.spell->spell : nullptr;
-// }
-//
-// void NSpellInventoryOld::setFrom(const std::vector<n_shared<Spell>>& spells) {
-// 	destroyAllSpell();
-// 	setCount(spells.size());
-// 	for (size_t i = 0; i < getCount(); i++) {
-// 		if (spells[i]) {
-// 			addSpell(spells[i], i);
-// 		}
-// 	}
-// }
-// NSpellInventory* NSpellInventory::create(NWidget* widget, Inventory& inventory, const nvec2& pos) {
-//	Inventory copy;
-//	inventory.swap(copy);
-//	inventory.resize(copy.size());
-//	auto ret = new NSpellInventory(inventory, pos);
-//	widget->add(ret);
-//	for (size_t i = 0; i < copy.size(); i++) {
-//		if (!copy[i])continue;
-//		auto nspell = new NSpell(std::move(copy[i]));
-//		ret->addSpell(nspell, i);
-//	}
-//	return ret;
-// }
 
 void NSpellInventory::updateSlotsGeometry() {
 	const size_t count = slots.size();
@@ -142,7 +18,7 @@ void NSpellInventory::updateSlotsGeometry() {
 		// slot.index = i;
 	}
 
-	geometry.size = {
+	frame.size = {
 		count * (NSpell::slotSize.x - NSpell::outLine) + NSpell::outLine,
 		NSpell::slotSize.y,
 	};
@@ -154,7 +30,7 @@ std::pair<int, float> NSpellInventory::getBestSlot(nrect globalHitbox) const {
 	const nvec2 globalCenter = globalHitbox.center();
 	for (size_t i = 0; i < slots.size(); i++) {
 		const auto& slot = slots[i];
-		nrect globalSlotGeometry = getGlobalGeometry(slot.geometry).offset(getPosition());
+		nrect globalSlotGeometry = toGlobalBounds(slot.frame).offset(getPosition());
 		if (globalSlotGeometry.overlaps(globalHitbox)) {
 			const float disntance = (globalSlotGeometry.center() - globalCenter).lengthSquared();
 			if (bestSlot == -1 || disntance < bestDistance) {
@@ -168,10 +44,10 @@ std::pair<int, float> NSpellInventory::getBestSlot(nrect globalHitbox) const {
 
 void NSpellInventory::updateHoveredSlot(nvec2 mouseLocal) {
 	hoveredSlot = -1;
-	if (getGeometry().contains(mouseLocal)) {
+	if (getFrame().contains(mouseLocal)) {
 		const nvec2 mouseLocal2 = mouseLocal - getPosition();
 		for (const size_t i : slots.indices()) {
-			if (slots[i].geometry.contains(mouseLocal2)) {
+			if (slots[i].frame.contains(mouseLocal2)) {
 				hoveredSlot = static_cast<int>(i);
 				break;
 			}
@@ -200,20 +76,12 @@ NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
 	typeID = makeTypeID<NSpellInventory>();
 }
 
-// std::optional<NEventResult> NSpellInventory::handleEvent(const NEvent& event) {
-// 	if (const auto result = NWidget::handleEvent(event)) {
-// 		return result;
-// 	}
-//
-// 	return std::nullopt;
-// }
-
 void NSpellInventory::draw(const NCanvas& canvas) const {
 	sf::RectangleShape shape;
 	shape.setOutlineColor({0, 0, 0});
 
 	for (size_t i = 0; i < getCount(); i++) {
-		shape.setPosition(getPosition() + slots[i].geometry.position + nvec2{NSpell::outLine, NSpell::outLine});
+		shape.setPosition(slots[i].frame.position + nvec2{NSpell::outLine, NSpell::outLine});
 		shape.setOutlineThickness(NSpell::outLine);
 		const bool shouldHighlightSlot =
 			(shouldHighlight && i == selectedSlot) || i == hoveredSlot;
@@ -232,7 +100,7 @@ void NSpellInventory::draw(const NCanvas& canvas) const {
 
 void NSpellInventory::onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 	if (query.state.dragged->getTypeID() != makeTypeID<NSpell>() ||
-		!query.globalHitbox.overlaps(this->getGlobalGeometry())) {
+		!query.globalHitbox.overlaps(this->getGlobalBounds())) {
 		selectedSlot = -1;
 		return;
 	}
@@ -336,7 +204,7 @@ n_unique<NObject> NSpellInventory::removeItem(NSpell* spell) {
 }
 
 nrect NSpellInventory::getSlotGeometry(int index) const {
-	return slots.at(index).geometry;
+	return slots.at(index).frame;
 }
 
 void NSpellInventory::setOnModify(OnModify onModify) {

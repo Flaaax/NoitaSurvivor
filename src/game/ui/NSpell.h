@@ -29,7 +29,7 @@ public:
 	void draw(const NCanvas& canvas) const override;
 
 	nrect getHitbox() const override {
-		return geometry.getExpand({5.f, 5.f});
+		return frame.getExpand({5.f, 5.f});
 	}
 
 	NSpellInventory* getInventory() const;

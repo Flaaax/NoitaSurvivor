@@ -1,6 +1,6 @@
 #pragma once
 #include "../NObject.h"
-#include "src/ui/context/NDragState.h"
+#include "src/ui/context/States.h"
 #include "src/utils/Assert.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
@@ -29,11 +29,12 @@ private:
 		obj->parent = this;
 	}
 
+	static void drawWithChildCanvas(const NCanvas& canvas, const NObject& obj);
+
 public:
-	// geomoetry will be ignored if this is the root widget
 	explicit NWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) : NObject(nullptr) {
 		updateEnabled = updateEnabled_;
-		this->geometry = geometry;
+		this->frame = geometry;
 		isWidget_ = true;
 	}
 

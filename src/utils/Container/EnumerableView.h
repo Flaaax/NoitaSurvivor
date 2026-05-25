@@ -1,5 +1,7 @@
 #pragma once
 
+#include "src/utils/Integers.h"
+
 #include <algorithm>
 #include <concepts>
 #include <iterator>
@@ -66,10 +68,10 @@ namespace Util {
 	};
 
 	namespace internal {
-		struct DefaultTypeTag;
+		struct NonType;
 	};
 
-	template <class T = internal::DefaultTypeTag, class Ref = T&>
+	template <class T = internal::NonType, class Ref = T&>
 		requires(!std::is_reference_v<T>)
 	class EnumerableView {
 	private:
@@ -261,7 +263,7 @@ namespace Util {
 	};
 
 	template <>
-	class EnumerableView<internal::DefaultTypeTag, internal::DefaultTypeTag&> {
+	class EnumerableView<internal::NonType, internal::NonType&> {
 	public:
 		template <std::ranges::range Range>
 		[[nodiscard]]
@@ -317,10 +319,15 @@ namespace Util {
 
 	template <class Derived, class T>
 	struct Indexable {
-		template <std::integral i = std::size_t>
+		template <std::integral i = u64>
 		auto indices() const {
 			const auto& self = static_cast<const Derived&>(*this);
 			return std::views::iota(i{0}, i(self.size()));
+		}
+
+		bool valid(int index) const {
+			const auto& self = static_cast<const Derived&>(*this);
+			return index >= 0 && index < self.size();
 		}
 	};
 
@@ -328,7 +335,7 @@ namespace Util {
 	struct Fillable {
 		void fill(T elem) {
 			auto& self = static_cast<Derived&>(*this);
-			for (size_t i = 0; i < self.size(); ++i) {
+			for (u64 i = 0; i < self.size(); ++i) {
 				self.operator[](i) = elem;
 			}
 		}

@@ -37,17 +37,6 @@ namespace myecs {
 		}
 
 		auto view() {
-			// struct It {
-			// 	SparseSet<entity>::const_iterator it;
-			// 	SparseSet<entity>::const_iterator end;
-			// 	ComponentPool& pool;
-			//
-			// 	bool stop()const { return it == end; }
-			// 	std::pair<entity, T&> get() { return { *it, pool.get(*it) }; }
-			// 	void next() { ++it; }
-			// };
-			// It it{ entities.begin(), entities.end(), *this };
-			// return Iterable(it);
 			return std::views::all(entities) |
 				   std::views::transform([this](entity e) {
 					   return std::pair<entity, T&>{e, get(e)};
@@ -88,8 +77,9 @@ namespace myecs {
 		}
 
 		void destroy(entity e) {
-			if (!has(e))
+			if (!has(e)) {
 				return;
+			}
 			entities.erase(e);
 			auto c = entity_to_component[e.get_id()];
 			pool.destroy(c);
@@ -131,7 +121,7 @@ namespace myecs {
 		void emplace() {
 			using pool_t = ComponentPool<T, Alloc>;
 			data.clear();
-			data.emplace<pool_t>();
+			data.template emplace<pool_t>();
 			table = vtable{
 				.m_destroy = [](void* self, entity e) { static_cast<pool_t*>(self)->destroy(e); },
 				.m_clear = [](void* self) { static_cast<pool_t*>(self)->clear(); },

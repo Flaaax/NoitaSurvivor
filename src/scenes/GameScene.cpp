@@ -1,12 +1,12 @@
 #include "GameScene.h"
 #include "../ui/NButton.h"
-#include "../ui/game/MaterialBar.h"
-#include "../ui/game/ValueBar.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
+#include "src/game/ui/MaterialBar.h"
+#include "src/game/ui/NSpell.h"
+#include "src/game/ui/NSpellInventory.h"
+#include "src/game/ui/ValueBar.h"
 #include "src/ui/NText.h"
-#include "src/ui/game/NSpell.h"
-#include "src/ui/game/NSpellInventory.h"
 #include <src/utils/Logger.h>
 
 NText* pauseText{};
@@ -85,15 +85,6 @@ void GameScene::initUI() {
 		auto spell = Util::makeUnique(new NSpell(wand.inventory[i], {i * 50, i * 50}));
 		inventory1->addItem(std::move(spell), static_cast<int>(i));
 	}
-
-	// inventory1->setFrom(wand.inventory);
-	// inventory1->setOnModify([&](const NSpellInventory& inv) {
-	// 	wand.clear();
-	// 	wand.inventory.clear();
-	// 	for (size_t i = 0; i < inv.getCount(); i++) {
-	// 		wand.inventory.emplace_back(inv.getSpell(i));
-	// 	}
-	// });
 
 	inventory1->setOnModify([&](Util::ValEnumerableView<n_shared<Spell>> spells) {
 		wand.inventory.clear();
