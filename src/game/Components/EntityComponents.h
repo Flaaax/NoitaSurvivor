@@ -1,4 +1,5 @@
 #pragma once
+#include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/dense_map.h"
 #include "src/ecs/types.h"
 #include "src/game/Contact/ContactLayerRules.h"
@@ -6,7 +7,6 @@
 #include "src/meta/MetaAttributes.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
-#include "src/utils/Vec2.h"
 
 struct EntityComponent {
 	// Do not modify this after initialized

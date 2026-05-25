@@ -9,7 +9,7 @@
 
 template <class T>
 void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {
-	auto s = json_parse<std::string>(j, key);
+	const auto s = json_parse<std::string>(j, key);
 	if (!s)
 		return;
 	auto ee = EnumMeta::try_get<T>(name, *s);

@@ -1,6 +1,6 @@
-/resources/*
-!/resources/data/
-!/resources/data/**
+/resources/fonts/
+/resources/gfx/
+/resources/sounds/
 /bin/
 /CodeGenerator/bin/
 /CodeGenerator/obj/

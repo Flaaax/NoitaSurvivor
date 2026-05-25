@@ -1,5 +1,5 @@
 #pragma once
-#include "src/utils/Vec2.h"
+#include "../../utils/Vec2/Vec2.h"
 #include <SFML/Graphics.hpp>
 
 class NLineShape : public sf::Drawable {

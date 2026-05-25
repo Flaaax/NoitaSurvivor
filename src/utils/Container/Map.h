@@ -5,9 +5,9 @@
 #include <type_traits>
 
 namespace Util {
-	struct NoDelete {};
+	// struct NoDelete {};
 
-	struct StringViewHash : public std::hash<std::string_view> {
+	struct StringViewHash : std::hash<std::string_view> {
 		using is_transparent = void;
 	};
 
@@ -20,7 +20,7 @@ namespace Util {
 		>;
 
 	template <class T>
-	class StdMap : public BaseStdMap<T> {
+	class StrMap : public BaseStdMap<T> {
 		using Base = BaseStdMap<T>;
 
 	public:
@@ -43,27 +43,12 @@ namespace Util {
 			}
 			return it->second;
 		}
-	};
 
-	template <class T>
-	struct Wrapper {
-		T value;
-		Wrapper() = default;
-
-		Wrapper(const T& val) : value(val) {
-		}
-
-		Wrapper(T&& val) : value(std::move(val)) {
-		}
-
-		operator T&() {
-			return value;
-		}
-
-		operator const T&() const {
-			return value;
+		T& at(std::string_view key) {
+			if (auto ret = try_find(key)) {
+				return *ret;
+			}
+			throw std::out_of_range(std::string(key));
 		}
 	};
-
-	using BoolWrapper = Wrapper<bool>;
 } // namespace Util

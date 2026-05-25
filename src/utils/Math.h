@@ -1,14 +1,8 @@
 #pragma once
-#include"Vec2.h"
-
+#include "Vec2/Vec2.h"
 
 namespace Util {
 	inline static constexpr float PI = 3.1415F;
-
-	template<class _to, class _from>
-	static sf::Vector2<_to> to(const sf::Vector2<_from>& v) {
-		return { static_cast<_to>(v.x),static_cast<_to>(v.y) };
-	}
 
 	// as radiant
 	static float to_rad(nvec2 vec) {

@@ -1,7 +1,7 @@
 #pragma once
+#include "../utils/File/Json.h"
 #include "src/ecs/entity.h"
 #include "src/utils/Container/Vector.h"
-#include "src/utils/Json.h"
 #include "src/utils/Singleton.h"
 
 #include "src/utils/Container/Map.h"
@@ -29,8 +29,8 @@ public:
 	using ComponentInitializerFactory = ComponentInitializer (*)(const json& componentJson);
 
 private:
-	Util::StdMap<ComponentInitializerFactory> componentInitializerFactories;
-	Util::StdMap<MetaInfo> componentMetaInfo;
+	Util::StrMap<ComponentInitializerFactory> componentInitializerFactories;
+	Util::StrMap<MetaInfo> componentMetaInfo;
 
 	ComponentMeta();
 	void initGeneratedComponentInitializers();

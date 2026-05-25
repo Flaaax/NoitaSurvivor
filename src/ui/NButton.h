@@ -2,6 +2,7 @@
 
 #include "../utils/Text/NString.h"
 #include "./NObject.h"
+#include <SFML/Graphics/Text.hpp>
 #include <functional>
 
 class NButton : public NObject {

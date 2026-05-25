@@ -1,5 +1,6 @@
 #include "NWidget.h"
 #include "../NWindow.h"
+#include "src/ui/render/NCanvas.h"
 
 #include <ranges>
 

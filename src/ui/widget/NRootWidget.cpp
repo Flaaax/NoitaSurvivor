@@ -1,5 +1,7 @@
 #include "NRootWidget.h"
 
+#include "src/ui/render/NCanvas.h"
+
 bool NRootWidget::handleDragEvent(const NEventCtx& event) {
 	if (event.rawEvent.is<sf::Event::MouseMoved>()) {
 		const nvec2 newGlobalPosition = event.input.mouseRender - dragState.offset;

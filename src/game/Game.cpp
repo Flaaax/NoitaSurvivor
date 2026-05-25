@@ -89,7 +89,7 @@ void Game::init() {
 
 void Game::draw(Renderer& rdr) {
 
-	auto ctx = getContext();
+	const auto ctx = getContext();
 	RenderSystem().render(rdr, ctx);
 }
 

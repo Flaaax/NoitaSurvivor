@@ -1,7 +1,10 @@
 
 #include "NButton.h"
 #include "NWindow.h"
+#include "render/NCanvas.h"
 #include "src/global/AssetManager.h"
+
+#include <SFML/Graphics/RectangleShape.hpp>
 
 NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
 	this->geometry = geometry;

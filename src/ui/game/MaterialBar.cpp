@@ -1,5 +1,6 @@
 #include "MaterialBar.h"
 #include "src/global/AssetManager.h"
+#include "src/ui/render/NCanvas.h"
 #include "src/utils/Text/NString.h"
 
 MaterialBar::MaterialBar(nvec2 topRight, float height) : topRight(topRight), height(height), text(AssetMgr::getDefaultFont()) {

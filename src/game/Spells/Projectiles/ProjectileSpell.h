@@ -1,10 +1,9 @@
 #pragma once
-#include"../Spell.h"
-#include"src/ecs/entity.h"
-#include"src/utils/Vec2.h"
+#include "../../../utils/Vec2/Vec2.h"
+#include "../Spell.h"
+#include "src/ecs/entity.h"
 
-
-//factory class
+// factory class
 class ProjectileSpell : public Spell {
 protected:
 public:

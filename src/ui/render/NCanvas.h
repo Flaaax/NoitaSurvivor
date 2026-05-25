@@ -1,6 +1,6 @@
 #pragma once
+#include "../../utils/Vec2/Vec2.h"
 #include "src/render/Renderer.h"
-#include "src/utils/Vec2.h"
 
 #include <SFML/Graphics/RenderStates.hpp>
 

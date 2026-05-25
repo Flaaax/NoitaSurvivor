@@ -1,10 +1,10 @@
 #pragma once
+#include "../utils/Vec2/Vec2.h"
 #include "NScale.h"
 #include "NSceneManager.h"
 #include "context/NInputState.h"
 #include "src/utils/Macro.h"
 #include "src/utils/Singleton.h"
-#include "src/utils/Vec2.h"
 
 namespace sf {
 	class RenderWindow;

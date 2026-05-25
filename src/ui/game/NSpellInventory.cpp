@@ -3,8 +3,10 @@
 #include "../widget/NWidget.h"
 #include "src/game/Spells/Spell.h"
 #include "src/ui/game/NSpell.h"
+#include "src/ui/render/NCanvas.h"
 #include "src/utils/Assert.h"
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <windows.h>
 
 // nvec2 NSpellInventoryOld::calcSlotPosition(size_t index) const {
@@ -195,7 +197,7 @@ NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
 	slots.resize(slotCount);
 	updateSlotsGeometry();
 	updateEnabled = true;
-	typeID = Util::typeName<NSpellInventory>();
+	typeID = makeTypeID<NSpellInventory>();
 }
 
 // std::optional<NEventResult> NSpellInventory::handleEvent(const NEvent& event) {

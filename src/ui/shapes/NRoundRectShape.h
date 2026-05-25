@@ -1,7 +1,7 @@
 #pragma once
-#include<SFML/Graphics/Shape.hpp>
-#include<vector>
-#include"src/utils/Vec2.h"
+#include "../../utils/Vec2/Vec2.h"
+#include <SFML/Graphics/Shape.hpp>
+#include <vector>
 
 class NRoundRectShape : public sf::Shape {
 public:

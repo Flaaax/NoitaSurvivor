@@ -1,9 +1,9 @@
 #pragma once
+#include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/entity.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
-#include "src/utils/Vec2.h"
 
 struct PlayerData {
 	myecs::entity id;

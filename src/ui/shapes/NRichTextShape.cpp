@@ -275,7 +275,8 @@ void NRichTextShape::rebuildVertices() {
 				nquad quad = nquad::fromRect(bounds);
 				quad.offset({x, y});
 				quad = applyStyleToQuad(quad, style, glyphIndex);
-				appendQuad(quad, glyph.textureRect, style.color);
+				// nvec2u
+				appendQuad(quad, nrect(glyph.textureRect), style.color);
 
 				includeVisualPoint(quad.lt);
 				includeVisualPoint(quad.lb);
@@ -341,12 +342,11 @@ nquad NRichTextShape::applyStyleToQuad(nquad quad, Util::TextStyle style, u64 gl
 	return ret;
 }
 
-void NRichTextShape::appendQuad(nquad quad, sf::IntRect textureRect, sf::Color color) {
-	const nrect rect = {textureRect.position, textureRect.size};
-	const float u1 = rect.left();
-	const float v1 = rect.top();
-	const float u2 = rect.right();
-	const float v2 = rect.bottom();
+void NRichTextShape::appendQuad(nquad quad, nrect textureRect, sf::Color color) {
+	const float u1 = textureRect.left();
+	const float v1 = textureRect.top();
+	const float u2 = textureRect.right();
+	const float v2 = textureRect.bottom();
 
 	m_vertices.push_back(sf::Vertex{quad.lt, color, {u1, v1}});
 	m_vertices.push_back(sf::Vertex{quad.lb, color, {u1, v2}});

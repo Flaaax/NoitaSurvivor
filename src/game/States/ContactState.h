@@ -1,6 +1,6 @@
 ﻿#pragma once
+#include "../../utils/Vec2/Vec2.h"
 #include "src/utils/EntityPair.h"
-#include "src/utils/Vec2.h"
 #include <boost/unordered/unordered_flat_map.hpp>
 
 struct ContactEvent {

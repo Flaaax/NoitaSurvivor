@@ -1,6 +1,7 @@
 #include "ValueBar.h"
 #include "../../utils/Text/NString.h"
 #include "src/global/AssetManager.h"
+#include "src/ui/render/NCanvas.h"
 
 ValueBar::ValueBar(const nvec2& topRight, const nvec2& size, int initialMaxHealth, float lengthPerHealth, int mode)
 	: m_initialHealth(initialMaxHealth),

@@ -2,7 +2,10 @@
 
 #include "NSpellInventory.h"
 #include "src/game/Spells/Spell.h"
+#include "src/ui/render/NCanvas.h"
 #include "src/ui/widget/NWidget.h"
+
+#include <SFML/Graphics/Sprite.hpp>
 
 NSpell::NSpell(std::shared_ptr<Spell> spell, nvec2 pos) : spell(std::move(spell)) {
 	assertNotNull(this->spell.get());
@@ -144,8 +147,8 @@ void NSpell::draw(const NCanvas& canvas) const {
 	}
 
 	sf::Sprite sprite(spell->getTexture());
-	const nvec2 size = sprite.getTexture().getSize();
-	auto scale = slotSize / size.x;
+	const auto size = static_cast<nvec2>(sprite.getTexture().getSize());
+	const auto scale = slotSize / size.x;
 	sprite.setRotation(sf::degrees(rotation));
 	sprite.setOrigin(size / 2.f);
 	sprite.setPosition(geometry.position + scale * size / 2.f);

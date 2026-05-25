@@ -62,7 +62,7 @@ myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
 	static auto& factory = factories["player"];
 	auto e = factory(ctx);
 	auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
-	effect->easing_function = Easing::ease_out_cubic;
+	//effect->easing_function = Easing::ease_out_cubic;
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
 	Logger::info("Player entity created: {}", e.string());

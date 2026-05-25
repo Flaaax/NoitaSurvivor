@@ -12,6 +12,7 @@
 #include "shapes/NRichTextShape.h"
 #include "src/game/Services/EntityService.h"
 #include "src/global/DebugVariables.h"
+#include "src/render/Renderer.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <algorithm>
@@ -45,12 +46,11 @@ bool DrawStringCombo(const char* label, const Util::Vector<std::string_view>& it
 }
 
 void NWindow::updateWindowSize() const {
-	const auto sizeu = window->getSize();
-	scale.updateWindowSize(sizeu);
+	const auto size = static_cast<nvec2>(window->getSize());
+	scale.updateWindowSize(size);
 	// glViewport(0, 0, sizeu.x, sizeu.y);
 
 	sf::View view;
-	nvec2 size = sizeu;
 	view.setCenter(size / 2.f);
 	view.setSize(size);
 	window->setView(view);
@@ -58,7 +58,7 @@ void NWindow::updateWindowSize() const {
 
 void NWindow::updateMousePos() const {
 	auto& state = InputManager::state;
-	state.mouseScreen = sf::Mouse::getPosition(*window);
+	state.mouseScreen = static_cast<nvec2>(sf::Mouse::getPosition(*window));
 	state.mouseRender = scale.toRenderPos(state.mouseScreen);
 }
 
@@ -113,7 +113,7 @@ int NWindow::loop() {
 	// Logger::info("Initializing scenes...");
 	sceneManager.addScene(std::make_unique<GameScene>());
 	sceneManager.addScene(std::make_unique<MenuScene>());
-	sceneManager.setCurrentScene("MenuScene");
+	sceneManager.setCurrentScene("menu_scene");
 
 	auto& font = AssetMgr::getFont("consola");
 	auto text = new NLineText(font);
@@ -133,12 +133,12 @@ int NWindow::loop() {
 	bool isRunning = true;
 	bool enableImgui = true;
 
-	NRichTextShape richText(font, "Hello, [blue]world[/]!\n[i]Rich[/] [sine]Text[/] 1");
-	richText.setPosition({200, 200});
-	sf::RectangleShape rectangle;
-	rectangle.setPosition(richText.getPosition());
-	rectangle.setSize(richText.getLayoutSize());
-	rectangle.setFillColor(sf::Color::Cyan);
+	// NRichTextShape richText(font, "Hello, [blue]world[/]!\n[i]Rich[/] [sine]Text[/] 1");
+	// richText.setPosition({200, 200});
+	// sf::RectangleShape rectangle;
+	// rectangle.setPosition(richText.getPosition());
+	// rectangle.setSize(richText.getLayoutSize());
+	// rectangle.setFillColor(sf::Color::Cyan);
 
 	ImGui::GetStyle().ScaleAllSizes(1.5f);
 
@@ -216,8 +216,8 @@ int NWindow::loop() {
 
 		globalWidget->draw(rdr);
 
-		rdr.drawUI(rectangle);
-		rdr.drawUI(richText);
+		// rdr.drawUI(rectangle);
+		// rdr.drawUI(richText);
 
 		rdr.draw(*window);
 

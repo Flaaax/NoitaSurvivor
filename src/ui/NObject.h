@@ -2,25 +2,15 @@
 #ifndef NOBJECT_H
 #define NOBJECT_H
 
-#pragma warning(push)
-#pragma warning(disable : 5260) // something in b2_math.h
 // #include"Renderer.h"
 #ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
 #define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
 #endif
-#include "../utils/Container/Map.h"
+#include "../utils/Vec2/Vec2.h"
 #include "context/NUIEvent.h"
-#include "render/NCanvas.h"
-#include "src/utils/TypeName.h"
-#include "src/utils/Vec2.h"
-#include <SFML/Graphics.hpp>
+#include "src/utils/ID.h"
 
-class Renderer;
-class NWidget;
-
-namespace sf {
-	class Event;
-}
+class NCanvas;
 
 class NObject {
 	friend class NWidget;
@@ -56,7 +46,7 @@ public:
 	}
 
 	virtual std::optional<NEventResult> handleEvent(const NUIEvent& event) {
-		return std::nullopt;
+		return {};
 	}
 
 	virtual void update(float deltaTime) {
@@ -122,7 +112,8 @@ public:
 
 	template <class T>
 	static constexpr std::string_view makeTypeID() {
-		return Util::typeName<T>();
+		static std::string ID_ = Util::getContentID<T>();
+		return ID_;
 	}
 
 	template <std::derived_from<NObject> T>
@@ -142,5 +133,4 @@ public:
 	}
 };
 
-#pragma warning(pop)
 #endif // ifndef NOBJECT_H

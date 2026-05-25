@@ -9,7 +9,7 @@ class NScene;
 
 class NSceneManager {
 private:
-	Util::StdMap<n_unique<NScene>> scenes;
+	Util::StrMap<n_unique<NScene>> scenes;
 	NScene* currentScene = nullptr;
 	NScene* sceneToChange = nullptr;
 

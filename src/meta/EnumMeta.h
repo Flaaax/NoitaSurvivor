@@ -9,7 +9,7 @@ class EnumMeta {
 	N_DECL_SINGLETON(EnumMeta);
 private:
 	template<class T>
-	using Map = Util::StdMap<T>;
+	using Map = Util::StrMap<T>;
 	using enum_t = long long;
 
 	Map<Map<enum_t>> map;

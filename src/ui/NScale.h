@@ -1,11 +1,11 @@
 #pragma once
+#include "../utils/Vec2/Vec2.h"
 #include "src/utils/Macro.h"
-#include "src/utils/Vec2.h"
 
 class NScale {
 private:
 	friend class NWindow;
-	void updateWindowSize(const nvec2& _windowSize) {
+	void updateWindowSize(nvec2 _windowSize) {
 		currentWindowSize = _windowSize;
 		currentWindowRect = {0, 0, currentWindowSize.x, currentWindowSize.y};
 
@@ -31,7 +31,7 @@ public:
 	N_CONSTEXPR_VAR nvec2 gameRenderScale = {50.f, 50.f};
 	// N_CONSTEXPR_VAR nvec2 gameRenderScale = { 1.f,1.f };
 	N_CONSTEXPR_VAR nvec2u defaultWindowSize = {1920, 1080};
-	N_CONSTEXPR_VAR nvec2 defaultWindowSizeF = defaultWindowSize;
+	N_CONSTEXPR_VAR nvec2 defaultWindowSizeF = static_cast<nvec2>(defaultWindowSize);
 	N_CONSTEXPR_VAR nvec2 gameRenderOffset = defaultWindowSizeF / 2.f; // to keep (0,0) to the center
 	N_CONSTEXPR_VAR nrect windowSizeRect = {0, 0, defaultWindowSizeF.x, defaultWindowSizeF.y};
 	N_CONSTEXPR_VAR float player_size = 1.f;

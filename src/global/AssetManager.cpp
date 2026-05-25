@@ -25,13 +25,13 @@ public:
 	N_CONSTEXPR_VAR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
 	N_CONSTEXPR_VAR auto spell_gfx_default = "default";
 
-	Util::StdMap<sf::Font> fonts;
-	Util::StdMap<std::vector<std::unique_ptr<sf::SoundBuffer>>> soundBuffers;
+	Util::StrMap<sf::Font> fonts;
+	Util::StrMap<std::vector<std::unique_ptr<sf::SoundBuffer>>> soundBuffers;
 
-	Util::StdMap<sf::Texture> spellTextures;
-	Util::StdMap<sf::Texture> UITextures;
-	Util::StdMap<sf::Texture> wandTextures;
-	Util::StdMap<sf::Texture> spriteTextures;
+	Util::StrMap<sf::Texture> spellTextures;
+	Util::StrMap<sf::Texture> UITextures;
+	Util::StrMap<sf::Texture> wandTextures;
+	Util::StrMap<sf::Texture> spriteTextures;
 
 	std::vector<std::unique_ptr<sf::Sound>> sounds;
 
@@ -48,7 +48,7 @@ static AssetMgrImpl& inst() {
 
 namespace fs = std::filesystem;
 
-static void initTexture(Util::StdMap<sf::Texture>& textures, std::string& name, const std::filesystem::path& path) {
+static void initTexture(Util::StrMap<sf::Texture>& textures, std::string& name, const std::filesystem::path& path) {
 	if (const auto it = textures.find(name); it != textures.end()) {
 		Logger::error_and_throw("duplicated texture name: {} with path {}", name, path.string());
 		return;
@@ -78,7 +78,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 		return;
 	}
 
-	if (auto it = inst().soundBuffers.find(name); it != inst().soundBuffers.end()) {
+	if (const auto it = inst().soundBuffers.find(name); it != inst().soundBuffers.end()) {
 		if (index == -1) {
 			index = Util::random.nextVal<int>(0, static_cast<int>(it->second.size()) - 1);
 		}
@@ -101,7 +101,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 }
 
 const sf::Texture& AssetMgr::getSpellTexture(std::string_view name) {
-	if (auto it = inst().spellTextures.find(name); it != inst().spellTextures.end()) {
+	if (const auto it = inst().spellTextures.find(name); it != inst().spellTextures.end()) {
 		return it->second;
 	}
 	Logger::warn("Spell texture '{}' does not exist", name);
@@ -109,14 +109,14 @@ const sf::Texture& AssetMgr::getSpellTexture(std::string_view name) {
 }
 
 const sf::Texture& AssetMgr::getUITexture(std::string_view name) {
-	if (auto it = inst().UITextures.find(name); it != inst().UITextures.end()) {
+	if (const auto it = inst().UITextures.find(name); it != inst().UITextures.end()) {
 		return it->second;
 	}
 	return getSpellTexture("default");
 }
 
 const sf::Texture& AssetMgr::getWandTexture(std::string_view name) {
-	if (auto it = inst().wandTextures.find(name); it != inst().wandTextures.end()) {
+	if (const auto it = inst().wandTextures.find(name); it != inst().wandTextures.end()) {
 		return it->second;
 	}
 	return inst().wandTextures["noita_wand_0000"];
@@ -179,7 +179,7 @@ void AssetMgrImpl::loadFonts() {
 
 void AssetMgrImpl::loadTextures() {
 	struct loadInfo {
-		Util::StdMap<sf::Texture>& map;
+		Util::StrMap<sf::Texture>& map;
 		std::string path;
 		std::string prefix{};
 	};

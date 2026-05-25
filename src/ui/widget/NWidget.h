@@ -1,7 +1,9 @@
 #pragma once
 #include "../NObject.h"
 #include "src/ui/context/NDragState.h"
+#include "src/utils/Assert.h"
 #include "src/utils/Container/Vector.h"
+#include "src/utils/Pointer.h"
 
 #include <deque>
 

@@ -1,8 +1,8 @@
 #pragma once
 #include "../../utils/Container/Map.h"
+#include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/entity.h"
 #include "src/meta/ComponentMeta.h"
-#include "src/utils/Vec2.h"
 #include <functional>
 #include <vector>
 
@@ -12,8 +12,8 @@ struct GameCtx;
 class EntityFactory {
 	using ComponentInitializer = ComponentMeta::ComponentInitializer;
 	using Factory = std::function<myecs::entity(const GameCtx& ctx)>;
-	Util::StdMap<std::vector<ComponentInitializer>> entityInitializers;
-	Util::StdMap<Factory> factories;
+	Util::StrMap<std::vector<ComponentInitializer>> entityInitializers;
+	Util::StrMap<Factory> factories;
 
 	EntityFactory(const EntityFactory&) = delete;
 	void initEntityComponents();

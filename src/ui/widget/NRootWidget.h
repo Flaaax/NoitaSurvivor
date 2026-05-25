@@ -1,6 +1,8 @@
 #pragma once
 #include "NWidget.h"
 
+class Renderer;
+
 class NRootWidget : public NWidget {
 private:
 	NDragState dragState;

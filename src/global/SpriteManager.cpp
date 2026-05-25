@@ -8,7 +8,7 @@ class SpriteMgrImpl {
 	void initSprites();
 
 public:
-	Util::StdMap<sf::Sprite> sprites;
+	Util::StrMap<sf::Sprite> sprites;
 	SpriteMgrImpl() {
 		initSprites();
 	}

@@ -1,8 +1,8 @@
 #pragma once
 #ifndef NOITASURVIVOR_MATH_H
 #define NOITASURVIVOR_MATH_H
-#include"Vec2.h"
-#include<SFML/Graphics/Transform.hpp>
+#include "Vec2/Vec2.h"
+#include <SFML/Graphics/Transform.hpp>
 
 namespace nmath {
 	struct nmat22 {

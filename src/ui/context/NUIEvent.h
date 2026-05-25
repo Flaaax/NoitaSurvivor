@@ -2,7 +2,6 @@
 #include "NDragState.h"
 #include "NInputState.h"
 #include "src/ui/NScale.h"
-#include "src/utils/Vec2.h"
 
 #include <SFML/Window/Event.hpp>
 

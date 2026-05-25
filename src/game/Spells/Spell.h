@@ -1,23 +1,26 @@
 #pragma once
-#include<SFML/Graphics/Texture.hpp>
-#include"src/utils/Tag.h"
-#include<optional>
-#include"src/game/GameContext.h"
-#include"src/ecs/types.h"
-//#include"src/global/Register.h"
+#include "src/ecs/types.h"
+#include "src/game/GameContext.h"
+#include "src/utils/Tag.h"
+#include <SFML/Graphics/Texture.hpp>
+#include <optional>
+// #include"src/global/Register.h"
+#include "src/utils/ID.h"
 
 #ifndef NOITASURVIVOR_SPELL_H
 #define NOITASURVIVOR_SPELL_H
 
-#pragma warning(disable:5105)
+#pragma warning(disable : 5105)
 
 class Spell {
 private:
 	std::optional<sf::Texture> texture;
+
 protected:
-	template<class T>
+	template <class T>
 	constexpr static std::string_view getID() {
-		return myecs::types::type_name<T>().substr(6);
+		static std::string ID = Util::getContentID<T>();
+		return ID;
 	}
 
 public:
@@ -29,7 +32,7 @@ public:
 		OTHER_SPELL
 	};
 
-	enum class Tag :size_t {
+	enum class Tag : size_t {
 		NO_INHERIT = 1 << 0,
 		SHOT_MODIFY = 1 << 1,
 	};

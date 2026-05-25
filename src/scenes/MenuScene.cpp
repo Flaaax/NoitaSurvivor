@@ -1,5 +1,6 @@
 #include "MenuScene.h"
 #include "../ui/NButton.h"
+#include "src/render/Renderer.h"
 #include "src/ui/NWindow.h"
 
 MenuScene::MenuScene() {
@@ -7,7 +8,7 @@ MenuScene::MenuScene() {
 	auto startButton =
 		Util::makeUnique(new NButton(nrect::fromCenter(windowSize / 2.f, {200, 100})));
 	startButton->setOnClick([] {
-		NWindow::sceneManager.setCurrentScene("GameScene");
+		NWindow::sceneManager.setCurrentScene("game_scene");
 	});
 	startButton->setText("开始游戏");
 	createWidget();

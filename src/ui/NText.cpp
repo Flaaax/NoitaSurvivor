@@ -1,4 +1,6 @@
 #include "NText.h"
+
+#include "render/NCanvas.h"
 #include "src/global/AssetManager.h"
 
 NText::NText() : NText("") {

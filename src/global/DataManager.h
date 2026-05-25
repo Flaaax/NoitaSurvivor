@@ -1,8 +1,8 @@
 #pragma once
+#include "../utils/File/Json.h"
+#include "../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Map.h"
-#include "src/utils/Json.h"
 #include "src/utils/Singleton.h"
-#include "src/utils/Vec2.h"
 
 class DataMgr {
 	N_DECL_SINGLETON(DataMgr);
@@ -15,7 +15,7 @@ class DataMgr {
 	};
 
 private:
-	Util::StdMap<SpriteData> spriteInfo;
+	Util::StrMap<SpriteData> spriteInfo;
 	json entityComponentData;
 
 	void loadSpriteInfo();

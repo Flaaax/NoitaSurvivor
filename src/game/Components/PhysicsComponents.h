@@ -1,7 +1,7 @@
 #pragma once
+#include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/entity.h"
 #include "src/meta/MetaAttributes.h"
-#include "src/utils/Vec2.h"
 #include <box2d/box2d.h>
 
 struct N_NOINIT BodyArg {

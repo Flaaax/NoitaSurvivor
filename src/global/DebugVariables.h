@@ -29,8 +29,8 @@ private:
 		std::unique_ptr<HolderBase> holder{};
 	};
 
-	static Util::StdMap<Entry>& vars() {
-		static Util::StdMap<Entry> data;
+	static Util::StrMap<Entry>& vars() {
+		static Util::StrMap<Entry> data;
 		return data;
 	}
 

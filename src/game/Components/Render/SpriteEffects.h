@@ -1,8 +1,8 @@
 #pragma once
+#include "../../../utils/Vec2/Vec2.h"
 #include "RenderComponent.h"
 #include "src/utils/Assert.h"
 #include "src/utils/Timer.h"
-#include "src/utils/Vec2.h"
 #include <SFML/Graphics/Sprite.hpp>
 
 struct EffectState {

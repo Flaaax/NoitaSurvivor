@@ -1,5 +1,6 @@
 #pragma once
 #include "src/ui/NObject.h"
+#include "src/utils/Pointer.h"
 
 class Spell;
 class NSpellInventory;

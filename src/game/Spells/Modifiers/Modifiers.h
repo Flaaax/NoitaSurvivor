@@ -1,7 +1,6 @@
 #pragma once
-#include"ModifierSpell.h"
-#include"src/utils/Math.h"
-
+#include "ModifierSpell.h"
+#include "src/utils/Math.h"
 
 class AddExplosionSpell : public ModifierSpell {
 public:
@@ -14,17 +13,15 @@ public:
 	void apply(const GameCtx& ctx, myecs::entity p) override;
 };
 
-
 class MultiShots : public ModifierSpell {
 private:
-	int shots=2;
+	int shots = 2;
 
 public:
-	MultiShots(int shots = 2);
+	explicit MultiShots(int shots = 2);
 
 	void modifyShot(std::vector<ShotData>& data) override;
 };
-
 
 class ScatterShot : public ModifierSpell {
 public:
@@ -36,7 +33,6 @@ public:
 		ID = getID<ScatterShot>();
 	}
 };
-
 
 class HomingShot : public ModifierSpell {
 public:
@@ -51,7 +47,6 @@ public:
 
 	void apply(const GameCtx& ctx, myecs::entity p) override;
 };
-
 
 class Script;
 

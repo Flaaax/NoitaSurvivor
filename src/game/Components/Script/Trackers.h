@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <cmath>
 
+#include "../../../utils/Vec2/Vec2.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/utils/Mat22.h"
-#include "src/utils/Vec2.h"
 
 struct Trackers {
 private:

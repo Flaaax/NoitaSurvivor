@@ -1,18 +1,12 @@
 #pragma once
 
+#include "../../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Integers.h"
 #include "src/utils/Text/TextRun.h"
-#include "src/utils/Vec2.h"
-
 #include <SFML/Graphics.hpp>
-
-#include <cstddef>
-#include <cstdint>
-#include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
 
 class NRichTextShape : public sf::Drawable, public sf::Transformable {
 protected:
@@ -35,7 +29,7 @@ protected:
 
 	void appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style);
 	nquad applyStyleToQuad(nquad quad, Util::TextStyle style, u64 glyphIndex) const;
-	void appendQuad(nquad quad, sf::IntRect textureRect, sf::Color color);
+	void appendQuad(nquad quad, nrect textureRect, sf::Color color);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:

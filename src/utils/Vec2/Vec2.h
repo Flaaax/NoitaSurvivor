@@ -1,19 +1,31 @@
 #pragma once
 
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/System/Vector2.hpp>
-#include <box2d/types.h>
 #include <cmath>
+#include <limits>
 #include <optional>
 
 #pragma push_macro("max")
 #undef max
 
+namespace Util::internal {
+	template <class Vec, class T>
+	concept HasPublicTXAndY = requires(Vec t) {
+		{ t.x } -> std::same_as<T&>;
+		{ t.y } -> std::same_as<T&>;
+	};
+
+	template <class Vec, class T>
+	concept ExactlyVec2Layout =
+		std::is_standard_layout_v<Vec> &&
+		HasPublicTXAndY<Vec, T> &&
+		sizeof(Vec) == sizeof(T) * 2 &&
+		alignof(Vec) == alignof(float) &&
+		offsetof(Vec, x) == 0 &&
+		offsetof(Vec, y) == sizeof(T);
+} // namespace Util::internal
+
 template <class Vec, class T>
-concept vec2_t = requires(Vec t) {
-	requires std::convertible_to<decltype(t.x), T>;
-	requires std::convertible_to<decltype(t.y), T>;
-};
+concept nvec2_like = Util::internal::ExactlyVec2Layout<Vec, T>;
 
 namespace nmath {
 	using std::sqrt;
@@ -24,13 +36,13 @@ namespace nmath {
 
 	inline constexpr float n_epsilon = 1e-5f;
 	inline constexpr float n_epsilon_2 = 1e-10f;
-	inline constexpr float n_max = FLT_MAX;
+	inline constexpr float n_max = std::numeric_limits<float>::max();
 
 	template <class T>
 	constexpr auto abs(T a) {
 		return a >= static_cast<T>(0) ? a : -a;
 	}
-}; // namespace nmath
+} // namespace nmath
 
 namespace Util::internal {
 	template <class Derived, class T>
@@ -43,10 +55,9 @@ namespace Util::internal {
 		constexpr vec2_base(T x, T y) noexcept : x(x), y(y) {
 		}
 
-		template <vec2_t<T> _vec>
-		explicit(false) constexpr vec2_base(const _vec& vec) noexcept
-			: x(static_cast<T>(vec.x)),
-			  y(static_cast<T>(vec.y)) {
+		template <class _vec>
+		explicit(!nvec2_like<_vec, T>) constexpr vec2_base(const _vec& vec) noexcept
+			: x(static_cast<T>(vec.x)), y(static_cast<T>(vec.y)) {
 		}
 
 		constexpr Derived operator-() const noexcept {
@@ -120,7 +131,7 @@ namespace Util::internal {
 			return Derived{x, -y};
 		}
 
-		template <vec2_t<T> _vec>
+		template <class _vec>
 		[[nodiscard]] constexpr _vec to() const noexcept {
 			using X = std::remove_cvref_t<decltype(std::declval<_vec>().x)>;
 			using Y = std::remove_cvref_t<decltype(std::declval<_vec>().y)>;
@@ -128,12 +139,17 @@ namespace Util::internal {
 			return {static_cast<X>(x), static_cast<Y>(y)};
 		}
 
-		T dot(Derived other) const {
+		constexpr T dot(Derived other) const {
 			return x * other.x + y * other.y;
 		}
 
-		T cross(Derived other) const {
+		constexpr T cross(Derived other) const {
 			return x * other.y - y * other.x;
+		}
+
+		template <nvec2_like<T> Vec>
+		explicit(false) constexpr operator Vec() const noexcept {
+			return to<Vec>();
 		}
 	};
 
@@ -148,7 +164,6 @@ namespace Util::internal {
 		const T inv_y = T(1) / v.y;
 		return {a * inv_x, a * inv_y};
 	}
-
 } // namespace Util::internal
 
 using Util::internal::operator*;
@@ -161,14 +176,6 @@ struct nvec2 : Util::internal::vec2_base<nvec2, float> {
 	template <typename T>
 		requires std::convertible_to<T, float>
 	constexpr nvec2(T x, T y) noexcept : Base(static_cast<float>(x), static_cast<float>(y)) {
-	}
-
-	explicit(false) operator sf::Vector2f() const noexcept {
-		return to<sf::Vector2f>();
-	}
-
-	explicit(false) operator b2Vec2() const noexcept {
-		return to<b2Vec2>();
 	}
 
 	[[nodiscard]] float length() const noexcept {
@@ -230,14 +237,30 @@ struct nvec2 : Util::internal::vec2_base<nvec2, float> {
 	}
 };
 
-struct nvec2u : public Util::internal::vec2_base<nvec2u, unsigned int> {
-	using Base = Util::internal::vec2_base<nvec2u, unsigned int>;
+struct nvec2u : Util::internal::vec2_base<nvec2u, unsigned int> {
+	using Base = vec2_base;
 	using Base::Base;
-
-	explicit(false) operator sf::Vector2u() const noexcept {
-		return to<sf::Vector2u>();
-	}
 };
+
+namespace Util::internal {
+	template <class Rect>
+	concept HasPublicRectMembers = requires(Rect t) {
+		nvec2_like<std::remove_cvref_t<decltype(t.position)>, float>;
+		nvec2_like<std::remove_cvref_t<decltype(t.size)>, float>;
+	};
+
+	template <class Rect>
+	concept ExactlyFloatRectLayout =
+		std::is_standard_layout_v<Rect> &&
+		HasPublicRectMembers<Rect> &&
+		sizeof(Rect) == sizeof(float) * 4 &&
+		alignof(Rect) == alignof(float) &&
+		offsetof(Rect, position) == 0 &&
+		offsetof(Rect, size) == sizeof(nvec2);
+} // namespace Util::internal
+
+template <class Rect>
+concept nrect_like = Util::internal::ExactlyFloatRectLayout<Rect>;
 
 struct nrect {
 	nvec2 position{};
@@ -252,12 +275,13 @@ struct nrect {
 		: position(pos), size(size) {
 	}
 
-	constexpr static nrect fromCenter(nvec2 center, nvec2 size) {
-		return {center - size / 2.f, size};
+	template <class Rect>
+	explicit(!nrect_like<Rect>) nrect(const Rect& rect)
+		: position(nvec2(rect.position)), size(nvec2(rect.size)) {
 	}
 
-	explicit(false) constexpr nrect(sf::FloatRect rect)
-		: position(rect.position), size(rect.size) {
+	constexpr static nrect fromCenter(nvec2 center, nvec2 size) {
+		return {center - size / 2.f, size};
 	}
 
 	constexpr nrect(const nrect& other) = default;
@@ -350,7 +374,8 @@ struct nrect {
 		return fromCenter(center(), size + outLine * 2.f);
 	}
 
-	explicit(false) operator sf::FloatRect() const {
+	template <nrect_like Rect>
+	explicit(false) operator Rect() const {
 		return {position, size};
 	}
 };
