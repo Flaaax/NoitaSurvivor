@@ -1,18 +1,18 @@
 #include "SpellBlock.h"
-#include "Modifiers/ModifierSpell.h"
-#include "Projectiles/ProjectileSpell.h"
+#include "ModifierSpell.h"
+#include "ProjectileSpell.h"
 #include "Shot.h"
 
 
 void SpellBlock::add(const std::shared_ptr<Spell>& spell) {
-	if (spell->getSpellType() == Spell::MODIFIER_SPELL) {
+	if (spell->getKind() == Spell::ModifierSpell) {
 		auto mod = std::static_pointer_cast<ModifierSpell>(spell);
 		if (mod->tags.has(Spell::Tag::SHOT_MODIFY)) {
 			shotModifiers.emplace_back(mod);
 		}
 		modifiers.emplace_back(std::move(mod));
 	}
-	else if (spell->getSpellType() == Spell::PROJECTILE_SPELL) {
+	else if (spell->getKind() == Spell::ProjectileSpell) {
 		projectiles.emplace_back(std::static_pointer_cast<ProjectileSpell>(spell));
 	}
 	else throw std::runtime_error("invalid spell!");

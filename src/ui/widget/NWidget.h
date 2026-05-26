@@ -18,16 +18,7 @@ private:
 	friend class NRootWidget;
 	Util::Vector<n_unique<NObject>> objects;
 
-	void bind(NObject* obj) {
-		assertNotNull(obj);
-		if (obj == this) {
-			Logger::error_and_throw("Cannot bind a widget to itself!");
-		}
-		if (obj->parent) {
-			obj->parent->remove(obj);
-		}
-		obj->parent = this;
-	}
+	void bind(NObject* obj);
 
 	static void drawWithChildCanvas(const NCanvas& canvas, const NObject& obj);
 

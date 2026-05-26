@@ -1,0 +1,16 @@
+{
+	"kind": "类型",
+	"projectile_spell": "投射物",
+	"modifier_spell": "投射修正",
+	"draw_modifier": "抽取修正",
+	"cast_delay": "施放延迟",
+	"reload_delay": "充能时间",
+	"delay_multiplier": "延迟倍率",
+	"projectiles": "投射物数量",
+	"scatter": "散射",
+	"lifetime": "存在时间",
+	"liftime_modifier": "存在时间修正",
+	"speed_modifier": "速度修正",
+	"damage_modifier": "伤害修正",
+	"acc_modifier": "加速度修正"
+}

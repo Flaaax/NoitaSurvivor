@@ -1,7 +1,7 @@
 // #include"src/game/Spells/Modifiers/AddExplosionSpell.h"
 #include "Wand.h"
-#include "src/game/Spells/Modifiers/Modifiers.h"
-#include "src/game/Spells/Projectiles/Projectiles.h"
+#include "src/game/Spells/Modifiers/BasicModifiers.h"
+#include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
 #include "src/global/AssetManager.h"
 #include "src/ui/NWindow.h"
@@ -15,7 +15,7 @@ void Wand::reload() {
 	hand.clear();
 	discardPile.clear();
 	for (auto& spell : inventory) {
-		if (spell && spell->getSpellType() != Spell::SpellType::OTHER_SPELL) {
+		if (spell && spell->getKind() != Spell::Kind::UnknownSpell) {
 			drawPile.push_back(spell);
 		}
 	}
@@ -80,6 +80,9 @@ void Wand::cast(const GameCtx& ctx) {
 			auto& spell = drawPile.front();
 			hand.push_back(spell);
 			drawCount += spell->drawModifier;
+			if (spell->kind == Spell::ProjectileSpell) {
+				drawCount--;
+			}
 			drawPile.pop_front();
 		} else {
 			break;
@@ -87,10 +90,10 @@ void Wand::cast(const GameCtx& ctx) {
 	}
 
 	for (const auto& spell : hand) {
-		auto type = spell->getSpellType();
-		if (type == Spell::SpellType::PROJECTILE_SPELL) {
+		auto type = spell->getKind();
+		if (type == Spell::Kind::ProjectileSpell) {
 			block.add(spell);
-		} else if (type == Spell::SpellType::MODIFIER_SPELL) {
+		} else if (type == Spell::Kind::ModifierSpell) {
 			block.add(spell);
 		} else {
 			// handle more types of spells...

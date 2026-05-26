@@ -2,10 +2,29 @@
 
 #include "NSpellInventory.h"
 #include "src/game/Spells/Spell.h"
+#include "src/global/AssetManager.h"
+#include "src/global/LocManager.h"
 #include "src/ui/render/NCanvas.h"
 #include "src/ui/widget/NWidget.h"
 
 #include <SFML/Graphics/Sprite.hpp>
+
+void NSpell::updateTooltipSpec() {
+	if (tooltipSpec) {
+		return;
+	}
+
+	auto& loc = spell->getLoc();
+	const auto properties = spell->getDisplayedPropertyString();
+
+	tooltipSpec = Util::makeUnique(new NTooltipSpec{
+		.iconTexture = &spell->getTexture(),
+		.iconSize = slotSize,
+		.title = loc.title,
+		.contents = {loc.description, properties},
+		.flavor = loc.flavor,
+	});
+}
 
 NSpell::NSpell(std::shared_ptr<Spell> spell, nvec2 pos) : spell(std::move(spell)) {
 	assertNotNull(this->spell.get());
@@ -27,15 +46,7 @@ std::optional<NEventResult> NSpell::handleEvent(const NUIEvent& event) {
 			};
 		}
 	} else if (raw.is<sf::Event::MouseMoved>() && this->frame.contains(event.localCtx.mouseLocal)) {
-		if (!tooltipSpec) {
-			tooltipSpec = Util::makeUnique(new NTooltipSpec{
-				.iconTexture = &spell->getTexture(),
-				.iconSize = slotSize,
-				.title = "Hello, [blue]wood[/]",
-				.contents = {"What the hail???"},
-				.flavor = "[i]This is flavor[/]",
-			});
-		}
+		updateTooltipSpec();
 		return NEventResult{
 			.handler = this,
 			.result = NEventResult::HoverIntent{},

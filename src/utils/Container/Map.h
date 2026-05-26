@@ -36,6 +36,11 @@ namespace Util {
 			return it != Base::end() ? &it->second : nullptr;
 		}
 
+		const T* try_find(std::string_view key) const {
+			const auto it = Base::find(key);
+			return it != Base::end() ? &it->second : nullptr;
+		}
+
 		T value_or(std::string_view key, T defaultValue) {
 			const auto it = Base::find(key);
 			if (it == Base::end()) {

@@ -18,7 +18,7 @@ void LocManager::loadLanguage(std::string_view lang) {
 	const fs::path locPath = fs::path(filePath) / lang_;
 
 	for (const auto& entry : fs::directory_iterator(locPath)) {
-		if (!entry.is_regular_file() || entry.path().extension() != ".json") {
+		if (!entry.is_regular_file() || entry.path().extension() != ".jsonc") {
 			continue;
 		}
 
@@ -40,6 +40,18 @@ void LocManager::loadLanguage(std::string_view lang) {
 	Logger::info("Load complete.");
 }
 
-std::string LocManager::debugGetString(std::string_view table, std::string_view entry) {
-	return tables.at(table).contents.at(entry);
+void LocManager::loadDefaultLanguage() {
+	loadLanguage(defaultLang);
+}
+
+std::string LocManager::debugGetString(std::string_view table, std::string_view entry, bool required) {
+	try {
+		return tables.at(table).contents.at(entry);
+	} catch (...) {}
+
+	if (required) {
+		Logger::warn("Required loc missing: {}.{}", table, entry);
+		return std::format("{}.{}", table, entry);
+	}
+	return {};
 }

@@ -12,6 +12,7 @@
 #include "Systems/RenderSystem.h"
 #include "Wands/Wand.h"
 #include "src/global/DebugVariables.h"
+#include "src/global/LocManager.h"
 #include "src/utils/Logger.h"
 
 Game::Game() {
@@ -55,6 +56,8 @@ void Game::init() {
 	if (isInitialized) {
 		throw std::runtime_error("Dont initialize more than once");
 	}
+
+	LocManager::inst().loadDefaultLanguage();
 
 	// todo move this to another place
 	b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {

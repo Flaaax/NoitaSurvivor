@@ -9,14 +9,15 @@ public:
 	Util::StrMap<std::string> contents;
 };
 
-class LocManager {
+N_DEF_SINGLETON(LocManager) {
 private:
 	Util::StrMap<LocTable> tables;
 	std::string lang_ = "";
-	N_CONSTEXPR_VAR std::string_view defaultLang = "zhs";
-	N_CONSTEXPR_VAR std::string_view filePath = "./resources/localizaion/";
+	N_CONSTEXPR std::string_view defaultLang = "zhs";
+	N_CONSTEXPR std::string_view filePath = "./resources/localization/";
 
 public:
 	void loadLanguage(std::string_view lang);
-	std::string debugGetString(std::string_view table,std::string_view entry);
+	void loadDefaultLanguage();
+	std::string debugGetString(std::string_view table, std::string_view entry, bool required = false);
 };

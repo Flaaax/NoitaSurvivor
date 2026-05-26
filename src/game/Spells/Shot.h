@@ -1,6 +1,6 @@
 #pragma once
-#include"../Spells/Projectiles/ProjectileSpell.h"
-#include"Modifiers/ModifierSpell.h"
+#include "ModifierSpell.h"
+#include "ProjectileSpell.h"
 //"src/global/hooks/ProjectileHook.h"
 //#include"src/events/EventManager.h"
 //#include"src/events/args/AddProjectileEvent.h"

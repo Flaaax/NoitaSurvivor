@@ -6,7 +6,7 @@
 
 namespace Util {
 	template <class T>
-	std::string getContentID() {
+	std::string makeContentID() {
 		constexpr auto fullName = Util::typeName<T>();
 		return Util::pascalToSnake(fullName);
 	}

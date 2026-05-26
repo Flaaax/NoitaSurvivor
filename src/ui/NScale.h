@@ -28,15 +28,15 @@ private:
 	}
 
 public:
-	N_CONSTEXPR_VAR nvec2 gameRenderScale = {50.f, 50.f};
+	N_CONSTEXPR nvec2 gameRenderScale = {50.f, 50.f};
 	// N_CONSTEXPR_VAR nvec2 gameRenderScale = { 1.f,1.f };
-	N_CONSTEXPR_VAR nvec2u defaultWindowSize = {1920, 1080};
-	N_CONSTEXPR_VAR nvec2 defaultWindowSizeF = static_cast<nvec2>(defaultWindowSize);
-	N_CONSTEXPR_VAR nvec2 gameRenderOffset = defaultWindowSizeF / 2.f; // to keep (0,0) to the center
-	N_CONSTEXPR_VAR nrect windowSizeRect = {0, 0, defaultWindowSizeF.x, defaultWindowSizeF.y};
-	N_CONSTEXPR_VAR float player_size = 1.f;
+	N_CONSTEXPR nvec2u defaultWindowSize = {1920, 1080};
+	N_CONSTEXPR nvec2 defaultWindowSizeF = static_cast<nvec2>(defaultWindowSize);
+	N_CONSTEXPR nvec2 gameRenderOffset = defaultWindowSizeF / 2.f; // to keep (0,0) to the center
+	N_CONSTEXPR nrect windowSizeRect = {0, 0, defaultWindowSizeF.x, defaultWindowSizeF.y};
+	N_CONSTEXPR float player_size = 1.f;
 
-	N_CONSTEXPR_VAR float gfx_wand_scale = 0.1f;
+	N_CONSTEXPR float gfx_wand_scale = 0.1f;
 
 	nvec2 currentRenderScale = {1, 1};
 	nvec2 currentWindowSize;

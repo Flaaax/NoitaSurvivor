@@ -18,6 +18,8 @@ private:
 
 	//bool isHovered{};
 
+	void updateTooltipSpec();
+
 public:
 	static constexpr nvec2 slotSize = {45.f, 45.f};
 	static constexpr float outLine = 3.f;

@@ -4,6 +4,12 @@
 
 #include <ranges>
 
+void NWidget::bind(NObject* obj) {
+	assertNotNull(obj);
+	assertWithMsg(!obj->parent, "Object already has parent; remove it explicitly first.");
+	obj->parent = this;
+}
+
 void NWidget::drawWithChildCanvas(const NCanvas& canvas, const NObject& obj) {
 	const NCanvas localCanvas = canvas.translated(obj.getPosition());
 	obj.draw(localCanvas);

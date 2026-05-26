@@ -1,4 +1,4 @@
-#include "Projectiles.h"
+#include "BasicProjectiles.h"
 #include "src/game/Components/EntityFactory.h"
 
 myecs::entity BulletSpell::createProjectile(const GameCtx& ctx, nvec2 worldPos, nvec2 dir) {

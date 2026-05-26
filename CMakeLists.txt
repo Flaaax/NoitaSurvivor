@@ -14,6 +14,8 @@ find_package(ImGui-SFML CONFIG REQUIRED)
 find_package(nlohmann_json 3.11.3 EXACT CONFIG REQUIRED)
 find_package(spdlog 1.13.0 EXACT CONFIG REQUIRED)
 
+find_package(magic_enum CONFIG REQUIRED)
+
 get_target_property(NOITA_IMGUI_SFML_LINK_LIBRARIES ImGui-SFML::ImGui-SFML INTERFACE_LINK_LIBRARIES)
 if (NOITA_IMGUI_SFML_LINK_LIBRARIES MATCHES "(^|;)sfml-(graphics|window|system)(;|$)")
     message(FATAL_ERROR "ImGui-SFML is using SFML 2-style CMake targets. Install or provide an ImGui-SFML package that links SFML 3 targets for SFML 3.0.2.")
@@ -105,6 +107,7 @@ target_link_libraries(NoitaSurvivor PRIVATE
         gdi32
         opengl32
         winmm
+        magic_enum::magic_enum
 )
 
 target_link_options(NoitaSurvivor PRIVATE

@@ -1,6 +1,5 @@
 #pragma once
-#include<memory>
-
+#include <memory>
 
 template <typename T>
 class Singleton {
@@ -18,7 +17,6 @@ protected:
 	virtual ~Singleton() = default;
 };
 
-
 template <typename T>
 class SharedSingleton {
 public:
@@ -35,39 +33,28 @@ protected:
 	virtual ~SharedSingleton() = default;
 };
 
-
 #ifndef N_SINGLETON_DEF
 #define N_SINGLETON_DEF
 
-#define N_SHARED_SINGLETON(x) friend class std::shared_ptr<x>;\
-friend struct std::default_delete<x>;\
-friend class SharedSingleton<x>;
+#define N_DEF_SINGLETON(T) class T : public Singleton<T>
+
+#define N_SHARED_SINGLETON(x)             \
+	friend class std::shared_ptr<x>;      \
+	friend struct std::default_delete<x>; \
+	friend class SharedSingleton<x>;
 
 #define N_SINGLETON(x) friend class Singleton<x>;
 
-
-#define N_DECL_SINGLETON(Class)\
-public:\
-	inline static Class& inst() {\
-		static Class ins;\
-		return ins;\
-	}\
-private:\
-Class(const Class&) = delete;\
-Class& operator=(const Class&) = delete
-
-
-#define N_DECL_INITABLE \
-public:\
-void init(){\
-if (!__hasInit) {\
-	__hasInit = true;\
-	onInit();\
-	}\
-}\
-bool isInit()const{return __hasInit;}\
-private:\
-bool __hasInit=false
+#define N_DECL_SINGLETON(Class)   \
+public:                           \
+	inline static Class& inst() { \
+		static Class ins;         \
+		return ins;               \
+	}                             \
+                                  \
+private:                          \
+	Class(const Class&) = delete; \
+	Class& operator=(const Class&) = delete
 
 
 #endif

@@ -1,10 +1,10 @@
-#include "Modifiers.h"
+#include "BasicModifiers.h"
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/Script/Scripts.h"
 #include "src/game/Game.h"
 #include "src/game/Services/ContactService.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/game/Spells/Projectiles/Projectiles.h"
+#include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
 #include "src/utils/VectorHelper.h"
 #include <memory>
@@ -45,8 +45,6 @@ MultiShots::MultiShots(int shots) {
 	castDelay = 0.1f;
 	reloadDelay = 0.1f;
 	tags.add(Tag::SHOT_MODIFY);
-
-	ID = getID<MultiShots>();
 }
 
 void MultiShots::modifyShot(std::vector<ShotData>& data) {
@@ -64,62 +62,11 @@ void MultiShots::modifyShot(std::vector<ShotData>& data) {
 	ret.swap(data);
 }
 
-/*
-class TrackingDetectorScript :public Script {
-public:
-	myecs::entity proj;
-	std::vector<std::pair<nvec2, float>> contacts;
-
-	TrackingDetectorScript(myecs::entity proj) {
-		this->proj = proj;
-	}
-
-	void onUpdate(myecs::entity self, float dt)override {
-		auto& reg = Game::getRegistry();
-		if (!reg.valid(proj) || !reg.get<EntityComponent>(proj).isAlive()) {
-			reg.get<EntityComponent>(self).kill();
-			isDone = true;
-			return;
-		}
-		auto& self_body = reg.get<BodyComponent>(self);
-		auto& proj_body = reg.get<BodyComponent>(proj);
-		self_body.setPosition(*proj_body.position);
-
-		auto& s = reg.get<SmoothMovementComponent>(proj);
-		if (contacts.empty()) {
-			s.dir = proj_body.velocity->normalized();
-			return;
-		}
-		auto it = std::max_element(contacts.begin(), contacts.end(), [](const auto& a, const auto& b) {
-			return a.second < b.second;
-		});
-		if (it->second < nmath::n_epsilon) {
-			s.dir = {};
-		}
-		else {
-			s.dir = it->first / std::sqrt(it->second);
-		}
-		contacts.clear();
-		reg.get<MultipleContactComponent>(self).disabledContacts.clear();
-	}
-
-	void onContact(myecs::entity self, myecs::entity other, b2Contact* contact)override {
-		contact->SetEnabled(false);
-		auto& reg = Game::getRegistry();
-		auto& self_body = reg.get<BodyComponent>(self);
-		auto& other_body = reg.get<BodyComponent>(other);
-		auto shift = *other_body.position - *self_body.position;
-		contacts.push_back({ shift, shift.lengthSquared() });
-	}
-
-	void onDeath(myecs::entity self)override {
-		auto& reg = Game::getRegistry();
-		if (auto ec = reg.try_get<EntityComponent>(self)) {
-			ec->kill();
-		}
-	}
-};
-*/
+ScatterShot::ScatterShot() {
+	castDelay = -0.3f;
+	reloadDelay = -0.5f;
+	scatter = 3.f * Util::PI;
+}
 
 void Parasite::apply(const GameCtx& ctx, myecs::entity p) {
 	class ParasiteScript : public Script {

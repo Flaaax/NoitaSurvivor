@@ -6,7 +6,7 @@
 #pragma execution_character_set("utf-8")
 
 #define N_STATIC_VAR inline static
-#define N_CONSTEXPR_VAR static constexpr
+#define N_CONSTEXPR inline static constexpr
 
 #define N_NODISCARD [[nodiscard]]
 

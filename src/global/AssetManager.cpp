@@ -17,13 +17,13 @@ class AssetMgrImpl {
 	void loadSounds();
 
 public:
-	N_CONSTEXPR_VAR auto resource_path = "./resources";
-	N_CONSTEXPR_VAR auto font_path = "./resources/fonts";
-	N_CONSTEXPR_VAR auto sound_path = "./resources/sounds";
-	N_CONSTEXPR_VAR auto default_font = "msyh";
-	N_CONSTEXPR_VAR auto spell_gfx_path = "./resources/gfx/spells";				// 32*32
-	N_CONSTEXPR_VAR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
-	N_CONSTEXPR_VAR auto spell_gfx_default = "default";
+	N_CONSTEXPR auto resource_path = "./resources";
+	N_CONSTEXPR auto font_path = "./resources/fonts";
+	N_CONSTEXPR auto sound_path = "./resources/sounds";
+	N_CONSTEXPR auto default_font = "msyh";
+	N_CONSTEXPR auto spell_gfx_path = "./resources/gfx/spells";				// 32*32
+	N_CONSTEXPR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
+	N_CONSTEXPR auto spell_gfx_default = "default";
 
 	Util::StrMap<sf::Font> fonts;
 	Util::StrMap<std::vector<std::unique_ptr<sf::SoundBuffer>>> soundBuffers;

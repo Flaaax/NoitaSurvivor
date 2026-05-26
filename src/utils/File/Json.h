@@ -21,9 +21,7 @@ namespace Util {
 
 	namespace Json {
 		inline json loadFromFile(std::string_view file) {
-			json ret;
-			File::open(file) >> ret;
-			return ret;
+			return json::parse(File::open(file), {}, true, true);
 		}
 
 		template <class T>

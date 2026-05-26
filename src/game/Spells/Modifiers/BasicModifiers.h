@@ -1,48 +1,39 @@
 #pragma once
-#include "ModifierSpell.h"
+#include "../ModifierSpell.h"
 #include "src/utils/Math.h"
 
-class AddExplosionSpell : public ModifierSpell {
+DEF_SPELL(AddExplosionSpell, ModifierSpell) {
 public:
 	AddExplosionSpell() {
 		castDelay = 0.2f;
 		reloadDelay = 0.3f;
-		ID = getID<AddExplosionSpell>();
 	}
 
 	void apply(const GameCtx& ctx, myecs::entity p) override;
 };
 
-class MultiShots : public ModifierSpell {
+DEF_SPELL(MultiShots, ModifierSpell) {
 private:
 	int shots = 2;
 
 public:
 	explicit MultiShots(int shots = 2);
 
-	void modifyShot(std::vector<ShotData>& data) override;
+	void modifyShot(std::vector<ShotData> & data) override;
 };
 
-class ScatterShot : public ModifierSpell {
+DEF_SPELL(ScatterShot, ModifierSpell) {
 public:
-	ScatterShot() {
-		castDelay = -0.3f;
-		reloadDelay = -0.5f;
-		scatter = 3.f * Util::PI;
-
-		ID = getID<ScatterShot>();
-	}
+	ScatterShot();
 };
 
-class HomingShot : public ModifierSpell {
+DEF_SPELL(HomingShot, ModifierSpell) {
 public:
 	float radius;
 
 	explicit HomingShot(float radius = 4.f) : radius(radius) {
 		castDelay += 0.2f;
 		reloadDelay += 0.4f;
-
-		ID = getID<HomingShot>();
 	}
 
 	void apply(const GameCtx& ctx, myecs::entity p) override;
@@ -50,15 +41,13 @@ public:
 
 class Script;
 
-class Parasite : public ModifierSpell {
+DEF_SPELL(Parasite, ModifierSpell) {
 private:
 	std::shared_ptr<Script> script;
 
 public:
 	Parasite() {
-		delayFactor = 2.f;
-
-		ID = getID<Parasite>();
+		delayMultiplier = 2.f;
 	}
 
 	void apply(const GameCtx& ctx, myecs::entity p) override;
