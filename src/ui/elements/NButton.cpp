@@ -1,7 +1,7 @@
 
 #include "NButton.h"
-#include "NWindow.h"
-#include "render/NCanvas.h"
+#include "../NWindow.h"
+#include "../render/NCanvas.h"
 #include "src/global/AssetManager.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>

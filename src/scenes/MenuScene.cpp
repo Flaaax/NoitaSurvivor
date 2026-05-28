@@ -1,5 +1,5 @@
 #include "MenuScene.h"
-#include "../ui/NButton.h"
+#include "../ui/elements/NButton.h"
 #include "src/render/Renderer.h"
 #include "src/ui/NWindow.h"
 

@@ -3,7 +3,7 @@
 #include "src/utils/Macro.h"
 
 // The input state is maintained by NWindow
-class InputManager {
+class NInput {
 private:
 	friend class NWindow;
 	N_STATIC_VAR NInputState state;

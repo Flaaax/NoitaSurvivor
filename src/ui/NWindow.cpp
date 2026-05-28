@@ -6,7 +6,7 @@
 #include "../utils/Timer.h"
 #include "NScene.h"
 #include "NText.h"
-#include "global/InputManager.h"
+#include "global/NInput.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "shapes/NRichTextShape.h"
@@ -57,7 +57,7 @@ void NWindow::updateWindowSize() const {
 }
 
 void NWindow::updateMousePos() const {
-	auto& state = InputManager::state;
+	auto& state = NInput::state;
 	state.mouseScreen = static_cast<nvec2>(sf::Mouse::getPosition(*window));
 	state.mouseRender = scale.toRenderPos(state.mouseScreen);
 }
@@ -192,7 +192,7 @@ int NWindow::loop() {
 				NEventCtx eventCtx{
 					.rawEvent = *event,
 					.scale = scale,
-					.input = InputManager::getState(),
+					.input = NInput::getState(),
 				};
 				currentScene->handleEvent(eventCtx);
 			}

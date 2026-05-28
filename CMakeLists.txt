@@ -130,3 +130,7 @@ set_property(TARGET NoitaSurvivor PROPERTY
 set_property(TARGET NoitaSurvivor PROPERTY
         VS_DEBUGGER_ENVIRONMENT "PATH=${CMAKE_CURRENT_SOURCE_DIR}/bin;%PATH%"
 )
+
+target_precompile_headers(NoitaSurvivor PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h"
+)

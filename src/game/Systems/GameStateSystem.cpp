@@ -1,5 +1,5 @@
 #include "GameStateSystem.h"
-#include "../../ui/global/InputManager.h"
+#include "../../ui/global/NInput.h"
 #include "../GameContext.h"
 #include "src/game/Components/EntityFactory.h"
 #include "src/game/Services/PhysicsService.h"
@@ -47,7 +47,7 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 	auto& state = ctx.gameState;
-	auto& inputState = InputManager::getState();
+	auto& inputState = NInput::getState();
 	state.mousePos = (inputState.mouseRender - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
 	const myecs::entity player = ctx.gameState.player.id;
 	state.playerPos = PhysicsService().getPosition(ctx, player);

@@ -3,15 +3,24 @@
 #define NOBJECT_H
 
 // #include"Renderer.h"
-#ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
-#define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
-#endif
+// #ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
+// #define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
+// #endif
 #include "../utils/Vec2/Vec2.h"
 #include "context/NUIEvent.h"
 #include "src/utils/ID.h"
 #include "src/utils/Pointer.h"
 
 class NCanvas;
+
+struct NLayoutConstraint {
+	nvec2 minSize{};
+	nvec2 maxSize{};
+};
+
+struct NLayoutResult {
+	nvec2 size{};
+};
 
 class NObject {
 	friend class NWidget;
@@ -27,6 +36,7 @@ protected:
 	nrect frame;
 	std::string_view typeID{};
 	n_unique<NTooltipSpec> tooltipSpec;
+	mutable bool visualDirty = true;
 
 public:
 	bool enableDragging{};
@@ -65,12 +75,18 @@ public:
 		frame.position = pos;
 	}
 
-	void setSize(nvec2 pos) {
-		frame.size = pos;
+	void setSize(nvec2 size) {
+		if (frame.size == size)
+			return;
+		frame.size = size;
+		visualDirty = true;
 	}
 
-	void setGeometry(nrect geometry) {
-		this->frame = geometry;
+	void setFrame(nrect frame) {
+		if (frame.size != this->frame.size) {
+			visualDirty = true;
+		}
+		this->frame = frame;
 	}
 
 	nvec2 getPosition() const {
@@ -94,7 +110,7 @@ public:
 	nvec2 toGlobalPosition(nvec2 localPosition) const;
 	nrect toGlobalBounds(nrect parentLocalBounds) const;
 	nvec2 getParentLocalPosition(nvec2 globalPosition) const;
-	nrect getLocalBounds()const;
+	nrect getLocalBounds() const;
 
 	virtual void onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 	}
@@ -136,6 +152,14 @@ public:
 			return static_cast<T*>(this);
 		}
 		return {};
+	}
+
+	virtual NLayoutResult measure(NLayoutConstraint constraint) {
+		return {.size = getSize()};
+	}
+
+	virtual void arrange(nrect rect) {
+		setPosition(rect.position);
 	}
 };
 

@@ -37,6 +37,7 @@ namespace nmath {
 	inline constexpr float n_epsilon = 1e-5f;
 	inline constexpr float n_epsilon_2 = 1e-10f;
 	inline constexpr float n_max = std::numeric_limits<float>::max();
+	inline constexpr float inf = std::numeric_limits<float>::infinity();
 
 	template <class T>
 	constexpr auto abs(T a) {
@@ -271,8 +272,8 @@ struct nrect {
 	constexpr nrect(float x, float y, float w, float h) : position(x, y), size(w, h) {
 	}
 
-	constexpr nrect(nvec2 pos, nvec2 size)
-		: position(pos), size(size) {
+	constexpr nrect(nvec2 position, nvec2 size)
+		: position(position), size(size) {
 	}
 
 	template <class Rect>
@@ -296,6 +297,31 @@ struct nrect {
 
 	constexpr nrect& setCenter(nvec2 center) {
 		position = center - size / 2.f;
+		return *this;
+	}
+
+	constexpr nrect& setRight(float right) {
+		position.x = right - size.x;
+		return *this;
+	}
+
+	constexpr nrect& setLeft(float left) {
+		position.x = left;
+		return *this;
+	}
+
+	constexpr nrect& setXCenter(float xc) {
+		position.x = xc - size.x / 2.f;
+		return *this;
+	}
+
+	constexpr nrect& setYCenter(float yc) {
+		position.y = yc - size.y / 2.f;
+		return *this;
+	}
+
+	constexpr nrect& setBottom(float bottom) {
+		position.y = bottom - size.y;
 		return *this;
 	}
 

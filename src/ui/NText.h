@@ -23,7 +23,7 @@ public:
 	explicit NText(const NString& str, const sf::Font& font, AlignOption align = LeftTop, unsigned int characterSize = 20UL);
 	// NText(const sf::Font& font, unsigned int characterSize = 20UL) :sfText({}, font, characterSize) {}
 	explicit NText(const sf::Text& text, AlignOption align = LeftTop);
-	NText(const NText&) = default;
+	NText(const NText&) = delete;
 
 	void draw(const NCanvas& canvas) const override;
 

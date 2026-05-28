@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../utils/Text/NString.h"
-#include "./NObject.h"
+#include "../../utils/Text/NString.h"
+#include "../NObject.h"
 #include <SFML/Graphics/Text.hpp>
 #include <functional>
 

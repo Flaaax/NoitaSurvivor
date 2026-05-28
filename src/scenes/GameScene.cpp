@@ -1,5 +1,5 @@
 #include "GameScene.h"
-#include "../ui/NButton.h"
+#include "../ui/elements/NButton.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/ui/MaterialBar.h"
@@ -120,7 +120,7 @@ void GameScene::initUI() {
 	// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
 
 	pauseText = new NText("游戏暂停", NText::Center, 30U);
-	pauseText->setGeometry({0, 0, windowSize.x, windowSize.y / 4.f});
+	pauseText->setFrame({0, 0, windowSize.x, windowSize.y / 4.f});
 	pauseText->isVisible = false;
 	widget->add(Util::makeUnique(pauseText));
 }

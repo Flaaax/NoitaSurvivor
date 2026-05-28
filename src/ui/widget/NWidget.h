@@ -45,8 +45,8 @@ public:
 		return objects.emplace_front(std::move(obj)).get();
 	}
 
-	auto& getObjects() const {
-		return objects;
+	auto getObjects() const {
+		return objects | std::views::transform([](const n_unique<NObject>& obj) { return obj.get(); });
 	}
 
 	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;

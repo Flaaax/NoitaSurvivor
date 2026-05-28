@@ -17,36 +17,6 @@ inline constexpr bool n_debug_log = false;
 
 using logptr = std::shared_ptr<spdlog::logger>;
 
-////thread pool getter
-// struct tp_getter {
-// private:
-//	struct m_initializer {
-//		m_initializer() {
-//			spdlog::init_thread_pool(4096, 1);
-//		}
-//	};
-// public:
-//	static auto get() {
-//		static m_initializer init;
-//		return spdlog::details::registry::instance().get_tp();
-//	}
-// };
-//
-////wrapper for spdlog::fileLog, keeps the logger thread pool running
-// struct NAsyncLogger {
-// private:
-//	n_shared<spdlog::details::thread_pool> tp;
-//	logptr m_logger;
-// public:
-//	NAsyncLogger(const logptr& logger) :m_logger(logger), tp(tp_getter::get()) {
-//		MYASSERT(bool(tp), "thread pool does not exist!");
-//	}
-//	spdlog::logger* operator->() {
-//		return m_logger.get();
-//	}
-//	NAsyncLogger(NAsyncLogger&&) = delete;
-// };
-
 class LoggerFactory {
 public:
 	static logptr createAsync(const std::string& logger_id, bool show_id = false) {
