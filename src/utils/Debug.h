@@ -1,8 +1,6 @@
 #pragma once
 
 
-namespace Util {
-	namespace Debug {
-		void printCallStack();
-	}
+namespace Util::Debug {
+	void printCallStack();
 }

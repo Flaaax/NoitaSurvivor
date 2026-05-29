@@ -13,7 +13,7 @@ template <class T>
 using n_weak = std::weak_ptr<T>;
 
 template <class T>
-using n_pair = std::array<T, 2>;
+using n_pair = std::pair<T, T>;
 
 namespace Util {
 	template <class T>
@@ -29,6 +29,19 @@ namespace Util {
 
 namespace Util {
 	using std::size_t;
+
+	namespace internal {
+		struct move_t {
+			template <class T>
+			[[nodiscard]]
+			friend constexpr decltype(auto) operator|(T&& value, move_t) noexcept {
+				return std::move(value);
+			}
+		};
+	} // namespace internal
+
+	// This is evil FR FR
+	inline constexpr internal::move_t move{};
 
 	namespace internal {
 		template <class T>

@@ -12,6 +12,7 @@
 #include "src/utils/Pointer.h"
 
 class NCanvas;
+class NLayout;
 
 struct NLayoutConstraint {
 	nvec2 minSize{};
@@ -35,7 +36,7 @@ private:
 protected:
 	nrect frame;
 	std::string_view typeID{};
-	n_unique<NTooltipSpec> tooltipSpec;
+	NTooltipSpec tooltipSpec;
 	mutable bool visualDirty = true;
 
 public:
@@ -159,6 +160,7 @@ public:
 	}
 
 	virtual void arrange(nrect rect) {
+		// Override this if you want the size changed
 		setPosition(rect.position);
 	}
 };

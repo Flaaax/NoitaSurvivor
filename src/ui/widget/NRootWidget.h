@@ -2,8 +2,7 @@
 #include "NWidget.h"
 #include "src/ui/context/NStyle.h"
 
-#include <SFML/Graphics/Font.hpp>
-
+class NPanel;
 class NTooltip;
 class Renderer;
 
@@ -12,7 +11,7 @@ private:
 	NDragState dragState;
 	NHoverState hoverState;
 	NStyle style;
-	n_unique<NTooltip> tooltip;
+	n_unique<NPanel> tooltip;
 	nvec2 mousePosition{};
 	bool handleDragEvent(const NEventCtx& event);
 	static bool shouldHandleEvent(const NEventCtx& ctx);
@@ -25,4 +24,5 @@ public:
 	bool handleEvent(const NEventCtx& ctx);
 	void draw(Renderer& rdr) const;
 	void update(float dt) override;
+	//void setStyle(NStyle style);
 };

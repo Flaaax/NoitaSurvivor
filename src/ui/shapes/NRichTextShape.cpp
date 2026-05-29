@@ -1,47 +1,42 @@
 #include "NRichTextShape.h"
 
 #include "src/utils/Random.h"
+#include "src/utils/Text/LayoutToken.h"
 
 #include <algorithm>
-#include <array>
-#include <charconv>
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
 #include <optional>
 #include <string_view>
-#include <system_error>
 #include <utility>
 
 NRichTextShape::NRichTextShape(const sf::Font& font, std::string_view utf8Markup, u32 characterSize) : m_font(&font),
 																									   m_sourceUtf8(utf8Markup),
 																									   m_characterSize(characterSize) {
-	rebuildAll();
 }
 
 void NRichTextShape::setFont(const sf::Font& font) {
 	m_font = &font;
-	rebuildVertices();
+	styleDirty = true;
 }
 
 void NRichTextShape::setString(std::string_view utf8Markup) {
 	m_sourceUtf8.assign(utf8Markup.begin(), utf8Markup.end());
-	rebuildAll();
+	styleDirty = true;
 }
 
 void NRichTextShape::setCharacterSize(u32 size) {
 	m_characterSize = size;
-	rebuildVertices();
+	layoutDirty = true;
 }
 
 void NRichTextShape::setTabSize(u32 spaces) {
 	m_tabSize = std::max(1u, spaces);
-	rebuildVertices();
+	layoutDirty = true;
 }
 
 void NRichTextShape::setTime(float seconds) {
 	m_timeSeconds = seconds;
-	rebuildVertices();
+	layoutDirty = true;
 }
 
 const sf::Font& NRichTextShape::getFont() const {
@@ -56,29 +51,48 @@ u32 NRichTextShape::getCharacterSize() const {
 	return m_characterSize;
 }
 
+void NRichTextShape::setLineWidth(float width) {
+	if (width == m_lineWidth) {
+		return;
+	}
+	m_lineWidth = width;
+	layoutDirty = true;
+}
+
+float NRichTextShape::getLineWidth() const {
+	return m_lineWidth;
+}
+
 Util::TextStyle NRichTextShape::getDefaultStyle() const {
 	return m_defaultStyle;
 }
 
 void NRichTextShape::setDefaultStyle(Util::TextStyle style) {
 	m_defaultStyle = style;
-	rebuildAll();
+	styleDirty = true;
 }
 
 nvec2 NRichTextShape::getLayoutSize() const {
+	rebuildCache();
 	return m_layoutSize;
 }
 
-nrect NRichTextShape::getVisualLayout() const {
-	return getTransform().transformRect(m_visualBounds);
+// nrect NRichTextShape::getVisualLayout() const {
+// 	return getTransform().transformRect(m_visualBounds);
+// }
+
+void NRichTextShape::rebuildCache() const {
+	if (styleDirty) {
+		rebuildStyles();
+		rebuildVertices();
+	} else if (layoutDirty) {
+		rebuildVertices();
+	}
+	styleDirty = false;
+	layoutDirty = false;
 }
 
-void NRichTextShape::rebuildAll() {
-	rebuildStyles();
-	rebuildVertices();
-}
-
-void NRichTextShape::rebuildStyles() {
+void NRichTextShape::rebuildStyles() const {
 	m_runs.clear();
 
 	if (m_sourceUtf8.empty()) {
@@ -141,7 +155,7 @@ void NRichTextShape::rebuildStyles() {
 	appendRun(textBegin, input.size(), stack.back());
 }
 
-void NRichTextShape::appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style) {
+void NRichTextShape::appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style) const {
 	if (byteBegin >= byteEnd) {
 		return;
 	}
@@ -158,9 +172,9 @@ void NRichTextShape::appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style
 	m_runs.push_back(Util::TextRun{.text = std::move(text), .style = style});
 }
 
-void NRichTextShape::rebuildVertices() {
+void NRichTextShape::rebuildVertices() const {
+	using namespace Util::Text;
 	m_vertices.clear();
-	m_visualBounds = {};
 	m_layoutSize = {};
 
 	if (!m_font || m_sourceUtf8.empty() || m_runs.empty()) {
@@ -175,16 +189,13 @@ void NRichTextShape::rebuildVertices() {
 	}
 	m_vertices.reserve(glyphCapacity * 6u);
 
-	float x{};
-	float y{};
-
 	float layoutX{};
-	float layoutMaxX{};
 	float layoutY{};
-	char32_t layoutPrevious = U'\0';
+	float lineRight{};
+	float layoutMaxX{};
 
-	char32_t previous = U'\0';
-	bool previousBold{};
+	char32_t layoutPrevious = U'\0';
+	bool lineHasToken{};
 
 	constexpr float floatMax = std::numeric_limits<float>::max();
 	constexpr float floatMin = std::numeric_limits<float>::lowest();
@@ -193,101 +204,109 @@ void NRichTextShape::rebuildVertices() {
 	float layoutMaxY = floatMin;
 	bool hasLayoutBounds{};
 
-	float minX = floatMax;
-	float minY = floatMax;
-	float maxX = floatMin;
-	float maxY = floatMin;
-
-	u64 glyphIndex = 0u;
+	u64 glyphIndex{};
 
 	auto finishLayoutLine = [&] {
-		layoutMaxX = std::max(layoutMaxX, layoutX);
+		layoutMaxX = std::max(layoutMaxX, lineRight);
 	};
 
-	auto includeLayoutY = [&](const nrect& bounds) {
-		if (bounds.size.x == 0.f || bounds.size.y == 0.f) {
+	auto newLayoutLine = [&] {
+		finishLayoutLine();
+
+		layoutX = 0.f;
+		layoutY += lineSpacing;
+		lineRight = 0.f;
+		layoutPrevious = U'\0';
+		lineHasToken = false;
+	};
+
+	auto includeTokenY = [&](const LayoutToken& token) {
+		if (!token.hasBounds) {
 			return;
 		}
 
-		layoutMinY = std::min(layoutMinY, layoutY + bounds.top());
-		layoutMaxY = std::max(layoutMaxY, layoutY + bounds.bottom());
+		layoutMinY = std::min(layoutMinY, layoutY + token.minY);
+		layoutMaxY = std::max(layoutMaxY, layoutY + token.maxY);
 		hasLayoutBounds = true;
 	};
 
-	auto includeVisualPoint = [&](nvec2 point) {
-		minX = std::min(minX, point.x);
-		minY = std::min(minY, point.y);
-		maxX = std::max(maxX, point.x);
-		maxY = std::max(maxY, point.y);
-	};
+	auto appendToken = [&](const Util::TextRun& run, const LayoutToken& token, float baseX) {
+		const auto& text = run.text;
+		float x = baseX;
+		char32_t previous = U'\0';
 
-	for (const auto& [text, style] : m_runs) {
-		for (const char32_t ch : text) {
-			if (ch == U'\r') {
+		for (u64 i = token.begin; i < token.end; ++i) {
+			const char32_t ch = text[i];
+
+			if (ch == U'\r' || ch == U'\n' || ch == U'\t') {
 				continue;
 			}
 
-			if (ch == U'\n') {
-				finishLayoutLine();
-
-				layoutX = 0.f;
-				layoutY += lineSpacing;
-				layoutPrevious = U'\0';
-
-				x = 0.f;
-				y += lineSpacing;
-				previous = U'\0';
-				previousBold = false;
-				continue;
+			if (previous != U'\0') {
+				x += m_font->getKerning(previous, ch, m_characterSize, false);
 			}
 
-			if (ch == U'\t') {
-				const auto& plainSpaceGlyph = m_font->getGlyph(U' ', m_characterSize, false);
-				layoutX += plainSpaceGlyph.advance * static_cast<float>(m_tabSize);
-				layoutPrevious = U'\0';
-
-				const auto& spaceGlyph = m_font->getGlyph(U' ', m_characterSize, style.isBold());
-				x += spaceGlyph.advance * static_cast<float>(m_tabSize);
-				previous = U'\0';
-				previousBold = false;
-				continue;
-			}
-
-			const auto& plainGlyph = m_font->getGlyph(ch, m_characterSize, false);
-
-			if (layoutPrevious != U'\0') {
-				layoutX += m_font->getKerning(layoutPrevious, ch, m_characterSize, false);
-			}
-
-			includeLayoutY(plainGlyph.bounds);
-
-			layoutX += plainGlyph.advance;
-			layoutPrevious = ch;
-
-			if (previous != U'\0' && previousBold == style.isBold()) {
-				x += m_font->getKerning(previous, ch, m_characterSize, style.isBold());
-			}
-
-			const auto& glyph = m_font->getGlyph(ch, m_characterSize, style.isBold());
-			const nrect bounds = glyph.bounds;
+			const auto& drawGlyph = m_font->getGlyph(ch, m_characterSize, run.style.isBold());
+			const nrect bounds = drawGlyph.bounds;
 
 			if (bounds.size.x != 0.f && bounds.size.y != 0.f) {
 				nquad quad = nquad::fromRect(bounds);
-				quad.offset({x, y});
-				quad = applyStyleToQuad(quad, style, glyphIndex);
-				// nvec2u
-				appendQuad(quad, nrect(glyph.textureRect), style.color);
-
-				includeVisualPoint(quad.lt);
-				includeVisualPoint(quad.lb);
-				includeVisualPoint(quad.rb);
-				includeVisualPoint(quad.rt);
+				quad.offset({x, layoutY});
+				quad = applyStyleToQuad(quad, run.style, glyphIndex);
+				appendQuad(quad, nrect(drawGlyph.textureRect), run.style.color);
 			}
 
-			x += glyph.advance;
+			const auto& layoutGlyph = m_font->getGlyph(ch, m_characterSize, false);
+			x += layoutGlyph.advance;
+
 			previous = ch;
-			previousBold = style.isBold();
 			++glyphIndex;
+		}
+	};
+
+	for (const auto& run : m_runs) {
+		u64 i = 0u;
+
+		while (const auto token = getNextToken(*m_font, run, i, m_characterSize, m_tabSize)) {
+			i = token->end;
+
+			if (token->first == U'\r') {
+				continue;
+			}
+
+			if (token->first == U'\n') {
+				newLayoutLine();
+				continue;
+			}
+
+			float leadingKerning{};
+
+			if (layoutPrevious != U'\0' && token->first != U'\t') {
+				leadingKerning = m_font->getKerning(layoutPrevious, token->first, m_characterSize, false);
+			}
+
+			if (m_lineWidth > 0.f && lineHasToken && layoutX + leadingKerning + token->right > m_lineWidth) {
+				newLayoutLine();
+				leadingKerning = 0.f;
+			}
+
+			layoutX += leadingKerning;
+
+			if (token->first == U'\t') {
+				layoutX += token->advance;
+				lineRight = std::max(lineRight, layoutX);
+				layoutPrevious = U'\0';
+				lineHasToken = true;
+				continue;
+			}
+
+			appendToken(run, *token, layoutX);
+			includeTokenY(*token);
+
+			lineRight = std::max(lineRight, layoutX + token->right);
+			layoutX += token->advance;
+			layoutPrevious = token->last;
+			lineHasToken = true;
 		}
 	}
 
@@ -305,10 +324,6 @@ void NRichTextShape::rebuildVertices() {
 
 	for (auto& vertex : m_vertices) {
 		vertex.position.y += vertexYOffset;
-	}
-
-	if (minX <= maxX && minY <= maxY) {
-		m_visualBounds = {{minX, minY + vertexYOffset}, {maxX - minX, maxY - minY}};
 	}
 }
 
@@ -342,7 +357,7 @@ nquad NRichTextShape::applyStyleToQuad(nquad quad, Util::TextStyle style, u64 gl
 	return ret;
 }
 
-void NRichTextShape::appendQuad(nquad quad, nrect textureRect, sf::Color color) {
+void NRichTextShape::appendQuad(nquad quad, nrect textureRect, sf::Color color) const {
 	const float u1 = textureRect.left();
 	const float v1 = textureRect.top();
 	const float u2 = textureRect.right();
@@ -361,6 +376,8 @@ void NRichTextShape::draw(sf::RenderTarget& target, sf::RenderStates states) con
 	if (!m_font || m_vertices.empty()) {
 		return;
 	}
+
+	rebuildCache();
 
 	states.transform *= getTransform();
 	states.texture = &m_font->getTexture(m_characterSize);

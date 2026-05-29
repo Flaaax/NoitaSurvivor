@@ -4,26 +4,59 @@
 #include "src/game/Spells/Spell.h"
 #include "src/global/AssetManager.h"
 #include "src/global/LocManager.h"
+#include "src/ui/context/NStyle.h"
+#include "src/ui/elements/NImage.h"
+#include "src/ui/elements/NRichText.h"
+#include "src/ui/layout/NBoxLayout.h"
+#include "src/ui/layout/NKeyValueLayout.h"
 #include "src/ui/render/NCanvas.h"
 #include "src/ui/widget/NWidget.h"
 
 #include <SFML/Graphics/Sprite.hpp>
 
 void NSpell::updateTooltipSpec() {
-	if (tooltipSpec) {
-		return;
+	tooltipSpec.builder = tooltipBuilder;
+	tooltipSpec.width = 400.f;
+}
+
+n_unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
+	using Util::move;
+	const NSpell* nspell = static_cast<NSpell*>(self);
+	auto& loc = nspell->spell->getLoc();
+
+	auto layout = std::make_unique<NVBoxLayout>();
+	layout->setPadding({10, 10, 10, 10});
+	layout->setSpacing(5.f);
+
+	auto titleLayout = std::make_unique<NHBoxLayout>();
+	auto image = std::make_unique<NImage>(nspell->spell->getTexture());
+	image->setSize(slotSize);
+	titleLayout->add(image | move);
+	auto title = std::make_unique<NRichText>(style.font, loc.title, 30u);
+	titleLayout->add(title | move);
+	titleLayout->alignY = NHBoxLayout::Center;
+	titleLayout->setSpacing(10.f);
+
+	layout->add(titleLayout | move);
+
+	auto description = std::make_unique<NRichText>(style.font, loc.description, 25u);
+	layout->add(description | move);
+	auto layout1 = std::make_unique<NKeyValueLayout>();
+
+	const auto properties = nspell->spell->getDisplayedProperties();
+	for (auto& [key, val] : properties) {
+		auto keyText = std::make_unique<NRichText>(style.font, key, 25u);
+		auto valueText = std::make_unique<NRichText>(style.font, val, 25u);
+		layout1->add(keyText | move);
+		layout1->add(valueText | move);
 	}
 
-	auto& loc = spell->getLoc();
-	const auto properties = spell->getDisplayedPropertyString();
+	layout->add(layout1 | move);
 
-	tooltipSpec = Util::makeUnique(new NTooltipSpec{
-		.iconTexture = &spell->getTexture(),
-		.iconSize = slotSize,
-		.title = loc.title,
-		.contents = {loc.description, properties},
-		.flavor = loc.flavor,
-	});
+	auto flavorText = std::make_unique<NRichText>(style.font, loc.flavor, 23u);
+	layout->add(flavorText | move);
+
+	return layout | move;
 }
 
 NSpell::NSpell(std::shared_ptr<Spell> spell, nvec2 pos) : spell(std::move(spell)) {

@@ -1,5 +1,5 @@
 #pragma once
-#include "Parser.h"
+#include "BBCode.h"
 #include "src/utils/Integers.h"
 #include "src/utils/Tag.h"
 

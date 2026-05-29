@@ -16,24 +16,27 @@ protected:
 	Util::TextStyle m_defaultStyle;
 	u32 m_characterSize = 30u;
 	u32 m_tabSize = 4u;
-	float m_timeSeconds = 0.f;
+	float m_timeSeconds{};
+	float m_lineWidth{};
 
-	Util::Vector<Util::TextRun> m_runs;
-	Util::Vector<sf::Vertex> m_vertices;
-	nrect m_visualBounds{};
-	nvec2 m_layoutSize{};
+	mutable Util::Vector<Util::TextRun> m_runs;
+	mutable Util::Vector<sf::Vertex> m_vertices;
+	mutable nvec2 m_layoutSize{};
 
-	void rebuildAll();
-	void rebuildStyles();
-	void rebuildVertices();
+	mutable bool layoutDirty = true;
+	mutable bool styleDirty = true;
 
-	void appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style);
+	void rebuildStyles() const;
+	void rebuildVertices() const;
+
+	void appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style) const;
 	nquad applyStyleToQuad(nquad quad, Util::TextStyle style, u64 glyphIndex) const;
-	void appendQuad(nquad quad, nrect textureRect, sf::Color color);
+	void appendQuad(nquad quad, nrect textureRect, sf::Color color) const;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
 	explicit NRichTextShape(const sf::Font& font, std::string_view utf8Markup = {}, u32 characterSize = 30u);
+	void rebuildCache() const;
 
 	void setFont(const sf::Font& font);
 	const sf::Font& getFont() const;
@@ -44,6 +47,9 @@ public:
 	void setCharacterSize(u32 size);
 	u32 getCharacterSize() const;
 
+	void setLineWidth(float width);
+	float getLineWidth() const;
+
 	void setTabSize(u32 spaces);
 	void setTime(float seconds);
 
@@ -51,5 +57,5 @@ public:
 	void setDefaultStyle(Util::TextStyle style);
 
 	nvec2 getLayoutSize() const;
-	nrect getVisualLayout() const;
+	// nrect getVisualLayout() const;
 };

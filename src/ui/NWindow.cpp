@@ -6,6 +6,7 @@
 #include "../utils/Timer.h"
 #include "NScene.h"
 #include "NText.h"
+#include "global/NGlobalVariables.h"
 #include "global/NInput.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -20,7 +21,7 @@
 #include <format>
 #include <numeric>
 
-bool DrawStringCombo(const char* label, const Util::Vector<std::string_view>& items, int& current_index) {
+static bool DrawStringCombo(const char* label, const Util::Vector<std::string_view>& items, int& current_index) {
 	if (items.empty())
 		return false;
 
@@ -93,6 +94,8 @@ NWindow::NWindow() {
 		Logger::error("Imgui-SFML Update font texture failed!");
 	}
 
+	NGlobalVariables::setDefaultFont(AssetMgr::getDefaultFont());
+
 	updateWindowSize();
 
 	Logger::info("Window initialization complete");
@@ -115,7 +118,7 @@ int NWindow::loop() {
 	sceneManager.addScene(std::make_unique<MenuScene>());
 	sceneManager.setCurrentScene("menu_scene");
 
-	auto& font = AssetMgr::getFont("consola");
+	auto& font = AssetMgr::getFont("msyh");
 	auto text = new NLineText(font);
 	text->setPosition({0, 0});
 	text->sfText.setFillColor(sf::Color::Black);
@@ -133,12 +136,14 @@ int NWindow::loop() {
 	bool isRunning = true;
 	bool enableImgui = true;
 
-	// NRichTextShape richText(font, "Hello, [blue]world[/]!\n[i]Rich[/] [sine]Text[/] 1");
-	// richText.setPosition({200, 200});
-	// sf::RectangleShape rectangle;
-	// rectangle.setPosition(richText.getPosition());
-	// rectangle.setSize(richText.getLayoutSize());
-	// rectangle.setFillColor(sf::Color::Cyan);
+	NRichTextShape richText(font, "Very Very Ver Verrrrry long TEEx ver y"
+								  " long not end yet bruh fr fr\n中文1非常长文本Text中文？？？？？\nYeah");
+	richText.setPosition({200, 200});
+	richText.setLineWidth(200.f);
+	sf::RectangleShape rectangle;
+	rectangle.setPosition(richText.getPosition());
+	rectangle.setSize(richText.getLayoutSize());
+	rectangle.setFillColor(sf::Color::Cyan);
 
 	ImGui::GetStyle().ScaleAllSizes(1.5f);
 
@@ -216,8 +221,12 @@ int NWindow::loop() {
 
 		globalWidget->draw(rdr);
 
-		// rdr.drawUI(rectangle);
-		// rdr.drawUI(richText);
+		static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
+
+		if (showDebugText) {
+			rdr.drawUI(rectangle);
+			rdr.drawUI(richText);
+		}
 
 		rdr.draw(*window);
 
@@ -225,6 +234,12 @@ int NWindow::loop() {
 			static bool showDemo = false;
 
 			ImGui::Begin("Imgui");
+
+			ImGui::SeparatorText("渲染");
+
+			if (ImGui::Button("显示Debug文本")) {
+				showDebugText = !showDebugText;
+			}
 
 			ImGui::SeparatorText("游戏内容");
 

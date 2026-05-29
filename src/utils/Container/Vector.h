@@ -32,7 +32,7 @@ namespace Util {
 			return static_cast<const Base&>(*this);
 		}
 
-		template <class U>
+		template <std::convertible_to<T> U>
 		void operator+=(U&& elem) {
 			this->emplace_back(std::forward<U>(elem));
 		}

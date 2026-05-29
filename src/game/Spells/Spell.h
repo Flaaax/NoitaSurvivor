@@ -72,7 +72,7 @@ public:
 	virtual const Loc& getLoc() const = 0;
 	static Loc makeLocFromID(std::string_view ID_);
 
-	std::string getDisplayedPropertyString() const;
+	Util::Vector<n_pair<std::string>> getDisplayedProperties() const;
 };
 
 template <class T, class Base>

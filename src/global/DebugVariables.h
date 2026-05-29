@@ -26,7 +26,7 @@ private:
 	struct Entry {
 		void* ptr{};
 		const void* typeId{};
-		std::unique_ptr<HolderBase> holder{};
+		n_unique<HolderBase> holder{};
 	};
 
 	static Util::StrMap<Entry>& vars() {
@@ -72,7 +72,6 @@ public:
 
 	// 从全局访问这个Debug变量。在无key时返回null。
 	// 如果有key且访问时使用的T不匹配，则抛出异常。
-	// 比起type info，应使用高效的方法判断存储类型。比如typeName或者自分配static id。
 	template <class T>
 	static T* get(std::string_view key) {
 		static_assert(!std::is_reference_v<T>, "DebugVariables::get<T> requires T to be a non-reference type.");

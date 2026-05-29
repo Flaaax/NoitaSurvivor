@@ -5,7 +5,7 @@
 
 class NException :public std::exception {
 public:
-	NException(const NString& str, const std::source_location location = std::source_location::current()) :
+	explicit NException(const NString& str, const std::source_location location = std::source_location::current()) :
 		exception((NString("Exception at:") + location_string(location, str.c_str())).c_str()) {
 	}
 
@@ -19,7 +19,7 @@ public:
 
 class NMethodNotImplementedException :public NException {
 public:
-	NMethodNotImplementedException(const std::source_location location = std::source_location::current())
+	explicit NMethodNotImplementedException(const std::source_location location = std::source_location::current())
 		:NException("Method not implemented", location) {
 	}
 };

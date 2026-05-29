@@ -3,7 +3,10 @@
 #pragma warning(disable : 4251)
 #include "../utils/Logger.h"
 
-namespace std { namespace filesystem { class path; } }
+namespace std::filesystem {
+	class path;
+}
+
 namespace sf { class Font; class Texture; class SoundBuffer; class Sound; }
 
 

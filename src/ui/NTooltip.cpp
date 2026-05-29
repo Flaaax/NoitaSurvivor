@@ -32,35 +32,35 @@ void NTooltip::updateLayout() {
 	frame.size = layout;
 }
 
-void NTooltip::setContent(const NTooltipSpec& spec, const NTooltipStyle& style) {
-	if (spec.iconTexture) {
-		sprite.emplace(*spec.iconTexture);
-		const nvec2 textureSize = static_cast<nvec2>(sprite->getTexture().getSize());
-		const nvec2 scale = spec.iconSize / textureSize;
-		sprite->setScale(scale);
-	} else {
-		sprite.reset();
-	}
-
-	textLines.clear();
-	hasTitle = false;
-
-	if (!spec.title.empty()) {
-		hasTitle = true;
-		textLines.emplace_back(*style.font, spec.title, style.titleSize);
-	}
-
-	for (const u64 i : spec.contents.indices()) {
-		const auto& text = spec.contents[i];
-		textLines.emplace_back(*style.font, text, style.contentSize);
-	}
-
-	if (!spec.flavor.empty()) {
-		textLines.emplace_back(*style.font, spec.flavor, style.flavorSize);
-	}
-
-	updateLayout();
-}
+// void NTooltip::setContent(const NTooltipSpec& spec, const NStyle& style) {
+// 	if (spec.iconTexture) {
+// 		sprite.emplace(*spec.iconTexture);
+// 		const nvec2 textureSize = static_cast<nvec2>(sprite->getTexture().getSize());
+// 		const nvec2 scale = spec.iconSize / textureSize;
+// 		sprite->setScale(scale);
+// 	} else {
+// 		sprite.reset();
+// 	}
+//
+// 	textLines.clear();
+// 	hasTitle = false;
+//
+// 	if (!spec.title.empty()) {
+// 		hasTitle = true;
+// 		textLines.emplace_back(*style.font, spec.title, style.titleSize);
+// 	}
+//
+// 	for (const u64 i : spec.contents.indices()) {
+// 		const auto& text = spec.contents[i];
+// 		textLines.emplace_back(*style.font, text, style.contentSize);
+// 	}
+//
+// 	if (!spec.flavor.empty()) {
+// 		textLines.emplace_back(*style.font, spec.flavor, style.flavorSize);
+// 	}
+//
+// 	updateLayout();
+// }
 
 void NTooltip::draw(const NCanvas& canvas) const {
 	sf::RectangleShape background;

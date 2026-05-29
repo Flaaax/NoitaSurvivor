@@ -2,6 +2,8 @@
 
 #include "src/global/AssetManager.h"
 #include "src/ui/NTooltip.h"
+#include "src/ui/elements/NPanel.h"
+#include "src/ui/global/NGlobalVariables.h"
 #include "src/ui/render/NCanvas.h"
 
 bool NRootWidget::handleDragEvent(const NEventCtx& event) {
@@ -103,7 +105,8 @@ bool NRootWidget::shouldHandleEvent(const NEventCtx& ctx) {
 }
 
 void NRootWidget::updateTooltipContent() {
-	tooltip->setContent(*hoverState.target->tooltipSpec, style.tooltipStyle);
+	tooltip->setSize({hoverState.target->tooltipSpec.width, 0});
+	tooltip->setLayout(hoverState.target->tooltipSpec.builder(style, hoverState.target));
 	hoverState.tooltipDirty = false;
 }
 
@@ -127,9 +130,9 @@ void NRootWidget::updateHover(float dt) {
 		hoverState.hoveredTime += dt;
 	}
 
-	if (hoverState.hoveredTime >= hoverState.hoverIntentDelay && hoverState.target->tooltipSpec) {
+	if (hoverState.hoveredTime >= hoverState.hoverIntentDelay && hoverState.target->tooltipSpec.builder) {
 		if (!tooltip) {
-			tooltip = Util::makeUnique(new NTooltip());
+			tooltip = std::make_unique<NPanel>();
 			updateTooltipContent();
 		} else if (hoverState.tooltipDirty) {
 			updateTooltipContent();
@@ -141,10 +144,9 @@ void NRootWidget::updateHover(float dt) {
 	}
 }
 
-NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_) : NWidget(geometry, updateEnabled_) {
+NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_)
+	: NWidget(geometry, updateEnabled_), style({.font = NGlobalVariables::getDefaultFont()}) {
 	hoverState.hoverIntentDelay = 0.22f;
-	style.font = &AssetMgr::getDefaultFont();
-	style.tooltipStyle.font = style.font;
 }
 
 void NRootWidget::draw(Renderer& rdr) const {
@@ -163,3 +165,7 @@ void NRootWidget::update(float dt) {
 	updateHover(dt);
 	NWidget::update(dt);
 }
+
+// void NRootWidget::setStyle(NStyle style) {
+// 	this->style = style;
+// }

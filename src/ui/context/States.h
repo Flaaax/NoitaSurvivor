@@ -1,7 +1,10 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Vector.h"
-#include "src/utils/Integers.h"
+#include "src/utils/Pointer.h"
+
+class NLayout;
+struct NStyle;
 
 namespace sf {
 	class Texture;
@@ -36,13 +39,10 @@ struct NHoverState {
 	bool tooltipDirty = true;
 };
 
+using NTooltipBuilder = n_unique<NLayout> (*)(const NStyle& style, NObject* self);
+
 struct NTooltipSpec {
-	const sf::Texture* iconTexture{};
-	nvec2 iconSize{};
-
-	std::string title{};
-	Util::Vector<std::string> contents;
-	std::string flavor{};
-
+	NTooltipBuilder builder{};
+	float width = 200.f;
 	bool shouldUpdate{};
 };

@@ -6,7 +6,7 @@ class Spell;
 class NSpellInventory;
 
 class NSpell : public NObject {
-private:
+protected:
 	friend class NSpellInventory;
 	bool isReleased{};
 
@@ -16,9 +16,10 @@ private:
 	float rotation{};
 	float t{};
 
-	//bool isHovered{};
+	// bool isHovered{};
 
 	void updateTooltipSpec();
+	static n_unique<NLayout> tooltipBuilder(const NStyle& style, NObject* self);
 
 public:
 	static constexpr nvec2 slotSize = {45.f, 45.f};

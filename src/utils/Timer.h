@@ -27,11 +27,7 @@ public:
 
 	template<typename Func = callback_t> requires std::convertible_to<Func, callback_t>
 	explicit CTimer(float duration, Func&& onTimeout = {})
-		:m_duration(Util::max(duration, MIN_DURATION)), m_onTimeout(std::forward<Func>(onTimeout)) {
-	}
-
-	~CTimer() {
-		pause();
+		: m_onTimeout(std::forward<Func>(onTimeout)), m_duration(Util::max(duration, MIN_DURATION)) {
 	}
 
 	template<typename Func = callback_t> requires std::convertible_to<Func, callback_t>
@@ -118,10 +114,6 @@ public:
 		*this = other;
 		other.clear();
 		return *this;
-	}
-
-	~Timer() {
-		pause();
 	}
 
 	Timer& set(float duration) {

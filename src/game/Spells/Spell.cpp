@@ -40,7 +40,7 @@ static std::string toDisplayString(T value) {
 
 #define ADD_DISPLAY_PROPERTY(item, defaultVal) \
 	if (item != defaultVal)                    \
-		ret += Util::format("\n{}{:>20}", get(Util::pascalToSnake(#item)), toDisplayString(item));
+		ret.emplace_back(get(Util::pascalToSnake(#item)), toDisplayString(item));
 
 #define ITERATE_SPELL_PROPERTIES(fn) \
 	fn(drawModifier, 0);             \
@@ -54,12 +54,12 @@ static std::string toDisplayString(T value) {
 	fn(projectiles, 1);              \
 	fn(lifeTime, -1.f)
 
-std::string Spell::getDisplayedPropertyString() const {
+Util::Vector<n_pair<std::string>> Spell::getDisplayedProperties() const {
 	constexpr auto get = [](std::string_view key) {
 		return LocManager::inst().debugGetString("spell_properties", key, true);
 	};
-	std::string ret;
-	ret += Util::format("{}{:>20}", get("kind"), get(Util::pascalToSnake(magic_enum::enum_name(kind))));
+	Util::Vector<n_pair<std::string>> ret{};
+	ret.emplace_back(get("kind"), get(Util::pascalToSnake(magic_enum::enum_name(kind))));
 	ITERATE_SPELL_PROPERTIES(ADD_DISPLAY_PROPERTY);
 
 	return ret;

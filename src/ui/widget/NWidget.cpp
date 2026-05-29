@@ -64,6 +64,10 @@ n_unique<NObject> NWidget::remove(const NObject* target) {
 	return removed;
 }
 
+void NWidget::clear() {
+	objects = {};
+}
+
 void NWidget::onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 	for (const auto& obj : objects) {
 		if (obj->isVisible) {

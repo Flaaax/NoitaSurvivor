@@ -59,6 +59,7 @@ public:
 	}
 
 	n_unique<NObject> remove(const NObject* target);
+	void clear();
 
 	void moveToTop(const NObject* obj) {
 		assertWithMsg(has(obj), "Does not own current object");

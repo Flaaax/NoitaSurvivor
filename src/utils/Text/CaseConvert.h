@@ -2,12 +2,12 @@
 #include <string>
 
 namespace Util {
-	constexpr bool is_ascii_upper(char c) {
+	constexpr bool isASCIIUpper(char c) {
 		return c >= 'A' && c <= 'Z';
 	}
 
-	constexpr char ascii_lower(char c) {
-		return is_ascii_upper(c) ? static_cast<char>(c - 'A' + 'a') : c;
+	constexpr char ASCIILower(char c) {
+		return isASCIIUpper(c) ? static_cast<char>(c - 'A' + 'a') : c;
 	}
 
 	inline std::string pascalToSnake(std::string_view text) {
@@ -15,12 +15,12 @@ namespace Util {
 		result.reserve(text.size());
 
 		for (const char c : text) {
-			if (is_ascii_upper(c)) {
+			if (isASCIIUpper(c)) {
 				if (!result.empty()) {
 					result.push_back('_');
 				}
 
-				result.push_back(ascii_lower(c));
+				result.push_back(ASCIILower(c));
 			} else {
 				result.push_back(c);
 			}
