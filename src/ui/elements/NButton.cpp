@@ -1,14 +1,28 @@
-
 #include "NButton.h"
+
 #include "../NWindow.h"
 #include "../render/NCanvas.h"
-#include "src/global/AssetManager.h"
+#include "NRichText.h"
+#include "src/ui/layout/NBoxLayout.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
-NButton::NButton(nrect geometry) : text(AssetMgr::getDefaultFont()) {
-	this->frame = geometry;
-	text.setFillColor({0, 0, 0});
+NButton::NButton(nrect geometry) {
+	setFrame(geometry);
+
+	sizePolicy = Fixed;
+
+	auto layout = std::make_unique<NVBoxLayout>();
+	layout->widthPolicy = NVBoxLayout::Fill;
+	layout->alignY = NVBoxLayout::Center;
+	layout->alignX = NVBoxLayout::Center;
+
+	auto text = std::make_unique<NRichText>();
+	this->text = text.get();
+
+	layout->add(text | Util::move);
+
+	setLayout(layout | Util::move);
 }
 
 std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
@@ -24,17 +38,22 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 	} else if (rawEvent.is<sf::Event::MouseButtonPressed>()) {
 		if (frame.contains(event.localCtx.mouseLocal)) {
 			state = Pressed;
+			isActuallyPressed = true;
 			return NEventResult{this, NEventResult::Pressed{}};
 		}
 	} else if (rawEvent.is<sf::Event::MouseButtonReleased>()) {
 		if (frame.contains(event.localCtx.mouseLocal)) {
 			state = Hovered;
-			if (onClick) {
-				onClick();
+			if (isActuallyPressed) {
+				if (onClick) {
+					onClick();
+				}
+				isActuallyPressed = false;
+				return NEventResult{this, NEventResult::Clicked{}};
 			}
-			return NEventResult{this, NEventResult::Clicked{}};
 		}
 		state = Normal;
+		isActuallyPressed = false;
 	}
 	return {};
 }
@@ -55,19 +74,11 @@ void NButton::draw(const NCanvas& canvas) const {
 		canvas.draw(shape);
 	}
 
-	if (!text.getString().isEmpty()) {
-		nrect bounds = text.getGlobalBounds();
-		bounds.setCenter(getLocalBounds().center());
-		text.setPosition(bounds.position);
-		canvas.draw(text);
-	}
+	NPanel::draw(canvas);
 }
 
-sf::Text& NButton::getText() const {
-	return text;
-}
-
-void NButton::setText(const NString& text, unsigned int characterSize) const {
-	this->text.setString(text);
-	this->text.setCharacterSize(characterSize);
+void NButton::setText(std::string_view text, u32 characterSize) {
+	this->text->text.setString(text);
+	this->text->text.setCharacterSize(characterSize);
+	refreshLayout();
 }

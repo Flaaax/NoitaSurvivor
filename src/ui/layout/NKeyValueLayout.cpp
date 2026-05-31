@@ -32,8 +32,8 @@ void NKeyValueLayout::onArrange(nrect allocation) {
 	const float maxWidth = getSize().x - padding.hLength();
 
 	struct Item {
-		float keyWidth{};
-		float valueWidth{};
+		nvec2 keySize{};
+		nvec2 valueSize{};
 		float height{};
 		NObject* key{};
 		NObject* value{};
@@ -57,16 +57,17 @@ void NKeyValueLayout::onArrange(nrect allocation) {
 		const nvec2 valueSize = value->measure({{}, {maxWidth - keySize.x, nmath::inf}}).size;
 
 		const float rowHeight = std::max(keySize.y, valueSize.y);
-		items.emplace_back(Item{keySize.x, valueSize.x, rowHeight, key, value});
+		items.emplace_back(Item{keySize, valueSize, rowHeight, key, value});
 		maxValueWidth = std::max(valueSize.x, maxValueWidth);
 	}
 
 	float cursorY = padding.top;
 
 	for (const auto& item : items) {
-		item.key->arrange({{padding.left, cursorY}, {item.keyWidth, item.height}});
-		item.value->arrange({{getSize().x - maxValueWidth - padding.right, cursorY}, {item.valueWidth, item.height}});
+		cursorY += item.height;
+		item.key->arrange(nrect{{padding.left, cursorY}, item.keySize}.setBottom(cursorY));
+		item.value->arrange(nrect{{getSize().x - maxValueWidth - padding.right, cursorY}, item.valueSize}.setBottom(cursorY));
 
-		cursorY += spacing + item.height;
+		cursorY += spacing;
 	}
 }

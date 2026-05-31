@@ -6,7 +6,8 @@
 #include "../utils/Timer.h"
 #include "NScene.h"
 #include "NText.h"
-#include "global/NGlobalVariables.h"
+#include "elements/NRichText.h"
+#include "global/NGlobal.h"
 #include "global/NInput.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -94,7 +95,7 @@ NWindow::NWindow() {
 		Logger::error("Imgui-SFML Update font texture failed!");
 	}
 
-	NGlobalVariables::setDefaultFont(AssetMgr::getDefaultFont());
+	NGlobal::setDefaultFont(AssetMgr::getDefaultFont());
 
 	updateWindowSize();
 
@@ -119,14 +120,13 @@ int NWindow::loop() {
 	sceneManager.setCurrentScene("menu_scene");
 
 	auto& font = AssetMgr::getFont("msyh");
-	auto text = new NLineText(font);
+	auto text = new NRichText(font);
 	text->setPosition({0, 0});
-	text->sfText.setFillColor(sf::Color::Black);
-	text->setSize(2);
+	text->text.setCharacterSize(2);
 	CTimer fpsCalcTimer(1.f, [&] {
 		const float total = std::accumulate(frameTimes.begin(), frameTimes.end(), 0.F);
 		averageFPS = static_cast<float>(frameTimes.size()) / total;
-		(*text)[0] = (std::format("FPS: {}", static_cast<int>(trunc(averageFPS))));
+		text->text.setString(std::format("FPS: {}", static_cast<u32>(trunc(averageFPS))));
 	});
 	fpsCalcTimer.start(CTimer::infinite_trigger);
 

@@ -53,9 +53,12 @@ public:
 	void setTabSize(u32 spaces);
 	void setTime(float seconds);
 
+	void setDefaultColor(sf::Color color);
+
 	Util::TextStyle getDefaultStyle() const;
 	void setDefaultStyle(Util::TextStyle style);
 
 	nvec2 getLayoutSize() const;
+	nrect getGlobalLayout()const;
 	// nrect getVisualLayout() const;
 };

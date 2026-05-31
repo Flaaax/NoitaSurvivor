@@ -4,7 +4,7 @@ namespace sf {
 	class Font;
 }
 
-class NGlobalVariables {
+class NGlobal {
 private:
 	inline static const sf::Font* defaultFont{};
 

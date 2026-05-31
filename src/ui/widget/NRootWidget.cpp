@@ -3,7 +3,7 @@
 #include "src/global/AssetManager.h"
 #include "src/ui/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
-#include "src/ui/global/NGlobalVariables.h"
+#include "src/ui/global/NGlobal.h"
 #include "src/ui/render/NCanvas.h"
 
 bool NRootWidget::handleDragEvent(const NEventCtx& event) {
@@ -133,6 +133,7 @@ void NRootWidget::updateHover(float dt) {
 	if (hoverState.hoveredTime >= hoverState.hoverIntentDelay && hoverState.target->tooltipSpec.builder) {
 		if (!tooltip) {
 			tooltip = std::make_unique<NPanel>();
+			tooltip->backgroundColor = {160, 160, 160};
 			updateTooltipContent();
 		} else if (hoverState.tooltipDirty) {
 			updateTooltipContent();
@@ -145,7 +146,7 @@ void NRootWidget::updateHover(float dt) {
 }
 
 NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_)
-	: NWidget(geometry, updateEnabled_), style({.font = NGlobalVariables::getDefaultFont()}) {
+	: NWidget(geometry, updateEnabled_), style({.font = NGlobal::getDefaultFont()}) {
 	hoverState.hoverIntentDelay = 0.22f;
 }
 

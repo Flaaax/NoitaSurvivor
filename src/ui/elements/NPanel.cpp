@@ -18,17 +18,26 @@ void NPanel::draw(const NCanvas& canvas) const {
 
 void NPanel::setLayout(n_unique<NLayout> layout) {
 	clear();
-	const auto layout_ = layout.get();
 	this->addToTop(std::move(layout));
-	nvec2 backgroundSize = getSize();
-	const nvec2 maxSize = {getSize().x, nmath::inf};
-	backgroundSize = layout_->measure({{}, maxSize}).size;
-	layout_->arrange({{}, backgroundSize});
-	setSize(backgroundSize);
+	refreshLayout();
+}
+
+void NPanel::refreshLayout() {
+	const auto layout = getLayout();
+	if (sizePolicy == Auto) {
+		const nvec2 maxSize = {getSize().x, nmath::inf};
+		const nvec2 backgroundSize = layout->measure({{}, maxSize}).size;
+		layout->arrange({{}, backgroundSize});
+		setSize(backgroundSize);
+	} else {
+		const nvec2 backgroundSize = layout->measure({{}, getSize()}).size;
+		layout->arrange({{}, backgroundSize});
+	}
+
 	visualDirty = false;
 }
 
-NObject* NPanel::getLayout() const {
+NLayout* NPanel::getLayout() const {
 	auto objects = getObjects();
-	return objects.empty() ? nullptr : objects.front();
+	return static_cast<NLayout*>(objects.empty() ? nullptr : objects.front());
 }

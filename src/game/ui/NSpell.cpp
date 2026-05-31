@@ -25,13 +25,16 @@ n_unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
 	auto& loc = nspell->spell->getLoc();
 
 	auto layout = std::make_unique<NVBoxLayout>();
-	layout->setPadding({10, 10, 10, 10});
-	layout->setSpacing(5.f);
+	layout->setPadding({10, 10, 10, 5});
+	layout->setSpacing(6.f);
 
 	auto titleLayout = std::make_unique<NHBoxLayout>();
 	auto image = std::make_unique<NImage>(nspell->spell->getTexture());
 	image->setSize(slotSize);
+	image->setOutlineColor({0, 0, 0});
+	image->setOutlineWidth(3.f);
 	titleLayout->add(image | move);
+
 	auto title = std::make_unique<NRichText>(style.font, loc.title, 30u);
 	titleLayout->add(title | move);
 	titleLayout->alignY = NHBoxLayout::Center;
@@ -42,6 +45,7 @@ n_unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
 	auto description = std::make_unique<NRichText>(style.font, loc.description, 25u);
 	layout->add(description | move);
 	auto layout1 = std::make_unique<NKeyValueLayout>();
+	layout1->setSpacing(1.f);
 
 	const auto properties = nspell->spell->getDisplayedProperties();
 	for (auto& [key, val] : properties) {
@@ -53,8 +57,14 @@ n_unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
 
 	layout->add(layout1 | move);
 
-	auto flavorText = std::make_unique<NRichText>(style.font, loc.flavor, 23u);
-	layout->add(flavorText | move);
+	auto flavorLayout = std::make_unique<NVBoxLayout>();
+	flavorLayout->alignX = NVBoxLayout::Center;
+	flavorLayout->widthPolicy = NVBoxLayout::Fill;
+	flavorLayout->setPadding({0, 0, 0, 0});
+
+		auto flavorText = std::make_unique<NRichText>(style.font, loc.flavor, 23u);
+	flavorLayout->add(flavorText | move);
+	layout->add(flavorLayout | move);
 
 	return layout | move;
 }

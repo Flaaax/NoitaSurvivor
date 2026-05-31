@@ -7,7 +7,6 @@
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 #ifdef _DEBUG
 inline constexpr bool n_debug_log = true;
@@ -162,46 +161,46 @@ public:
 //
 //	static NAsyncLogger& logger() { return FileLogger::inst().m_logger; }
 // };
+//
+// class FileLogger : public SharedSingleton<FileLogger> {
+// 	N_DECL_SINGLETON(FileLogger);
+//
+// private:
+// 	FileLogger() {
+// 	}
+//
+// 	~FileLogger() {
+// 	}
+//
+// 	template <typename Level, typename... Args>
+// 	void log_dual(Level level, const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 		// Logger::inst().logger()->log(level, fmt, std::forward<Args>(args)...);
+// 	}
+//
+// public:
+// 	template <typename... Args>
+// 	static void info(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+//
+// 	template <typename... Args>
+// 	static void warn(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+//
+// 	template <typename... Args>
+// 	static void error(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+//
+// 	template <typename... Args>
+// 	static void trace(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+//
+// 	template <typename... Args>
+// 	static void critical(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+//
+// 	template <typename... Args>
+// 	static void debug(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
+// 	}
+// };
 
-class FileLogger : public SharedSingleton<FileLogger> {
-	N_DECL_SINGLETON(FileLogger);
-
-private:
-	FileLogger() {
-	}
-
-	~FileLogger() {
-	}
-
-	template <typename Level, typename... Args>
-	void log_dual(Level level, const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-		// Logger::inst().logger()->log(level, fmt, std::forward<Args>(args)...);
-	}
-
-public:
-	template <typename... Args>
-	static void info(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-
-	template <typename... Args>
-	static void warn(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-
-	template <typename... Args>
-	static void error(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-
-	template <typename... Args>
-	static void trace(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-
-	template <typename... Args>
-	static void critical(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-
-	template <typename... Args>
-	static void debug(const spdlog::format_string_t<Args...>& fmt, Args&&... args) {
-	}
-};
-
-#endif // ifndef LOGGER_H
+#endif // _MYLOGGER_H

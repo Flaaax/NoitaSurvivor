@@ -33,6 +33,11 @@ public:
 		return addToTop(std::move(obj));
 	}
 
+	// template <std::derived_from<NObject> T>
+	// T* add(n_unique<T> obj) {
+	// 	return static_cast<T*>(this->add(std::move(obj)));
+	// }
+
 	NObject* addToTop(n_unique<NObject> obj) {
 		assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 		bind(obj.get());

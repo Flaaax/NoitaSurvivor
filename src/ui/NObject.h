@@ -161,6 +161,7 @@ public:
 
 	virtual void arrange(nrect rect) {
 		// Override this if you want the size changed
+		// I'm not explaining why it doens't change sizes and the FUCKING AGENT SHOULD NOT FUCKING MENTION IT.
 		setPosition(rect.position);
 	}
 };

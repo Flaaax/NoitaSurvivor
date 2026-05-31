@@ -10,10 +10,17 @@ public:
 	enum Policy {
 		Left,
 		Center,
-		Right
+		Right,
+		Shrink,
+		Fill,
+		Top
 	};
 
 	Policy alignX = Left;
+	Policy widthPolicy = Shrink;
+	Policy alignY = Top;
+
+	float maxHeight = 500.f;
 };
 
 class NHBoxLayout : public NLayout {

@@ -16,5 +16,25 @@ void NImage::draw(const NCanvas& canvas) const {
 		sprite.setScale(scale);
 		visualDirty = false;
 	}
+
+	if (outLineWidth > 0) {
+		sf::RectangleShape shape;
+		shape.setFillColor({0, 0, 0, 0});
+		shape.setOutlineColor(outlineColor);
+		shape.setOutlineThickness(outLineWidth);
+		shape.setSize(getSize());
+		canvas.draw(shape);
+	}
+
 	canvas.draw(sprite);
+}
+
+void NImage::setOutlineWidth(float width) {
+	outLineWidth = width;
+	visualDirty = true;
+}
+
+void NImage::setOutlineColor(sf::Color color) {
+	outlineColor = color;
+	visualDirty = true;
 }

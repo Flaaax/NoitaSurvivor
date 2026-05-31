@@ -1,16 +1,20 @@
 #pragma once
 
 #include "src/ui/NObject.h"
+#include "src/ui/elements/NPanel.h"
+#include "src/ui/shapes/NRichTextShape.h"
 
-#include <SFML/Graphics/Text.hpp>
+class NRichText;
 
-
-class MaterialBar :public NObject {
+class MaterialBar : public NObject {
 private:
+	inline static std::string format{};
 	int material = 0;
 	nvec2 rightTop;
 	float height;
-	mutable sf::Text text;
+	mutable NRichTextShape text;
+
+	void updateText();
 
 public:
 	MaterialBar(nvec2 rightTop, float height);
@@ -19,8 +23,6 @@ public:
 		this->material = material;
 		updateText();
 	}
-
-	void updateText();
 
 	void draw(const NCanvas& canvas) const override;
 };

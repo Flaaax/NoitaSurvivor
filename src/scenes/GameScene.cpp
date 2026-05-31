@@ -7,9 +7,11 @@
 #include "src/game/ui/NSpellInventory.h"
 #include "src/game/ui/ValueBar.h"
 #include "src/ui/NText.h"
+#include "src/ui/elements/NRichText.h"
+
 #include <src/utils/Logger.h>
 
-NText* pauseText{};
+NRichText* pauseText{};
 MaterialBar* materialBar{};
 ValueBar* expBar{};
 
@@ -119,8 +121,9 @@ void GameScene::initUI() {
 
 	// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
 
-	pauseText = new NText("游戏暂停", NText::Center, 30U);
-	pauseText->setFrame({0, 0, windowSize.x, windowSize.y / 4.f});
+	pauseText = new NRichText("游戏暂停", 30U);
+	pauseText->alignCenter = true;
+	pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
 	pauseText->isVisible = false;
 	widget->add(Util::makeUnique(pauseText));
 }

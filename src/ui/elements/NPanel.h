@@ -6,19 +6,23 @@
 
 class NPanel : public NWidget {
 protected:
-	NObject* getLayout() const;
+	NLayout* getLayout() const;
 
 public:
 	enum Policy {
-		ExpandBottom
+		ExpandBottom,
+		Auto,
+		Fixed
 	};
 
 	Policy policy = ExpandBottom; // Not supported
+	Policy sizePolicy = Auto;
 
-	sf::Color backgroundColor = {160, 160, 160};
+	sf::Color backgroundColor = sf::Color::Transparent;
 	sf::Color outlineColor = {120, 120, 120};
 	float outlineThickness = 2.f;
 
 	void draw(const NCanvas& canvas) const override;
 	void setLayout(n_unique<NLayout> layout);
+	void refreshLayout();
 };

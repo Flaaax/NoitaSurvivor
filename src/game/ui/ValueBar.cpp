@@ -1,22 +1,26 @@
+// ReSharper disable CppDFANullDereference
 #include "ValueBar.h"
 #include "../../utils/Text/NString.h"
-#include "src/global/AssetManager.h"
+#include "src/global/LocManager.h"
+#include "src/ui/elements/NRichText.h"
+#include "src/ui/global/NGlobal.h"
+#include "src/ui/layout/NBoxLayout.h"
 #include "src/ui/render/NCanvas.h"
+#include "src/utils/Text/Format.h"
 
 ValueBar::ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengthPerHealth, int mode)
 	: m_initialHealth(initialMaxHealth),
 	  m_initialLength(size.x),
 	  lengthPerHealth(lengthPerHealth),
 	  m_right(topRight.x),
-	  mode(mode), text(AssetMgr::getDefaultFont()) {
-	setHealth(initialMaxHealth);
-	setMaxHealth(initialMaxHealth);
+	  mode(mode), text(NGlobal::getDefaultFont(), "", static_cast<unsigned int>(size.y * 0.9)) {
 	frame.size = size;
 	frame.setRightTop(topRight);
 
-	text.setFillColor({240, 240, 240});
-	text.setOutlineColor({0, 0, 0});
-	text.setCharacterSize(static_cast<unsigned int>(size.y * 0.9));
+	auto style = text.getDefaultStyle();
+	style.color = {240, 240, 240};
+	style.effects.add(Util::TextEffect::Bold);
+	text.setDefaultStyle(style);
 
 	backGroundShape.setFillColor(sf::Color::Black);
 	backGroundShape.setRadius(6);
@@ -26,15 +30,20 @@ ValueBar::ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengt
 	} else if (mode == 1) {
 		healthShape.setFillColor({0, 210, 0});
 	}
-	text.setOutlineThickness(1.f);
-	text.setStyle(sf::Text::Bold);
+
+	setHealth(initialMaxHealth);
+	setMaxHealth(initialMaxHealth);
 }
 
 void ValueBar::updateText() {
 	if (mode == 1) {
-		text.setString(NString("等级{}", level));
+		if (format.empty()) {
+			const auto levelString = LocManager::inst().debugGetString("ui", "level");
+			format = levelString + "{}";
+		}
+		text.setString(Util::format(format, level));
 	} else if (mode == 0) {
-		text.setString(NString("{} / {}", m_health, m_maxHealth));
+		text.setString(Util::format("{} / {}", m_health, m_maxHealth));
 	}
 }
 
@@ -56,8 +65,8 @@ void ValueBar::draw(const NCanvas& canvas) const {
 	canvas.draw(healthBarShape);
 	canvas.draw(healthShape);
 
-	nrect textRect = text.getGlobalBounds();
-	nvec2 pos = textRect.setCenter(posRect.center()).position;
+	const nvec2 textSize = text.getLayoutSize();
+	nvec2 pos = nrect::fromCenter(posRect.center(), textSize).position;
 	pos.y -= 0.5f;
 	text.setPosition(pos);
 	canvas.draw(text);

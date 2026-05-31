@@ -39,6 +39,11 @@ void NRichTextShape::setTime(float seconds) {
 	layoutDirty = true;
 }
 
+void NRichTextShape::setDefaultColor(sf::Color color) {
+	m_defaultStyle.color = color;
+	layoutDirty = true;
+}
+
 const sf::Font& NRichTextShape::getFont() const {
 	return *m_font;
 }
@@ -75,6 +80,10 @@ void NRichTextShape::setDefaultStyle(Util::TextStyle style) {
 nvec2 NRichTextShape::getLayoutSize() const {
 	rebuildCache();
 	return m_layoutSize;
+}
+
+nrect NRichTextShape::getGlobalLayout() const {
+	return getTransform().transformRect({{}, getLayoutSize()});
 }
 
 // nrect NRichTextShape::getVisualLayout() const {
@@ -373,11 +382,15 @@ void NRichTextShape::appendQuad(nquad quad, nrect textureRect, sf::Color color) 
 }
 
 void NRichTextShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	if (!m_font || m_vertices.empty()) {
+	if (!m_font) {
 		return;
 	}
 
 	rebuildCache();
+
+	if (m_vertices.empty()) {
+		return;
+	}
 
 	states.transform *= getTransform();
 	states.texture = &m_font->getTexture(m_characterSize);

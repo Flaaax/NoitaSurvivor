@@ -1,14 +1,11 @@
 #pragma once
 #pragma warning(push)
 #pragma warning(disable : 4251)
-#include "../utils/Logger.h"
 
-namespace std::filesystem {
-	class path;
-}
-
-namespace sf { class Font; class Texture; class SoundBuffer; class Sound; }
-
+namespace sf {
+	class Font;
+	class Texture;
+} // namespace sf
 
 class AssetMgr {
 public:
@@ -21,6 +18,5 @@ public:
 	static const sf::Texture& getSpriteTexture(std::string_view name);
 	static void init();
 };
-
 
 #pragma warning(pop)

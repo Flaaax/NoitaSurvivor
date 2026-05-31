@@ -17,6 +17,6 @@ public:
 
 	// Do anything to the original data
 	virtual void modifyShot(std::vector<ShotData>& data) {
-		throw NMethodNotImplementedException();
+		//throw NMethodNotImplementedException();
 	}
 };

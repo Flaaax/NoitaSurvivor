@@ -3,6 +3,8 @@
 NLayoutResult NVBoxLayout::onMeasure(NLayoutConstraint constraint) {
 	// TODO minSize ignored
 	auto [minSize, maxSize] = constraint;
+
+	maxSize.y = std::min(maxSize.y, maxHeight);
 	const auto contentMaxSize = maxSize - padding.size();
 
 	const NLayoutConstraint childConstraint{
@@ -29,6 +31,15 @@ NLayoutResult NVBoxLayout::onMeasure(NLayoutConstraint constraint) {
 		isFirst = false;
 	}
 
+	if (alignY == Center) {
+		layout.y = maxSize.y;
+	}
+
+	if (widthPolicy == Fill) {
+		return {{maxSize.x, layout.y + padding.vLength()}};
+	}
+
+	// Fallback Policy: Shrink
 	return {layout + padding.size()};
 }
 
@@ -71,6 +82,9 @@ void NVBoxLayout::onArrange(nrect allocation) {
 		first = false;
 	}
 
+	const float yTotal = cursorY - padding.top;
+	cursorY = padding.top + contentSize.y / 2.f - yTotal / 2.f;
+
 	for (auto [y, size, child] : children) {
 		nrect arrange = {{padding.left, y}, size};
 		if (alignX == Left) {
@@ -80,6 +94,12 @@ void NVBoxLayout::onArrange(nrect allocation) {
 		} else if (alignX == Center) {
 			arrange.setXCenter(padding.left + contentSize.x / 2.f);
 		}
+
+		if (alignY == Center) {
+			arrange.position.y = cursorY;
+			cursorY += size.y;
+		}
+
 		child->arrange(arrange);
 	}
 

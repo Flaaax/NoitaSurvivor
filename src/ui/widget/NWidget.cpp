@@ -7,6 +7,7 @@
 void NWidget::bind(NObject* obj) {
 	assertNotNull(obj);
 	assertWithMsg(!obj->parent, "Object already has parent; remove it explicitly first.");
+	assertWithMsg(obj != this, "Cannot add a widget to itself!");
 	obj->parent = this;
 }
 

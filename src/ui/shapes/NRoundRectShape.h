@@ -4,8 +4,17 @@
 #include <vector>
 
 class NRoundRectShape : public sf::Shape {
+private:
+	mutable std::vector<nvec2> m_points;
+	nvec2 m_size;
+	float m_radius;
+	size_t m_segments = 10; // Rounded-corner segment count.
+
+	void updatePoints();
+
 public:
 	explicit NRoundRectShape() : m_radius(0) {}
+
 	explicit NRoundRectShape(nvec2 size, float radius)
 		: m_size(size), m_radius(radius) {
 		updatePoints();
@@ -34,12 +43,4 @@ public:
 		m_radius = radius;
 		updatePoints();
 	}
-
-private:
-	void updatePoints();
-
-	nvec2 m_size;
-	float m_radius;
-	std::vector<nvec2> m_points;
-	size_t m_segments = 10; // Rounded-corner segment count.
 };

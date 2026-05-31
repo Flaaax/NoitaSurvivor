@@ -1,9 +1,13 @@
 #pragma once
 
-#include "src/ui/shapes/NRoundRectShape.h"
 #include "src/ui/NObject.h"
+#include "src/ui/elements/NPanel.h"
+#include "src/ui/shapes/NRichTextShape.h"
+#include "src/ui/shapes/NRoundRectShape.h"
 
 #include <SFML/Graphics.hpp>
+
+class NRichText;
 
 // Used for both health bar and exp bar
 class ValueBar : public NObject {
@@ -25,8 +29,9 @@ private:
 	mutable NRoundRectShape backGroundShape;
 	mutable sf::RectangleShape healthBarShape;
 	mutable sf::RectangleShape healthShape;
-	mutable sf::Text text;
+	mutable NRichTextShape text;
 
+	inline static std::string format{};
 public:
 	ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengthPerHealth = 2.f, int mode = 0);
 
