@@ -16,20 +16,13 @@ MaterialBar::MaterialBar(nvec2 rightTop, float height)
 	style.effects.add(Util::TextEffect::Bold);
 	text.setDefaultStyle(style);
 	text.setCharacterSize(static_cast<u32>(this->height * 0.9f));
+	text.setOutlineColor({0, 0, 0});
+	text.setOutlineThickness(1.5f);
 
 	if (format.empty()) {
 		const auto materialString = LocManager::inst().debugGetString("ui", "material", true);
 		format = "{}" + materialString;
 	}
-
-	auto text = std::make_unique<NRichText>(NGlobal::getDefaultFont(), "", 30);
-
-	// text.setFillColor({240, 240, 240});
-	// text.setOutlineColor({0, 0, 0});
-	// text.setCharacterSize();
-	//
-	// text.setOutlineThickness(1.f);
-	// text.setStyle(sf::Text::Bold);
 
 	updateText();
 }

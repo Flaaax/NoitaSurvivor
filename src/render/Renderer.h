@@ -33,7 +33,7 @@ public:
 		texture.draw(guiContent, states);
 	}
 
-	void clear(sf::Color color = {0, 0, 0}) {
+	void clear(sf::Color color = {}) {
 		texture.clear(color);
 	}
 

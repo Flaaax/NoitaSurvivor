@@ -86,6 +86,24 @@ nrect NRichTextShape::getGlobalLayout() const {
 	return getTransform().transformRect({{}, getLayoutSize()});
 }
 
+void NRichTextShape::setOutlineThickness(float thickness) {
+	if (thickness == m_outlineThickness) {
+		return;
+	}
+
+	m_outlineThickness = thickness;
+	layoutDirty = true;
+}
+
+void NRichTextShape::setOutlineColor(sf::Color color) {
+	if (color == m_outlineColor || color.a == 0) {
+		return;
+	}
+
+	m_outlineColor = color;
+	layoutDirty = true;
+}
+
 // nrect NRichTextShape::getVisualLayout() const {
 // 	return getTransform().transformRect(m_visualBounds);
 // }
@@ -184,19 +202,26 @@ void NRichTextShape::appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style
 void NRichTextShape::rebuildVertices() const {
 	using namespace Util::Text;
 	m_vertices.clear();
+	m_outlineVertices.clear();
 	m_layoutSize = {};
 
 	if (!m_font || m_sourceUtf8.empty() || m_runs.empty()) {
 		return;
 	}
 
+	const bool needsOutline = m_outlineThickness != 0.f && m_outlineColor.a != 0u;
 	const float lineSpacing = m_font->getLineSpacing(m_characterSize);
 
 	u64 glyphCapacity = 0u;
 	for (const auto& [text, style] : m_runs) {
 		glyphCapacity += text.getSize();
 	}
+
 	m_vertices.reserve(glyphCapacity * 6u);
+
+	if (needsOutline) {
+		m_outlineVertices.reserve(glyphCapacity * 6u);
+	}
 
 	float layoutX{};
 	float layoutY{};
@@ -255,14 +280,28 @@ void NRichTextShape::rebuildVertices() const {
 				x += m_font->getKerning(previous, ch, m_characterSize, false);
 			}
 
-			const auto& drawGlyph = m_font->getGlyph(ch, m_characterSize, run.style.isBold());
+			const bool bold = run.style.isBold();
+
+			if (needsOutline) {
+				const auto& outlineGlyph = m_font->getGlyph(ch, m_characterSize, bold, m_outlineThickness);
+				const nrect outlineBounds = outlineGlyph.bounds;
+
+				if (outlineBounds.size.x != 0.f && outlineBounds.size.y != 0.f) {
+					nquad quad = nquad::fromRect(outlineBounds);
+					quad.offset({x, layoutY});
+					quad = applyStyleToQuad(quad, run.style, glyphIndex);
+					appendQuad(m_outlineVertices, quad, nrect(outlineGlyph.textureRect), m_outlineColor);
+				}
+			}
+
+			const auto& drawGlyph = m_font->getGlyph(ch, m_characterSize, bold);
 			const nrect bounds = drawGlyph.bounds;
 
 			if (bounds.size.x != 0.f && bounds.size.y != 0.f) {
 				nquad quad = nquad::fromRect(bounds);
 				quad.offset({x, layoutY});
 				quad = applyStyleToQuad(quad, run.style, glyphIndex);
-				appendQuad(quad, nrect(drawGlyph.textureRect), run.style.color);
+				appendQuad(m_vertices, quad, nrect(drawGlyph.textureRect), run.style.color);
 			}
 
 			const auto& layoutGlyph = m_font->getGlyph(ch, m_characterSize, false);
@@ -323,12 +362,27 @@ void NRichTextShape::rebuildVertices() const {
 
 	float vertexYOffset{};
 
+
+	const float outline = needsOutline ? std::abs(std::ceil(m_outlineThickness)) : 0.f;
 	if (hasLayoutBounds) {
-		vertexYOffset = -layoutMinY;
-		m_layoutSize = {layoutMaxX, layoutMaxY - layoutMinY};
+		vertexYOffset = -layoutMinY + outline;
+		m_layoutSize = {layoutMaxX + outline * 2.f, layoutMaxY - layoutMinY + outline * 2.f};
 	} else {
-		vertexYOffset = static_cast<float>(m_characterSize);
-		m_layoutSize = {layoutMaxX, static_cast<float>(m_characterSize)};
+		vertexYOffset = static_cast<float>(m_characterSize) + outline;
+		m_layoutSize = {layoutMaxX + outline * 2.f, static_cast<float>(m_characterSize) + outline * 2.f};
+	}
+
+	//
+	// if (hasLayoutBounds) {
+	// 	vertexYOffset = -layoutMinY;
+	// 	m_layoutSize = {layoutMaxX, layoutMaxY - layoutMinY};
+	// } else {
+	// 	vertexYOffset = static_cast<float>(m_characterSize);
+	// 	m_layoutSize = {layoutMaxX, static_cast<float>(m_characterSize)};
+	// }
+
+	for (auto& vertex : m_outlineVertices) {
+		vertex.position.y += vertexYOffset;
 	}
 
 	for (auto& vertex : m_vertices) {
@@ -366,19 +420,19 @@ nquad NRichTextShape::applyStyleToQuad(nquad quad, Util::TextStyle style, u64 gl
 	return ret;
 }
 
-void NRichTextShape::appendQuad(nquad quad, nrect textureRect, sf::Color color) const {
+void NRichTextShape::appendQuad(std::vector<sf::Vertex>& vertices, nquad quad, nrect textureRect, sf::Color color) {
 	const float u1 = textureRect.left();
 	const float v1 = textureRect.top();
 	const float u2 = textureRect.right();
 	const float v2 = textureRect.bottom();
 
-	m_vertices.push_back(sf::Vertex{quad.lt, color, {u1, v1}});
-	m_vertices.push_back(sf::Vertex{quad.lb, color, {u1, v2}});
-	m_vertices.push_back(sf::Vertex{quad.rb, color, {u2, v2}});
+	vertices.push_back(sf::Vertex{quad.lt, color, {u1, v1}});
+	vertices.push_back(sf::Vertex{quad.lb, color, {u1, v2}});
+	vertices.push_back(sf::Vertex{quad.rb, color, {u2, v2}});
 
-	m_vertices.push_back(sf::Vertex{quad.lt, color, {u1, v1}});
-	m_vertices.push_back(sf::Vertex{quad.rb, color, {u2, v2}});
-	m_vertices.push_back(sf::Vertex{quad.rt, color, {u2, v1}});
+	vertices.push_back(sf::Vertex{quad.lt, color, {u1, v1}});
+	vertices.push_back(sf::Vertex{quad.rb, color, {u2, v2}});
+	vertices.push_back(sf::Vertex{quad.rt, color, {u2, v1}});
 }
 
 void NRichTextShape::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -388,11 +442,18 @@ void NRichTextShape::draw(sf::RenderTarget& target, sf::RenderStates states) con
 
 	rebuildCache();
 
-	if (m_vertices.empty()) {
+	if (m_outlineVertices.empty() && m_vertices.empty()) {
 		return;
 	}
 
 	states.transform *= getTransform();
 	states.texture = &m_font->getTexture(m_characterSize);
-	target.draw(m_vertices.data(), m_vertices.size(), sf::PrimitiveType::Triangles, states);
+
+	if (!m_outlineVertices.empty()) {
+		target.draw(m_outlineVertices.data(), m_outlineVertices.size(), sf::PrimitiveType::Triangles, states);
+	}
+
+	if (!m_vertices.empty()) {
+		target.draw(m_vertices.data(), m_vertices.size(), sf::PrimitiveType::Triangles, states);
+	}
 }

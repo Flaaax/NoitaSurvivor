@@ -120,18 +120,18 @@ int NWindow::loop() {
 	sceneManager.setCurrentScene("menu_scene");
 
 	auto& font = AssetMgr::getFont("msyh");
-	auto text = new NRichText(font);
-	text->setPosition({0, 0});
-	text->text.setCharacterSize(2);
+	auto FPSText = NRichTextShape(font);
+	FPSText.setPosition({5, 5});
+	FPSText.setCharacterSize(22u);
 	CTimer fpsCalcTimer(1.f, [&] {
 		const float total = std::accumulate(frameTimes.begin(), frameTimes.end(), 0.F);
 		averageFPS = static_cast<float>(frameTimes.size()) / total;
-		text->text.setString(std::format("FPS: {}", static_cast<u32>(trunc(averageFPS))));
+		FPSText.setString(std::format("FPS: {}", static_cast<u32>(trunc(averageFPS))));
 	});
 	fpsCalcTimer.start(CTimer::infinite_trigger);
 
-	const auto globalWidget = Util::makeUnique(new NRootWidget());
-	globalWidget->addToTop(Util::makeUnique(std::move(text)));
+	// const auto globalWidget = Util::makeUnique(new NRootWidget());
+	// globalWidget->addToTop(Util::makeUnique(text));
 
 	bool isRunning = true;
 	bool enableImgui = true;
@@ -219,7 +219,7 @@ int NWindow::loop() {
 			currentScene->draw(rdr);
 		}
 
-		globalWidget->draw(rdr);
+		rdr.drawUI(FPSText);
 
 		static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
 

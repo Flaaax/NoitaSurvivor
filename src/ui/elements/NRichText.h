@@ -8,19 +8,8 @@ class NRichText : public NObject {
 public:
 	NRichTextShape text;
 
-	// enum Policy {
-	// 	Center,
-	// 	Left,
-	// 	Top,
-	// 	Shrink,
-	// 	Fill
-	// };
-	//
-	// Policy sizePolicy = Shrink;
-	// Policy alignX = Left;
-	// Policy alignY = Top;
-
 	bool alignCenter{};
+	//bool fixedPosition{};
 
 	explicit NRichText(const sf::Font& font, std::string_view utf8Markup = {}, u32 characterSize = 30u)
 		: text(font, utf8Markup, characterSize) {}
@@ -37,7 +26,7 @@ public:
 		if (alignCenter) {
 			return {.size = constraint.maxSize};
 		}
-		//setSize(text.getLayoutSize());
+		// setSize(text.getLayoutSize());
 		return {.size = text.getLayoutSize()};
 	}
 

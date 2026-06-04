@@ -4,7 +4,6 @@
 #include "src/global/LocManager.h"
 #include "src/ui/elements/NRichText.h"
 #include "src/ui/global/NGlobal.h"
-#include "src/ui/layout/NBoxLayout.h"
 #include "src/ui/render/NCanvas.h"
 #include "src/utils/Text/Format.h"
 
@@ -21,6 +20,8 @@ ValueBar::ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengt
 	style.color = {240, 240, 240};
 	style.effects.add(Util::TextEffect::Bold);
 	text.setDefaultStyle(style);
+	text.setOutlineColor({0, 0, 0});
+	text.setOutlineThickness(1.5f);
 
 	backGroundShape.setFillColor(sf::Color::Black);
 	backGroundShape.setRadius(6);

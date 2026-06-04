@@ -19,8 +19,12 @@ protected:
 	float m_timeSeconds{};
 	float m_lineWidth{};
 
+	sf::Color m_outlineColor{};
+	float m_outlineThickness{};
+
 	mutable Util::Vector<Util::TextRun> m_runs;
 	mutable Util::Vector<sf::Vertex> m_vertices;
+	mutable std::vector<sf::Vertex> m_outlineVertices;
 	mutable nvec2 m_layoutSize{};
 
 	mutable bool layoutDirty = true;
@@ -31,7 +35,7 @@ protected:
 
 	void appendRun(u64 byteBegin, u64 byteEnd, Util::TextStyle style) const;
 	nquad applyStyleToQuad(nquad quad, Util::TextStyle style, u64 glyphIndex) const;
-	void appendQuad(nquad quad, nrect textureRect, sf::Color color) const;
+	static void appendQuad(std::vector<sf::Vertex>& vertices, nquad quad, nrect textureRect, sf::Color color);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 public:
@@ -59,6 +63,9 @@ public:
 	void setDefaultStyle(Util::TextStyle style);
 
 	nvec2 getLayoutSize() const;
-	nrect getGlobalLayout()const;
+	nrect getGlobalLayout() const;
+
+	void setOutlineThickness(float thickness);
+	void setOutlineColor(sf::Color color);
 	// nrect getVisualLayout() const;
 };

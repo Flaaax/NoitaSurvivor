@@ -32,7 +32,8 @@ public:
 		const auto& proj_body = ctx.reg.get<BodyComponent>(self);
 
 		auto queryCallback = Util::unwrapLambda([this, ctx, self](myecs::entity other) {
-			if (!EntityService().isValidAndAlive(ctx, target)) {
+			if (!EntityService().isValidAndAlive(ctx, target) ||
+				EntityService().getLayer(ctx, target) != Enemy) {
 				target = other;
 				offset = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
 				lengthSquared = offset.lengthSquared();
@@ -55,7 +56,9 @@ public:
 					   queryCallback.fn,
 					   queryCallback.ctx());
 
-		if (!EntityService().isValidAndAlive(ctx, target)) {
+		if (!EntityService().isValidAndAlive(ctx, target) ||
+			EntityService().getLayer(ctx, target) != Enemy) {
+			target = {};
 			return;
 		}
 
@@ -72,16 +75,16 @@ public:
 				tracker = Trackers::circle;
 				break;
 			case 2:
-				//tracker = Trackers::seek;
+				// tracker = Trackers::seek;
 				break;
 			case 3:
-				//tracker = Trackers::weakSeek;
+				// tracker = Trackers::weakSeek;
 				break;
 			case 4:
-				//tracker = Trackers::leadSeek;
+				// tracker = Trackers::leadSeek;
 				break;
 			case 5:
-				//tracker = Trackers::lateral;
+				// tracker = Trackers::lateral;
 				break;
 			case 6:
 				tracker = Trackers::navigation;
