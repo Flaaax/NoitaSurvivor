@@ -1,11 +1,11 @@
 #include "EntityFactory.h"
+#include "../../app/global/DataManager.h"
 #include "EntityComponents.h"
 #include "PhysicsComponents.h"
 #include "Render/RenderComponent.h"
 #include "Render/SpriteEffects.h"
 #include "src/game/Game.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/global/DataManager.h"
 #include "src/meta/ComponentMeta.h"
 
 using namespace myecs;
@@ -14,12 +14,12 @@ void validateComponentConfig(std::string_view entity, std::string_view name, con
 
 	const auto metaData = ComponentMeta::getMetaInfo(name);
 	if (!metaData) {
-		Logger::warn("Invalid component: {}\n\nfor entity{}", name, entity);
+		LoggerOld::warn("Invalid component: {}\n\nfor entity{}", name, entity);
 		return;
 	}
 	for (auto& [fieldName, _] : j.items()) {
 		if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
-			Logger::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
+			LoggerOld::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 		}
 	}
 }
@@ -32,7 +32,7 @@ void EntityFactory::initEntityComponents() {
 			if (const auto gen = ComponentMeta::getInitializerFactory(componentName)) {
 				components.emplace_back(gen(jj));
 			} else
-				Logger::warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
+				LoggerOld::warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
 		}
 		entityInitializers[entityType] = std::move(components);
 	}
@@ -58,14 +58,14 @@ EntityFactory::EntityFactory() {
 
 // generally, do not set anything to sensor
 myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
-	Logger::info("Creating player entity...");
+	LoggerOld::info("Creating player entity...");
 	static auto& factory = factories["player"];
 	auto e = factory(ctx);
 	auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
 	//effect->easing_function = Easing::ease_out_cubic;
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
-	Logger::info("Player entity created: {}", e.string());
+	LoggerOld::info("Player entity created: {}", e.string());
 	// Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
 	return e;
 }

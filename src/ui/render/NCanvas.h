@@ -6,7 +6,7 @@
 
 class NCanvas {
 private:
-	Renderer& rdr;
+	NRenderBuffer& rdr;
 	sf::RenderStates states;
 
 public:
@@ -14,7 +14,7 @@ public:
 		return NCanvas(rdr, offset, states);
 	}
 
-	explicit NCanvas(Renderer& rdr, nvec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+	explicit NCanvas(NRenderBuffer& rdr, nvec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
 		this->states.transform.translate(translate);
 	}
 

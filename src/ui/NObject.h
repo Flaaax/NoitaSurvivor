@@ -135,8 +135,7 @@ public:
 
 	template <class T>
 	static constexpr std::string_view makeTypeID() {
-		static std::string ID_ = Util::makeContentID<T>();
-		return ID_;
+		return Util::makeContentID<T>();
 	}
 
 	template <std::derived_from<NObject> T>

@@ -56,7 +56,7 @@ n_unique<NObject> NWidget::remove(const NObject* target) {
 				return obj.get() == target;
 			});
 	if (it == objects.end()) {
-		Logger::warn("Widget does not own target object!");
+		LoggerOld::warn("Widget does not own target object!");
 		return {};
 	}
 	n_unique<NObject> removed = std::move(*it);

@@ -55,7 +55,7 @@ public:
 		castPos = worldPos + length * Util::from_rad(arg);
 	}
 
-	void render(Renderer& renderer) const {
+	void render(NRenderBuffer& renderer) const {
 		renderer.drawGame(sprite);
 	}
 

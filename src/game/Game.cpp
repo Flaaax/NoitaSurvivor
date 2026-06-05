@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "../app/global/DebugVariables.h"
 #include "Components/EntityComponents.h"
 #include "Components/PhysicsComponents.h"
 #include "Contact/PhysicalContactCallbacks.h"
@@ -10,22 +11,23 @@
 #include "Systems/LifeTimeSystem.h"
 #include "Systems/PhysicsSystem.h"
 #include "Systems/RenderSystem.h"
-#include "Wands/Wand.h"
-#include "src/global/DebugVariables.h"
-#include "src/global/LocManager.h"
+#include "src/app/global/LocManager.h"
+#include "src/ui/NWindow.h"
 #include "src/utils/Logger.h"
 
-Game::Game() {
-	Logger::info("Game instance created");
+Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
+	logger = flx::Logger::makeAsync("Game", true);
+	scales.offset = appCtx.window.getViewport().defaultWindowSizeF / 2.f;
 }
 
 Game::~Game() {
 	if (!isInitialized)
 		return;
-	Logger::info("entity count: {}", reg.entity_count());
-	Logger::info("component count: {}", reg.component_count());
-	Logger::info("max entity count: {}", reg.max_entity_count());
-	Logger::info("max component count: {}", reg.max_component_count());
+
+	logger.info("entity count: {}", reg.entity_count());
+	logger.info("component count: {}", reg.component_count());
+	logger.info("max entity count: {}", reg.max_entity_count());
+	logger.info("max component count: {}", reg.max_component_count());
 
 	const auto ctx = getContext();
 	for (auto [e, bc] : reg.view<BodyComponent>()) {
@@ -35,7 +37,7 @@ Game::~Game() {
 	reg.reset();
 
 	if (int count = b2World_GetCounters(worldCtx.world).bodyCount; count > 0) {
-		Logger::warn("Undestroyed body remaining: {}", count);
+		logger.warn("Undestroyed body remaining: {}", count);
 	}
 
 	b2DestroyWorld(worldCtx.world);
@@ -49,19 +51,21 @@ GameCtx Game::getContext() {
 		.contactRules = contactRules,
 		.gameState = state,
 		.contactState = contactState,
+		.scales = scales,
+		.appCtx = appCtx,
 	};
 }
 
 void Game::init() {
 	if (isInitialized) {
-		throw std::runtime_error("Dont initialize more than once");
+		logger.error_and_throw("Initialized more than once");
 	}
 
 	LocManager::inst().loadDefaultLanguage();
 
 	// todo move this to another place
 	b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {
-		Logger::error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
+		flx::logger.error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
 		return 1;
 	});
 
@@ -90,7 +94,7 @@ void Game::init() {
 	GameStateSystem().initGameState(ctx);
 }
 
-void Game::draw(Renderer& rdr) {
+void Game::draw(NRenderBuffer& rdr) {
 
 	const auto ctx = getContext();
 	RenderSystem().render(rdr, ctx);

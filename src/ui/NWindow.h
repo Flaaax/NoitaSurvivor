@@ -1,35 +1,36 @@
 #pragma once
-#include "../utils/Vec2/Vec2.h"
-#include "NScale.h"
-#include "NSceneManager.h"
 #include "context/NInputState.h"
-#include "src/utils/Macro.h"
-#include "src/utils/Singleton.h"
+#include "context/NWindowEvent.h"
+#include "render/NWindowViewport.h"
 
-namespace sf {
-	class RenderWindow;
-}
+class NRenderBuffer;
 
-// manage the whole application, should only have 1 instance
+// Manages and creates the SFML window
 class NWindow {
-	N_DECL_SINGLETON(NWindow);
-
 private:
-	n_unique<sf::RenderWindow> window;
+	sf::RenderWindow window;
+	NWindowViewport viewport;
 
-	void updateWindowSize() const;
-	void updateMousePos() const;
+	void updateViewport();
+	void updateMousePosition();
 
 public:
-	N_STATIC_VAR NScale scale;
-	N_STATIC_VAR NSceneManager sceneManager;
+	NInputState input;
 
-	NWindow();
+	NWindow(nvec2u windowSize, std::string_view title);
 	~NWindow();
-	// should only run once
-	int loop();
 
-	static sf::RenderWindow& getWindow() {
-		return *inst().window;
+	const NWindowViewport& getViewport()const;
+
+	sf::RenderWindow& getWindow() {
+		return window;
 	}
+
+	bool isOpen() const {
+		return window.isOpen();
+	}
+
+	std::optional<NWindowEvent> pollEvent();
+
+	void draw(NRenderBuffer& buffer);
 };

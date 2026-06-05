@@ -1,9 +1,11 @@
 #include "GameStateSystem.h"
 #include "../../ui/global/NInput.h"
 #include "../GameContext.h"
+#include "src/app/Application.h"
 #include "src/game/Components/EntityFactory.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
+#include "src/game/render/GameRenderScales.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Random.h"
 #include "src/utils/VectorHelper.h"
@@ -47,8 +49,8 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 	auto& state = ctx.gameState;
-	auto& inputState = NInput::getState();
-	state.mousePos = (inputState.mouseRender - NWindow::scale.gameRenderOffset) / NWindow::scale.gameRenderScale + state.cameraPos;
+	auto& inputState = ctx.appCtx.window.input;
+	state.mousePos = (inputState.mouseRender - ctx.scales.offset) / ctx.scales.scale + state.cameraPos;
 	const myecs::entity player = ctx.gameState.player.id;
 	state.playerPos = PhysicsService().getPosition(ctx, player);
 	state.cameraPos = state.playerPos;

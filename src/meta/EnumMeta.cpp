@@ -1,7 +1,7 @@
 #include "EnumMeta.h"
 #include <src/utils/Logger.h>
 
-//todo maybe should make this automatic
+// todo maybe should make this automatic
 EnumMeta::EnumMeta() {
 	addEnum("ContactLayer", {
 		"None",
@@ -20,7 +20,7 @@ EnumMeta::EnumMeta() {
 }
 
 void EnumMeta::addEnum(std::string_view name, std::initializer_list<std::string_view> list) {
-	if (map.contains(name))Logger::error_and_throw("Enum already exists: {}", name);
+	if (map.contains(name))LoggerOld::error_and_throw("Enum already exists: {}", name);
 	Map<enum_t> enumMap;
 	int i = 0;
 	for (auto& e : list) {

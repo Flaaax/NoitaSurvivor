@@ -3,11 +3,12 @@
 #include "Components/EntityFactory.h"
 #include "Contact/ContactLayerRules.h"
 #include "GameContext.h"
+#include "render/GameRenderScales.h"
+#include "src/app/AppContext.h"
 #include "src/ecs/entity.h"
-#include "src/utils/Singleton.h"
 
 class Wand;
-class Renderer;
+class NRenderBuffer;
 
 namespace sf {
 	class Event;
@@ -16,31 +17,33 @@ namespace sf {
 struct NInputState;
 
 class Game {
-	N_DECL_SINGLETON(Game);
-	// friend class EntityFactory;
 	friend class GameScene;
 
 private:
+	// GameContext
 	GameState state;
 	ContactState contactState;
+	ContactLayerRules contactRules;
 	WorldCtx worldCtx;
-	n_unique<GameCtx> ctxInternal;
-
-	// GameContext
 	myecs::Registry reg;
 	n_unique<EntityFactory> factory;
-	ContactLayerRules contactRules;
+	GameRenderScales scales;
+	flx::app::AppContext appCtx;
+
+	flx::Logger logger;
+
+	n_unique<GameCtx> ctxInternal;
 
 	bool isInitialized = false;
 
 	GameCtx getContext();
 
-	explicit Game();
+	explicit Game(flx::app::AppContext appCtx);
 	~Game();
 
 public:
 	void init();
-	void draw(Renderer& rdr);
+	void draw(NRenderBuffer& rdr);
 	void update(float dt);
 
 	void handleEvent(const sf::Event& event);

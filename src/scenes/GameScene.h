@@ -2,27 +2,25 @@
 #ifndef GAMESCENE_H
 #define GAMESCENE_H
 
-#include "src/ui/NScene.h"
-#include "src/utils/Singleton.h"
+#include "../app/Scene.h"
 
 class Game;
 
-class GameScene : public NScene {
+class GameScene : public flx::app::Scene {
 private:
 	Game& game;
-	logptr logger;
-	bool init = false;
+	bool init{};
+	nvec2 windowSize{};
 
 	void initUI();
 
 public:
-	GameScene();
+	GameScene(nvec2 windowSize);
 
-	void draw(Renderer& rdr) override;
+	void draw(NRenderBuffer& rdr) override;
 	void update(float dt) override;
-	bool handleEvent(const NEventCtx& event) override;
+	bool handleEvent(const NWindowEvent& event) override;
 	void enter() override;
-	std::string_view getName() const override;
 };
 
 #endif

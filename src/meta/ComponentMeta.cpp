@@ -5,7 +5,7 @@
 #include "src/game/Components/Render/RenderComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
-#include <src/global/SpriteManager.h>
+#include <../app/SpriteManager.h>
 
 template <class T>
 void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {

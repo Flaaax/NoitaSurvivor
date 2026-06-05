@@ -50,12 +50,12 @@ namespace fs = std::filesystem;
 
 static void initTexture(Util::StrMap<sf::Texture>& textures, std::string& name, const std::filesystem::path& path) {
 	if (const auto it = textures.find(name); it != textures.end()) {
-		Logger::error_and_throw("duplicated texture name: {} with path {}", name, path.string());
+		LoggerOld::error_and_throw("duplicated texture name: {} with path {}", name, path.string());
 		return;
 	}
 	auto& t = textures[std::move(name)];
 	if (!t.loadFromFile(path.string())) {
-		Logger::error_and_throw("failed to load texture {} from path {}", name, path.string());
+		LoggerOld::error_and_throw("failed to load texture {} from path {}", name, path.string());
 	}
 	t.setSmooth(false);
 }
@@ -68,13 +68,13 @@ const sf::Font& AssetMgr::getFont(std::string_view name) {
 	if (auto it = inst().fonts.find(name); it != inst().fonts.end()) {
 		return it->second;
 	}
-	Logger::warn("font {} does not exist", name);
+	LoggerOld::warn("font {} does not exist", name);
 	return getDefaultFont();
 }
 
 void AssetMgr::playSound(std::string_view name, int index) {
 	if (inst().sounds.size() >= 50) {
-		Logger::warn("Too many sounds!");
+		LoggerOld::warn("Too many sounds!");
 		return;
 	}
 
@@ -96,7 +96,7 @@ void AssetMgr::playSound(std::string_view name, int index) {
 		newSound->play();
 		inst().sounds.emplace_back(std::move(newSound));
 	} else {
-		Logger::warn("Cant find sound: {}", name);
+		LoggerOld::warn("Cant find sound: {}", name);
 	}
 }
 
@@ -104,7 +104,7 @@ const sf::Texture& AssetMgr::getSpellTexture(std::string_view name) {
 	if (const auto it = inst().spellTextures.find(name); it != inst().spellTextures.end()) {
 		return it->second;
 	}
-	Logger::warn("Spell texture '{}' does not exist", name);
+	LoggerOld::warn("Spell texture '{}' does not exist", name);
 	return inst().spellTextures[inst().spell_gfx_default];
 }
 
@@ -154,7 +154,7 @@ void AssetMgrImpl::loadSounds() {
 			soundBuffers[std::move(name)].emplace_back(std::move(buffer));
 		}
 	}
-	Logger::info("Sounds loaded: {}", soundBuffers.size());
+	LoggerOld::info("Sounds loaded: {}", soundBuffers.size());
 }
 
 void AssetMgrImpl::loadFonts() {
@@ -167,14 +167,14 @@ void AssetMgrImpl::loadFonts() {
 			}
 			auto fontName = entry.path().filename().stem().string();
 			fonts[std::move(fontName)] = font;
-			Logger::info("font loaded: {}", fontName);
+			LoggerOld::info("font loaded: {}", fontName);
 		}
 	}
 	if (auto it = fonts.find(default_font); it == fonts.end()) {
 		throw std::runtime_error(fmt::format("Failed to load default font {}", default_font));
 	}
 
-	Logger::info("Fonts loaded: {}", fonts.size());
+	LoggerOld::info("Fonts loaded: {}", fonts.size());
 }
 
 void AssetMgrImpl::loadTextures() {
@@ -191,7 +191,7 @@ void AssetMgrImpl::loadTextures() {
 		{spriteTextures, "./resources/gfx/sprites"}};
 
 	for (auto& info : infos) {
-		Logger::info("loading textures in {}", info.path);
+		LoggerOld::info("loading textures in {}", info.path);
 		std::vector<std::pair<std::string, fs::path>> collected;
 		for (auto& entry : fs::recursive_directory_iterator(info.path)) {
 			auto fileType = entry.path().extension();
@@ -204,7 +204,7 @@ void AssetMgrImpl::loadTextures() {
 			initTexture(info.map, item.first, item.second);
 		}
 	}
-	Logger::info("textures loaded: {}", spellTextures.size() + UITextures.size() + wandTextures.size());
+	LoggerOld::info("textures loaded: {}", spellTextures.size() + UITextures.size() + wandTextures.size());
 }
 
 void AssetMgr::init() {

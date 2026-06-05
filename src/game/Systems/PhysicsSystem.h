@@ -2,7 +2,7 @@
 #include"src/ecs/entity.h"
 #include"src/game/GameContext.h"
 
-class Renderer;
+class NRenderBuffer;
 class Game;
 struct nvec2;
 

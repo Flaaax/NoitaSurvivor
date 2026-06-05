@@ -1,4 +1,4 @@
-#include "SpriteManager.h"
+#include "../global/SpriteManager.h"
 #include "AssetManager.h"
 #include "DataManager.h"
 #include <SFML/Graphics.hpp>
@@ -24,7 +24,7 @@ void SpriteMgrImpl::initSprites() {
 										   std::forward_as_tuple(name),
 										   std::forward_as_tuple(AssetMgr::getSpriteTexture(data.texture)));
 		if (!state) {
-			Logger::warn("Sprite name {} is dulplicated! Skipped loading.", name);
+			LoggerOld::warn("Sprite name {} is dulplicated! Skipped loading.", name);
 			continue;
 		}
 		auto& sprite = it->second;
@@ -39,5 +39,5 @@ const sf::Sprite& SpriteMgr::getSprite(std::string_view name) {
 	if (const auto sprite = inst().sprites.try_find(name)) {
 		return *sprite;
 	}
-	Logger::error_and_throw("Cannot find sprite: {}", name);
+	LoggerOld::error_and_throw("Cannot find sprite: {}", name);
 }

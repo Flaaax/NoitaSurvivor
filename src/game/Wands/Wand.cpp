@@ -1,9 +1,9 @@
 // #include"src/game/Spells/Modifiers/AddExplosionSpell.h"
 #include "Wand.h"
+#include "../../app/global/AssetManager.h"
 #include "src/game/Spells/Modifiers/BasicModifiers.h"
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
-#include "src/global/AssetManager.h"
 #include "src/ui/NWindow.h"
 #include "src/utils/Logger.h"
 #include "src/utils/Random.h"
@@ -45,7 +45,7 @@ Wand::Wand() : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
 	sprite.setTexture(texture);
 	auto textureSize = texture.getSize();
 	sprite.setOrigin({0, textureSize.y / 2.0f});
-	auto wand_scale = NWindow::scale.gfx_wand_scale;
+	auto wand_scale = NWindow::viewport.gfx_wand_scale;
 	length = 0.9f * wand_scale * static_cast<float>(textureSize.x);
 	sprite.setScale({wand_scale, wand_scale});
 

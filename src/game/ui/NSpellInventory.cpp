@@ -122,7 +122,7 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 	NSpellInventory* otherInventory = spellParent->convert<NSpellInventory>();
 	NSpell* spell = query.state.dragged->convert<NSpell>();
 	if (!spell) {
-		Logger::error_and_throw("This should never happen...");
+		LoggerOld::error_and_throw("This should never happen...");
 	}
 	n_unique<NObject> spellObject;
 	n_unique<NObject> replacedSpellObject;
@@ -169,7 +169,7 @@ void NSpellInventory::onDropAccepted(const NDropQuery& query, bool shouldDrop) {
 }
 
 std::optional<NEventResult> NSpellInventory::handleEvent(const NUIEvent& event) {
-	if (event.ctx.rawEvent.is<sf::Event::MouseMoved>()) {
+	if (event.windowEvent.rawEvent.is<sf::Event::MouseMoved>()) {
 		updateHoveredSlot(event.localCtx.mouseLocal);
 	}
 
@@ -179,10 +179,10 @@ std::optional<NEventResult> NSpellInventory::handleEvent(const NUIEvent& event) 
 void NSpellInventory::addItem(n_unique<NObject> spell, int index) {
 	NSpell* nspell = spell->convert<NSpell>();
 	if (!nspell) {
-		Logger::error_and_throw("Should only add NSpell item!");
+		LoggerOld::error_and_throw("Should only add NSpell item!");
 	}
 	if (slots.at(index).spell) {
-		Logger::error_and_throw("Slot index {} already has a spell", index);
+		LoggerOld::error_and_throw("Slot index {} already has a spell", index);
 	}
 	nspell->index = index;
 	nspell->isReleased = true;

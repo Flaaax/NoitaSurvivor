@@ -1,6 +1,6 @@
 #pragma once
-#include "../utils/File/Json.h"
-#include "../utils/Vec2/Vec2.h"
+#include "../../utils/File/Json.h"
+#include "../../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Map.h"
 #include "src/utils/Singleton.h"
 

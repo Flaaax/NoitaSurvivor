@@ -26,7 +26,7 @@ NButton::NButton(nrect geometry) {
 }
 
 std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
-	auto& rawEvent = event.ctx.rawEvent;
+	auto& rawEvent = event.windowEvent.rawEvent;
 	if (rawEvent.is<sf::Event::MouseMoved>()) {
 		if (frame.contains(event.localCtx.mouseLocal)) {
 			if (state != Pressed) {

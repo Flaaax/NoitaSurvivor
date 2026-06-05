@@ -1,13 +1,13 @@
 #include "RenderSystem.h"
-#include "src/render/Renderer.h"
+#include "../../app/global/DataManager.h"
 #include "../Components/Render/RenderComponent.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
-#include "src/global/DataManager.h"
+#include "src/render/Renderer.h"
 #include "src/ui/shapes/NLineShape.h"
 #include <src/game/Components/PhysicsComponents.h>
 
-void RenderSystem::debugRender(const GameCtx& ctx, Renderer& rdr) {
+void RenderSystem::debugRender(const GameCtx& ctx, NRenderBuffer& rdr) {
 	NLineShape shape;
 	for (const auto& e : ctx.gameState.borders) {
 		if (const auto b = ctx.reg.try_get<BodyComponent>(e)) {
@@ -26,8 +26,8 @@ void RenderSystem::update(const GameCtx& ctx, float dt) {
 	}
 }
 
-void RenderSystem::render(Renderer& rdr, const GameCtx& ctx) {
-	rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::scale.gameRenderScale - NWindow::scale.gameRenderOffset);
+void RenderSystem::render(NRenderBuffer& rdr, const GameCtx& ctx) {
+	rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
 
 	rdr.clear(sf::Color(100, 100, 100));
 

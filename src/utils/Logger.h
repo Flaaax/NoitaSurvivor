@@ -14,94 +14,119 @@ inline constexpr bool n_debug_log = true;
 inline constexpr bool n_debug_log = false;
 #endif
 
-using logptr = std::shared_ptr<spdlog::logger>;
+namespace flx {
+	using logptr = std::shared_ptr<spdlog::logger>;
 
-class LoggerFactory {
-public:
-	static logptr createAsync(const std::string& logger_id, bool show_id = false) {
-		auto _logger = spdlog::stdout_color_mt<spdlog::async_factory>(logger_id);
-		if (!show_id) {
-			_logger->set_pattern("[%H:%M:%S]%^[%l]%$ %v");
-		} else {
-			_logger->set_pattern("[%n][%H:%M:%S]%^[%l]%$ %v");
+	struct Logger {
+		logptr raw{};
+
+		template <typename... Args>
+		void info(std::string_view fmt, Args&&... args) {
+			raw->info(fmt::runtime(fmt), std::forward<Args>(args)...);
 		}
-		if constexpr (n_debug_log) {
-			_logger->set_level(spdlog::level::level_enum::trace);
+
+		template <typename... Args>
+		void warn(std::string_view fmt, Args&&... args) {
+			raw->warn(fmt::runtime(fmt), std::forward<Args>(args)...);
 		}
-		return _logger;
-	}
 
-	static logptr createSync(const std::string& logger_id, bool show_id = false) {
-		auto _logger = spdlog::stdout_color_st(logger_id);
-		if (!show_id) {
-			_logger->set_pattern("[%H:%M:%S]%^[%l]%$ %v");
-		} else {
-			_logger->set_pattern("[%n][%H:%M:%S]%^[%l]%$ %v");
+		template <typename... Args>
+		void error(std::string_view fmt, Args&&... args) {
+			raw->error(fmt::runtime(fmt), std::forward<Args>(args)...);
 		}
-		if constexpr (n_debug_log) {
-			_logger->set_level(spdlog::level::level_enum::trace);
+
+		template <typename... Args>
+		void trace(std::string_view fmt, Args&&... args) {
+			raw->trace(fmt::runtime(fmt), std::forward<Args>(args)...);
 		}
-		return _logger;
-	}
-};
 
-class Logger {
-	N_DECL_SINGLETON(Logger);
+		template <typename... Args>
+		void critical(std::string_view fmt, Args&&... args) {
+			raw->critical(fmt::runtime(fmt), std::forward<Args>(args)...);
+		}
 
-private:
-	logptr m_logger;
-	logptr m_st_logger;
+		template <typename... Args>
+		void debug(std::string_view fmt, Args&&... args) {
+			if constexpr (n_debug_log) {
+				raw->debug(fmt::runtime(fmt), std::forward<Args>(args)...);
+			}
+		}
 
-	Logger() : m_logger(LoggerFactory::createAsync("default_logger")), m_st_logger(LoggerFactory::createSync("default_logger_mt")) {
-	}
+		// Throws an error!
+		template <typename... Args>
+		[[noreturn]] void error_and_throw(std::string_view fmt, Args&&... args) {
+			auto err_string = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
+			this->error(err_string);
+			Util::Debug::printCallStack();
+			throw std::runtime_error(err_string);
+		}
 
+		static Logger makeAsync(std::string_view logger_id, bool show_id = false) {
+			auto _logger = spdlog::stdout_color_mt<spdlog::async_factory>(logger_id.data());
+			if (!show_id) {
+				_logger->set_pattern("[%H:%M:%S]%^[%l]%$ %v");
+			} else {
+				_logger->set_pattern("[%n][%H:%M:%S]%^[%l]%$ %v");
+			}
+			if constexpr (n_debug_log) {
+				_logger->set_level(spdlog::level::level_enum::trace);
+			}
+			return {std::move(_logger)};
+		}
+
+		static Logger makeSync(std::string_view logger_id, bool show_id = false) {
+			auto _logger = spdlog::stdout_color_st(logger_id.data());
+			if (!show_id) {
+				_logger->set_pattern("[%H:%M:%S]%^[%l]%$ %v");
+			} else {
+				_logger->set_pattern("[%n][%H:%M:%S]%^[%l]%$ %v");
+			}
+			if constexpr (n_debug_log) {
+				_logger->set_level(spdlog::level::level_enum::trace);
+			}
+			return {std::move(_logger)};
+		}
+	};
+
+	static Logger logger = Logger::makeAsync("Default");
+} // namespace flax
+
+struct LoggerOld {
 public:
 	template <typename... Args>
 	static void info(std::string_view fmt, Args&&... args) {
-		mt()->info(fmt::runtime(fmt), std::forward<Args>(args)...);
+		flx::logger.info(fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
 	static void warn(std::string_view fmt, Args&&... args) {
-		mt()->warn(fmt::runtime(fmt), std::forward<Args>(args)...);
+		flx::logger.warn(fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
 	static void error(std::string_view fmt, Args&&... args) {
-		st()->error(fmt::runtime(fmt), std::forward<Args>(args)...);
+		flx::logger.error(fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
 	static void trace(std::string_view fmt, Args&&... args) {
-		mt()->trace(fmt::runtime(fmt), std::forward<Args>(args)...);
+		flx::logger.trace(fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
 	static void critical(std::string_view fmt, Args&&... args) {
-		mt()->critical(fmt::runtime(fmt), std::forward<Args>(args)...);
+		flx::logger.critical(fmt, std::forward<Args>(args)...);
 	}
 
 	template <typename... Args>
 	static void debug(std::string_view fmt, Args&&... args) {
-		if constexpr (n_debug_log) {
-			st()->debug(fmt::runtime(fmt), std::forward<Args>(args)...);
-		}
+		flx::logger.debug(fmt, std::forward<Args>(args)...);
 	}
 
 	// Throws an error!
 	template <typename... Args>
 	[[noreturn]] static void error_and_throw(std::string_view fmt, Args&&... args) {
-		auto err_string = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
-		Logger::error(err_string);
-		Util::Debug::printCallStack();
-		throw std::runtime_error(err_string);
-	}
-
-	static logptr& mt() {
-		return Logger::inst().m_logger;
-	}
-	static logptr& st() {
-		return Logger::inst().m_st_logger;
+		flx::logger.error_and_throw(fmt, std::forward<Args>(args)...);
 	}
 };
 

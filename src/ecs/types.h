@@ -31,37 +31,17 @@ namespace myecs {
 	inline constexpr u64 u64_max = ::std::numeric_limits<u64>::max();
 
 	struct entity {
-		union {
-			u64 _entity;
+		u32 id = u32_max;
+		u32 version = u32_max;
 
-			struct {
-				u32 id;
-				u32 version;
-			};
-		};
+		constexpr bool operator==(const entity& other) const = default;
 
-		constexpr entity() : entity(u32_max, u32_max) {};
-
-		constexpr entity(const entity& other) : _entity(other._entity) {
-		}
-
-		constexpr explicit entity(u64 _entity) : _entity(_entity) {
-		}
-
-		constexpr entity(u32 id, u32 version) : id(id), version(version) {
-		}
-
-		constexpr bool operator==(const entity& other) const {
-			return _entity == other._entity;
-		}
-
-		entity& operator=(const entity& other) {
-			_entity = other._entity;
-			return *this;
-		}
-
-		constexpr u64 get_id() const {
+		constexpr u64 id_u64() const {
 			return static_cast<u64>(id);
+		}
+
+		constexpr u64 flatten() const {
+			return (static_cast<u64>(version) << 32) | static_cast<u64>(id);
 		}
 
 		std::string string() const {
@@ -73,26 +53,22 @@ namespace myecs {
 		constexpr bool is_null() const {
 			return id == u32_max && version == u32_max;
 		}
-
-		// constexpr explicit operator bool() const {
-		// 	return !is_null();
-		// }
 	};
 
 	namespace types {
-		template <typename Type>
-		[[nodiscard]] inline consteval std::string_view type_name() noexcept {
+		template <class Type>
+		[[nodiscard]] consteval std::string_view type_name() noexcept {
 			std::string_view pretty_function{static_cast<const char*>(__FUNCSIG__)};
 			u64 pos = pretty_function.find('<');
 			pos = pretty_function.find('<', pos + 1);
 			pos = pretty_function.find('<', pos + 1);
-			auto first = pretty_function.find_first_not_of(' ', pos + 1);
-			auto last = pretty_function.find_last_of('>');
+			const auto first = pretty_function.find_first_not_of(' ', pos + 1);
+			const auto last = pretty_function.find_last_of('>');
 			return pretty_function.substr(first, last - first);
 		}
 
-		template <typename Type>
-		[[nodiscard]] inline consteval u64 type_hash() noexcept {
+		template <class Type>
+		[[nodiscard]] consteval u64 type_hash() noexcept {
 			constexpr std::string_view name = type_name<Type>();
 			u64 hash = 0xCBF29CE484222325;
 			for (auto c : name) {
@@ -109,7 +85,7 @@ namespace myecs {
 		}
 
 		inline u64 random_map(u64 x) {
-			u64 val = static_cast<u64>(x);
+			u64 val = x;
 			val ^= 0xDEADBEEFCAFEBABE;
 			val *= 0x9E3779B97F4A7C15;
 			val = rot64(val, 17);
@@ -125,7 +101,7 @@ namespace myecs {
 
 		// Generates unique type id
 		template <class T>
-		[[nodiscard]] inline u64 type_id() noexcept {
+		[[nodiscard]] u64 type_id() noexcept {
 			static const u64 id = random_map(detail::_id_count++);
 			return id;
 		}
@@ -148,8 +124,8 @@ namespace myecs {
 
 template <>
 struct std::hash<myecs::entity> {
-	::myecs::u64 operator()(myecs::entity e) const noexcept {
-		return hash<::myecs::u64>()(e._entity);
+	myecs::u64 operator()(myecs::entity e) const noexcept {
+		return hash<myecs::u64>()(e.flatten());
 	}
 }; // namespace std
 

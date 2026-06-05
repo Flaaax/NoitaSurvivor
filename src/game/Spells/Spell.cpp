@@ -1,6 +1,6 @@
 #include "Spell.h"
-#include "src/global/AssetManager.h"
-#include "src/global/LocManager.h"
+#include "../../app/global/AssetManager.h"
+#include "../../app/global/LocManager.h"
 #include "src/utils/Text/Format.h"
 
 #include <magic_enum/magic_enum.hpp>

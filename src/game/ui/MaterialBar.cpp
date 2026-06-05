@@ -1,5 +1,5 @@
 #include "MaterialBar.h"
-#include "src/global/LocManager.h"
+#include "../../app/global/LocManager.h"
 #include "src/ui/elements/NRichText.h"
 #include "src/ui/global/NGlobal.h"
 #include "src/ui/render/NCanvas.h"

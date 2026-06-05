@@ -17,14 +17,14 @@ bool PhysicalContactCallbacks::filter(const GameCtx& ctx, myecs::entity a, myecs
 	auto& reg = ctx.reg;
 
 	if (!(reg.valid(a) && reg.valid(b))) {
-		Logger::error("A shape attached to invalid entity!");
+		LoggerOld::error("A shape attached to invalid entity!");
 		return true;
 	}
 	auto [ea, eb] = reg.try_get<EntityComponent>(a, b);
 
 	// disable if one is not alive (Which is not likely to happen)
 	if (!(ea && eb) || !(EntityService::isAlive(ctx, a) && EntityService::isAlive(ctx, b))) {
-		Logger::error("Detected dead entity: {} or {}", a.string(), b.string());
+		LoggerOld::error("Detected dead entity: {} or {}", a.string(), b.string());
 		return false;
 	}
 
@@ -55,7 +55,7 @@ bool PhysicalContactCallbacks::presolveCallback(b2ShapeId shapeIdA, b2ShapeId sh
 	auto& reg = ctx.reg;
 
 	if (!(reg.valid(a) && reg.valid(b))) {
-		Logger::warn("A shape attached to invalid entity!");
+		LoggerOld::warn("A shape attached to invalid entity!");
 		return true;
 	}
 

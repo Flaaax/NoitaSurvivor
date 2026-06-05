@@ -41,11 +41,11 @@ private:
 	}
 
 	[[noreturn]] static void throwDuplicatedKey(std::string_view key) {
-		Logger::error_and_throw("DebugVariables: duplicated key: " + std::string(key));
+		LoggerOld::error_and_throw("DebugVariables: duplicated key: " + std::string(key));
 	}
 
 	[[noreturn]] static void throwTypeMismatch(std::string_view key) {
-		Logger::error_and_throw("DebugVariables: type mismatch for key: " + std::string(key));
+		LoggerOld::error_and_throw("DebugVariables: type mismatch for key: " + std::string(key));
 	}
 
 public:

@@ -6,8 +6,14 @@
 
 namespace Util {
 	template <class T>
-	std::string makeContentID() {
+	std::string_view makeContentID() {
 		constexpr auto fullName = Util::typeName<T>();
-		return Util::pascalToSnake(fullName);
+		static std::string ret = Util::pascalToSnake(fullName);
+		return ret;
 	}
+
+	// template <class T>
+	// std::string_view makeContentIDFromPtr(const T*) {
+	// 	return makeContentID<T>();
+	// }
 } // namespace Util

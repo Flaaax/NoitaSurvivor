@@ -4,7 +4,7 @@
 #include "src/ui/NWindow.h"
 
 MenuScene::MenuScene() {
-	constexpr nvec2 windowSize = NWindow::scale.defaultWindowSizeF;
+	constexpr nvec2 windowSize = NWindow::viewport.defaultWindowSizeF;
 	auto startButton =
 		Util::makeUnique(new NButton(nrect::fromCenter(windowSize / 2.f, {200, 100})));
 	startButton->setOnClick([] {
@@ -15,9 +15,9 @@ MenuScene::MenuScene() {
 	widget->addToTop(std::move(startButton));
 }
 
-void MenuScene::draw(Renderer& rdr) {
+void MenuScene::draw(NRenderBuffer& rdr) {
 	rdr.clear({200, 200, 200});
-	NScene::draw(rdr);
+	Scene::draw(rdr);
 }
 
 void MenuScene::update(float dt) {

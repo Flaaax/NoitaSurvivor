@@ -17,63 +17,6 @@ ValueBar* expBar{};
 
 // NSpellSelector* spellSelector = nullptr;
 
-GameScene::GameScene()
-	: game(Game::inst()), logger(LoggerFactory::createAsync("GameScene")) {
-	Logger::info("GameScene created");
-}
-
-void GameScene::draw(Renderer& rdr) {
-	game.draw(rdr);
-
-	pauseText->isVisible = game.isPaused();
-	NScene::draw(rdr);
-}
-
-void GameScene::update(float dt) {
-	// if (spellSelector && !spellSelector->getIsRunning()) {
-	//	m_widget->destroy(spellSelector);
-	//	spellSelector = nullptr;
-	// }
-
-	game.update(dt);
-	const auto& p = game.state.player;
-	materialBar->setData(p.material);
-	expBar->setValue(p.exp, p.maxExp, p.level);
-
-	NScene::update(dt);
-}
-
-bool GameScene::handleEvent(const NEventCtx& event) {
-	if (NScene::handleEvent(event)) {
-		return true;
-	}
-
-	if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
-		if (e->code == sf::Keyboard::Key::Space) {
-			game.setPaused(!game.isPaused());
-			return true;
-		}
-	}
-
-	game.handleEvent(event.rawEvent);
-
-	return true;
-}
-
-void GameScene::enter() {
-	if (init) {
-		return;
-	}
-	game.init();
-	initUI();
-	init = true;
-	Logger::info("GameScene initialized");
-}
-
-std::string_view GameScene::getName() const {
-	return NObject::makeTypeID<GameScene>();
-}
-
 void GameScene::initUI() {
 	createWidget();
 	auto& wand = *game.state.wands.front();
@@ -100,7 +43,6 @@ void GameScene::initUI() {
 	auto inventory2 = Util::makeUnique(new NSpellInventory({350, 50}, 5));
 	widget->addToTop(std::move(inventory2));
 
-	constexpr auto windowSize = NScale::defaultWindowSizeF;
 	auto healthBar =
 		Util::makeUnique(new ValueBar(
 			{windowSize.x - 20, 20},
@@ -126,4 +68,58 @@ void GameScene::initUI() {
 	pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
 	pauseText->isVisible = false;
 	widget->add(Util::makeUnique(pauseText));
+}
+
+GameScene::GameScene(nvec2 windowSize)
+	: Scene(Util::makeContentID<GameScene>()),
+	  game(Game::inst()) {
+	this->windowSize = windowSize;
+}
+
+void GameScene::draw(NRenderBuffer& rdr) {
+	game.draw(rdr);
+
+	pauseText->isVisible = game.isPaused();
+	Scene::draw(rdr);
+}
+
+void GameScene::update(float dt) {
+	// if (spellSelector && !spellSelector->getIsRunning()) {
+	//	m_widget->destroy(spellSelector);
+	//	spellSelector = nullptr;
+	// }
+
+	game.update(dt);
+	const auto& p = game.state.player;
+	materialBar->setData(p.material);
+	expBar->setValue(p.exp, p.maxExp, p.level);
+
+	Scene::update(dt);
+}
+
+bool GameScene::handleEvent(const NWindowEvent& event) {
+	if (Scene::handleEvent(event)) {
+		return true;
+	}
+
+	if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
+		if (e->code == sf::Keyboard::Key::Space) {
+			game.setPaused(!game.isPaused());
+			return true;
+		}
+	}
+
+	game.handleEvent(event.rawEvent);
+
+	return true;
+}
+
+void GameScene::enter() {
+	if (init) {
+		return;
+	}
+	game.init();
+	initUI();
+	init = true;
+	logger.info("GameScene initialized");
 }

@@ -1,5 +1,5 @@
-#include "DataManager.h"
-#include "../utils/File/Json.h"
+#include "../global/DataManager.h"
+#include "../../utils/File/Json.h"
 
 void DataMgr::loadSpriteInfo() {
 	const auto filename = "resources/data/sprite/entity.json";

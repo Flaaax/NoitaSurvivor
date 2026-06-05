@@ -1,18 +1,10 @@
 #pragma once
 #include "NInputState.h"
+#include "NWindowEvent.h"
 #include "States.h"
-#include "src/ui/NScale.h"
-
 #include <SFML/Window/Event.hpp>
 
-using NRawEvent = sf::Event;
 class NObject;
-
-struct NEventCtx {
-	const NRawEvent& rawEvent;
-	const NScale& scale;
-	const NInputState& input;
-};
 
 struct NRootCtx {
 	const NDragState& dragState;
@@ -23,8 +15,8 @@ struct NLocalEventCtx {
 };
 
 struct NUIEvent {
-	const NEventCtx& ctx;
-	const NRootCtx& widgetCtx;
+	const NWindowEvent& windowEvent;
+	const NRootCtx& rootCtx;
 	NLocalEventCtx localCtx;
 };
 

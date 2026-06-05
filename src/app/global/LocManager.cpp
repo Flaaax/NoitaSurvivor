@@ -1,16 +1,16 @@
-#include "LocManager.h"
+#include "../global/LocManager.h"
 
-#include "../utils/File/Json.h"
+#include "../../utils/File/Json.h"
 
 namespace fs = std::filesystem;
 
 void LocManager::loadLanguage(std::string_view lang) {
 	if (lang == lang_) {
-		Logger::warn("The language did not change!");
+		LoggerOld::warn("The language did not change!");
 		return;
 	}
 
-	Logger::info("Loading language: {}", lang);
+	LoggerOld::info("Loading language: {}", lang);
 
 	tables.clear();
 
@@ -32,12 +32,12 @@ void LocManager::loadLanguage(std::string_view lang) {
 			if (auto str = Util::Json::getIf<std::string>(val)) {
 				table.contents[key] = std::move(*str);
 			} else {
-				Logger::warn("Invalid Loc: {}.{}", category.string(), key);
+				LoggerOld::warn("Invalid Loc: {}.{}", category.string(), key);
 			}
 		}
 	}
 
-	Logger::info("Load complete.");
+	LoggerOld::info("Load complete.");
 }
 
 void LocManager::loadDefaultLanguage() {
@@ -50,7 +50,7 @@ std::string LocManager::debugGetString(std::string_view table, std::string_view 
 	} catch (...) {}
 
 	if (required) {
-		Logger::warn("Required loc missing: {}.{}", table, entry);
+		LoggerOld::warn("Required loc missing: {}.{}", table, entry);
 		return std::format("{}.{}", table, entry);
 	}
 	return {};

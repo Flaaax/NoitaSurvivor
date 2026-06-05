@@ -1,10 +1,10 @@
 #pragma once
+#include "../../../app/global/DebugVariables.h"
 #include "ScriptComponent.h"
 #include "Trackers.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/global/DebugVariables.h"
 #include "src/utils/Lambda.h"
 #include "src/utils/Logger.h"
 

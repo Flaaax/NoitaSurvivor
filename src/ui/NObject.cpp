@@ -37,7 +37,7 @@ nrect NObject::getLocalBounds() const {
 
 NWidget* NObject::asWidget() {
 	if (!isWidget()) {
-		Logger::error_and_throw("Object is not a widget");
+		LoggerOld::error_and_throw("Object is not a widget");
 	}
 	return static_cast<NWidget*>(this);
 }

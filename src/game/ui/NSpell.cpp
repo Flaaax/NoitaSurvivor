@@ -1,9 +1,9 @@
 #include "NSpell.h"
 
+#include "../../app/global/AssetManager.h"
+#include "../../app/global/LocManager.h"
 #include "NSpellInventory.h"
 #include "src/game/Spells/Spell.h"
-#include "src/global/AssetManager.h"
-#include "src/global/LocManager.h"
 #include "src/ui/context/NStyle.h"
 #include "src/ui/elements/NImage.h"
 #include "src/ui/elements/NRichText.h"
@@ -78,7 +78,7 @@ NSpell::NSpell(std::shared_ptr<Spell> spell, nvec2 pos) : spell(std::move(spell)
 }
 
 std::optional<NEventResult> NSpell::handleEvent(const NUIEvent& event) {
-	auto& raw = event.ctx.rawEvent;
+	auto& raw = event.windowEvent.rawEvent;
 	if (const auto e = raw.getIf<sf::Event::MouseButtonPressed>()) {
 		if (e->button == sf::Mouse::Button::Left && this->frame.contains(event.localCtx.mouseLocal)) {
 			isReleased = true;
@@ -120,7 +120,7 @@ void NSpell::update(float dt) {
 		rotation = 0.f;
 		const NSpellInventory* inventory = getInventory();
 		if (!inventory) {
-			Logger::error_and_throw("NSpell does not have an inventory, but released.");
+			LoggerOld::error_and_throw("NSpell does not have an inventory, but released.");
 		}
 		const nvec2 target = inventory->getSlotGeometry(index).position;
 		const nvec2 dir = target - frame.position;
@@ -143,7 +143,7 @@ void NSpell::update(float dt) {
 
 void NSpell::draw(const NCanvas& canvas) const {
 	if (!spell) {
-		Logger::error_and_throw("NSpell must be tied with a Spell!");
+		LoggerOld::error_and_throw("NSpell must be tied with a Spell!");
 	}
 
 	sf::Sprite sprite(spell->getTexture());

@@ -4,7 +4,7 @@
 
 class NPanel;
 class NTooltip;
-class Renderer;
+class NRenderBuffer;
 
 class NRootWidget : public NWidget {
 private:
@@ -13,16 +13,16 @@ private:
 	NStyle style;
 	n_unique<NPanel> tooltip;
 	nvec2 mousePosition{};
-	bool handleDragEvent(const NEventCtx& event);
-	static bool shouldHandleEvent(const NEventCtx& ctx);
+	bool handleDragEvent(const NWindowEvent& event);
+	static bool shouldHandleEvent(const NWindowEvent& ctx);
 	void updateTooltipContent();
 	void updateHover(float dt);
 
 public:
 	explicit NRootWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true);
 	// Handle event as the root widget
-	bool handleEvent(const NEventCtx& ctx);
-	void draw(Renderer& rdr) const;
+	bool handleEvent(const NWindowEvent& ctx);
+	void draw(NRenderBuffer& rdr) const;
 	void update(float dt) override;
 	//void setStyle(NStyle style);
 };

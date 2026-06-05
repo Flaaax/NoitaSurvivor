@@ -1,9 +1,9 @@
 #include "Debug.h"
 
-#include <windows.h>
+#include "Logger.h"
 #include <dbghelp.h>
 #include <iostream>
-#include "Logger.h"
+#include <windows.h>
 
 #pragma comment(lib, "dbghelp.lib")
 

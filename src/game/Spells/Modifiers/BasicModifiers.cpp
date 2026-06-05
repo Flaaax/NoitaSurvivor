@@ -40,7 +40,7 @@ MultiShots::MultiShots(int shots) {
 	if (shots >= 2) {
 		this->shots = shots;
 	} else {
-		Logger::warn("MutiShots doesnt not accept shots: {}, fallback to default: 3", shots);
+		LoggerOld::warn("MutiShots doesnt not accept shots: {}, fallback to default: 3", shots);
 	}
 	castDelay = 0.1f;
 	reloadDelay = 0.1f;

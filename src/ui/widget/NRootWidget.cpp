@@ -1,12 +1,12 @@
 #include "NRootWidget.h"
 
-#include "src/global/AssetManager.h"
+#include "../../app/global/AssetManager.h"
 #include "src/ui/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/global/NGlobal.h"
 #include "src/ui/render/NCanvas.h"
 
-bool NRootWidget::handleDragEvent(const NEventCtx& event) {
+bool NRootWidget::handleDragEvent(const NWindowEvent& event) {
 	if (event.rawEvent.is<sf::Event::MouseMoved>()) {
 		const nvec2 newGlobalPosition = event.input.mouseRender - dragState.offset;
 		const nvec2 newLocalPosition = dragState.dragged->getParentLocalPosition(newGlobalPosition);
@@ -40,7 +40,7 @@ bool NRootWidget::handleDragEvent(const NEventCtx& event) {
 	return false;
 }
 
-bool NRootWidget::handleEvent(const NEventCtx& ctx) {
+bool NRootWidget::handleEvent(const NWindowEvent& ctx) {
 	if (!shouldHandleEvent(ctx)) {
 		return false;
 	}
@@ -48,8 +48,8 @@ bool NRootWidget::handleEvent(const NEventCtx& ctx) {
 		.dragState = dragState,
 	};
 	const NUIEvent event{
-		.ctx = ctx,
-		.widgetCtx = widgetCtx,
+		.windowEvent = ctx,
+		.rootCtx = widgetCtx,
 		.localCtx = NLocalEventCtx{
 			.mouseLocal = ctx.input.mouseRender,
 		},
@@ -95,7 +95,7 @@ bool NRootWidget::handleEvent(const NEventCtx& ctx) {
 	return false;
 }
 
-bool NRootWidget::shouldHandleEvent(const NEventCtx& ctx) {
+bool NRootWidget::shouldHandleEvent(const NWindowEvent& ctx) {
 	const auto& raw = ctx.rawEvent;
 	return raw.is<sf::Event::MouseButtonPressed>() ||
 		   raw.is<sf::Event::MouseButtonReleased>() ||
@@ -150,7 +150,7 @@ NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_)
 	hoverState.hoverIntentDelay = 0.22f;
 }
 
-void NRootWidget::draw(Renderer& rdr) const {
+void NRootWidget::draw(NRenderBuffer& rdr) const {
 	const NCanvas canvas(rdr, getPosition());
 	this->NWidget::draw(canvas);
 	if (dragState.dragged) {

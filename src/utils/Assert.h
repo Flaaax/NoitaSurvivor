@@ -1,8 +1,8 @@
 #pragma once
-#include<assert.h>
-#include<source_location>
-#include"Macro.h"
-#include"Logger.h"
+#include "Logger.h"
+#include "Macro.h"
+#include <assert.h>
+#include <source_location>
 
 inline std::string getAssertMsg(std::string_view msg, const std::source_location& location) {
 	return fmt::format("Assertion failed:\nat file: {}\nat line: {}\nat function: {}\n{}",
@@ -10,19 +10,19 @@ inline std::string getAssertMsg(std::string_view msg, const std::source_location
 }
 
 inline void assertWithMsg(bool expected, std::string_view msg, const std::source_location& location = std::source_location::current()) {
-	if (!expected) Logger::error_and_throw(getAssertMsg(msg, location));
+	if (!expected) LoggerOld::error_and_throw(getAssertMsg(msg, location));
 }
 
 inline void assertNotNull(const void* data, const std::source_location& location = std::source_location::current()) {
-	if (!data) Logger::error_and_throw(getAssertMsg("Null pointer detected!", location).c_str());
+	if (!data) LoggerOld::error_and_throw(getAssertMsg("Null pointer detected!", location).c_str());
 }
 
 inline void assertValidIndex(size_t index, size_t bound, const std::source_location& location = std::source_location::current()) {
-	if (index >= bound) Logger::error_and_throw(getAssertMsg(fmt::format("Index {} out of bound {}", index, bound), location));
+	if (index >= bound) LoggerOld::error_and_throw(getAssertMsg(fmt::format("Index {} out of bound {}", index, bound), location));
 }
 
 inline void assertNotEmpty(std::string_view str, const std::source_location& location = std::source_location::current()) {
-	if (str.empty()) Logger::error_and_throw(getAssertMsg("Empty string detected!", location));
+	if (str.empty()) LoggerOld::error_and_throw(getAssertMsg("Empty string detected!", location));
 }
 
 #ifndef MYASSERT
