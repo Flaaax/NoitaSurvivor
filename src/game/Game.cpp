@@ -13,11 +13,11 @@
 #include "Systems/RenderSystem.h"
 #include "src/app/global/LocManager.h"
 #include "src/ui/NWindow.h"
+#include "src/game/Wands/Wand.h"
 #include "src/utils/Logger.h"
 
 Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
 	logger = flx::Logger::makeAsync("Game", true);
-	scales.offset = appCtx.window.getViewport().defaultWindowSizeF / 2.f;
 }
 
 Game::~Game() {
@@ -95,7 +95,6 @@ void Game::init() {
 }
 
 void Game::draw(NRenderBuffer& rdr) {
-
 	const auto ctx = getContext();
 	RenderSystem().render(rdr, ctx);
 }

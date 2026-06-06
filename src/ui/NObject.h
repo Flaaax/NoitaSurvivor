@@ -11,7 +11,7 @@
 #include "src/utils/ID.h"
 #include "src/utils/Pointer.h"
 
-class NCanvas;
+class NPainter;
 class NLayout;
 
 struct NLayoutConstraint {
@@ -69,7 +69,7 @@ public:
 	virtual void update(float deltaTime) {
 	}
 
-	virtual void draw(const NCanvas& canvas) const = 0;
+	virtual void draw(const NPainter& canvas) const = 0;
 
 	// Generally, these values should not be changed inside Objects whose geometries are determined by user
 	void setPosition(nvec2 pos) {

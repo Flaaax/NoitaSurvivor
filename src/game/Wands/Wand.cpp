@@ -5,6 +5,7 @@
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
 #include "src/ui/NWindow.h"
+#include "src/ui/render/NPainter.h"
 #include "src/utils/Logger.h"
 #include "src/utils/Random.h"
 #include <iomanip>
@@ -37,15 +38,14 @@ std::string Wand::getWandTextureName(int number) {
 	return oss.str();
 }
 
-Wand::Wand() : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
+Wand::Wand(float wand_scale) : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
 	const int randomNumber = Util::random.nextVal(0, 1000);
 	const auto name = getWandTextureName(randomNumber);
 	texture = AssetMgr::getWandTexture(name);
 
 	sprite.setTexture(texture);
-	auto textureSize = texture.getSize();
+	const auto textureSize = texture.getSize();
 	sprite.setOrigin({0, textureSize.y / 2.0f});
-	auto wand_scale = NWindow::viewport.gfx_wand_scale;
 	length = 0.9f * wand_scale * static_cast<float>(textureSize.x);
 	sprite.setScale({wand_scale, wand_scale});
 
@@ -62,6 +62,10 @@ Wand::Wand() : sprite(AssetMgr::getWandTexture("noita_wand_0000")) {
 	inventory[3] = std::make_shared<ScatterShot>();
 	inventory[4] = std::make_shared<HomingShot>(6.f);
 	inventory.back() = std::make_shared<BulletSpell>();
+}
+
+void Wand::render(const NPainter& renderer) const {
+	renderer.draw(sprite);
 }
 
 void Wand::cast(const GameCtx& ctx) {

@@ -9,15 +9,15 @@ struct EntityPair {
 	constexpr EntityPair() = default;
 
 	constexpr EntityPair(myecs::entity a, myecs::entity b) noexcept :
-		a(a._entity <= b._entity ? a : b),
-		b(a._entity <= b._entity ? b : a) {}
+		a(a.flatten() <= b.flatten() ? a : b),
+		b(a.flatten() <= b.flatten() ? b : a) {}
 
 	friend bool operator==(const EntityPair&, const EntityPair&) = default;
 
 	friend size_t hash_value(const EntityPair& pair) noexcept {
 		size_t seed = 0;
-		boost::hash_combine(seed, pair.a._entity);
-		boost::hash_combine(seed, pair.b._entity);
+		boost::hash_combine(seed, pair.a.flatten());
+		boost::hash_combine(seed, pair.b.flatten());
 		return seed;
 	}
 };

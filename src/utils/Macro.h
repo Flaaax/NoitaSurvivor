@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef CLASS_MACRO
-#define CLASS_MACRO
+#ifndef N_CLASS_MACRO
+#define N_CLASS_MACRO
 
 #pragma execution_character_set("utf-8")
 

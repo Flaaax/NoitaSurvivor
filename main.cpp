@@ -1,14 +1,17 @@
-#pragma warning(disable:5260)
-#include "src/ui/NWindow.h"
+#pragma warning(disable : 5260)
+#include "src/app/Application.h"
+#include "src/game/app/NoitaSurvivorApp.h"
 
 int main() {
-	Logger::info("------Application started------\n");
-	//return NWindow::inst().loop();
-	// try {
-	// 	return NWindow::inst().loop();
-	// }
-	// catch (const std::exception& e) {
-	// 	Logger::error(e.what());
-	// }
+	// Logger::info("------Application started------\n");
+
+	const flx::app::AppInit init{
+		.name = "NoitaSurvivor",
+		.imguiEnabled = true,
+		.displayDebugFPS = true,
+	};
+
+	flx::app::Application::run<NoitaSurvivorApp>(init);
+
 	return 1;
 }

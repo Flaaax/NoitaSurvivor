@@ -6,16 +6,7 @@
 
 namespace nmath {
 	struct nmat22 {
-		union {
-			struct {
-				float a11, a12, a21, a22;
-			};
-			nrect rect;
-			/*struct {
-				nvec2 row1;
-				nvec2 row2;
-			};*/
-		};
+		float a11, a12, a21, a22;
 
 		constexpr nmat22()noexcept :a11(0), a12(0), a21(0), a22(0) {}
 		constexpr nmat22(float a11, float a12, float a21, float a22)noexcept :a11(a11), a12(a12), a21(a21), a22(a22) {}

@@ -1,6 +1,6 @@
 #include "NWidget.h"
 #include "../NWindow.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 
 #include <ranges>
 
@@ -11,8 +11,8 @@ void NWidget::bind(NObject* obj) {
 	obj->parent = this;
 }
 
-void NWidget::drawWithChildCanvas(const NCanvas& canvas, const NObject& obj) {
-	const NCanvas localCanvas = canvas.translated(obj.getPosition());
+void NWidget::drawWithChildCanvas(const NPainter& canvas, const NObject& obj) {
+	const NPainter localCanvas = canvas.translated(obj.getPosition());
 	obj.draw(localCanvas);
 }
 
@@ -40,7 +40,7 @@ void NWidget::update(float deltaTime) {
 	}
 }
 
-void NWidget::draw(const NCanvas& canvas) const {
+void NWidget::draw(const NPainter& canvas) const {
 	for (const auto& obj : objects) {
 		if (obj->isVisible && !obj->isDragged()) {
 			drawWithChildCanvas(canvas, *obj);

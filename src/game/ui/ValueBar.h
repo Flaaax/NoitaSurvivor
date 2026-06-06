@@ -61,5 +61,5 @@ public:
 
 	void updateText();
 
-	void draw(const NCanvas& canvas) const override;
+	void draw(const NPainter& canvas) const override;
 };

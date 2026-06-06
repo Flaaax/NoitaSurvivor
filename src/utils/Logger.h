@@ -88,7 +88,7 @@ namespace flx {
 		}
 	};
 
-	static Logger logger = Logger::makeAsync("Default");
+	inline Logger logger = Logger::makeAsync("Default");
 } // namespace flax
 
 struct LoggerOld {

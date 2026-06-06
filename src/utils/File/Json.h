@@ -78,7 +78,7 @@ T json_parse_or(const json& j, std::string_view key, U&& defaultVal, std::string
 			return j[key].get<T>();
 		}
 	} catch (const std::exception& e) {
-		Logger::warn("failed to parse json field: {}\ninto type {}\nwith info: {}\nwith error msg: {}", key, typeid(T).name(), err_info, e.what());
+		flx::logger.warn("failed to parse json field: {}\ninto type {}\nwith info: {}\nwith error msg: {}", key, typeid(T).name(), err_info, e.what());
 		return T(std::forward<U>(defaultVal));
 	}
 }

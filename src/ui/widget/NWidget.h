@@ -20,7 +20,7 @@ private:
 
 	void bind(NObject* obj);
 
-	static void drawWithChildCanvas(const NCanvas& canvas, const NObject& obj);
+	static void drawWithChildCanvas(const NPainter& canvas, const NObject& obj);
 
 public:
 	explicit NWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) : NObject(nullptr) {
@@ -57,7 +57,7 @@ public:
 	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
 	void update(float deltaTime) override;
-	void draw(const NCanvas& canvas) const override;
+	void draw(const NPainter& canvas) const override;
 
 	bool has(const NObject* obj) const {
 		return obj->getParent() == this;

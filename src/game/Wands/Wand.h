@@ -6,6 +6,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <deque>
 
+class NPainter;
+
 class Wand {
 protected:
 	sf::Texture texture;
@@ -45,7 +47,7 @@ public:
 	std::deque<n_shared<Spell>> discardPile;
 	std::deque<n_shared<Spell>> hand;
 
-	Wand();
+	explicit Wand(float wand_scale);
 
 	void setGeometry(nvec2 pos, float arg) {
 		worldPos = pos;
@@ -55,9 +57,7 @@ public:
 		castPos = worldPos + length * Util::from_rad(arg);
 	}
 
-	void render(NRenderBuffer& renderer) const {
-		renderer.drawGame(sprite);
-	}
+	void render(const NPainter& renderer) const;
 
 	void update(float deltaTime) {
 		castTimer.update(deltaTime);

@@ -17,12 +17,12 @@ namespace flx::app {
 		SceneManager();
 		~SceneManager();
 
-		void addScene(n_unique<Scene> scene);
+		void add(n_unique<Scene> scene);
 
-		Scene* getScene(std::string_view name) const;
+		Scene* get(std::string_view name) const;
 
-		void setCurrentScene(std::string_view name) {
-			sceneToChange = getScene(name);
+		void setCurrent(std::string_view name) {
+			sceneToChange = get(name);
 		}
 
 		Scene* getCurrentScene() const {

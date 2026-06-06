@@ -2,7 +2,7 @@
 #include "../../utils/Container/Map.h"
 #include "src/game/Spells/Spell.h"
 #include "src/game/ui/NSpell.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 #include "src/ui/widget/NWidget.h"
 #include "src/utils/Assert.h"
 
@@ -76,7 +76,7 @@ NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
 	typeID = makeTypeID<NSpellInventory>();
 }
 
-void NSpellInventory::draw(const NCanvas& canvas) const {
+void NSpellInventory::draw(const NPainter& canvas) const {
 	sf::RectangleShape shape;
 	shape.setOutlineColor({0, 0, 0});
 

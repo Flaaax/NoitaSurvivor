@@ -1,15 +1,15 @@
 #include "Debug.h"
 
 #include "Logger.h"
+#include <windows.h>
 #include <dbghelp.h>
 #include <iostream>
-#include <windows.h>
 
 #pragma comment(lib, "dbghelp.lib")
 
 void Util::Debug::printCallStack() {
 	// Initialize the symbol handler
-	HANDLE hProcess = GetCurrentProcess();
+	const HANDLE hProcess = GetCurrentProcess();
 	SymInitialize(hProcess, nullptr, TRUE);
 
 	// Stack frame storage

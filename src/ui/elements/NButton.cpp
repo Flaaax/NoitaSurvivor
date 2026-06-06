@@ -1,7 +1,7 @@
 #include "NButton.h"
 
 #include "../NWindow.h"
-#include "../render/NCanvas.h"
+#include "../render/NPainter.h"
 #include "NRichText.h"
 #include "src/ui/layout/NBoxLayout.h"
 
@@ -58,7 +58,7 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 	return {};
 }
 
-void NButton::draw(const NCanvas& canvas) const {
+void NButton::draw(const NPainter& canvas) const {
 	if (isButtonVisible) {
 		sf::RectangleShape shape;
 		shape.setSize(getSize());

@@ -2,7 +2,7 @@
 #include "../../app/global/LocManager.h"
 #include "src/ui/elements/NRichText.h"
 #include "src/ui/global/NGlobal.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 #include "src/utils/Text/Format.h"
 #include "src/utils/Text/NString.h"
 
@@ -27,7 +27,7 @@ MaterialBar::MaterialBar(nvec2 rightTop, float height)
 	updateText();
 }
 
-void MaterialBar::draw(const NCanvas& canvas) const {
+void MaterialBar::draw(const NPainter& canvas) const {
 	canvas.draw(text);
 }
 

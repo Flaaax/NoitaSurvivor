@@ -211,8 +211,6 @@ namespace flx::app {
 
 				ImGui::SFML::Render(window.getWindow());
 			}
-
-			window.draw(rdr);
 		}
 
 		ImGui::SFML::Shutdown();

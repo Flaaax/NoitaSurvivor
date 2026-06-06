@@ -1,6 +1,5 @@
 #pragma once
 #include "Spell.h"
-#include "src/utils/Exception.h"
 
 struct ShotData {
 	nvec2 pos = {};

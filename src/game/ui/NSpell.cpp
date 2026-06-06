@@ -9,7 +9,7 @@
 #include "src/ui/elements/NRichText.h"
 #include "src/ui/layout/NBoxLayout.h"
 #include "src/ui/layout/NKeyValueLayout.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 #include "src/ui/widget/NWidget.h"
 
 #include <SFML/Graphics/Sprite.hpp>
@@ -141,7 +141,7 @@ void NSpell::update(float dt) {
 	}
 }
 
-void NSpell::draw(const NCanvas& canvas) const {
+void NSpell::draw(const NPainter& canvas) const {
 	if (!spell) {
 		LoggerOld::error_and_throw("NSpell must be tied with a Spell!");
 	}

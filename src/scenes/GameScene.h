@@ -3,19 +3,18 @@
 #define GAMESCENE_H
 
 #include "../app/Scene.h"
-
-class Game;
+#include "src/game/Game.h"
 
 class GameScene : public flx::app::Scene {
 private:
-	Game& game;
+	Game game;
 	bool init{};
 	nvec2 windowSize{};
 
 	void initUI();
 
 public:
-	GameScene(nvec2 windowSize);
+	explicit GameScene(flx::app::AppContext context);
 
 	void draw(NRenderBuffer& rdr) override;
 	void update(float dt) override;

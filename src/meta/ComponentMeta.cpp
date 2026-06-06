@@ -1,11 +1,11 @@
 #include "ComponentMeta.h"
 #include "CustomFieldParser.h"
 #include "EnumMeta.h"
+#include "src/app/global/SpriteManager.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Render/RenderComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
-#include <../app/SpriteManager.h>
 
 template <class T>
 void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {

@@ -67,7 +67,7 @@ namespace myecs {
 						throw std::runtime_error("invalid entity");
 					}
 				}
-				u64 id = e.get_id();
+				u64 id = e.id_u64();
 				if (entity_components.size() <= id) {
 					entity_components.resize(id + 1);
 				}
@@ -156,7 +156,7 @@ namespace myecs {
 			void destroy(entity e) {
 				throw_if(!valid(e), "Trying to destroy Component {} from invalid entity {}", types::type_name<T>(), e.string());
 				if (auto pool = try_get_pool<T>()) {
-					u64 id = e.get_id();
+					u64 id = e.id_u64();
 					throw_if(entity_components.size() <= id, "Entity {} does not have Component {}, but trying to destroy it.", e.string(),
 							 types::type_name<T>());
 					entity_components[id].erase(types::type_id<T>());

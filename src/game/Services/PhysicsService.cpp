@@ -55,12 +55,12 @@ void PhysicsService::createBody(const GameCtx& ctx, myecs::entity e, const BodyA
 	b2BodyDef bodyDef = b2DefaultBodyDef();
 	bodyDef.type = static_cast<b2BodyType>(arg.type);
 	bodyDef.fixedRotation = arg.fixedRotation;
-	bodyDef.userData = reinterpret_cast<void*>(e._entity);
+	bodyDef.userData = reinterpret_cast<void*>(e.flatten());
 
 	bc->body = b2CreateBody(ctx.worldCtx.world, &bodyDef);
 
 	b2ShapeDef shapeDef = b2DefaultShapeDef();
-	shapeDef.userData = reinterpret_cast<void*>(e._entity);
+	shapeDef.userData = reinterpret_cast<void*>(e.flatten());
 	shapeDef.density = arg.density;
 	shapeDef.material.friction = arg.friction;
 	shapeDef.material.restitution = arg.restitution;

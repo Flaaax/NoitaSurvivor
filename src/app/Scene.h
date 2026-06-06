@@ -1,20 +1,26 @@
 #pragma once
 #ifndef NSCENE_H
 #define NSCENE_H
+#include "AppContext.h"
 #include "src/ui/widget/NRootWidget.h"
 #include "src/ui/widget/NWidget.h"
 
 namespace flx::app {
 	class Scene {
+		// friend class SceneManager;
+
 	protected:
 		n_unique<NRootWidget> widget{};
 		Logger logger{};
+		AppContext context;
+		// std::string nextScene = "";
 
 	public:
 		const std::string_view name;
 
-		explicit Scene(std::string_view name)
+		explicit Scene(AppContext context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),
+			  context(context),
 			  name(name) {}
 
 		virtual ~Scene() {

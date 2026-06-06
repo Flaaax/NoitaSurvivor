@@ -50,7 +50,7 @@ namespace myecs {
 			}
 			auto [id, ret] = pool.create(std::forward<Args>(args)...);
 			entities.insert(e);
-			entity_to_component.force_get(e.get_id()) = id;
+			entity_to_component.force_get(e.id_u64()) = id;
 			return ret;
 		}
 
@@ -60,13 +60,13 @@ namespace myecs {
 			if (!has(e)) {
 				throw std::runtime_error("entity must have the component");
 			}
-			component c = entity_to_component[e.get_id()];
+			component c = entity_to_component[e.id_u64()];
 			return pool.replace(c, std::forward<Args>(args)...);
 		}
 
 		T& get(entity e) {
 			MYECS_ASSERT(has(e), "invalid entity");
-			component c = entity_to_component[e.get_id()];
+			component c = entity_to_component[e.id_u64()];
 			return pool.get(c);
 		}
 
@@ -81,7 +81,7 @@ namespace myecs {
 				return;
 			}
 			entities.erase(e);
-			auto c = entity_to_component[e.get_id()];
+			auto c = entity_to_component[e.id_u64()];
 			pool.destroy(c);
 		}
 

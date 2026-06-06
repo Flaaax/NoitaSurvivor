@@ -22,6 +22,6 @@ struct GameCtx {
 	const ContactLayerRules& contactRules;
 	GameState& gameState;
 	ContactState& contactState;
-	const GameRenderScales& scales;
+	GameRenderScales& scales;
 	const flx::app::AppContext& appCtx;
 };

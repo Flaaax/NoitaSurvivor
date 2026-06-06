@@ -2,6 +2,7 @@
 
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
+#include "src/utils/Logger.h"
 
 #include <src/game/Components/EntityComponents.h>
 #include <src/game/Components/PhysicsComponents.h>
@@ -57,7 +58,7 @@ void PhysicsSystem::updateAfterContactSystem(const GameCtx& ctx, float dt) {
 		if (auto& bound = ctx.gameState.maxBound; !bound.contains(ps.getPosition(bc))) {
 			// should be careful, I guess
 			if (!reg.has<EntityComponent>(e))
-				Logger::error_and_throw("Entity {} does not have BodyComponent", e.string());
+				flx::logger.error_and_throw("Entity {} does not have BodyComponent", e.string());
 			EntityService::kill(ctx, e);
 			// Logger::info("Found entity {} out of bound",e.string());
 		}

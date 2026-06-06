@@ -8,14 +8,13 @@
 #include "src/game/render/GameRenderScales.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Random.h"
-#include "src/utils/VectorHelper.h"
 
 void GameStateSystem::initGameState(const GameCtx& ctx) {
 	using namespace Util;
 
 	auto& state = ctx.gameState;
 
-	state.wands += makeUnique(new Wand());
+	state.wands += makeUnique(new Wand(ctx.scales.gfx_wand_scale));
 
 	state.player.id = ctx.factory.createPlayer(ctx);
 	state.player.collector = ctx.factory.createCollector(ctx, 4.5f);
@@ -49,7 +48,7 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 	auto& state = ctx.gameState;
-	auto& inputState = ctx.appCtx.window.input;
+	auto& inputState = ctx.appCtx.input;
 	state.mousePos = (inputState.mouseRender - ctx.scales.offset) / ctx.scales.scale + state.cameraPos;
 	const myecs::entity player = ctx.gameState.player.id;
 	state.playerPos = PhysicsService().getPosition(ctx, player);

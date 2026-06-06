@@ -30,7 +30,7 @@ private:
 public:
 	NSpellInventory(nvec2 position, size_t slotCount);
 
-	void draw(const NCanvas& canvas) const override;
+	void draw(const NPainter& canvas) const override;
 
 	void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
 	void onDropAccepted(const NDropQuery& query, bool shouldDrop) override;

@@ -2,11 +2,10 @@
 
 #include "../app/Scene.h"
 
-class MenuScene :public Scene {
+class MenuScene : public flx::app::Scene {
 public:
-	MenuScene();
+	explicit MenuScene(flx::app::AppContext context);
 
 	void draw(NRenderBuffer& rdr) override;
 	void update(float dt) override;
-	std::string_view getName() const override;
 };

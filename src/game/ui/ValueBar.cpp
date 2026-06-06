@@ -4,7 +4,7 @@
 #include "../../utils/Text/NString.h"
 #include "src/ui/elements/NRichText.h"
 #include "src/ui/global/NGlobal.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 #include "src/utils/Text/Format.h"
 
 ValueBar::ValueBar(nvec2 topRight, nvec2 size, int initialMaxHealth, float lengthPerHealth, int mode)
@@ -48,7 +48,7 @@ void ValueBar::updateText() {
 	}
 }
 
-void ValueBar::draw(const NCanvas& canvas) const {
+void ValueBar::draw(const NPainter& canvas) const {
 	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * frame.size.x, frame.size.y};
 	healthShape.setSize(healthShapeSize);
 	healthShape.setPosition({frame.size.x - healthShapeSize.x, 0});

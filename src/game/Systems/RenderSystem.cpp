@@ -3,17 +3,21 @@
 #include "../Components/Render/RenderComponent.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
+#include "src/game/render/GameRenderScales.h"
 #include "src/render/Renderer.h"
+#include "src/ui/render/NPainter.h"
+#include "src/ui/render/NRenderBuffer.h"
+#include "src/ui/render/NWindowViewport.h"
 #include "src/ui/shapes/NLineShape.h"
 #include <src/game/Components/PhysicsComponents.h>
 
-void RenderSystem::debugRender(const GameCtx& ctx, NRenderBuffer& rdr) {
+void RenderSystem::debugRender(const GameCtx& ctx, const NPainter& rdr) {
 	NLineShape shape;
 	for (const auto& e : ctx.gameState.borders) {
 		if (const auto b = ctx.reg.try_get<BodyComponent>(e)) {
 			auto [point1, point2] = b2Shape_GetSegment(b->shape);
 			shape.set(point1, point2, {200, 0, 0});
-			rdr.drawGame(shape);
+			rdr.draw(shape);
 		}
 	}
 }
@@ -26,23 +30,34 @@ void RenderSystem::update(const GameCtx& ctx, float dt) {
 	}
 }
 
-void RenderSystem::render(NRenderBuffer& rdr, const GameCtx& ctx) {
-	rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
+void RenderSystem::render(NRenderBuffer& buffer, const GameCtx& ctx) {
+	ctx.scales.offset = ctx.appCtx.windowViewport.defaultWindowSizeF / 2.f;
 
-	rdr.clear(sf::Color(100, 100, 100));
+	// rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
+
+	buffer.clear({100, 100, 100});
+
+	const nvec2 offset = ctx.scales.offset - ctx.gameState.cameraPos * ctx.scales.scale;
+
+	NPainter painter(buffer);
+	painter.states.transform
+		.translate(offset)
+		.scale(ctx.scales.scale);
+
+	// 还不支持Camera
 
 	sf::RectangleShape arenaShape;
 	arenaShape.setSize(ctx.gameState.bound.size);
 	arenaShape.setFillColor(sf::Color(170, 170, 170));
 	arenaShape.setPosition(ctx.gameState.bound.position);
-	rdr.drawGame(arenaShape);
+	painter.draw(arenaShape);
 
 	if (ctx.gameState.debugMode) {
 		sf::RectangleShape testShape;
 		testShape.setSize({4, 4});
 		testShape.setFillColor({100, 100, 100});
 		testShape.setPosition({0, 0});
-		rdr.drawGame(testShape);
+		painter.draw(testShape);
 	}
 
 	// Logger::info("begin render");
@@ -71,14 +86,14 @@ void RenderSystem::render(NRenderBuffer& rdr, const GameCtx& ctx) {
 			}
 		}
 
-		rdr.drawGame(copy);
+		painter.draw(copy);
 	}
 
 	for (const auto& wand : ctx.gameState.wands) {
-		wand->render(rdr);
+		wand->render(painter);
 	}
 
 	if (ctx.gameState.debugMode) {
-		debugRender(ctx, rdr);
+		debugRender(ctx, painter);
 	}
 }

@@ -1,10 +1,10 @@
 #include "NPanel.h"
 
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
-void NPanel::draw(const NCanvas& canvas) const {
+void NPanel::draw(const NPainter& canvas) const {
 	sf::RectangleShape shape;
 	shape.setFillColor(backgroundColor);
 	shape.setOutlineColor(outlineColor);

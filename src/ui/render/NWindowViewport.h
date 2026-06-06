@@ -1,6 +1,5 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
-#include "src/utils/Macro.h"
 
 class NWindowViewport {
 public:
@@ -31,7 +30,7 @@ public:
 		windowRect = {0, 0, windowSize.x, windowSize.y};
 
 		const float sizeRatio = windowSize.ratio();
-		constexpr float defaultRatio = defaultWindowSize.to<nvec2>().ratio();
+		const float defaultRatio = defaultWindowSize.to<nvec2>().ratio();
 
 		float scale;
 

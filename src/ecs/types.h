@@ -34,6 +34,14 @@ namespace myecs {
 		u32 id = u32_max;
 		u32 version = u32_max;
 
+		constexpr entity() = default;
+
+		constexpr entity(u32 id, u32 version) : id(id), version(version) {}
+
+		explicit constexpr entity(u64 flattened)
+			: id(static_cast<u32>(flattened & 0xffffffffull)),
+			  version(static_cast<u32>(flattened >> 32)) {}
+
 		constexpr bool operator==(const entity& other) const = default;
 
 		constexpr u64 id_u64() const {

@@ -70,10 +70,9 @@ void GameScene::initUI() {
 	widget->add(Util::makeUnique(pauseText));
 }
 
-GameScene::GameScene(nvec2 windowSize)
-	: Scene(Util::makeContentID<GameScene>()),
-	  game(Game::inst()) {
-	this->windowSize = windowSize;
+GameScene::GameScene(flx::app::AppContext context)
+	: Scene(context, Util::makeContentID<GameScene>()), game(context) {
+	this->windowSize = context.windowViewport.defaultWindowSizeF;
 }
 
 void GameScene::draw(NRenderBuffer& rdr) {

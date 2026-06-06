@@ -4,7 +4,7 @@
 #include "src/ui/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/global/NGlobal.h"
-#include "src/ui/render/NCanvas.h"
+#include "src/ui/render/NPainter.h"
 
 bool NRootWidget::handleDragEvent(const NWindowEvent& event) {
 	if (event.rawEvent.is<sf::Event::MouseMoved>()) {
@@ -151,7 +151,7 @@ NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_)
 }
 
 void NRootWidget::draw(NRenderBuffer& rdr) const {
-	const NCanvas canvas(rdr, getPosition());
+	const NPainter canvas(rdr, getPosition());
 	this->NWidget::draw(canvas);
 	if (dragState.dragged) {
 		dragState.dragged->draw(canvas.translated(dragState.dragged->getGlobalPosition()));

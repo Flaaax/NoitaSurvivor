@@ -13,6 +13,10 @@ void NRenderBuffer::draw(const sf::Drawable& content, const sf::RenderStates& st
 	texture.draw(content, states);
 }
 
+void NRenderBuffer::clear(sf::Color color) {
+	texture.clear(color);
+}
+
 void NRenderBuffer::flush(sf::RenderWindow& window, const NWindowViewport& viewport) {
 	texture.display();
 	const sf::Texture* targetTexture{};

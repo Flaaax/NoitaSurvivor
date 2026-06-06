@@ -23,4 +23,5 @@ public:
 	explicit NRenderBuffer(const NWindowViewport& viewport);
 
 	void draw(const sf::Drawable& content, const sf::RenderStates& states = sf::RenderStates::Default);
+	void clear(sf::Color color);
 };

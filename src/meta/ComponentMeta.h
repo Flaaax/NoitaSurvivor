@@ -6,7 +6,6 @@
 
 #include "src/utils/Container/Map.h"
 #include <functional>
-#include <src/utils/VectorHelper.h>
 #include <string_view>
 
 struct GameCtx;

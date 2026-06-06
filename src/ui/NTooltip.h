@@ -13,5 +13,5 @@ private:
 
 public:
 	//void setContent(const NTooltipSpec& spec, const NStyle& style);
-	void draw(const NCanvas& canvas) const override;
+	void draw(const NPainter& canvas) const override;
 };
