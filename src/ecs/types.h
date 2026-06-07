@@ -30,6 +30,9 @@ namespace myecs {
 	inline constexpr u32 u32_max = ::std::numeric_limits<u32>::max();
 	inline constexpr u64 u64_max = ::std::numeric_limits<u64>::max();
 
+	static_assert(sizeof(u64) == 8, "u64 must be 64bit");
+	static_assert(sizeof(size_t) == 8, "size_t must be 64bit");
+
 	struct entity {
 		u32 id = u32_max;
 		u32 version = u32_max;
@@ -59,7 +62,7 @@ namespace myecs {
 		}
 
 		constexpr bool is_null() const {
-			return id == u32_max && version == u32_max;
+			return id == u32_max || version == u32_max;
 		}
 	};
 
@@ -79,14 +82,12 @@ namespace myecs {
 		[[nodiscard]] consteval u64 type_hash() noexcept {
 			constexpr std::string_view name = type_name<Type>();
 			u64 hash = 0xCBF29CE484222325;
-			for (auto c : name) {
+			for (const auto c : name) {
 				hash ^= c;
 				hash *= 0x100000001B3;
 			}
 			return hash;
 		}
-
-		static_assert(sizeof(u64) == 8, "u64 is not 64bit!");
 
 		inline u64 rot64(u64 x, u64 k) {
 			return (x >> k) | (x << (64 - k));
@@ -103,15 +104,19 @@ namespace myecs {
 			return val;
 		}
 
-		namespace detail {
+		namespace internal {
 			inline u64 _id_count = 0;
 		}
 
 		// Generates unique type id
 		template <class T>
 		[[nodiscard]] u64 type_id() noexcept {
-			static const u64 id = random_map(detail::_id_count++);
+			static const u64 id = random_map(internal::_id_count++);
 			return id;
+		}
+
+		inline void randomize_id(u32 seed) noexcept {
+			internal::_id_count += seed;
 		}
 
 	} // namespace types
@@ -128,6 +133,13 @@ namespace myecs {
 		}
 	}
 
+	struct Policy {
+		// Component Policy
+		bool in_place_delete = false;
+		u64 page_size = 1024;
+
+		// Other Policy...
+	};
 } // namespace myecs
 
 template <>

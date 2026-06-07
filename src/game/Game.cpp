@@ -12,7 +12,7 @@
 #include "Systems/PhysicsSystem.h"
 #include "Systems/RenderSystem.h"
 #include "src/app/global/LocManager.h"
-#include "src/ui/NWindow.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "src/game/Wands/Wand.h"
 #include "src/utils/Logger.h"
 

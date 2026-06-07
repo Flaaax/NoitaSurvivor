@@ -4,9 +4,7 @@
 #include "src/game/Spells/Modifiers/BasicModifiers.h"
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
-#include "src/ui/NWindow.h"
 #include "src/ui/render/NPainter.h"
-#include "src/utils/Logger.h"
 #include "src/utils/Random.h"
 #include <iomanip>
 #include <sstream>

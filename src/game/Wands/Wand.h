@@ -1,12 +1,13 @@
 #pragma once
-#include "src/game/GameContext.h"
-#include "src/game/Spells/Spell.h"
-#include "src/render/Renderer.h"
+#include "src/utils/Container/Vector.h"
+#include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <deque>
 
 class NPainter;
+class Spell;
+struct GameCtx;
 
 class Wand {
 protected:
@@ -20,7 +21,7 @@ protected:
 public:
 	static constexpr float MIN_CAST_DELAY = 1.f / 60.f;
 
-	//wand
+	// wand
 	float castDelay = 0.f;
 	float reloadDelay = 0.f;
 	float scattering = 0.f;
@@ -35,14 +36,14 @@ public:
 	Timer castTimer;
 	Timer reloadTimer;
 
-	//gfx
+	// gfx
 	float arg = 0.f;
 	float length = 0.f;
 
 	nvec2 worldPos = {};
 	nvec2 castPos = {};
 
-	Util::Vector<n_shared<Spell>> inventory;		//Not modified when shooting
+	Util::Vector<n_shared<Spell>> inventory; // Not modified when shooting
 	std::deque<n_shared<Spell>> drawPile;
 	std::deque<n_shared<Spell>> discardPile;
 	std::deque<n_shared<Spell>> hand;
@@ -72,7 +73,6 @@ public:
 
 	void cast(const GameCtx& ctx);
 
-	//Clear all the spells but keep the delays
+	// Clear all the spells but keep the delays
 	void clear();
 };
-

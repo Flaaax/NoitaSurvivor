@@ -27,183 +27,18 @@ namespace myecs {
 		}
 
 		template <std::integral I>
-		T& force_get(I i) {
+		T& force_get(I i, T default_value = {}) {
 			u64 i1 = static_cast<u64>(i);
 			if (i1 >= Base::size()) {
-				Base::resize(i1 + 1ull, static_cast<T>(0));
+				Base::resize(i1 + 1ull, default_value);
 			}
 
 			return this->operator[](i);
 		}
 	};
 
-	template <class T, class Alloc = std::allocator<void>>
-		requires std::is_unsigned_v<T> || std::is_same_v<T, entity>
-	class SparseSet {
-	private:
-		Vector<T, Alloc> dense;	   // contains the elements
-		Vector<u32, Alloc> sparse; // contains the indices
-
-		static constexpr u32 null_id = std::numeric_limits<u32>::max();
-
-		static u32 id(T elem) {
-			if constexpr (std::is_same_v<T, entity>) {
-				return elem.id;
-			} else
-				return static_cast<u32>(elem);
-		}
-
-	public:
-		static constexpr u32 _max_size = 0x1'000'000;
-		using const_iterator = Vector<T, Alloc>::const_iterator;
-
-		SparseSet() {
-		}
-
-		SparseSet(SparseSet&&) = default;
-		SparseSet(const SparseSet&) = default;
-		SparseSet& operator=(SparseSet&&) = default;
-		SparseSet& operator=(const SparseSet&) = default;
-
-		void insert(T elem) {
-			u32 i = id(elem);
-			if (i >= _max_size) {
-				throw std::runtime_error("Number too big!");
-			}
-			if (sparse.size() <= i) {
-				sparse.resize(i + 1ull, null_id);
-			} else if (sparse[i] != null_id) {
-				return;
-			}
-			dense.emplace_back(elem);
-			sparse[i] = static_cast<u32>(dense.size() - 1ull);
-		}
-
-		void erase(T elem) {
-			u32 i = id(elem);
-			if (i >= sparse.size()) {
-				return;
-			}
-			u32 index = sparse[i];
-			if (index == null_id) {
-				return;
-			}
-
-			T last_elem = dense.back();
-			dense[index] = last_elem;
-			sparse[id(last_elem)] = index;
-			dense.pop_back();
-
-			// in case when the dense vector is empty
-			sparse[i] = null_id;
-		}
-
-		void clear() {
-			dense.clear();
-			sparse.clear();
-		}
-
-		bool has(T elem) const {
-			u32 i = id(elem);
-			if (i >= sparse.size()) {
-				return false;
-			}
-			return sparse[i] != null_id && ((!std::is_same_v<T, entity>) || dense[sparse[i]] == elem); // Check if version matches
-		}
-
-		u64 size() const {
-			return dense.size();
-		}
-
-		u64 max_value_size() const {
-			return sparse.size();
-		}
-
-		const_iterator begin() const {
-			return dense.begin();
-		}
-
-		const_iterator end() const {
-			return dense.end();
-		}
-	};
-
-	template <class T, class Alloc = std::allocator<void>>
-		requires std::is_unsigned_v<T> || std::is_same_v<T, entity>
-	class IdGen {
-	private:
-		using u32 = u32;
-		static constexpr u32 invalid_id = -1;
-
-		struct Node {
-			bool valid = false;
-		};
-
-		Vector<T, rebind_alloc<Alloc, T>> unused_id;
-		Vector<Node, rebind_alloc<Alloc, Node>> sparse;
-		u64 m_count = 0;
-
-	public:
-		IdGen() {
-		}
-
-		IdGen(IdGen&& other) noexcept : unused_id(move_and_reset(other.unused_id)),
-										sparse(move_and_reset(other.sparse)),
-										m_count(move_and_reset(other.m_count)) {
-		}
-
-		IdGen& operator=(IdGen&& other) noexcept {
-			unused_id = move_and_reset(other.unused_id);
-			sparse = move_and_reset(other.sparse);
-			m_count = move_and_reset(other.m_count);
-			return *this;
-		}
-
-		T get() {
-			if (unused_id.empty()) {
-				sparse.emplace_back(Node{true});
-				return m_count++;
-			}
-			T new_id = unused_id.back();
-			unused_id.pop_back();
-			m_count++;
-			sparse[new_id].valid = true;
-			return new_id;
-		}
-
-		void ret(T id) {
-			if (active(id)) {
-				sparse[id].valid = false;
-				unused_id.push_back(id);
-				m_count--;
-			}
-		}
-
-		bool active(T id) const {
-			return id < sparse.size() && sparse[id].valid;
-		}
-
-		u64 count() const {
-			return m_count;
-		}
-
-		u64 max_count() const {
-			return sparse.size();
-		}
-
-		void clear() {
-			unused_id.clear();
-			sparse.clear();
-			m_count = 0;
-		}
-
-		bool full() const {
-			return unused_id.empty();
-		}
-	};
-
 	template <class Alloc>
-	class IdGen<entity, Alloc> {
+	class IdGen {
 	private:
 		static constexpr u32 invalid_id = u32_max;
 
@@ -220,15 +55,15 @@ namespace myecs {
 		IdGen() {
 		}
 
-		IdGen(IdGen&& other) noexcept : unused_id(move_and_reset(other.unused_id)),
-										sparse(move_and_reset(other.sparse)),
-										m_count(move_and_reset(other.m_count)) {
+		IdGen(IdGen&& other) noexcept : unused_id(std::move(other.unused_id)),
+										sparse(std::move(other.sparse)),
+										m_count(auto_move(other.m_count)) {
 		}
 
 		IdGen& operator=(IdGen&& other) noexcept {
-			unused_id = move_and_reset(other.unused_id);
-			sparse = move_and_reset(other.sparse);
-			m_count = move_and_reset(other.m_count);
+			unused_id = std::move(other.unused_id);
+			sparse = std::move(other.sparse);
+			m_count = auto_move(other.m_count);
 			return *this;
 		}
 
@@ -241,12 +76,12 @@ namespace myecs {
 			unused_id.pop_back();
 			m_count++;
 			sparse[new_id].valid = true;
-			return entity(static_cast<u32>(new_id), sparse[new_id].version);
+			return entity(new_id, sparse[new_id].version);
 		}
 
 		void ret(entity e) {
 			if (active(e)) {
-				sparse[e.id].version++;
+				++sparse[e.id].version;
 				sparse[e.id].valid = false;
 				unused_id.push_back(e.id);
 				m_count--;

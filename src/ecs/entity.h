@@ -12,48 +12,50 @@ namespace myecs {
 	namespace latest {
 		// Thread-unsafe
 		// Move/Copy requirement for compmonents: None
-		template <class Alloc = std::allocator<void>>
+		template <Policy policy = {}, class Alloc = std::allocator<void>>
 		class Registry {
 		private:
-			using component = u64;
-			using entity_view = pool::entity_view;
-			using PoolProxy = ComponentPoolProxy<Alloc>;
+			using component_id = u64;
 			using VoidAlloc = rebind_alloc<Alloc, void>;
-			DenseMap<component, PoolProxy, std::identity, std::equal_to<component>, VoidAlloc> pools;
-			IdGen<entity, VoidAlloc> ids;
-			Vector<DenseSet<component, std::identity, std::equal_to<component>, VoidAlloc>> entity_components;
+			using PoolProxy = ComponentPoolProxy<VoidAlloc, policy>;
+			template <class T>
+			using Pool = ComponentPool<T, VoidAlloc, policy>;
+
+			DenseMap<component_id, PoolProxy, std::identity, std::equal_to<>, VoidAlloc> pools;
+			IdGen<VoidAlloc> ids;
+			Vector<DenseSet<component_id, std::identity, std::equal_to<>, VoidAlloc>> entity_components;
 
 			template <class T>
-			ComponentPool<T>& get_pool() {
-				component id = types::type_id<T>();
+			Pool<T>& get_pool() {
+				component_id id = types::type_id<T>();
 				PoolProxy& proxy = pools[id];
 				if (proxy.data.empty()) {
 					proxy.template emplace<T>();
 				}
-				return proxy.data.template get<ComponentPool<T>>();
+				return proxy.data.template get<Pool<T>>();
 			}
 
 			template <class T>
-			ComponentPool<T>* try_get_pool() {
-				component id = types::type_id<T>();
+			Pool<T>* try_get_pool() {
+				component_id id = types::type_id<T>();
 				if (auto it = pools.find(id); it != pools.end()) {
 					PoolProxy& proxy = it->second;
 					if (proxy.data.empty())
 						return {};
-					return &proxy.data.template get<ComponentPool<T>>();
+					return &proxy.data.template get<Pool<T>>();
 				}
 				return {};
 			}
 
 			template <class T>
-			const ComponentPool<T>* try_get_pool() const {
+			const Pool<T>* try_get_pool() const {
 				return const_cast<Registry*>(this)->try_get_pool<T>();
 			}
 
-			Registry(const Registry&) = delete;
 
 		public:
 			explicit Registry() = default;
+			Registry(const Registry&) = delete;
 
 			Registry(Registry&& other) noexcept
 				: pools(std::move(other.pools)), ids(std::move(other.ids)), entity_components(std::move(other.entity_components)) {
@@ -63,23 +65,21 @@ namespace myecs {
 			template <class T, class... Args>
 			T& emplace(entity e, Args&&... args) {
 				if constexpr (myecs_debug_level) {
-					if (!ids.active(e)) {
-						throw std::runtime_error("invalid entity");
-					}
+					throw_if(!ids.active(e), "Invalid entity: {}", e.string());
 				}
 				u64 id = e.id_u64();
 				if (entity_components.size() <= id) {
 					entity_components.resize(id + 1);
 				}
 				entity_components[id].insert(types::type_id<T>());
-				ComponentPool<T>& pool = get_pool<T>();
+				Pool<T>& pool = get_pool<T>();
 				return pool.create(e, std::forward<Args>(args)...);
 			}
 
 			template <class T, class... Args>
 			T& get_or_emplace(entity e, Args&&... args) {
 				// throw_if(!valid(e), "Entity {} is invalid", e.string());
-				if (ComponentPool<T>& pool = get_pool<T>(); pool.has(e))
+				if (Pool<T>& pool = get_pool<T>(); pool.has(e))
 					return pool.get(e);
 				return emplace<T>(e, std::forward<Args>(args)...);
 			}
@@ -87,7 +87,7 @@ namespace myecs {
 			template <class T, class... Args>
 			T& emplace_or_replace(entity e, Args&&... args) {
 				// throw_if(!valid(e), "Entity {} is invalid", e.string());
-				if (ComponentPool<T>& pool = get_pool<T>(); pool.has(e))
+				if (Pool<T>& pool = get_pool<T>(); pool.has(e))
 					return pool.replace(e, std::forward<Args>(args)...);
 				return emplace<T>(e, std::forward<Args>(args)...);
 			}
@@ -96,7 +96,7 @@ namespace myecs {
 			MYECS_NODISCARD bool has(entity e) const {
 				if (!valid(e))
 					return false;
-				if (const ComponentPool<T>* pool = try_get_pool<T>()) {
+				if (const Pool<T>* pool = try_get_pool<T>()) {
 					return pool->has(e);
 				}
 				return false;
@@ -112,7 +112,7 @@ namespace myecs {
 			template <class T>
 			MYECS_NODISCARD T& get(entity e) {
 				throw_if(!valid(e), "Entity {} is invalid", e.string());
-				ComponentPool<T>& pool = get_pool<T>();
+				Pool<T>& pool = get_pool<T>();
 				return pool.get(e);
 			}
 
@@ -125,7 +125,7 @@ namespace myecs {
 			MYECS_NODISCARD T* try_get(entity e) {
 				if (!valid(e))
 					return {};
-				ComponentPool<T>* pool = try_get_pool<T>();
+				Pool<T>* pool = try_get_pool<T>();
 				if (!pool || !pool->has(e))
 					return {};
 				return &pool->get(e);
@@ -135,7 +135,7 @@ namespace myecs {
 			MYECS_NODISCARD const T* try_get(entity e) const {
 				if (!valid(e))
 					return {};
-				const ComponentPool<T>* pool = try_get_pool<T>();
+				const Pool<T>* pool = try_get_pool<T>();
 				if (!pool || !pool->has(e))
 					return {};
 				return &pool->get(e);
@@ -207,7 +207,7 @@ namespace myecs {
 			template <class T, class... Types>
 				requires(sizeof...(Types) >= 1)
 			MYECS_NODISCARD decltype(auto) view() {
-				auto& es = get_pool<T>().entity_view();
+				auto es = get_pool<T>().entity_view();
 
 				return std::views::all(es) |
 					   std::views::filter([this](entity e) { return (has<Types>(e) && ...); }) |
@@ -228,15 +228,15 @@ namespace myecs {
 				}
 			}
 
-			u64 entity_count() const {
+			MYECS_NODISCARD u64 entity_count() const {
 				return ids.count();
 			}
 
-			u64 max_entity_count() const {
+			MYECS_NODISCARD u64 max_entity_count() const {
 				return ids.max_count();
 			}
 
-			u64 component_count() const {
+			MYECS_NODISCARD u64 component_count() const {
 				u64 ret = {};
 				for (auto& [id, pool] : pools) {
 					ret += pool.proxy_count();
@@ -244,13 +244,13 @@ namespace myecs {
 				return ret;
 			}
 
-			u64 max_component_count() const {
-				u64 ret = {};
-				for (auto& [id, pool] : pools) {
-					ret += pool.proxy_max_count();
-				}
-				return ret;
-			}
+			// u64 max_component_count() const {
+			// 	u64 ret = {};
+			// 	for (auto& [id, pool] : pools) {
+			// 		ret += pool.proxy_max_count();
+			// 	}
+			// 	return ret;
+			// }
 		};
 	} // namespace latest
 

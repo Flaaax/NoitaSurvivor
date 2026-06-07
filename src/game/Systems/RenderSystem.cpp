@@ -1,15 +1,15 @@
 #include "RenderSystem.h"
 #include "../../app/global/DataManager.h"
 #include "../Components/Render/RenderComponent.h"
+#include "src/game/Components/PhysicsComponents.h"
+#include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/render/GameRenderScales.h"
 #include "src/render/Renderer.h"
 #include "src/ui/render/NPainter.h"
 #include "src/ui/render/NRenderBuffer.h"
-#include "src/ui/render/NWindowViewport.h"
 #include "src/ui/shapes/NLineShape.h"
-#include <src/game/Components/PhysicsComponents.h>
 
 void RenderSystem::debugRender(const GameCtx& ctx, const NPainter& rdr) {
 	NLineShape shape;
