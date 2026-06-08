@@ -13,6 +13,7 @@
 #include "Systems/RenderSystem.h"
 #include "src/app/global/LocManager.h"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "Systems/EnemySpawnSystem.h"
 #include "src/game/Wands/Wand.h"
 #include "src/utils/Logger.h"
 
@@ -27,7 +28,7 @@ Game::~Game() {
 	logger.info("entity count: {}", reg.entity_count());
 	logger.info("component count: {}", reg.component_count());
 	logger.info("max entity count: {}", reg.max_entity_count());
-	logger.info("max component count: {}", reg.max_component_count());
+	logger.info("max component count: {}", "not avaliable...");
 
 	const auto ctx = getContext();
 	for (auto [e, bc] : reg.view<BodyComponent>()) {
@@ -92,6 +93,7 @@ void Game::init() {
 	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::presolveCallback, ctxInternal.get());
 
 	GameStateSystem().initGameState(ctx);
+	EnemySpawnSystem().setup(ctx);
 }
 
 void Game::draw(NRenderBuffer& rdr) {
@@ -113,14 +115,6 @@ void Game::update(float dt) {
 	PhysicsSystem().updateAfterContactSystem(ctx, dt);
 	GameSystem().update(ctx, dt);
 
-	// todo Test
-	static const bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
-	static const float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
-	if (enableEnemySpawn) {
-		ctx.gameState.enemySpawnTimer.setDuration(1.f / enemySpawnFreq);
-		ctx.gameState.enemySpawnTimer.update(dt);
-	}
-
 	static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", false);
 	if (shouldClear) {
 		shouldClear = false;
@@ -130,6 +124,7 @@ void Game::update(float dt) {
 	LifeTimeSystem().cleanupDeadEntities(ctx);
 
 	GameSystem().updateAfterCleanup(ctx);
+	EnemySpawnSystem().updateAfterCleanup(ctx, dt);
 
 	RenderSystem().update(ctx, dt);
 }

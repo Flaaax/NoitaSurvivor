@@ -5,8 +5,9 @@
 #include <initializer_list>
 #include <utility>
 
-enum ContactLayer : u64 {
+enum class ContactLayer : u64 {
 	None,
+	All,
 	Player,
 	Enemy,
 	Projectile, // hits player and enemy
@@ -21,7 +22,7 @@ enum ContactLayer : u64 {
 };
 
 struct LayerRules {
-	static constexpr u64 MAX_LAYER_COUNT = ContactLayerCount;
+	static constexpr u64 MAX_LAYER_COUNT = static_cast<const u64>(ContactLayer::ContactLayerCount);
 	static_assert(MAX_LAYER_COUNT <= 63, "too many types!");
 
 	using Mask = u64;
@@ -30,18 +31,18 @@ struct LayerRules {
 	Rules rules{};
 
 	static constexpr Mask bit(ContactLayer layer) noexcept {
-		return Mask{1} << layer;
+		return Mask{1} << static_cast<u64>(layer);
 	}
 
 	static constexpr Mask validLayerBits() noexcept {
-		return ((Mask{1} << MAX_LAYER_COUNT) - Mask{1}) & ~bit(None);
+		return ((Mask{1} << MAX_LAYER_COUNT) - Mask{1}) & ~bit(ContactLayer::None);
 	}
 
 	void sanitizeNone() noexcept {
-		rules[None] = Mask{0};
+		rules[ContactLayer::None] = Mask{0};
 
 		for (auto& mask : rules) {
-			mask &= ~bit(None);
+			mask &= ~bit(ContactLayer::None);
 		}
 	}
 
@@ -105,41 +106,43 @@ struct ContactLayerRules {
 	LayerRules softContact{};
 
 	ContactLayerRules() {
-		preSolve.set(Wall, true);
-		preSolve.set(Wall, Wall, false);
+		preSolve.set(ContactLayer::Wall, true);
+		preSolve.set(ContactLayer::Wall, ContactLayer::Wall, false);
 
-		preSolve.set(Collector, Wall, false);
+		preSolve.set(ContactLayer::Collector, ContactLayer::Wall, false);
 
-		preSolve.set(Collectible, false);
-		preSolve.set(Collector, Collectible);
-		preSolve.set(Collectible, Collectible);
-		preSolve.set(Collectible, Wall);
+		preSolve.set(ContactLayer::Collectible, false);
+		preSolve.set(ContactLayer::Collector, ContactLayer::Collectible);
+		preSolve.set(ContactLayer::Collectible, ContactLayer::Collectible);
+		preSolve.set(ContactLayer::Collectible, ContactLayer::Wall);
 
-		preSolve.set(Detector, true);
-		preSolve.set(Detector, Detector, false);
+		preSolve.set(ContactLayer::Detector, true);
+		preSolve.set(ContactLayer::Detector, ContactLayer::Detector, false);
+
+		preSolve.set(ContactLayer::All, true);
 
 		std::initializer_list<std::pair<ContactLayer, ContactLayer>> contacts = {
-			{Player, Enemy},
-			{Player, Projectile},
-			{Player, EnemyProjectile},
-			{Enemy, Projectile},
-			{Enemy, PlayerProjectile},
-			{Enemy, Enemy},
+			{ContactLayer::Player, ContactLayer::Enemy},
+			{ContactLayer::Player, ContactLayer::Projectile},
+			{ContactLayer::Player, ContactLayer::EnemyProjectile},
+			{ContactLayer::Enemy, ContactLayer::Projectile},
+			{ContactLayer::Enemy, ContactLayer::PlayerProjectile},
+			{ContactLayer::Enemy, ContactLayer::Enemy},
 		};
 
 		for (const auto& [a, b] : contacts) {
 			preSolve.set(a, b, true);
 		}
 
-		physics.set(Wall, Player);
-		physics.set(Wall, Enemy);
-		physics.set(Wall, Collectible);
+		physics.set(ContactLayer::Wall, ContactLayer::Player);
+		physics.set(ContactLayer::Wall, ContactLayer::Enemy);
+		physics.set(ContactLayer::Wall, ContactLayer::Collectible);
 
-		softContact.set(Enemy, Enemy);
-		softContact.set(Player, Enemy);
+		softContact.set(ContactLayer::Enemy, ContactLayer::Enemy);
+		softContact.set(ContactLayer::Player, ContactLayer::Enemy);
 	}
 
-	static constexpr uint64_t bit(ContactLayer layer) noexcept {
-		return u64{1} << layer;
+	static constexpr u64 bit(ContactLayer layer) noexcept {
+		return LayerRules::bit(layer);
 	}
 };

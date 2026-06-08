@@ -38,10 +38,10 @@ void LifeTimeSystem::cleanupDeadEntities(const GameCtx& ctx) {
 				// disable the enemy
 				auto& body = reg.get<BodyComponent>(e);
 				auto& ee = reg.get<EntityComponent>(e);
-				ee.layer = None; // disable all contact
+				ee.layer = ContactLayer::None; // disable all contact
 				ee.health = -1;
 				PhysicsService().setType(body, BodyArg::Static);
-				nvec2 impulse = ec->impulse;
+				nvec2 impulse = ec->impulseRecieved;
 				reg.destroy<EnemyComponent>(e);
 				// add death animation
 				const float duration = Util::random.nextFloat(0.22f, 0.27f);

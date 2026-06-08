@@ -11,6 +11,7 @@ class DataMgr {
 	struct SpriteData {
 		bool centerAligned = true;
 		nvec2 scale{1.f, 1.f};
+		nvec2 targetSize{};
 		std::string texture;
 	};
 

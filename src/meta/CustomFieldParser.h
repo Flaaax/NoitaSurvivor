@@ -1,8 +1,9 @@
 #pragma once
 #include "../utils/File/Json.h"
 #include "../utils/Vec2/Vec2.h"
-#include "EnumMeta.h"
 #include "src/game/Components/EntityComponents.h"
+
+#include <magic_enum/magic_enum.hpp>
 
 template <>
 struct FieldParser<nvec2> {
@@ -17,13 +18,14 @@ struct FieldParser<nvec2> {
 	}
 };
 
-template <>
-struct FieldParser<ContactLayer> {
+template <class T>
+	requires std::is_enum_v<T>
+struct FieldParser<T> {
 	static constexpr bool enabled = true;
 
-	static std::optional<ContactLayer> parse(const json& j) {
+	static std::optional<T> parse(const json& j) {
 		const auto s = Util::Json::getIf<std::string>(j);
-		return s ? EnumMeta::try_get<ContactLayer>("ContactLayer", *s) : std::nullopt;
+		return s ? magic_enum::enum_cast<T>(*s) : std::nullopt;
 	}
 };
 

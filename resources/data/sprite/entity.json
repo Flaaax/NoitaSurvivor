@@ -1,42 +1,49 @@
 {
-    "sprites": [
-        {
-            "name": "player",
-            "scale": [
-                0.03125,
-                0.03125
-            ]
-        },
-        {
-            "name": "enemy",
-            "texture": "block",
-            "scale": [
-                0.03125,
-                0.03125
-            ]
-        },
-        {
-            "name": "bullet",
-            "scale": [
-                0.03125,
-                0.03125
-            ]
-        },
-        {
-            "name": "material",
-            "followPosition": true,
-            "scale": [
-                0.009375,
-                0.009375
-            ]
-        },
-        {
-            "name": "explosion",
-            "texture": "explosion_entity",
-            "scale": [
-                0.0625,
-                0.0625
-            ]
-        }
-    ]
+	"sprites": [
+		{
+			"name": "player",
+			"scale": [
+				0.03125,
+				0.03125
+			]
+		},
+		{
+			"name": "enemy",
+			"texture": "block",
+			"scale": [
+				0.03125,
+				0.03125
+			]
+		},
+		{
+			"name": "bullet",
+			"scale": [
+				0.03125,
+				0.03125
+			]
+		},
+		{
+			"name": "material",
+			"followPosition": true,
+			"scale": [
+				0.009375,
+				0.009375
+			]
+		},
+		{
+			"name": "explosion",
+			"texture": "explosion_entity",
+			"scale": [
+				0.0625,
+				0.0625
+			]
+		},
+		{
+			"name": "enemy_birth",
+			"scale": [
+				0.03125,
+				0.03125
+			]
+		}
+	]
 }

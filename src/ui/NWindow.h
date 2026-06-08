@@ -33,4 +33,5 @@ public:
 	std::optional<NWindowEvent> pollEvent();
 
 	void draw(NRenderBuffer& buffer);
+	void display();
 };

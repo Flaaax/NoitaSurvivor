@@ -2,12 +2,17 @@
 #include "src/ecs/entity.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Contact/ContactLayerRules.h"
+#include "src/utils/Lambda.h"
 
 struct GameCtx;
 
 class PhysicsService {
 private:
+	using queryCallbackFcn = bool(myecs::entity e, void* customContext);
+
 	static BodyComponent& getBody(const GameCtx& ctx, myecs::entity e);
+	static void queryCircle(const GameCtx& ctx, ContactLayer layer, u64 targetLayers,
+							nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext);
 
 public:
 	static void assertValid(const BodyComponent& bc);
@@ -60,6 +65,10 @@ public:
 
 	static void applySoftCollision(const GameCtx& ctx, myecs::entity a, myecs::entity b);
 
-	using queryCallbackFcn = bool(myecs::entity e, void* customContext);
-	static void queryCircle(const GameCtx& ctx, ContactLayer layer, u64 maskBits, nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext);
+	template <class Callback>
+		requires std::is_invocable_r_v<bool, Callback&, myecs::entity>
+	static void queryCircle(const GameCtx& ctx, u64 targetLayers, nvec2 center, float radius, Callback&& cbLambda, ContactLayer layer = ContactLayer::All) {
+		auto fn = Util::unwrapLambda(std::forward<Callback>(cbLambda));
+		PhysicsService::queryCircle(ctx, layer, targetLayers, center, radius, fn.fn, fn.ctx());
+	}
 };

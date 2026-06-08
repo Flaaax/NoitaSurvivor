@@ -14,6 +14,7 @@ public:
 
 	static void handleEvent(const GameCtx& ctx, const sf::Event& event);
 
+	// cleanup enemy states and directions
 	static void updateAfterCleanup(const GameCtx& ctx);
 };
 

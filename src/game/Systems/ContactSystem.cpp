@@ -108,7 +108,7 @@ static void handleContactEvents(const GameCtx& ctx) {
 					const nvec2 impulseApplied = p1->impulse * impulseDir;
 					PhysicsService().applyImpulse(otherBody, impulseApplied);
 					if (const auto ec = reg.try_get<EnemyComponent>(b)) {
-						ec->impulse += impulseApplied;
+						ec->impulseRecieved += impulseApplied;
 					}
 				}
 

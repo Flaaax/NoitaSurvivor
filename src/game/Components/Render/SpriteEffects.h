@@ -29,7 +29,7 @@ struct EffectState {
 };
 
 namespace Easing {
-	using easingFunc = float(float);
+	using EasingFunc = float(float);
 
 	// linear
 	inline float linear(float t) {
@@ -57,7 +57,6 @@ namespace Easing {
 	}
 
 	inline float ping_pong(float t) {
-		t = std::clamp(t, 0.f, 1.f);
 		return 1.f - std::abs(2.f * t - 1.f);
 	}
 }; // namespace Easing
@@ -66,14 +65,14 @@ class Tween : public BaseEffect {
 protected:
 	EffectState beginState;
 	EffectState endState;
-	Easing::easingFunc* easingFunc{};
+	Easing::EasingFunc* easingFunc{};
 	Timer timer;
 	EffectState currentState;
 	int repeat{};
 
 public:
-	Tween(EffectState beginState, EffectState endState, float duration, int repeat = 0, float (*easing_function)(float) = Easing::linear)
-		: beginState(beginState), endState(endState), easingFunc(easing_function), repeat(repeat) {
+	Tween(EffectState beginState, EffectState endState, float duration, int repeats = 0, float (*easing_function)(float) = Easing::linear)
+		: beginState(beginState), endState(endState), easingFunc(easing_function), repeat(repeats) {
 		currentState = beginState;
 		timer.start(duration);
 	}
@@ -91,7 +90,7 @@ public:
 			}
 		}
 		const float progress = timer.getProgress();
-		const float w = easingFunc(progress);
+		const float w = std::clamp(easingFunc(progress), 0.f, 1.f);
 		currentState = beginState * (1 - w) + endState * w;
 	}
 
@@ -101,7 +100,7 @@ public:
 		sprite.rotate(currentState.rotation);
 		sprite.move(currentState.offset);
 		sf::Color color = sprite.getColor();
-		color.a = static_cast<std::uint8_t>(std::floorf(currentState.opacity * color.a));
+		color.a = static_cast<u8>(std::floorf(currentState.opacity * color.a));
 		sprite.setColor(color);
 	}
 };
@@ -118,7 +117,7 @@ private:
 public:
 	float (*easing_function)(float t) = Easing::linear;
 
-	BouncyMoveEffect(const nvec2& scale1, const nvec2& scale2, float duration) : duration(duration), scale1(scale1), scale2(scale2) {
+	BouncyMoveEffect(nvec2 scale1, nvec2 scale2, float duration) : duration(duration), scale1(scale1), scale2(scale2) {
 		state_time = 0.f;
 		direction = true;
 		currentScale = scale1;

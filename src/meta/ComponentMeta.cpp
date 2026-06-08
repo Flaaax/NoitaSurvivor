@@ -1,22 +1,11 @@
 #include "ComponentMeta.h"
 #include "CustomFieldParser.h"
-#include "EnumMeta.h"
+// #include "EnumMeta.h"
 #include "src/app/global/SpriteManager.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Render/RenderComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
-
-template <class T>
-void json_init_enum(T& e, std::string_view name, const json& j, std::string_view key) {
-	const auto s = json_parse<std::string>(j, key);
-	if (!s)
-		return;
-	auto ee = EnumMeta::try_get<T>(name, *s);
-	if (ee) {
-		e = *ee;
-	}
-}
 
 ComponentMeta::ComponentMeta() {
 	initGeneratedMetaInfo();
@@ -27,9 +16,9 @@ ComponentMeta::ComponentMeta() {
 void ComponentMeta::initCustomComponentInitializers() {
 	componentInitializerFactories["BodyComponent"] = [](const json& j) -> ComponentInitializer {
 		BodyArg arg;
-		json_init_enum(arg.type, "BodyType", j, "type");
+		json_init_field(arg.type, j, "type");
 		json_init_field(arg.fixedRotation, j, "fixedRotation");
-		json_init_enum(arg.shape, "ShapeType", j, "shape");
+		json_init_field(arg.shape, j, "shape");
 		json_init_field(arg.size, j, "size");
 		json_init_field(arg.radius, j, "radius");
 		json_init_field(arg.density, j, "density");

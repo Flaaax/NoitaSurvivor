@@ -13,13 +13,14 @@ struct SpriteInfo {
 	bool followPosition{};
 	bool followAngle{};
 	bool dynamicScale{};
-	float rotationOffset{};		//As degree
+	float rotationOffset{}; // As degree
 	nvec2 positionOffset{};
 };
 
 struct SpriteComponent {
 	const SpriteInfo& info;
 	const sf::Sprite& sprite;
+	nvec2 position{}; // used when entity does not have body
 };
 
 class BaseEffect {
@@ -32,16 +33,18 @@ protected:
 	}
 
 public:
+	virtual void apply(sf::Sprite& sprite) const {}
 
-	virtual void apply(sf::Sprite& sprite)const {}
 	virtual void update(float dt) {}
 
 	virtual ~BaseEffect() {}
-	bool isDone()const { return m_isDone; }
 
+	bool isDone() const {
+		return m_isDone;
+	}
 };
 
-//requires SpriteComponent
+// requires SpriteComponent
 struct SpriteEffectComponent {
 	Util::Vector<n_unique<BaseEffect>> effectList;
 };

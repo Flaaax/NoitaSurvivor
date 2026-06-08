@@ -27,9 +27,9 @@ struct GameState {
 
 	bool isPaused = false;
 
-	nrect bound = nrect::fromCenter({0, 0}, {40, 40});
-	nrect maxBound = nrect::fromCenter({0, 0}, {80, 80});
-	nrect debugEnemySpawnArea = nrect::fromCenter({0, 0}, {35, 35});
+	nrect bound;
+	nrect maxBound;
+	nrect debugEnemySpawnArea;
 
 	nvec2 playerPos;
 	nvec2 mousePos;

@@ -93,7 +93,7 @@ void GameSystem::handleEvent(const GameCtx& ctx, const sf::Event& event) {
 void GameSystem::updateAfterCleanup(const GameCtx& ctx) {
 	auto& reg = ctx.reg;
 	for (const auto& [e, c] : reg.view<EnemyComponent>()) {
-		c.impulse = {};
+		c.impulseRecieved = {};
 	}
 	for (auto [e, dc] : reg.view<DirectionComponent>()) {
 		dc.dir = {};

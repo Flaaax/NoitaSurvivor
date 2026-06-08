@@ -14,7 +14,9 @@ void DataMgr::loadSpriteInfo() {
 			//.rotationOffset = json_parse_or(dat, "rotationOffset", 0.0f, filename),
 			//.positionOffset = json_parse_or(dat, "positionOffset", nvec2{0.0f, 0.0f}, filename),
 			.scale = json_parse_or(dat, "scale", nvec2{1.0f, 1.0f}, filename),
+			.targetSize = json_parse_or(dat, "targetSize", nvec2{}, filename),
 			.texture = json_parse_or(dat, "texture", name, filename)};
+
 		spriteInfo[std::move(name)] = info;
 	}
 }

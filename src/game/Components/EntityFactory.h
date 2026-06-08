@@ -12,7 +12,8 @@ struct GameCtx;
 class EntityFactory {
 	using ComponentInitializer = ComponentMeta::ComponentInitializer;
 	using Factory = std::function<myecs::entity(const GameCtx& ctx)>;
-	Util::StrMap<std::vector<ComponentInitializer>> entityInitializers;
+
+	Util::StrMap<Util::Vector<ComponentInitializer>> entityInitializers;
 	Util::StrMap<Factory> factories;
 
 	EntityFactory(const EntityFactory&) = delete;
@@ -23,10 +24,11 @@ public:
 	EntityFactory();
 
 	myecs::entity createPlayer(const GameCtx& ctx);
-	myecs::entity createBullet(const GameCtx& ctx, const nvec2& position, const nvec2& velocity);
-	myecs::entity createBorder(const GameCtx& ctx, const nvec2& start, const nvec2& end);
-	myecs::entity createEnemy(const GameCtx& ctx, const nvec2& pos);
-	myecs::entity createExplosion(const GameCtx& ctx, const nvec2& pos, float radius, float impulse);
+	myecs::entity createBullet(const GameCtx& ctx, nvec2 position, nvec2 velocity);
+	myecs::entity createBorder(const GameCtx& ctx, nvec2 start, nvec2 end);
+	myecs::entity createEnemy(const GameCtx& ctx, nvec2 pos);
+	myecs::entity createExplosion(const GameCtx& ctx, nvec2 pos, float radius, float impulse);
 	myecs::entity createCollector(const GameCtx& ctx, float radius);
-	myecs::entity createMaterial(const GameCtx& ctx, const nvec2& pos, int value = 1);
+	myecs::entity createMaterial(const GameCtx& ctx, nvec2 pos, int value = 1);
+	myecs::entity createEnemyBirth(const GameCtx& ctx, nvec2 pos, std::string_view name);
 };

@@ -108,5 +108,14 @@
 			"sprite": "material",
 			"followPosition": true
 		}
+	},
+	"enemy_birth": {
+		"EntityComponent": {
+			"layer": "None"
+		},
+		"SpriteComponent": {
+			"sprite": "enemy_birth",
+			"followPosition": true
+		}
 	}
 }

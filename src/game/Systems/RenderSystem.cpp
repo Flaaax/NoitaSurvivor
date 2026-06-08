@@ -61,26 +61,31 @@ void RenderSystem::render(NRenderBuffer& buffer, const GameCtx& ctx) {
 	}
 
 	// Logger::info("begin render");
-	for (const auto& [e, c, bc] : ctx.reg.view<SpriteComponent, BodyComponent>()) {
+	for (const auto& [e, c] : ctx.reg.view<SpriteComponent>()) {
 		sf::Sprite copy = c.sprite;
 		PhysicsService ps{};
 
-		if (c.info.followPosition)
-			copy.setPosition(ps.getPosition(bc) + c.info.positionOffset);
-		if (c.info.followAngle)
-			copy.setRotation(sf::radians(ps.getRotation(bc)) + sf::degrees(c.info.rotationOffset));
+		const auto bc = ctx.reg.try_get<BodyComponent>(e);
+
+		if (c.info.followPosition) {
+			const nvec2 pos = bc ? ps.getPosition(*bc) : c.position;
+			copy.setPosition(pos + c.info.positionOffset);
+		}
+		if (c.info.followAngle) {
+			copy.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.info.rotationOffset));
+		}
 		if (c.info.dynamicScale) {
-			float r = ps.getRadius(bc);
+			float r = ps.getRadius(*bc);
 			copy.scale({r, r});
 		}
 
-		if (const auto tc = ctx.reg.try_get<SpriteEffectComponent>(e)) {
-			auto& ts = tc->effectList;
-			for (auto it = ts.begin(); it != ts.end();) {
+		if (const auto sec = ctx.reg.try_get<SpriteEffectComponent>(e)) {
+			auto& el = sec->effectList;
+			for (auto it = el.begin(); it != el.end();) {
 				(*it)->apply(copy);
 
 				if ((*it)->isDone()) {
-					it = ts.erase(it);
+					it = el.erase(it);
 				} else
 					++it;
 			}

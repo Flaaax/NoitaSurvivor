@@ -60,5 +60,8 @@ std::optional<NWindowEvent> NWindow::pollEvent() {
 
 void NWindow::draw(NRenderBuffer& buffer) {
 	buffer.flush(window, getViewport());
+}
+
+void NWindow::display() {
 	window.display();
 }

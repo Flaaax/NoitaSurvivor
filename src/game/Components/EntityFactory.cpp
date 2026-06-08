@@ -26,7 +26,7 @@ void validateComponentConfig(std::string_view entity, std::string_view name, con
 
 void EntityFactory::initEntityComponents() {
 	for (auto& [entityType, j] : DataMgr::getEntityComponentData().items()) {
-		std::vector<ComponentInitializer> components;
+		Util::Vector<ComponentInitializer> components;
 		for (auto& [componentName, jj] : j.items()) {
 			validateComponentConfig(entityType, componentName, jj);
 			if (const auto gen = ComponentMeta::getInitializerFactory(componentName)) {
@@ -62,7 +62,7 @@ myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
 	static auto& factory = factories["player"];
 	auto e = factory(ctx);
 	auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
-	//effect->easing_function = Easing::ease_out_cubic;
+	// effect->easing_function = Easing::ease_out_cubic;
 	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
 	LoggerOld::info("Player entity created: {}", e.string());
@@ -70,7 +70,7 @@ myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
 	return e;
 }
 
-myecs::entity EntityFactory::createBullet(const GameCtx& ctx, const nvec2& position, const nvec2& velocity) {
+myecs::entity EntityFactory::createBullet(const GameCtx& ctx, nvec2 position, nvec2 velocity) {
 	// todo
 	static auto& factory = factories["bullet"];
 	auto e = factory(ctx);
@@ -81,7 +81,7 @@ myecs::entity EntityFactory::createBullet(const GameCtx& ctx, const nvec2& posit
 }
 
 // Should keep this one
-myecs::entity EntityFactory::createBorder(const GameCtx& ctx, const nvec2& start, const nvec2& end) {
+myecs::entity EntityFactory::createBorder(const GameCtx& ctx, nvec2 start, nvec2 end) {
 	static auto& factory = factories["border"];
 	auto e = factory(ctx);
 	auto& reg = ctx.reg;
@@ -102,7 +102,7 @@ myecs::entity EntityFactory::createBorder(const GameCtx& ctx, const nvec2& start
 	return e;
 }
 
-myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, const nvec2& pos) {
+myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, nvec2 pos) {
 	static auto& factory = factories["enemy"];
 	auto e = factory(ctx);
 
@@ -111,7 +111,7 @@ myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, const nvec2& pos) {
 	return e;
 }
 
-myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, const nvec2& pos, float radius, float impulse) {
+myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, nvec2 pos, float radius, float impulse) {
 	// Logger::error("Creating explosion entity at position ({}, {}) with radius {} and impulse {}", pos.x, pos.y, radius, impulse);
 	static auto& factory = factories["explosion"];
 	auto e = factory(ctx);
@@ -169,12 +169,29 @@ myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
 	return collector;
 }
 
-myecs::entity EntityFactory::createMaterial(const GameCtx& ctx, const nvec2& pos, int value) {
+myecs::entity EntityFactory::createMaterial(const GameCtx& ctx, nvec2 pos, int value) {
 	static auto& factory = factories["material"];
-	auto e = factory(ctx);
+	const auto e = factory(ctx);
 	PhysicsService().setPosition(ctx, e, pos);
 
 	ctx.reg.emplace<MaterialComponent>(e).value = value;
+
+	return e;
+}
+
+myecs::entity EntityFactory::createEnemyBirth(const GameCtx& ctx, nvec2 pos, std::string_view name) {
+	static auto& factory = factories["enemy_birth"];
+	const auto e = factory(ctx);
+	const auto& ebc = ctx.reg.emplace<EnemyBirthComponent>(e, pos, std::string(name));
+	float dur = ebc.remainingTime;
+	ctx.reg.get<SpriteComponent>(e).position = pos;
+
+	ctx.reg.get_or_emplace<SpriteEffectComponent>(e).effectList +=
+		std::make_unique<Tween>(EffectState{.opacity = 0.05f},
+								EffectState{},
+								dur,
+								0,
+								[](float t) { return Easing::ease_in_out_quad(Easing::ping_pong(t)); });
 
 	return e;
 }

@@ -108,7 +108,6 @@ namespace myecs {
 				return (has<Types>(e) && ...);
 			}
 
-			// The reference NEVER expires, until the component is removed
 			template <class T>
 			MYECS_NODISCARD T& get(entity e) {
 				throw_if(!valid(e), "Entity {} is invalid", e.string());

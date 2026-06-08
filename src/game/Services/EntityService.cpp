@@ -1,6 +1,7 @@
 ﻿#include "EntityService.h"
 
 #include "src/game/Components/EntityComponents.h"
+#include "src/game/Components/EntityFactory.h"
 
 void EntityService::damage(const GameCtx& ctx, myecs::entity source, myecs::entity target, int damage) {
 	auto& reg = ctx.reg;
@@ -42,7 +43,7 @@ ContactLayer EntityService::getLayer(const GameCtx& ctx, myecs::entity e) {
 void EntityService::clearMostEntities(const GameCtx& ctx) {
 	auto es = Util::EnumerableView<>::from(ctx.reg.view<EntityComponent>()).to<Util::Vector>();
 	for (auto& [e, ec] : es) {
-		if (ec.layer == Enemy || ec.layer == Collectible || ec.layer == PlayerProjectile) {
+		if (ec.layer == ContactLayer::Enemy || ec.layer == ContactLayer::Collectible || ec.layer == ContactLayer::PlayerProjectile) {
 			killSilent(ctx, e);
 		}
 	}

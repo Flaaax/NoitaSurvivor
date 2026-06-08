@@ -5,8 +5,6 @@
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/utils/Lambda.h"
-#include "src/utils/Logger.h"
 
 // Only works on player projectile...
 class TrackingScript : public Script {
@@ -31,9 +29,9 @@ public:
 		constexpr PhysicsService ps{};
 		const auto& proj_body = ctx.reg.get<BodyComponent>(self);
 
-		auto queryCallback = Util::unwrapLambda([this, ctx, self](myecs::entity other) {
+		auto queryCallback = [this, ctx, self](myecs::entity other) {
 			if (!EntityService().isValidAndAlive(ctx, target) ||
-				EntityService().getLayer(ctx, target) != Enemy) {
+				EntityService().getLayer(ctx, target) != ContactLayer::Enemy) {
 				target = other;
 				offset = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
 				lengthSquared = offset.lengthSquared();
@@ -47,17 +45,16 @@ public:
 				}
 			}
 			return true;
-		});
+		};
 
 		ps.queryCircle(ctx,
-					   PlayerProjectile,
-					   ContactLayerRules::bit(Enemy),
-					   ps.getPosition(proj_body), radius,
-					   queryCallback.fn,
-					   queryCallback.ctx());
+					   ContactLayerRules::bit(ContactLayer::Enemy),
+					   ps.getPosition(proj_body),
+					   radius,
+					   queryCallback);
 
 		if (!EntityService().isValidAndAlive(ctx, target) ||
-			EntityService().getLayer(ctx, target) != Enemy) {
+			EntityService().getLayer(ctx, target) != ContactLayer::Enemy) {
 			target = {};
 			return;
 		}

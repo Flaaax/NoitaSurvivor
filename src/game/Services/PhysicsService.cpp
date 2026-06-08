@@ -257,7 +257,7 @@ void PhysicsService::applySoftCollision(const GameCtx& ctx, myecs::entity a, mye
 	b2Body_ApplyForceToCenter(bodyB, force, true);
 }
 
-void PhysicsService::queryCircle(const GameCtx& ctx, ContactLayer layer, u64 maskBits, nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext) {
+void PhysicsService::queryCircle(const GameCtx& ctx, ContactLayer layer, u64 targetLayers, nvec2 center, float radius, queryCallbackFcn* customCallback, void* customContext) {
 	// circle proxy：1 个点 + 半径
 	const b2Vec2 center1 = center;
 	const b2ShapeProxy proxy = b2MakeProxy(&center1, 1, radius);
@@ -265,7 +265,7 @@ void PhysicsService::queryCircle(const GameCtx& ctx, ContactLayer layer, u64 mas
 	// 可选：只查询某些 category
 	b2QueryFilter filter = b2DefaultQueryFilter();
 	filter.categoryBits = ctx.contactRules.bit(layer);
-	filter.maskBits = maskBits;
+	filter.maskBits = targetLayers;
 	auto queryCallback = Util::unwrapLambda([=](b2ShapeId shapeId) {
 		// Logger::info("Called1111 yeah");
 		const auto e = ContactService().getEntity(shapeId);

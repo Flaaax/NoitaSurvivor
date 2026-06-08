@@ -24,22 +24,6 @@ N_NOINIT struct LifetimeComponent {
 	Timer lifeTimer;
 };
 
-// need EntityComponent, BodyComponent
-// struct ContactPrefComponent {
-//	enum : char {
-//		NoPref = 0,
-//		Enabled = 2,
-//		Disabled = 1,
-//	};
-//
-//	std::array<char, ContactManager::max_type_size> contactPref = {};	//init as NoPref
-//
-//	void setContactPref(ContactLayer t, bool enabled) {
-//		contactPref[t] = enabled ? Enabled : Disabled;
-//	}
-//
-// };
-
 class b2Contact;
 class ProjectileSpell;
 class ModifierSpell;
@@ -59,9 +43,9 @@ struct ProjectileComponent {
 	N_NOINIT std::vector<n_shared<ModifierSpell>> mods;
 };
 
-// mark an enemy
+// marks an enemy
 struct EnemyComponent {
-	N_NOINIT nvec2 impulse; // impulse recieved during last iteration, used for death animation
+	N_NOINIT nvec2 impulseRecieved; // impulse recieved during last iteration, used for death animation
 };
 
 struct DirectionComponent {
@@ -83,4 +67,10 @@ struct MultiContactComponent {
 
 // Marks an explosion
 struct ExplosionComponent {
+};
+
+N_NOINIT struct EnemyBirthComponent {
+	nvec2 position{};
+	std::string name{};
+	float remainingTime = 1.f;
 };

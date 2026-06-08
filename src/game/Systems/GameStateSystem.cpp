@@ -22,17 +22,10 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 
 	ctx.factory.createMaterial(ctx, {6.f, 6.f});
 
-	nrect debugEnemySpawnArea = state.debugEnemySpawnArea;
+	state.bound = nrect::fromCenter({}, {55, 55});
+	state.maxBound = nrect::fromCenter({}, {100, 100});
 
-	// test
-	state.enemySpawnTimer.set(1.0f, [ctx, debugEnemySpawnArea] {
-							 const nvec2 spawnPos{
-								 random.nextFloat(debugEnemySpawnArea.left(), debugEnemySpawnArea.right()),
-								 random.nextFloat(debugEnemySpawnArea.top(), debugEnemySpawnArea.bottom()),
-							 };
-							 ctx.factory.createEnemy(ctx, spawnPos);
-						 })
-		.start(-1);
+	state.debugEnemySpawnArea = nrect::fromCenter({0, 0}, {35, 35});
 
 	const nrect bound = state.bound;
 
@@ -40,7 +33,8 @@ void GameStateSystem::initGameState(const GameCtx& ctx) {
 		{bound.leftTop(), bound.rightTop()},
 		{bound.rightTop(), bound.rightBottom()},
 		{bound.rightBottom(), bound.leftBottom()},
-		{bound.leftBottom(), bound.leftTop()}};
+		{bound.leftBottom(), bound.leftTop()},
+	};
 	for (auto& [fst, snd] : borderEdges) {
 		state.borders += ctx.factory.createBorder(ctx, fst, snd);
 	}
