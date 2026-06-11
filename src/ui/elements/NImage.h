@@ -12,7 +12,7 @@ protected:
 public:
 	explicit NImage(const sf::Texture& texture);
 
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 	void setOutlineWidth(float width);
 	void setOutlineColor(sf::Color color);
 };

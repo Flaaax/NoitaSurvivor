@@ -6,7 +6,6 @@
 #include "src/game/ui/NSpell.h"
 #include "src/game/ui/NSpellInventory.h"
 #include "src/game/ui/ValueBar.h"
-#include "src/ui/NText.h"
 #include "src/ui/elements/NRichText.h"
 
 #include <src/utils/Logger.h>
@@ -72,7 +71,7 @@ void GameScene::initUI() {
 
 GameScene::GameScene(flx::app::AppContext context)
 	: Scene(context, Util::makeContentID<GameScene>()), game(context) {
-	this->windowSize = context.windowViewport.defaultWindowSizeF;
+	this->windowSize = context.windowViewport.canvasSize;
 }
 
 void GameScene::draw(NRenderBuffer& rdr) {

@@ -1,7 +1,8 @@
 #include "NObject.h"
-#include "widget/NWidget.h"
 
-#include <windows.h>
+#include "global/NGlobal.h"
+#include "widget/NRootWidget.h"
+#include "widget/NWidget.h"
 
 nvec2 NObject::getGlobalPosition() const {
 	return toGlobalPosition(frame.position);
@@ -37,7 +38,34 @@ nrect NObject::getLocalBounds() const {
 
 NWidget* NObject::asWidget() {
 	if (!isWidget()) {
-		LoggerOld::error_and_throw("Object is not a widget");
+		getLogger().error_and_throw("Object is not a widget");
 	}
 	return static_cast<NWidget*>(this);
+}
+
+const NViewport& NObject::getGlobalViewport() const {
+	if (const auto root = getRoot()) {
+		return root->getViewport();
+	}
+
+	getLogger().error_and_throw("Object does not have root");
+}
+
+flx::Logger& NObject::getLogger() {
+	return NGlobal::getLogger();
+}
+
+const NRootWidget* NObject::getRoot() const {
+	if (isWidget()) {
+		const auto widget = static_cast<const NWidget*>(this);
+		if (widget->isRoot) {
+			return static_cast<const NRootWidget*>(widget);
+		}
+	}
+
+	if (const auto parent = getParent()) {
+		return parent->getRoot();
+	}
+
+	return {};
 }

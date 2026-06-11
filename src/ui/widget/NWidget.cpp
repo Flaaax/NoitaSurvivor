@@ -1,5 +1,4 @@
 #include "NWidget.h"
-#include "../NWindow.h"
 #include "src/ui/render/NPainter.h"
 
 #include <ranges>
@@ -9,10 +8,11 @@ void NWidget::bind(NObject* obj) {
 	assertWithMsg(!obj->parent, "Object already has parent; remove it explicitly first.");
 	assertWithMsg(obj != this, "Cannot add a widget to itself!");
 	obj->parent = this;
+	//obj->root = this->root;
 }
 
-void NWidget::drawWithChildCanvas(const NPainter& canvas, const NObject& obj) {
-	const NPainter localCanvas = canvas.translated(obj.getPosition());
+void NWidget::drawWithChildCanvas(const NUIPainter& canvas, const NObject& obj) {
+	const NUIPainter localCanvas = canvas.translated(obj.getPosition());
 	obj.draw(localCanvas);
 }
 
@@ -40,7 +40,7 @@ void NWidget::update(float deltaTime) {
 	}
 }
 
-void NWidget::draw(const NPainter& canvas) const {
+void NWidget::draw(const NUIPainter& canvas) const {
 	for (const auto& obj : objects) {
 		if (obj->isVisible && !obj->isDragged()) {
 			drawWithChildCanvas(canvas, *obj);
@@ -74,5 +74,12 @@ void NWidget::onDropQuery(const NDropQuery& query, NDropCollector& collector) {
 		if (obj->isVisible) {
 			obj->onDropQuery(query, collector);
 		}
+	}
+}
+
+void NWidget::refresh() {
+	NObject::refresh();
+	for (const auto& obj : objects) {
+		obj->refresh();
 	}
 }

@@ -61,5 +61,5 @@ public:
 
 	void updateText();
 
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 };

@@ -89,7 +89,7 @@ namespace flx {
 	};
 
 	inline Logger logger = Logger::makeAsync("Default");
-} // namespace flax
+} // namespace flx
 
 struct LoggerOld {
 public:

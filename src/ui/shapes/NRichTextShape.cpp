@@ -15,6 +15,9 @@ NRichTextShape::NRichTextShape(const sf::Font& font, std::string_view utf8Markup
 }
 
 void NRichTextShape::setFont(const sf::Font& font) {
+	if (m_font == &font) {
+		return;
+	}
 	m_font = &font;
 	styleDirty = true;
 }
@@ -25,21 +28,34 @@ void NRichTextShape::setString(std::string_view utf8Markup) {
 }
 
 void NRichTextShape::setCharacterSize(u32 size) {
+	if (m_characterSize == size) {
+		return;
+	}
 	m_characterSize = size;
 	layoutDirty = true;
 }
 
 void NRichTextShape::setTabSize(u32 spaces) {
-	m_tabSize = std::max(1u, spaces);
+	const u32 tab = std::max(1u, spaces);
+	if (m_tabSize == tab) {
+		return;
+	}
+	m_tabSize = tab;
 	layoutDirty = true;
 }
 
 void NRichTextShape::setTime(float seconds) {
+	if (m_timeSeconds == seconds) {
+		return;
+	}
 	m_timeSeconds = seconds;
 	layoutDirty = true;
 }
 
 void NRichTextShape::setDefaultColor(sf::Color color) {
+	if (m_defaultStyle.color == color) {
+		return;
+	}
 	m_defaultStyle.color = color;
 	layoutDirty = true;
 }
@@ -73,6 +89,9 @@ Util::TextStyle NRichTextShape::getDefaultStyle() const {
 }
 
 void NRichTextShape::setDefaultStyle(Util::TextStyle style) {
+	if (style == m_defaultStyle) {
+		return;
+	}
 	m_defaultStyle = style;
 	styleDirty = true;
 }
@@ -96,7 +115,7 @@ void NRichTextShape::setOutlineThickness(float thickness) {
 }
 
 void NRichTextShape::setOutlineColor(sf::Color color) {
-	if (color == m_outlineColor || color.a == 0) {
+	if (color == m_outlineColor) {
 		return;
 	}
 
@@ -361,7 +380,6 @@ void NRichTextShape::rebuildVertices() const {
 	finishLayoutLine();
 
 	float vertexYOffset{};
-
 
 	const float outline = needsOutline ? std::abs(std::ceil(m_outlineThickness)) : 0.f;
 	if (hasLayoutBounds) {

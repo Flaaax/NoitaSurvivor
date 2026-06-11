@@ -4,7 +4,7 @@
 
 #include <SFML/Graphics/RectangleShape.hpp>
 
-void NPanel::draw(const NPainter& canvas) const {
+void NPanel::draw(const NUIPainter& canvas) const {
 	sf::RectangleShape shape;
 	shape.setFillColor(backgroundColor);
 	shape.setOutlineColor(outlineColor);
@@ -19,10 +19,10 @@ void NPanel::draw(const NPainter& canvas) const {
 void NPanel::setLayout(n_unique<NLayout> layout) {
 	clear();
 	this->addToTop(std::move(layout));
-	refreshLayout();
+	refresh();
 }
 
-void NPanel::refreshLayout() {
+void NPanel::refresh() {
 	const auto layout = getLayout();
 	if (sizePolicy == Auto) {
 		const nvec2 maxSize = {getSize().x, nmath::inf};

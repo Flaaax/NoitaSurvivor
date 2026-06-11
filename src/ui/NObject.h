@@ -9,9 +9,13 @@
 #include "../utils/Vec2/Vec2.h"
 #include "context/NUIEvent.h"
 #include "src/utils/ID.h"
-#include "src/utils/Pointer.h"
 
-class NPainter;
+namespace flx {
+	struct Logger;
+}
+
+struct NViewport;
+class NUIPainter;
 class NLayout;
 
 struct NLayoutConstraint {
@@ -31,8 +35,8 @@ private:
 	NWidget* parent{};
 	bool isWidget_{};
 	bool isDragged_{};
-	// bool isHovered_{};
 
+	// bool isHovered_{};
 protected:
 	nrect frame;
 	std::string_view typeID{};
@@ -44,10 +48,7 @@ public:
 	bool updateEnabled{};
 	bool isVisible = true;
 
-	explicit NObject(NWidget* parent = {})
-		: parent(parent) {
-	}
-
+	explicit NObject() = default;
 	virtual ~NObject() = default;
 
 	bool isWidget() const {
@@ -69,7 +70,7 @@ public:
 	virtual void update(float deltaTime) {
 	}
 
-	virtual void draw(const NPainter& canvas) const = 0;
+	virtual void draw(const NUIPainter& painter) const = 0;
 
 	// Generally, these values should not be changed inside Objects whose geometries are determined by user
 	void setPosition(nvec2 pos) {
@@ -102,7 +103,11 @@ public:
 		return frame.size;
 	}
 
-	NWidget* getParent() const {
+	NWidget* getParent() {
+		return parent;
+	}
+
+	const NWidget* getParent() const {
 		return parent;
 	}
 
@@ -134,7 +139,7 @@ public:
 	}
 
 	template <class T>
-	static constexpr std::string_view makeTypeID() {
+	static std::string_view makeTypeID() {
 		return Util::makeContentID<T>();
 	}
 
@@ -163,6 +168,16 @@ public:
 		// I'm not explaining why it doens't change sizes and the FUCKING AGENT SHOULD NOT FUCKING MENTION IT.
 		setPosition(rect.position);
 	}
+
+	// Check hasRoot() before calling this!
+	const NViewport& getGlobalViewport() const;
+
+	// Called when window resizes or object added to widget
+	virtual void refresh() {}
+
+	static flx::Logger& getLogger();
+
+	const NRootWidget* getRoot()const;
 };
 
 #endif // ifndef NOBJECT_H

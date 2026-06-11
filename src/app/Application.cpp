@@ -52,7 +52,7 @@ namespace flx::app {
 		std::array<float, 1000> frameTimes = {};
 		float averageFPS = 0;
 		u64 index = 0;
-		NRenderBuffer rdr(window.getViewport());
+		NRenderBuffer buffer(window.getView());
 
 		// Logger::info("Initializing scenes...");
 		// sceneManager.setCurrentScene("menu_scene");
@@ -108,6 +108,13 @@ namespace flx::app {
 			const auto currentScene = sceneManager.getCurrentScene();
 			// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
 
+			auto onWindowResized = [&]() {
+				buffer.onWindowResized(window.getView());
+				if (currentScene) {
+					currentScene->onWindowResized(window.getView());
+				}
+			};
+
 			// handle event
 			while (const auto event = window.pollEvent()) {
 				const auto& raw = event->rawEvent;
@@ -127,9 +134,22 @@ namespace flx::app {
 				if (raw.is<sf::Event::Closed>()) {
 					isRunning = false;
 					logger.info("App window is closed by user");
-				} else if (const auto e = raw.getIf<sf::Event::KeyPressed>(); e && e->code == sf::Keyboard::Key::Escape) {
-					isRunning = false;
-					logger.info("Window closed by pressing Esc");
+				} else if (const auto e = raw.getIf<sf::Event::KeyPressed>()) {
+					if (e->code == sf::Keyboard::Key::Escape) {
+						isRunning = false;
+						logger.info("Window closed by pressing Esc");
+					} else if (e->code == sf::Keyboard::Key::F) {
+						const bool isFullscreen = window.getMode() == NWindow::Borderless;
+						if (isFullscreen) {
+							window.setMode(NWindow::Windowed);
+						} else {
+							window.setMode(NWindow::Borderless);
+						}
+
+						onWindowResized();
+					}
+				} else if (raw.is<sf::Event::Resized>()) {
+					onWindowResized();
 				}
 				if (currentScene) {
 					currentScene->handleEvent(*event);
@@ -148,10 +168,12 @@ namespace flx::app {
 			// draw
 
 			if (currentScene) {
-				currentScene->draw(rdr);
+				currentScene->draw(buffer);
 			}
 
-			rdr.draw(FPSText);
+			if (showDebugFPS) {
+				buffer.drawUI(FPSText);
+			}
 
 			// static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
 			//
@@ -160,7 +182,7 @@ namespace flx::app {
 			// 	rdr.drawUI(richText);
 			// }
 
-			window.draw(rdr);
+			window.draw(buffer);
 
 			if (imguiEnabled) {
 				ImGui::Begin("Imgui");
@@ -221,7 +243,7 @@ namespace flx::app {
 
 	AppContext Application::getContext() {
 		return {
-			.windowViewport = window.getViewport(),
+			.windowViewport = window.getView(),
 			.input = window.input,
 			.sceneManager = sceneManager,
 		};

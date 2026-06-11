@@ -48,7 +48,7 @@ void ValueBar::updateText() {
 	}
 }
 
-void ValueBar::draw(const NPainter& canvas) const {
+void ValueBar::draw(const NUIPainter& canvas) const {
 	const nvec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * frame.size.x, frame.size.y};
 	healthShape.setSize(healthShapeSize);
 	healthShape.setPosition({frame.size.x - healthShapeSize.x, 0});

@@ -13,6 +13,7 @@ namespace flx::app {
 		n_unique<NRootWidget> widget{};
 		Logger logger{};
 		AppContext context;
+		const NViewport& viewport;
 		// std::string nextScene = "";
 
 	public:
@@ -21,6 +22,7 @@ namespace flx::app {
 		explicit Scene(AppContext context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),
 			  context(context),
+			  viewport(context.windowViewport.viewport),
 			  name(name) {}
 
 		virtual ~Scene() {
@@ -48,7 +50,13 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = Util::makeUnique(new NRootWidget());
+			widget = Util::makeUnique(new NRootWidget(viewport));
+		}
+
+		void onWindowResized(const NWindowView& view) const {
+			if (widget) {
+				widget->onWindowResized(view);
+			}
 		}
 
 		virtual void enter() {

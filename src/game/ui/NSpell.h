@@ -29,11 +29,11 @@ public:
 
 	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 	void update(float dt) override;
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 
 	nrect getHitbox() const override {
 		return frame.getExpand({5.f, 5.f});
 	}
 
-	NSpellInventory* getInventory() const;
+	const NSpellInventory* getInventory() const;
 };

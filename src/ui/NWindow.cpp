@@ -1,12 +1,13 @@
-#pragma warning(disable : 5105)
 #include "NWindow.h"
+
+#include "global/NGlobal.h"
 #include "render/NRenderBuffer.h"
 #include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 
 void NWindow::updateViewport() {
+	viewport.resize(window.getSize());
 	const auto size = static_cast<nvec2>(window.getSize());
-	viewport.update(size);
 	// glViewport(0, 0, sizeu.x, sizeu.y);
 
 	sf::View view;
@@ -17,7 +18,7 @@ void NWindow::updateViewport() {
 
 void NWindow::updateMousePosition() {
 	input.mouseScreen = static_cast<nvec2>(sf::Mouse::getPosition(window));
-	input.mouseRender = viewport.toRenderPos(input.mouseScreen);
+	input.mouseRender = viewport.toCanvasPos(input.mouseScreen);
 }
 
 NWindow::NWindow(nvec2u windowSize, std::string_view title)
@@ -26,13 +27,15 @@ NWindow::NWindow(nvec2u windowSize, std::string_view title)
 	updateViewport();
 	updateMousePosition();
 
-	flx::logger.info("Window opened: {}", title);
+	this->title = title;
+
+	NGlobal::getLogger().info("Window opened: {}", title);
 }
 
 NWindow::~NWindow() {
 }
 
-const NWindowViewport& NWindow::getViewport() const {
+const NWindowView& NWindow::getView() const {
 	return viewport;
 }
 
@@ -50,7 +53,7 @@ std::optional<NWindowEvent> NWindow::pollEvent() {
 
 		return NWindowEvent{
 			.rawEvent = *event,
-			.viewport = getViewport(),
+			.viewport = getView(),
 			.input = input,
 		};
 	}
@@ -59,9 +62,35 @@ std::optional<NWindowEvent> NWindow::pollEvent() {
 }
 
 void NWindow::draw(NRenderBuffer& buffer) {
-	buffer.flush(window, getViewport());
+	buffer.flush(window);
 }
 
 void NWindow::display() {
 	window.display();
+}
+
+NWindow::Mode NWindow::getMode() const {
+	return mode;
+}
+
+void NWindow::setMode(Mode mode) {
+	if (mode == this->mode) {
+		NGlobal::getLogger().warn("NWindow: Did not change window mode");
+		return;
+	}
+
+	this->mode = mode;
+
+	if (mode == Mode::Windowed) {
+		window.create(sf::VideoMode(viewport.defaultWindowSize), title);
+	} else if (mode == Mode::Borderless) {
+		const auto desktop = sf::VideoMode::getDesktopMode();
+		window.create(desktop, title, sf::Style::None);
+	} else if (mode == Mode::Fullscreen) {
+		const auto desktop = sf::VideoMode::getDesktopMode();
+		window.create(desktop, title, sf::Style::None, sf::State::Fullscreen);
+	}
+
+	updateViewport();
+	updateMousePosition();
 }

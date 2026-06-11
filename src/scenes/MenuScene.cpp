@@ -6,7 +6,7 @@
 #include "src/ui/render/NRenderBuffer.h"
 
 MenuScene::MenuScene(flx::app::AppContext context) : Scene(context, Util::makeContentID<MenuScene>()) {
-	const nvec2 windowSize = context.windowViewport.defaultWindowSizeF;
+	const nvec2 windowSize = context.windowViewport.canvasSize;
 	auto startButton =
 		Util::makeUnique(new NButton(nrect::fromCenter(windowSize / 2.f, {200, 100})));
 	startButton->setOnClick([this] {

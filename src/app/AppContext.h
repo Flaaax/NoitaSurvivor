@@ -1,14 +1,14 @@
 #pragma once
 
 struct NInputState;
-class NWindowViewport;
+class NWindowView;
 class NWindow;
 
 namespace flx::app {
 	class SceneManager;
 
 	struct AppContext {
-		const NWindowViewport& windowViewport;
+		const NWindowView& windowViewport;
 		const NInputState& input;
 		SceneManager& sceneManager;
 	};

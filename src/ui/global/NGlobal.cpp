@@ -15,3 +15,7 @@ void NGlobal::setDefaultFont(const sf::Font& font) {
 	}
 	defaultFont = &font;
 }
+
+flx::Logger& NGlobal::getLogger() {
+	return logger_;
+}

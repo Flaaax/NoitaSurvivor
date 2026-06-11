@@ -1,7 +1,7 @@
 #include "NRootWidget.h"
 
 #include "../../app/global/AssetManager.h"
-#include "src/ui/NTooltip.h"
+#include "../elements/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/global/NGlobal.h"
 #include "src/ui/render/NPainter.h"
@@ -133,6 +133,7 @@ void NRootWidget::updateHover(float dt) {
 	if (hoverState.hoveredTime >= hoverState.hoverIntentDelay && hoverState.target->tooltipSpec.builder) {
 		if (!tooltip) {
 			tooltip = std::make_unique<NPanel>();
+			tooltip->parent = this;
 			tooltip->backgroundColor = {160, 160, 160};
 			updateTooltipContent();
 		} else if (hoverState.tooltipDirty) {
@@ -145,13 +146,16 @@ void NRootWidget::updateHover(float dt) {
 	}
 }
 
-NRootWidget::NRootWidget(nrect geometry, bool updateEnabled_)
-	: NWidget(geometry, updateEnabled_), style({.font = NGlobal::getDefaultFont()}) {
+NRootWidget::NRootWidget(NViewport viewport, nrect geometry, bool updateEnabled_)
+	: NWidget(geometry, updateEnabled_),
+	  style({.font = NGlobal::getDefaultFont()}),
+	  viewport(viewport) {
 	hoverState.hoverIntentDelay = 0.22f;
+	isRoot = true;
 }
 
 void NRootWidget::draw(NRenderBuffer& rdr) const {
-	const NPainter canvas(rdr, getPosition());
+	const NUIPainter canvas(rdr, getPosition());
 	this->NWidget::draw(canvas);
 	if (dragState.dragged) {
 		dragState.dragged->draw(canvas.translated(dragState.dragged->getGlobalPosition()));
@@ -165,6 +169,18 @@ void NRootWidget::draw(NRenderBuffer& rdr) const {
 void NRootWidget::update(float dt) {
 	updateHover(dt);
 	NWidget::update(dt);
+}
+
+const NViewport& NRootWidget::getViewport() const {
+	return viewport;
+}
+
+void NRootWidget::onWindowResized(const NWindowView& view) {
+	this->viewport = view.viewport;
+	NWidget::refresh();
+	if (tooltip) {
+		tooltip->refresh();
+	}
 }
 
 // void NRootWidget::setStyle(NStyle style) {

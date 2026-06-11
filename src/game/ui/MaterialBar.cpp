@@ -27,7 +27,7 @@ MaterialBar::MaterialBar(nvec2 rightTop, float height)
 	updateText();
 }
 
-void MaterialBar::draw(const NPainter& canvas) const {
+void MaterialBar::draw(const NUIPainter& canvas) const {
 	canvas.draw(text);
 }
 

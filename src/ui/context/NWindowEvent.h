@@ -1,5 +1,5 @@
 #pragma once
-#include "../render/NWindowViewport.h"
+#include "../render/NWindowView.h"
 
 #include <SFML/Window/Event.hpp>
 
@@ -7,6 +7,6 @@ using NRawEvent = sf::Event;
 
 struct NWindowEvent {
 	NRawEvent rawEvent;
-	const NWindowViewport& viewport;
+	const NWindowView& viewport;
 	const NInputState& input;
 };

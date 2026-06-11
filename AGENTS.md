@@ -2,6 +2,7 @@
 
 - 这个项目从旧项目迁移，为了兼容Cmake和Clion IDE，且拥有独立git仓库。
 - 旧项目的绝对类路径位于：`E:\VisualC++\.SFML projects\NoitaSurvivor`，当你想知道某功能在老版本如何实现，这可能有用。
+- 但是，你更应该优先查看以前commit中的实现，因为旧项目已经过于久远。
 - 不要跑任何构建或编译命令。后面会再次提到这点。
 
 ## Backlog

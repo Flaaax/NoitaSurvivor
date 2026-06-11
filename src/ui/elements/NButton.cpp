@@ -58,7 +58,7 @@ std::optional<NEventResult> NButton::handleEvent(const NUIEvent& event) {
 	return {};
 }
 
-void NButton::draw(const NPainter& canvas) const {
+void NButton::draw(const NUIPainter& canvas) const {
 	if (isButtonVisible) {
 		sf::RectangleShape shape;
 		shape.setSize(getSize());
@@ -80,5 +80,5 @@ void NButton::draw(const NPainter& canvas) const {
 void NButton::setText(std::string_view text, u32 characterSize) {
 	this->text->text.setString(text);
 	this->text->text.setCharacterSize(characterSize);
-	refreshLayout();
+	NPanel::refresh();
 }

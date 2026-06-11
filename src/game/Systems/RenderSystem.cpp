@@ -31,7 +31,7 @@ void RenderSystem::update(const GameCtx& ctx, float dt) {
 }
 
 void RenderSystem::render(NRenderBuffer& buffer, const GameCtx& ctx) {
-	ctx.scales.offset = ctx.appCtx.windowViewport.defaultWindowSizeF / 2.f;
+	ctx.scales.offset = ctx.appCtx.windowViewport.canvasSize / 2.f;
 
 	// rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
 

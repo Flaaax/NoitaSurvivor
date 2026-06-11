@@ -76,7 +76,7 @@ NSpellInventory::NSpellInventory(nvec2 position, size_t slotCount) {
 	typeID = makeTypeID<NSpellInventory>();
 }
 
-void NSpellInventory::draw(const NPainter& canvas) const {
+void NSpellInventory::draw(const NUIPainter& canvas) const {
 	sf::RectangleShape shape;
 	shape.setOutlineColor({0, 0, 0});
 

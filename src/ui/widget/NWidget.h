@@ -16,14 +16,16 @@ class NWidget : public NObject {
 private:
 	friend class NObject;
 	friend class NRootWidget;
+
+	bool isRoot{};
 	Util::Vector<n_unique<NObject>> objects;
 
 	void bind(NObject* obj);
 
-	static void drawWithChildCanvas(const NPainter& canvas, const NObject& obj);
+	static void drawWithChildCanvas(const NUIPainter& canvas, const NObject& obj);
 
 public:
-	explicit NWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) : NObject(nullptr) {
+	explicit NWidget(nrect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) {
 		updateEnabled = updateEnabled_;
 		this->frame = geometry;
 		isWidget_ = true;
@@ -41,12 +43,14 @@ public:
 	NObject* addToTop(n_unique<NObject> obj) {
 		assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 		bind(obj.get());
+		obj->refresh();
 		return objects.emplace_back(std::move(obj)).get();
 	}
 
 	NObject* addToBottom(n_unique<NObject> obj) {
 		assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 		bind(obj.get());
+		obj->refresh();
 		return objects.emplace_front(std::move(obj)).get();
 	}
 
@@ -57,7 +61,7 @@ public:
 	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
 	void update(float deltaTime) override;
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 
 	bool has(const NObject* obj) const {
 		return obj->getParent() == this;
@@ -77,4 +81,6 @@ public:
 	}
 
 	void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
+
+	void refresh() override;
 };

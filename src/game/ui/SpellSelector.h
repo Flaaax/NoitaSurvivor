@@ -19,6 +19,6 @@ public:
 	~NSpellSelector() override;
 	NSpellSelector* create(const nvec2& center, int selectCount);
 
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 	bool getIsRunning()const { return isRunning; }
 };

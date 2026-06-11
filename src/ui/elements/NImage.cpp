@@ -9,7 +9,7 @@ NImage::NImage(const sf::Texture& texture) : sprite(texture) {
 	visualDirty = true;
 }
 
-void NImage::draw(const NPainter& canvas) const {
+void NImage::draw(const NUIPainter& canvas) const {
 	if (visualDirty) {
 		const nvec2 textureSize = static_cast<nvec2>(sprite.getTexture().getSize());
 		const nvec2 scale = getSize() / textureSize;

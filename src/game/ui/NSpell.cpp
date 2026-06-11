@@ -141,7 +141,7 @@ void NSpell::update(float dt) {
 	}
 }
 
-void NSpell::draw(const NPainter& canvas) const {
+void NSpell::draw(const NUIPainter& canvas) const {
 	if (!spell) {
 		LoggerOld::error_and_throw("NSpell must be tied with a Spell!");
 	}
@@ -157,8 +157,8 @@ void NSpell::draw(const NPainter& canvas) const {
 	canvas.draw(sprite);
 }
 
-NSpellInventory* NSpell::getInventory() const {
-	NWidget* parent = getParent();
+const NSpellInventory* NSpell::getInventory() const {
+	const NWidget* parent = getParent();
 	if (!parent) {
 		return {};
 	}

@@ -1,15 +1,24 @@
 #pragma once
 #include "context/NInputState.h"
 #include "context/NWindowEvent.h"
-#include "render/NWindowViewport.h"
+#include "render/NWindowView.h"
 
 class NRenderBuffer;
 
-// Manages and creates the SFML window
+// Manages and holds the SFML window
 class NWindow {
+public:
+	enum Mode {
+		Windowed,
+		Borderless,
+		Fullscreen,
+	};
+
 private:
 	sf::RenderWindow window;
-	NWindowViewport viewport;
+	NWindowView viewport;
+	Mode mode = Mode::Windowed;
+	std::string title{};
 
 	void updateViewport();
 	void updateMousePosition();
@@ -17,10 +26,11 @@ private:
 public:
 	NInputState input;
 
+	// Creates the window
 	NWindow(nvec2u windowSize, std::string_view title);
 	~NWindow();
 
-	const NWindowViewport& getViewport()const;
+	const NWindowView& getView() const;
 
 	sf::RenderWindow& getWindow() {
 		return window;
@@ -34,4 +44,7 @@ public:
 
 	void draw(NRenderBuffer& buffer);
 	void display();
+
+	Mode getMode()const;
+	void setMode(Mode mode);
 };

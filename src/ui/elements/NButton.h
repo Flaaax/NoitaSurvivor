@@ -29,7 +29,7 @@ public:
 	explicit NButton(nrect geometry);
 
 	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
-	void draw(const NPainter& canvas) const override;
+	void draw(const NUIPainter& canvas) const override;
 
 	void setText(std::string_view text, u32 characterSize = 30);
 
