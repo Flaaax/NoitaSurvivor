@@ -386,9 +386,11 @@ def generate_meta_info(lines, structs):
 
 def generate_code(structs):
 	lines = []
+	add(lines, "// NOLINTBEGIN\n")
 	generate_header(lines)
 	generate_component_initializers(lines, structs)
 	generate_meta_info(lines, structs)
+	add(lines, "// NOLINTEND")
 	return "\n".join(lines) + "\n"
 
 

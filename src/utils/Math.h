@@ -10,7 +10,7 @@ namespace Util {
 	}
 
 	static nvec2 from_rad(float arg) {
-		return { std::cos(arg), std::sin(arg) };
+		return {std::cos(arg), std::sin(arg)};
 	}
 
 	static float to_rad(float deg) {
@@ -25,15 +25,15 @@ namespace Util {
 		return speed * from_rad(arg);
 	}
 
-	template <typename T>requires
-		requires (T a, T b) { { a > b } -> std::convertible_to<bool>; }
+	template <typename T>
+		requires requires(T a, T b) { { a > b } -> std::convertible_to<bool>; }
 	static T max(const T& a, const T& b) {
 		return (a > b) ? a : b;
 	}
 
-	template <typename T>requires
-		requires (T a, T b) { { a > b } -> std::convertible_to<bool>; }
+	template <typename T>
+		requires requires(T a, T b) { { a > b } -> std::convertible_to<bool>; }
 	static T min(const T& a, const T& b) {
 		return (a < b) ? a : b;
 	}
-};
+} // namespace Util

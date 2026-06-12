@@ -155,12 +155,12 @@ namespace Util::internal {
 	};
 
 	template <class Derived, class T>
-	[[nodiscard]] inline constexpr Derived operator*(T a, const vec2_base<Derived, T>& v) noexcept {
+	[[nodiscard]] constexpr Derived operator*(T a, const vec2_base<Derived, T>& v) noexcept {
 		return {a * v.x, a * v.y};
 	}
 
 	template <class Derived, class T>
-	[[nodiscard]] inline constexpr Derived operator/(T a, const vec2_base<Derived, T>& v) noexcept {
+	[[nodiscard]] constexpr Derived operator/(T a, const vec2_base<Derived, T>& v) noexcept {
 		const T inv_x = T(1) / v.x;
 		const T inv_y = T(1) / v.y;
 		return {a * inv_x, a * inv_y};

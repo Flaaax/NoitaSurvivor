@@ -3,7 +3,7 @@
 #ifndef N_CLASS_MACRO
 #define N_CLASS_MACRO
 
-#pragma execution_character_set("utf-8")
+//#pragma execution_character_set("utf-8")
 
 #define N_STATIC_VAR inline static
 #define N_CONSTEXPR inline static constexpr

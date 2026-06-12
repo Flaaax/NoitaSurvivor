@@ -1,5 +1,4 @@
 #pragma once
-#include "src/utils/Macro.h"
 #include "src/utils/Vec2/Vec2.h"
 
 struct GameRenderScales {

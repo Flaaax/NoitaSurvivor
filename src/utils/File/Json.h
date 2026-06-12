@@ -3,13 +3,12 @@
 #pragma warning(disable : 5105)
 #pragma warning(disable : 5260)
 
-#include "File.h"
-
-#include <nlohmann/json.hpp>
-
 #include "../Logging/Logger.h"
 #include "../Vec2/Vec2.h"
+#include "File.h"
+
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <type_traits>
 #include <vector>
@@ -113,7 +112,7 @@ template <class T>
 struct FieldParser {
 	static constexpr bool enabled = false;
 
-	static EmptyFieldType parse(const json& j) {
+	static EmptyFieldType parse(const json&) {
 		// ReSharper disable once CppStaticAssertFailure
 		static_assert(false, "FieldParser: Invalid instantiation");
 		return {};

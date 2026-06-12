@@ -2,8 +2,6 @@
 #include "src/utils/Container/Map.h"
 #include "src/utils/Singleton.h"
 
-#include <deque>
-
 class LocTable {
 public:
 	std::string name;

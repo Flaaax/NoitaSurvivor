@@ -1,7 +1,6 @@
 #pragma once
 
 #include "src/ui/NObject.h"
-#include "src/ui/elements/NPanel.h"
 #include "src/ui/shapes/NRichTextShape.h"
 #include "src/ui/shapes/NRoundRectShape.h"
 

@@ -14,7 +14,7 @@
 
 void AddExplosionSpell::apply(const GameCtx& ctx, myecs::entity p) {
 	auto& reg = ctx.reg;
-	auto& pc = reg.get<ProjectileComponent>(p);
+	// auto& pc = reg.get<ProjectileComponent>(p);
 	reg.get_or_emplace<SpellOnDeathComponent>(p).spellBlock.add(std::make_shared<ExplosionSpell>());
 }
 
