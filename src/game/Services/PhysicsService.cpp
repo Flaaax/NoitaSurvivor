@@ -1,8 +1,8 @@
 #include "PhysicsService.h"
+#include "../../utils/Logging/Logger.h"
 #include "ContactService.h"
 #include "src/game/GameContext.h"
 #include "src/utils/Lambda.h"
-#include "src/utils/Logger.h"
 #include <src/game/Components/PhysicsComponents.h>
 
 BodyComponent& PhysicsService::getBody(const GameCtx& ctx, myecs::entity e) {

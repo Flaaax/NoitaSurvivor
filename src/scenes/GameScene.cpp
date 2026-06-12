@@ -8,8 +8,6 @@
 #include "src/game/ui/ValueBar.h"
 #include "src/ui/elements/NRichText.h"
 
-#include <src/utils/Logger.h>
-
 NRichText* pauseText{};
 MaterialBar* materialBar{};
 ValueBar* expBar{};

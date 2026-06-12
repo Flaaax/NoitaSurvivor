@@ -7,7 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "../Logger.h"
+#include "../Logging/Logger.h"
 #include "../Vec2/Vec2.h"
 #include <fstream>
 #include <optional>

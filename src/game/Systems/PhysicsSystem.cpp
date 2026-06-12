@@ -1,8 +1,8 @@
 #include "PhysicsSystem.h"
 
+#include "../../utils/Logging/Logger.h"
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/utils/Logger.h"
 
 #include <src/game/Components/EntityComponents.h>
 #include <src/game/Components/PhysicsComponents.h>

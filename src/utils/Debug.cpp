@@ -1,8 +1,10 @@
 #include "Debug.h"
 
-#include "Logger.h"
+// clang-format off
 #include <windows.h>
 #include <dbghelp.h>
+// clang-format on
+
 #include <iostream>
 
 #pragma comment(lib, "dbghelp.lib")
@@ -28,9 +30,8 @@ void Util::Debug::printCallStack() {
 		// Resolve address to symbol name
 		if (SymFromAddr(hProcess, addr, nullptr, pSymbol)) {
 			std::cout << "  [" << i << "] " << pSymbol->Name
-				<< " (0x" << std::hex << addr << std::dec << ")\n";
-		}
-		else {
+					  << " (0x" << std::hex << addr << std::dec << ")\n";
+		} else {
 			// Show the address when symbol resolution fails
 			std::cout << "  [" << i << "] 0x" << std::hex << addr << std::dec << "\n";
 		}

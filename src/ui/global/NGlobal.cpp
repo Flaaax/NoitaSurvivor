@@ -1,6 +1,6 @@
 #include "NGlobal.h"
 
-#include "src/utils/Logger.h"
+#include "../../utils/Logging/Logger.h"
 
 const sf::Font& NGlobal::getDefaultFont() {
 	if (!defaultFont) {

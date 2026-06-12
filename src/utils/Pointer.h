@@ -43,6 +43,8 @@ namespace Util {
 	// This is evil FR FR
 	inline constexpr internal::move_t move{};
 
+#if false
+
 	namespace internal {
 		template <class T>
 		struct ControlBlock {
@@ -274,5 +276,7 @@ namespace Util {
 			return control ? control->weakCount : 0;
 		}
 	};
+
+#endif
 
 } // namespace Util

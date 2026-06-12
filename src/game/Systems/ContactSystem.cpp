@@ -1,5 +1,6 @@
 ﻿#include "ContactSystem.h"
 
+#include "../../utils/Logging/Logger.h"
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Script/ScriptComponent.h"
@@ -7,7 +8,6 @@
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Services/PlayerService.h"
-#include "src/utils/Logger.h"
 
 #include <boost/unordered/unordered_flat_map.hpp>
 

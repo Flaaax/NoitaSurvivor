@@ -1,8 +1,8 @@
 #include "NWindow.h"
 
+#include "../utils/Logging/Logger.h"
 #include "global/NGlobal.h"
 #include "render/NRenderBuffer.h"
-#include "src/utils/Logger.h"
 #include <SFML/Graphics.hpp>
 
 void NWindow::updateViewport() {

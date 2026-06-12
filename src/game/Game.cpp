@@ -13,9 +13,9 @@
 #include "Systems/RenderSystem.h"
 #include "src/app/global/LocManager.h"
 // ReSharper disable once CppUnusedIncludeDirective
+#include "../utils/Logging/Logger.h"
 #include "Systems/EnemySpawnSystem.h"
 #include "src/game/Wands/Wand.h"
-#include "src/utils/Logger.h"
 
 Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
 	logger = flx::Logger::makeAsync("Game", true);

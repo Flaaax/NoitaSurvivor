@@ -1,12 +1,12 @@
 ﻿// ReSharper disable CppParameterMayBeConstPtrOrRef
 #include "PhysicalContactCallbacks.h"
 
+#include "../../utils/Logging/Logger.h"
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/Script/ScriptComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/ContactService.h"
 #include "src/game/Services/EntityService.h"
-#include "src/utils/Logger.h"
 
 #include <box2d/box2d.h>
 

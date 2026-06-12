@@ -1,5 +1,5 @@
 #pragma once
-#include "src/utils/Logger.h"
+#include "../../utils/Logging/Logger.h"
 
 namespace sf {
 	class Font;

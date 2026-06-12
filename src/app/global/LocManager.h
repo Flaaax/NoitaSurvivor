@@ -1,5 +1,6 @@
 #pragma once
 #include "src/utils/Container/Map.h"
+#include "src/utils/Singleton.h"
 
 #include <deque>
 
