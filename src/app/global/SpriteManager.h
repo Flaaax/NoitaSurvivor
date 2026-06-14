@@ -1,9 +1,12 @@
 #pragma once
-#include "../../utils/Container/Map.h"
 
-namespace sf { class Sprite; }
+namespace sf {
+	class Sprite;
+}
 
-class SpriteMgr {
-public:
-	static const sf::Sprite& getSprite(std::string_view name);
-};
+namespace flx::app {
+	class SpriteMgr {
+	public:
+		static const sf::Sprite& getSprite(std::string_view name);
+	};
+} // namespace flx::game

@@ -7,16 +7,18 @@ namespace sf {
 	class Texture;
 } // namespace sf
 
-class AssetMgr {
-public:
-	static const sf::Font& getDefaultFont();
-	static const sf::Font& getFont(std::string_view name);
-	static void playSound(std::string_view name, int index = -1);
-	static const sf::Texture& getSpellTexture(std::string_view name);
-	static const sf::Texture& getUITexture(std::string_view name);
-	static const sf::Texture& getWandTexture(std::string_view name);
-	static const sf::Texture& getSpriteTexture(std::string_view name);
-	static void init();
-};
+namespace flx::app {
+	class AssetMgr {
+	public:
+		static const sf::Font& getDefaultFont();
+		static const sf::Font& getFont(std::string_view name);
+		static void playSound(std::string_view name, int index = -1);
+		static const sf::Texture& getSpellTexture(std::string_view name);
+		static const sf::Texture& getUITexture(std::string_view name);
+		static const sf::Texture& getWandTexture(std::string_view name);
+		static const sf::Texture& getSpriteTexture(std::string_view name);
+		static void init();
+	};
+} // namespace flx::app
 
 #pragma warning(pop)

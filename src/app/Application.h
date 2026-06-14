@@ -3,13 +3,13 @@
 #include "IApp.h"
 #include "SceneManager.h"
 #include "src/ui/NWindow.h"
-#include "src/ui/render/NRenderBuffer.h"
+#include "src/utils/Logging/Logger.h"
 
 namespace flx::app {
 
 	struct AppInit {
 		std::string name = "Unnamed App";
-		nvec2u defaultWindowSize = {1920, 1080};
+		vec2u defaultWindowSize = {1920, 1080};
 		bool imguiEnabled{};
 		std::string imGuiFontPath = "./resources/fonts/msyh.ttc";
 		bool displayDebugFPS{};
@@ -17,7 +17,7 @@ namespace flx::app {
 
 	class Application {
 	private:
-		NWindow window;
+		ui::NWindow window;
 		SceneManager sceneManager;
 		Logger logger;
 		bool imguiEnabled{};

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace Util {
+namespace flx::text {
 	constexpr bool isASCIIUpper(char c) {
 		return c >= 'A' && c <= 'Z';
 	}
@@ -28,4 +28,4 @@ namespace Util {
 
 		return result;
 	}
-}
+} // namespace flx::text

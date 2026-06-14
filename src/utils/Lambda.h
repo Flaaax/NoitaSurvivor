@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace Util {
+namespace flx {
 	namespace internal {
 		template <bool Own, typename F, typename R, typename... Args>
 		struct CCallback {

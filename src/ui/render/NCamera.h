@@ -1,14 +1,14 @@
 #pragma once
-#include<SFML/System/Vector2.hpp>
-#include"src/utils/Math.h"
+#include "src/utils/Math.h"
+#include <SFML/System/Vector2.hpp>
 
+namespace flx::ui {
+	class NCamera {
+	public:
+		vec2 renderPos = {0, 0};
 
-class NCamera {
-public:
-	nvec2 renderPos = { 0,0 };
-
-	nvec2 offeset(const nvec2& v) const {
-		return v - renderPos;
-	}
-};
-
+		vec2 offeset(vec2 v) const {
+			return v - renderPos;
+		}
+	};
+} // namespace flx::ui

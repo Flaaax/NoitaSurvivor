@@ -2,7 +2,7 @@
 #include<type_traits>
 #include<vector>
 
-namespace Util {
+namespace flx {
 	//std::vector
 
 	// Container must support size().
@@ -51,12 +51,6 @@ namespace Util {
 		const bool changed = (new_end != cont.end());
 		cont.erase(new_end, cont.end());
 		return changed;
-	}
-
-	template<class T>
-		requires std::is_array_v<T> && (std::is_arithmetic_v<std::remove_extent_t<T>> || std::is_enum_v<std::remove_extent_t<T>>)
-	static void clearArray(T& arr) {
-		std::memset(arr, 0, sizeof(arr));
 	}
 
 	template<class Map, class Key, class FuncIt>

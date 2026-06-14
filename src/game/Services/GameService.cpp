@@ -8,10 +8,12 @@
 #include <src/utils/Math.h>
 #include <src/utils/Random.h>
 
-void GameService::dropMaterial(const GameCtx& ctx, nvec2 pos) {
-	const auto arg = Util::random.nextVal<float>(0.f, 2 * Util::PI);
-	const auto dir = Util::from_rad(arg);
-	const auto material = ctx.factory.createMaterial(ctx, pos);
-	const float k = Util::random.nextFloat(0.55f, 0.75f);
-	PhysicsService().applyImpulse(ctx, material, dir * k);
-}
+namespace flx::game {
+	void GameService::dropMaterial(const GameCtx& ctx, vec2 pos) {
+		const auto arg = flx::random.nextVal<float>(0.f, 2 * flx::math::PI);
+		const auto dir = math::from_rad(arg);
+		const auto material = ctx.factory.createMaterial(ctx, pos);
+		const float k = flx::random.nextFloat(0.55f, 0.75f);
+		PhysicsService().applyImpulse(ctx, material, dir * k);
+	}
+} // namespace flx::game

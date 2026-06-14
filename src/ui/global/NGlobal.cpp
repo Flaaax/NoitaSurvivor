@@ -2,20 +2,22 @@
 
 #include "../../utils/Logging/Logger.h"
 
-const sf::Font& NGlobal::getDefaultFont() {
-	if (!defaultFont) {
-		LoggerOld::error_and_throw("No default font avaliable");
+namespace flx::ui {
+	const sf::Font& NGlobal::getDefaultFont() {
+		if (!defaultFont) {
+			logger.error_and_throw("No default font avaliable");
+		}
+		return *defaultFont;
 	}
-	return *defaultFont;
-}
 
-void NGlobal::setDefaultFont(const sf::Font& font) {
-	if (defaultFont) {
-		LoggerOld::error_and_throw("Default font should be set once");
+	void NGlobal::setDefaultFont(const sf::Font& font) {
+		if (defaultFont) {
+			logger.error_and_throw("Default font should be set once");
+		}
+		defaultFont = &font;
 	}
-	defaultFont = &font;
-}
 
-flx::Logger& NGlobal::getLogger() {
-	return logger_;
+	flx::Logger& NGlobal::getLogger() {
+		return logger_;
+	}
 }

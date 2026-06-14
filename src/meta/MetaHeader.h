@@ -6,17 +6,23 @@
 #include "src/meta/CustomFieldParser.h"
 #include "src/utils/TypeName.h"
 
-template <class T>
-struct ValueWrapper {
-	using Parser = FieldParser<T>;
-	static constexpr bool enabled = Parser::enabled;
-	using Storage = std::conditional_t<enabled, std::optional<T>, EmptyFieldType>;
-	Storage storage{};
+using namespace flx::json;
+using namespace flx::game;
+using namespace flx::meta;
 
-	const T& value() const {
-		if constexpr (enabled) {
-			return storage.value();
+namespace flx::meta {
+	template <class T>
+	struct ValueWrapper {
+		using Parser = FieldParser<T>;
+		static constexpr bool enabled = Parser::enabled;
+		using Storage = std::conditional_t<enabled, std::optional<T>, flx::json::EmptyField>;
+		Storage storage{};
+
+		const T& value() const {
+			if constexpr (enabled) {
+				return storage.value();
+			}
+			throw "Not supposed to be here...";
 		}
-		throw "Not supposed to be here...";
-	}
-};
+	};
+} // namespace flx::meta

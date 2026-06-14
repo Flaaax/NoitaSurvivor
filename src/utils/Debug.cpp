@@ -9,7 +9,7 @@
 
 #pragma comment(lib, "dbghelp.lib")
 
-void Util::Debug::printCallStack() {
+void flx::Debug::printCallStack() {
 	// Initialize the symbol handler
 	const HANDLE hProcess = GetCurrentProcess();
 	SymInitialize(hProcess, nullptr, TRUE);

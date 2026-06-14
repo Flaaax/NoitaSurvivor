@@ -8,253 +8,255 @@
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/meta/MetaHeader.h"
 
-void ComponentMeta::initGeneratedComponentInitializers() {
-	componentInitializerFactories["EntityComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		using __layer_t = ValueWrapper<decltype(EntityComponent::layer)>;
-		using __health_t = ValueWrapper<decltype(EntityComponent::health)>;
-		struct __EntityComponentParser {
-			__layer_t layer{};
-			__health_t health{};
-		} p;
-		if constexpr (__layer_t::enabled) {
-			if (jsonData.contains("layer")) {
-				p.layer.storage = std::move(__layer_t::Parser::parse(jsonData["layer"]));
+namespace flx::meta {
+	void ComponentMeta::initGeneratedComponentInitializers() {
+		componentInitializerFactories["EntityComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			using __layer_t = ValueWrapper<decltype(::flx::game::EntityComponent::layer)>;
+			using __health_t = ValueWrapper<decltype(::flx::game::EntityComponent::health)>;
+			struct __flx_game_EntityComponentParser {
+				__layer_t layer{};
+				__health_t health{};
+			} p;
+			if constexpr (__layer_t::enabled) {
+				if (jsonData.contains("layer")) {
+					p.layer.storage = std::move(__layer_t::Parser::parse(jsonData["layer"]));
+				}
 			}
-		}
-		if constexpr (__health_t::enabled) {
-			if (jsonData.contains("health")) {
-				p.health.storage = std::move(__health_t::Parser::parse(jsonData["health"]));
+			if constexpr (__health_t::enabled) {
+				if (jsonData.contains("health")) {
+					p.health.storage = std::move(__health_t::Parser::parse(jsonData["health"]));
+				}
 			}
-		}
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<EntityComponent>(e);
-			if (p.layer.storage) {
-				c.layer = p.layer.value();
-			}
-			if (p.health.storage) {
-				c.health = p.health.value();
-			}
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::EntityComponent>(e);
+				if (p.layer.storage) {
+					c.layer = p.layer.value();
+				}
+				if (p.health.storage) {
+					c.health = p.health.value();
+				}
+			};
 		};
-	};
 
-	componentInitializerFactories["ProjectileComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		using __damage_t = ValueWrapper<decltype(ProjectileComponent::damage)>;
-		using __impulse_t = ValueWrapper<decltype(ProjectileComponent::impulse)>;
-		using __maxSpeed_t = ValueWrapper<decltype(ProjectileComponent::maxSpeed)>;
-		using __pierce_t = ValueWrapper<decltype(ProjectileComponent::pierce)>;
-		using __isBullet_t = ValueWrapper<decltype(ProjectileComponent::isBullet)>;
-		struct __ProjectileComponentParser {
-			__damage_t damage{};
-			__impulse_t impulse{};
-			__maxSpeed_t maxSpeed{};
-			__pierce_t pierce{};
-			__isBullet_t isBullet{};
-		} p;
-		if constexpr (__damage_t::enabled) {
-			if (jsonData.contains("damage")) {
-				p.damage.storage = std::move(__damage_t::Parser::parse(jsonData["damage"]));
+		componentInitializerFactories["ProjectileComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			using __damage_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::damage)>;
+			using __impulse_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::impulse)>;
+			using __maxSpeed_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::maxSpeed)>;
+			using __pierce_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::pierce)>;
+			using __isBullet_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::isBullet)>;
+			struct __flx_game_ProjectileComponentParser {
+				__damage_t damage{};
+				__impulse_t impulse{};
+				__maxSpeed_t maxSpeed{};
+				__pierce_t pierce{};
+				__isBullet_t isBullet{};
+			} p;
+			if constexpr (__damage_t::enabled) {
+				if (jsonData.contains("damage")) {
+					p.damage.storage = std::move(__damage_t::Parser::parse(jsonData["damage"]));
+				}
 			}
-		}
-		if constexpr (__impulse_t::enabled) {
-			if (jsonData.contains("impulse")) {
-				p.impulse.storage = std::move(__impulse_t::Parser::parse(jsonData["impulse"]));
+			if constexpr (__impulse_t::enabled) {
+				if (jsonData.contains("impulse")) {
+					p.impulse.storage = std::move(__impulse_t::Parser::parse(jsonData["impulse"]));
+				}
 			}
-		}
-		if constexpr (__maxSpeed_t::enabled) {
-			if (jsonData.contains("maxSpeed")) {
-				p.maxSpeed.storage = std::move(__maxSpeed_t::Parser::parse(jsonData["maxSpeed"]));
+			if constexpr (__maxSpeed_t::enabled) {
+				if (jsonData.contains("maxSpeed")) {
+					p.maxSpeed.storage = std::move(__maxSpeed_t::Parser::parse(jsonData["maxSpeed"]));
+				}
 			}
-		}
-		if constexpr (__pierce_t::enabled) {
-			if (jsonData.contains("pierce")) {
-				p.pierce.storage = std::move(__pierce_t::Parser::parse(jsonData["pierce"]));
+			if constexpr (__pierce_t::enabled) {
+				if (jsonData.contains("pierce")) {
+					p.pierce.storage = std::move(__pierce_t::Parser::parse(jsonData["pierce"]));
+				}
 			}
-		}
-		if constexpr (__isBullet_t::enabled) {
-			if (jsonData.contains("isBullet")) {
-				p.isBullet.storage = std::move(__isBullet_t::Parser::parse(jsonData["isBullet"]));
+			if constexpr (__isBullet_t::enabled) {
+				if (jsonData.contains("isBullet")) {
+					p.isBullet.storage = std::move(__isBullet_t::Parser::parse(jsonData["isBullet"]));
+				}
 			}
-		}
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<ProjectileComponent>(e);
-			if (p.damage.storage) {
-				c.damage = p.damage.value();
-			}
-			if (p.impulse.storage) {
-				c.impulse = p.impulse.value();
-			}
-			if (p.maxSpeed.storage) {
-				c.maxSpeed = p.maxSpeed.value();
-			}
-			if (p.pierce.storage) {
-				c.pierce = p.pierce.value();
-			}
-			if (p.isBullet.storage) {
-				c.isBullet = p.isBullet.value();
-			}
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::ProjectileComponent>(e);
+				if (p.damage.storage) {
+					c.damage = p.damage.value();
+				}
+				if (p.impulse.storage) {
+					c.impulse = p.impulse.value();
+				}
+				if (p.maxSpeed.storage) {
+					c.maxSpeed = p.maxSpeed.value();
+				}
+				if (p.pierce.storage) {
+					c.pierce = p.pierce.value();
+				}
+				if (p.isBullet.storage) {
+					c.isBullet = p.isBullet.value();
+				}
+			};
 		};
-	};
 
-	componentInitializerFactories["EnemyComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		struct __EnemyComponentParser {
-		} p;
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<EnemyComponent>(e);
+		componentInitializerFactories["EnemyComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			struct __flx_game_EnemyComponentParser {
+			} p;
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::EnemyComponent>(e);
+			};
 		};
-	};
 
-	componentInitializerFactories["DirectionComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		struct __DirectionComponentParser {
-		} p;
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<DirectionComponent>(e);
+		componentInitializerFactories["DirectionComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			struct __flx_game_DirectionComponentParser {
+			} p;
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::DirectionComponent>(e);
+			};
 		};
-	};
 
-	componentInitializerFactories["MultiContactComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		using __default_duration_t = ValueWrapper<decltype(MultiContactComponent::default_duration)>;
-		struct __MultiContactComponentParser {
-			__default_duration_t default_duration{};
-		} p;
-		if constexpr (__default_duration_t::enabled) {
-			if (jsonData.contains("default_duration")) {
-				p.default_duration.storage = std::move(__default_duration_t::Parser::parse(jsonData["default_duration"]));
+		componentInitializerFactories["MultiContactComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			using __default_duration_t = ValueWrapper<decltype(::flx::game::MultiContactComponent::default_duration)>;
+			struct __flx_game_MultiContactComponentParser {
+				__default_duration_t default_duration{};
+			} p;
+			if constexpr (__default_duration_t::enabled) {
+				if (jsonData.contains("default_duration")) {
+					p.default_duration.storage = std::move(__default_duration_t::Parser::parse(jsonData["default_duration"]));
+				}
 			}
-		}
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<MultiContactComponent>(e);
-			if (p.default_duration.storage) {
-				c.default_duration = p.default_duration.value();
-			}
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::MultiContactComponent>(e);
+				if (p.default_duration.storage) {
+					c.default_duration = p.default_duration.value();
+				}
+			};
 		};
-	};
 
-	componentInitializerFactories["ExplosionComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		struct __ExplosionComponentParser {
-		} p;
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<ExplosionComponent>(e);
+		componentInitializerFactories["ExplosionComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			struct __flx_game_ExplosionComponentParser {
+			} p;
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::ExplosionComponent>(e);
+			};
 		};
-	};
 
-	componentInitializerFactories["SmoothMovementComponent"] =
-		[](const json& jsonData) -> ComponentInitializer {
-		using __acc_t = ValueWrapper<decltype(SmoothMovementComponent::acc)>;
-		using __dec_t = ValueWrapper<decltype(SmoothMovementComponent::dec)>;
-		using __spd_t = ValueWrapper<decltype(SmoothMovementComponent::spd)>;
-		struct __SmoothMovementComponentParser {
-			__acc_t acc{};
-			__dec_t dec{};
-			__spd_t spd{};
-		} p;
-		if constexpr (__acc_t::enabled) {
-			if (jsonData.contains("acc")) {
-				p.acc.storage = std::move(__acc_t::Parser::parse(jsonData["acc"]));
+		componentInitializerFactories["SmoothMovementComponent"] =
+			[](const Json& jsonData) -> ComponentInitializer {
+			using __acc_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::acc)>;
+			using __dec_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::dec)>;
+			using __spd_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::spd)>;
+			struct __flx_game_SmoothMovementComponentParser {
+				__acc_t acc{};
+				__dec_t dec{};
+				__spd_t spd{};
+			} p;
+			if constexpr (__acc_t::enabled) {
+				if (jsonData.contains("acc")) {
+					p.acc.storage = std::move(__acc_t::Parser::parse(jsonData["acc"]));
+				}
 			}
-		}
-		if constexpr (__dec_t::enabled) {
-			if (jsonData.contains("dec")) {
-				p.dec.storage = std::move(__dec_t::Parser::parse(jsonData["dec"]));
+			if constexpr (__dec_t::enabled) {
+				if (jsonData.contains("dec")) {
+					p.dec.storage = std::move(__dec_t::Parser::parse(jsonData["dec"]));
+				}
 			}
-		}
-		if constexpr (__spd_t::enabled) {
-			if (jsonData.contains("spd")) {
-				p.spd.storage = std::move(__spd_t::Parser::parse(jsonData["spd"]));
+			if constexpr (__spd_t::enabled) {
+				if (jsonData.contains("spd")) {
+					p.spd.storage = std::move(__spd_t::Parser::parse(jsonData["spd"]));
+				}
 			}
-		}
-		return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
-			auto& c = ctx.reg.emplace<SmoothMovementComponent>(e);
-			if (p.acc.storage) {
-				c.acc = p.acc.value();
-			}
-			if (p.dec.storage) {
-				c.dec = p.dec.value();
-			}
-			if (p.spd.storage) {
-				c.spd = p.spd.value();
-			}
+			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
+				auto& c = ctx.reg.emplace<::flx::game::SmoothMovementComponent>(e);
+				if (p.acc.storage) {
+					c.acc = p.acc.value();
+				}
+				if (p.dec.storage) {
+					c.dec = p.dec.value();
+				}
+				if (p.spd.storage) {
+					c.spd = p.spd.value();
+				}
+			};
 		};
-	};
-}
-
-void ComponentMeta::initGeneratedMetaInfo() {
-	{
-		auto& info = componentMetaInfo["EntityComponent"];
-		using __EntityComponent_layer_t = ValueWrapper<decltype(EntityComponent::layer)>;
-		if constexpr (__EntityComponent_layer_t::enabled) {
-			info.fields.emplace_back(Field{"layer", Util::typeFullName<decltype(EntityComponent::layer)>()});
-		}
-		using __EntityComponent_health_t = ValueWrapper<decltype(EntityComponent::health)>;
-		if constexpr (__EntityComponent_health_t::enabled) {
-			info.fields.emplace_back(Field{"health", Util::typeFullName<decltype(EntityComponent::health)>()});
-		}
 	}
 
-	{
-		auto& info = componentMetaInfo["ProjectileComponent"];
-		using __ProjectileComponent_damage_t = ValueWrapper<decltype(ProjectileComponent::damage)>;
-		if constexpr (__ProjectileComponent_damage_t::enabled) {
-			info.fields.emplace_back(Field{"damage", Util::typeFullName<decltype(ProjectileComponent::damage)>()});
+	void ComponentMeta::initGeneratedMetaInfo() {
+		{
+			auto& info = componentMetaInfo["EntityComponent"];
+			using __flx_game_EntityComponent_layer_t = ValueWrapper<decltype(::flx::game::EntityComponent::layer)>;
+			if constexpr (__flx_game_EntityComponent_layer_t::enabled) {
+				info.fields.emplace_back(Field{"layer", typeFullName<decltype(::flx::game::EntityComponent::layer)>()});
+			}
+			using __flx_game_EntityComponent_health_t = ValueWrapper<decltype(::flx::game::EntityComponent::health)>;
+			if constexpr (__flx_game_EntityComponent_health_t::enabled) {
+				info.fields.emplace_back(Field{"health", typeFullName<decltype(::flx::game::EntityComponent::health)>()});
+			}
 		}
-		using __ProjectileComponent_impulse_t = ValueWrapper<decltype(ProjectileComponent::impulse)>;
-		if constexpr (__ProjectileComponent_impulse_t::enabled) {
-			info.fields.emplace_back(Field{"impulse", Util::typeFullName<decltype(ProjectileComponent::impulse)>()});
-		}
-		using __ProjectileComponent_maxSpeed_t = ValueWrapper<decltype(ProjectileComponent::maxSpeed)>;
-		if constexpr (__ProjectileComponent_maxSpeed_t::enabled) {
-			info.fields.emplace_back(Field{"maxSpeed", Util::typeFullName<decltype(ProjectileComponent::maxSpeed)>()});
-		}
-		using __ProjectileComponent_pierce_t = ValueWrapper<decltype(ProjectileComponent::pierce)>;
-		if constexpr (__ProjectileComponent_pierce_t::enabled) {
-			info.fields.emplace_back(Field{"pierce", Util::typeFullName<decltype(ProjectileComponent::pierce)>()});
-		}
-		using __ProjectileComponent_isBullet_t = ValueWrapper<decltype(ProjectileComponent::isBullet)>;
-		if constexpr (__ProjectileComponent_isBullet_t::enabled) {
-			info.fields.emplace_back(Field{"isBullet", Util::typeFullName<decltype(ProjectileComponent::isBullet)>()});
-		}
-	}
 
-	{
-		auto& info = componentMetaInfo["EnemyComponent"];
-	}
+		{
+			auto& info = componentMetaInfo["ProjectileComponent"];
+			using __flx_game_ProjectileComponent_damage_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::damage)>;
+			if constexpr (__flx_game_ProjectileComponent_damage_t::enabled) {
+				info.fields.emplace_back(Field{"damage", typeFullName<decltype(::flx::game::ProjectileComponent::damage)>()});
+			}
+			using __flx_game_ProjectileComponent_impulse_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::impulse)>;
+			if constexpr (__flx_game_ProjectileComponent_impulse_t::enabled) {
+				info.fields.emplace_back(Field{"impulse", typeFullName<decltype(::flx::game::ProjectileComponent::impulse)>()});
+			}
+			using __flx_game_ProjectileComponent_maxSpeed_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::maxSpeed)>;
+			if constexpr (__flx_game_ProjectileComponent_maxSpeed_t::enabled) {
+				info.fields.emplace_back(Field{"maxSpeed", typeFullName<decltype(::flx::game::ProjectileComponent::maxSpeed)>()});
+			}
+			using __flx_game_ProjectileComponent_pierce_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::pierce)>;
+			if constexpr (__flx_game_ProjectileComponent_pierce_t::enabled) {
+				info.fields.emplace_back(Field{"pierce", typeFullName<decltype(::flx::game::ProjectileComponent::pierce)>()});
+			}
+			using __flx_game_ProjectileComponent_isBullet_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::isBullet)>;
+			if constexpr (__flx_game_ProjectileComponent_isBullet_t::enabled) {
+				info.fields.emplace_back(Field{"isBullet", typeFullName<decltype(::flx::game::ProjectileComponent::isBullet)>()});
+			}
+		}
 
-	{
-		auto& info = componentMetaInfo["DirectionComponent"];
-	}
+		{
+			auto& info = componentMetaInfo["EnemyComponent"];
+		}
 
-	{
-		auto& info = componentMetaInfo["MultiContactComponent"];
-		using __MultiContactComponent_default_duration_t = ValueWrapper<decltype(MultiContactComponent::default_duration)>;
-		if constexpr (__MultiContactComponent_default_duration_t::enabled) {
-			info.fields.emplace_back(Field{"default_duration", Util::typeFullName<decltype(MultiContactComponent::default_duration)>()});
+		{
+			auto& info = componentMetaInfo["DirectionComponent"];
+		}
+
+		{
+			auto& info = componentMetaInfo["MultiContactComponent"];
+			using __flx_game_MultiContactComponent_default_duration_t = ValueWrapper<decltype(::flx::game::MultiContactComponent::default_duration)>;
+			if constexpr (__flx_game_MultiContactComponent_default_duration_t::enabled) {
+				info.fields.emplace_back(Field{"default_duration", typeFullName<decltype(::flx::game::MultiContactComponent::default_duration)>()});
+			}
+		}
+
+		{
+			auto& info = componentMetaInfo["ExplosionComponent"];
+		}
+
+		{
+			auto& info = componentMetaInfo["SmoothMovementComponent"];
+			using __flx_game_SmoothMovementComponent_acc_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::acc)>;
+			if constexpr (__flx_game_SmoothMovementComponent_acc_t::enabled) {
+				info.fields.emplace_back(Field{"acc", typeFullName<decltype(::flx::game::SmoothMovementComponent::acc)>()});
+			}
+			using __flx_game_SmoothMovementComponent_dec_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::dec)>;
+			if constexpr (__flx_game_SmoothMovementComponent_dec_t::enabled) {
+				info.fields.emplace_back(Field{"dec", typeFullName<decltype(::flx::game::SmoothMovementComponent::dec)>()});
+			}
+			using __flx_game_SmoothMovementComponent_spd_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::spd)>;
+			if constexpr (__flx_game_SmoothMovementComponent_spd_t::enabled) {
+				info.fields.emplace_back(Field{"spd", typeFullName<decltype(::flx::game::SmoothMovementComponent::spd)>()});
+			}
 		}
 	}
-
-	{
-		auto& info = componentMetaInfo["ExplosionComponent"];
-	}
-
-	{
-		auto& info = componentMetaInfo["SmoothMovementComponent"];
-		using __SmoothMovementComponent_acc_t = ValueWrapper<decltype(SmoothMovementComponent::acc)>;
-		if constexpr (__SmoothMovementComponent_acc_t::enabled) {
-			info.fields.emplace_back(Field{"acc", Util::typeFullName<decltype(SmoothMovementComponent::acc)>()});
-		}
-		using __SmoothMovementComponent_dec_t = ValueWrapper<decltype(SmoothMovementComponent::dec)>;
-		if constexpr (__SmoothMovementComponent_dec_t::enabled) {
-			info.fields.emplace_back(Field{"dec", Util::typeFullName<decltype(SmoothMovementComponent::dec)>()});
-		}
-		using __SmoothMovementComponent_spd_t = ValueWrapper<decltype(SmoothMovementComponent::spd)>;
-		if constexpr (__SmoothMovementComponent_spd_t::enabled) {
-			info.fields.emplace_back(Field{"spd", Util::typeFullName<decltype(SmoothMovementComponent::spd)>()});
-		}
-	}
-}
+} // namespace flx::meta
 
 // NOLINTEND

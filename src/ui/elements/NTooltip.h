@@ -3,15 +3,17 @@
 #include "../shapes/NRichTextShape.h"
 #include "../widget/NWidget.h"
 
-class NTooltip : public NObject {
-private:
-	mutable std::optional<sf::Sprite> sprite{};
-	mutable Util::Vector<NRichTextShape> textLines{};
-	bool hasTitle{};
+namespace flx::ui {
+	class NTooltip : public NObject {
+	private:
+		mutable std::optional<sf::Sprite> sprite{};
+		mutable flx::Vector<NRichTextShape> textLines{};
+		bool hasTitle{};
 
-	void updateLayout();
+		void updateLayout();
 
-public:
-	//void setContent(const NTooltipSpec& spec, const NStyle& style);
-	void draw(const NUIPainter& canvas) const override;
-};
+	public:
+		// void setContent(const NTooltipSpec& spec, const NStyle& style);
+		void draw(const NUIPainter& canvas) const override;
+	};
+} // namespace flx::ui

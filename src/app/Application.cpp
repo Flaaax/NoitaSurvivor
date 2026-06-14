@@ -4,6 +4,7 @@
 #include "global/AssetManager.h"
 #include "global/DebugVariables.h"
 #include "src/ui/global/NGlobal.h"
+#include "src/ui/render/NRenderBuffer.h"
 #include "src/ui/shapes/NRichTextShape.h"
 #include "src/utils/Timer.h"
 
@@ -14,7 +15,7 @@
 
 namespace flx::app {
 	namespace {
-		bool drawStringCombo(const char* label, const Util::Vector<std::string_view>& items, int& current_index) {
+		bool drawStringCombo(const char* label, const flx::Vector<std::string_view>& items, int& current_index) {
 			if (items.empty())
 				return false;
 
@@ -52,13 +53,13 @@ namespace flx::app {
 		std::array<float, 1000> frameTimes = {};
 		float averageFPS = 0;
 		u64 index = 0;
-		NRenderBuffer buffer(window.getView());
+		ui::NRenderBuffer buffer(window.getView());
 
 		// Logger::info("Initializing scenes...");
 		// sceneManager.setCurrentScene("menu_scene");
 
 		auto& font = AssetMgr::getDefaultFont();
-		auto FPSText = NRichTextShape(font);
+		auto FPSText = ui::NRichTextShape(font);
 		FPSText.setPosition({5, 5});
 		FPSText.setCharacterSize(22u);
 		CTimer fpsCalcTimer(1.f, [&] {
@@ -108,7 +109,7 @@ namespace flx::app {
 			const auto currentScene = sceneManager.getCurrentScene();
 			// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
 
-			auto onWindowResized = [&]() {
+			auto onWindowResized = [&] {
 				buffer.onWindowResized(window.getView());
 				if (currentScene) {
 					currentScene->onWindowResized(window.getView());
@@ -139,11 +140,11 @@ namespace flx::app {
 						isRunning = false;
 						logger.info("Window closed by pressing Esc");
 					} else if (e->code == sf::Keyboard::Key::F) {
-						const bool isFullscreen = window.getMode() == NWindow::Borderless;
+						const bool isFullscreen = window.getMode() == ui::NWindow::Borderless;
 						if (isFullscreen) {
-							window.setMode(NWindow::Windowed);
+							window.setMode(ui::NWindow::Windowed);
 						} else {
-							window.setMode(NWindow::Borderless);
+							window.setMode(ui::NWindow::Borderless);
 						}
 
 						onWindowResized();
@@ -209,7 +210,7 @@ namespace flx::app {
 					ImGui::SliderFloat("怪物生成速率", &enemySpawnFreq, 0.5f, 10.f);
 				}
 
-				static Util::Vector<std::string_view> trackers = {
+				static flx::Vector<std::string_view> trackers = {
 					"none",
 					"circle",
 					"seek",
@@ -289,7 +290,7 @@ namespace flx::app {
 			logger.info("Skip ImGui initialization");
 		}
 
-		NGlobal::setDefaultFont(AssetMgr::getDefaultFont());
+		ui::NGlobal::setDefaultFont(AssetMgr::getDefaultFont());
 
 		logger.info("App initialization done.");
 	}

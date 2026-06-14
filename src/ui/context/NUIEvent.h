@@ -4,45 +4,47 @@
 #include "States.h"
 #include <SFML/Window/Event.hpp>
 
-class NObject;
+namespace flx::ui {
+	class NObject;
 
-struct NRootCtx {
-	const NDragState& dragState;
-};
-
-struct NLocalEventCtx {
-	nvec2 mouseLocal;
-};
-
-struct NUIEvent {
-	const NWindowEvent& windowEvent;
-	const NRootCtx& rootCtx;
-	NLocalEventCtx localCtx;
-};
-
-struct NEventResult {
-	struct Pressed {
+	struct NRootCtx {
+		const NDragState& dragState;
 	};
 
-	struct Clicked {
+	struct NLocalEventCtx {
+		vec2 mouseLocal;
 	};
 
-	struct DragIntent {
+	struct NUIEvent {
+		const NWindowEvent& windowEvent;
+		const NRootCtx& rootCtx;
+		NLocalEventCtx localCtx;
 	};
 
-	struct HoverIntent {
+	struct NEventResult {
+		struct Pressed {
+		};
+
+		struct Clicked {
+		};
+
+		struct DragIntent {
+		};
+
+		struct HoverIntent {
+		};
+
+		NObject* handler{};
+		std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
+
+		template <class T>
+		bool is() const {
+			return std::holds_alternative<T>(result);
+		}
+
+		template <class T>
+		T* getIf() {
+			return std::get_if<T>(result);
+		}
 	};
-
-	NObject* handler{};
-	std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
-
-	template <class T>
-	bool is() const {
-		return std::holds_alternative<T>(result);
-	}
-
-	template <class T>
-	T* getIf() {
-		return std::get_if<T>(result);
-	}
-};
+} // namespace flx::ui

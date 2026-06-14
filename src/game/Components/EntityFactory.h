@@ -4,31 +4,32 @@
 #include "src/ecs/entity.h"
 #include "src/meta/ComponentMeta.h"
 #include <functional>
-#include <vector>
 
-class Game;
-struct GameCtx;
+namespace flx::game {
+	class Game;
+	struct GameCtx;
 
-class EntityFactory {
-	using ComponentInitializer = ComponentMeta::ComponentInitializer;
-	using Factory = std::function<myecs::entity(const GameCtx& ctx)>;
+	class EntityFactory {
+		using ComponentInitializer = meta::ComponentMeta::ComponentInitializer;
+		using Factory = std::function<myecs::entity(const GameCtx& ctx)>;
 
-	Util::StrMap<Util::Vector<ComponentInitializer>> entityInitializers;
-	Util::StrMap<Factory> factories;
+		StrMap<flx::Vector<ComponentInitializer>> entityInitializers;
+		StrMap<Factory> factories;
 
-	EntityFactory(const EntityFactory&) = delete;
-	void initEntityComponents();
-	void initFactories();
+		EntityFactory(const EntityFactory&) = delete;
+		void initEntityComponents();
+		void initFactories();
 
-public:
-	EntityFactory();
+	public:
+		EntityFactory();
 
-	myecs::entity createPlayer(const GameCtx& ctx);
-	myecs::entity createBullet(const GameCtx& ctx, nvec2 position, nvec2 velocity);
-	myecs::entity createBorder(const GameCtx& ctx, nvec2 start, nvec2 end);
-	myecs::entity createEnemy(const GameCtx& ctx, nvec2 pos);
-	myecs::entity createExplosion(const GameCtx& ctx, nvec2 pos, float radius, float impulse);
-	myecs::entity createCollector(const GameCtx& ctx, float radius);
-	myecs::entity createMaterial(const GameCtx& ctx, nvec2 pos, int value = 1);
-	myecs::entity createEnemyBirth(const GameCtx& ctx, nvec2 pos, std::string_view name);
-};
+		myecs::entity createPlayer(const GameCtx& ctx);
+		myecs::entity createBullet(const GameCtx& ctx, vec2 position, vec2 velocity);
+		myecs::entity createBorder(const GameCtx& ctx, vec2 start, vec2 end);
+		myecs::entity createEnemy(const GameCtx& ctx, vec2 pos);
+		myecs::entity createExplosion(const GameCtx& ctx, vec2 pos, float radius, float impulse);
+		myecs::entity createCollector(const GameCtx& ctx, float radius);
+		myecs::entity createMaterial(const GameCtx& ctx, vec2 pos, int value = 1);
+		myecs::entity createEnemyBirth(const GameCtx& ctx, vec2 pos, std::string_view name);
+	};
+} // namespace flx::game

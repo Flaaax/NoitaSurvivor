@@ -3,13 +3,14 @@
 #ifndef NSCENEMANAGER_H
 #define NSCENEMANAGER_H
 #include "../utils/Container/Map.h"
+#include "src/utils/Pointer.h"
 
 namespace flx::app {
 	class Scene;
 
 	class SceneManager {
 	private:
-		Util::StrMap<n_unique<Scene>> scenes;
+		flx::StrMap<n_unique<Scene>> scenes;
 		Scene* currentScene{};
 		Scene* sceneToChange{};
 

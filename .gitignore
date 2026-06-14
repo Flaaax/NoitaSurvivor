@@ -32,6 +32,6 @@ imgui.ini
 *.cpp.cache
 
 .codex/
-/pack_src.bat
+/*.bat
 
 /logs/

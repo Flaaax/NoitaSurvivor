@@ -3,46 +3,49 @@
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 
-class NLayout;
-struct NStyle;
-
 namespace sf {
 	class Texture;
 }
-class NObject;
 
-struct NDragState {
-	NObject* dragged{};
-	nvec2 offset{};
-};
+namespace flx::ui {
+	class NLayout;
+	struct NStyle;
 
-struct NDropCandidate {
-	NObject* target;
-	float score{}; // Higher scrore means higher chance to be se
-};
+	class NObject;
 
-struct NDropCollector {
-	Util::Vector<NDropCandidate> candidates;
-};
+	struct NDragState {
+		NObject* dragged{};
+		vec2 offset{};
+	};
 
-struct NDropQuery {
-	const NDragState& state;
-	const nrect globalHitbox;
-};
+	struct NDropCandidate {
+		NObject* target;
+		float score{}; // Higher scrore means higher chance to be se
+	};
 
-struct NHoverState {
-	NObject* target{};
-	float hoveredTime{};
-	float hoverIntentDelay{};
-	bool hasTargetInFrame{};
-	bool mouseMovedInFrame{};
-	bool tooltipDirty = true;
-};
+	struct NDropCollector {
+		flx::Vector<NDropCandidate> candidates;
+	};
 
-using NTooltipBuilder = n_unique<NLayout> (*)(const NStyle& style, NObject* self);
+	struct NDropQuery {
+		const NDragState& state;
+		const rect globalHitbox;
+	};
 
-struct NTooltipSpec {
-	NTooltipBuilder builder{};
-	float width = 200.f;
-	bool shouldUpdate{};
-};
+	struct NHoverState {
+		NObject* target{};
+		float hoveredTime{};
+		float hoverIntentDelay{};
+		bool hasTargetInFrame{};
+		bool mouseMovedInFrame{};
+		bool tooltipDirty = true;
+	};
+
+	using NTooltipBuilder = n_unique<NLayout> (*)(const NStyle& style, NObject* self);
+
+	struct NTooltipSpec {
+		NTooltipBuilder builder{};
+		float width = 200.f;
+		bool shouldUpdate{};
+	};
+} // namespace flx::ui

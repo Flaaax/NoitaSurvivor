@@ -4,11 +4,11 @@
 
 #include <string>
 
-namespace Util {
+namespace flx {
 	template <class T>
 	std::string_view makeContentID() {
-		constexpr auto fullName = Util::typeName<T>();
-		static std::string ret = Util::pascalToSnake(fullName);
+		constexpr auto fullName = flx::typeNameShort<T>();
+		static std::string ret = text::pascalToSnake(fullName);
 		return ret;
 	}
 
@@ -16,4 +16,4 @@ namespace Util {
 	// std::string_view makeContentIDFromPtr(const T*) {
 	// 	return makeContentID<T>();
 	// }
-} // namespace Util
+} // namespace flx

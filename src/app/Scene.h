@@ -2,6 +2,7 @@
 #ifndef NSCENE_H
 #define NSCENE_H
 #include "AppContext.h"
+#include "src/ui/render/NWindowView.h"
 #include "src/ui/widget/NRootWidget.h"
 #include "src/ui/widget/NWidget.h"
 
@@ -10,10 +11,10 @@ namespace flx::app {
 		// friend class SceneManager;
 
 	protected:
-		n_unique<NRootWidget> widget{};
+		n_unique<ui::NRootWidget> widget{};
 		Logger logger{};
 		AppContext context;
-		const NViewport& viewport;
+		const ui::NViewport& viewport;
 		// std::string nextScene = "";
 
 	public:
@@ -28,7 +29,7 @@ namespace flx::app {
 		virtual ~Scene() {
 		}
 
-		virtual void draw(NRenderBuffer& rdr) {
+		virtual void draw(ui::NRenderBuffer& rdr) {
 			if (widget) {
 				widget->draw(rdr);
 			}
@@ -40,7 +41,7 @@ namespace flx::app {
 			}
 		}
 
-		virtual bool handleEvent(const NWindowEvent& event) {
+		virtual bool handleEvent(const ui::NWindowEvent& event) {
 			if (widget) {
 				return widget->handleEvent(event);
 			}
@@ -50,10 +51,10 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = Util::makeUnique(new NRootWidget(viewport));
+			widget = flx::makeUnique(new ui::NRootWidget(viewport));
 		}
 
-		void onWindowResized(const NWindowView& view) const {
+		void onWindowResized(const ui::NWindowView& view) const {
 			if (widget) {
 				widget->onWindowResized(view);
 			}

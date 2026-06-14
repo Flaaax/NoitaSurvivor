@@ -3,48 +3,50 @@
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 
-struct SpriteData;
-
 namespace sf {
 	class Sprite;
 }
 
-struct SpriteInfo {
-	bool followPosition{};
-	bool followAngle{};
-	bool dynamicScale{};
-	float rotationOffset{}; // As degree
-	nvec2 positionOffset{};
-};
+namespace flx::game {
+	struct SpriteData;
 
-struct SpriteComponent {
-	const SpriteInfo& info;
-	const sf::Sprite& sprite;
-	nvec2 position{}; // used when entity does not have body
-};
+	struct SpriteInfo {
+		bool followPosition{};
+		bool followAngle{};
+		bool dynamicScale{};
+		float rotationOffset{}; // As degree
+		vec2 positionOffset{};
+	};
 
-class BaseEffect {
-private:
-	bool m_isDone = false;
+	struct SpriteComponent {
+		const SpriteInfo& info;
+		const sf::Sprite& sprite;
+		vec2 position{}; // used when entity does not have body
+	};
 
-protected:
-	void done() {
-		m_isDone = true;
-	}
+	class BaseEffect {
+	private:
+		bool m_isDone = false;
 
-public:
-	virtual void apply(sf::Sprite& sprite) const {}
+	protected:
+		void done() {
+			m_isDone = true;
+		}
 
-	virtual void update(float dt) {}
+	public:
+		virtual void apply(sf::Sprite& sprite) const {}
 
-	virtual ~BaseEffect() {}
+		virtual void update(float dt) {}
 
-	bool isDone() const {
-		return m_isDone;
-	}
-};
+		virtual ~BaseEffect() {}
 
-// requires SpriteComponent
-struct SpriteEffectComponent {
-	Util::Vector<n_unique<BaseEffect>> effectList;
-};
+		bool isDone() const {
+			return m_isDone;
+		}
+	};
+
+	// requires SpriteComponent
+	struct SpriteEffectComponent {
+		Vector<n_unique<BaseEffect>> effectList;
+	};
+} // namespace flx::game

@@ -7,52 +7,54 @@
 #include "src/app/AppContext.h"
 #include "src/ecs/entity.h"
 
-class Wand;
-class NRenderBuffer;
-
 namespace sf {
 	class Event;
 }
 
-struct NInputState;
+namespace flx::ui {
+	class NRenderBuffer;
+	struct NInputState;
+} // namespace flx::ui
 
-class Game {
-	friend class GameScene;
+namespace flx::game {
+	class Wand;
 
-private:
-	// GameContext
-	GameState state;
-	ContactState contactState;
-	ContactLayerRules contactRules;
-	WorldCtx worldCtx;
-	myecs::Registry reg;
-	n_unique<EntityFactory> factory;
-	GameRenderScales scales;
-	flx::app::AppContext appCtx;
+	class Game {
+	private:
+		// GameContext
+		GameState state;
+		ContactState contactState;
+		ContactLayerRules contactRules;
+		WorldCtx worldCtx;
+		myecs::Registry reg;
+		n_unique<EntityFactory> factory;
+		GameRenderScales scales;
+		flx::app::AppContext appCtx;
 
-	flx::Logger logger;
+		flx::Logger logger;
 
-	n_unique<GameCtx> ctxInternal;
+		n_unique<GameCtx> ctxInternal;
 
-	bool isInitialized = false;
+		bool isInitialized = false;
 
-	GameCtx getContext();
+	public:
+		explicit Game(flx::app::AppContext appCtx);
+		~Game();
 
-	explicit Game(flx::app::AppContext appCtx);
-	~Game();
+		void init();
+		void draw(ui::NRenderBuffer& rdr);
+		void update(float dt);
 
-public:
-	void init();
-	void draw(NRenderBuffer& rdr);
-	void update(float dt);
+		void handleEvent(const sf::Event& event);
 
-	void handleEvent(const sf::Event& event);
+		bool isPaused() const {
+			return state.isPaused;
+		}
 
-	bool isPaused() const {
-		return state.isPaused;
-	}
+		void setPaused(bool paused) {
+			state.isPaused = paused;
+		}
 
-	void setPaused(bool paused) {
-		state.isPaused = paused;
-	}
-};
+		GameCtx getContext();
+	};
+} // namespace flx::game

@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics/Font.hpp>
 
-namespace Util::Text {
+namespace flx::text {
 	inline bool isAsciiLetter(char32_t ch) {
 		return (ch >= U'a' && ch <= U'z') || (ch >= U'A' && ch <= U'Z');
 	}

@@ -1,6 +1,6 @@
 #pragma once
 
 
-namespace Util::Debug {
+namespace flx::Debug {
 	void printCallStack();
 }

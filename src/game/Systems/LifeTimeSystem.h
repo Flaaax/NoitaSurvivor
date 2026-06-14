@@ -1,8 +1,10 @@
 #pragma once
 
-struct GameCtx;
+namespace flx::game {
+	struct GameCtx;
 
-class LifeTimeSystem {
-public:
-	static void cleanupDeadEntities(const GameCtx& ctx);
-};
+	class LifeTimeSystem {
+	public:
+		static void cleanupDeadEntities(const GameCtx& ctx);
+	};
+} // namespace flx::game

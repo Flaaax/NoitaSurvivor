@@ -11,7 +11,7 @@ namespace sf {
 	class Color;
 }
 
-namespace Util::Text {
+namespace flx::text {
 	inline void trim(std::string_view& text) {
 		constexpr auto isSpace = [](char c) {
 			const auto byte = static_cast<unsigned char>(c);

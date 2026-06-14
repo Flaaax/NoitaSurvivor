@@ -39,8 +39,8 @@ namespace flx {
 				return buffer;
 			}
 
-			Util::Vector<std::filesystem::path> findArchives() const {
-				Util::Vector<std::filesystem::path> archives;
+			flx::Vector<std::filesystem::path> findArchives() const {
+				flx::Vector<std::filesystem::path> archives;
 
 				auto dir = this->dir;
 				const auto stem = filePath.stem().string();

@@ -5,21 +5,23 @@
 #include "../app/Scene.h"
 #include "src/game/Game.h"
 
-class GameScene : public flx::app::Scene {
-private:
-	Game game;
-	bool init{};
-	nvec2 windowSize{};
+namespace flx::app {
+	class GameScene : public flx::app::Scene {
+	private:
+		game::Game game;
+		bool init{};
+		vec2 windowSize{};
 
-	void initUI();
+		void initUI();
 
-public:
-	explicit GameScene(flx::app::AppContext context);
+	public:
+		explicit GameScene(flx::app::AppContext context);
 
-	void draw(NRenderBuffer& rdr) override;
-	void update(float dt) override;
-	bool handleEvent(const NWindowEvent& event) override;
-	void enter() override;
-};
+		void draw(ui::NRenderBuffer& rdr) override;
+		void update(float dt) override;
+		bool handleEvent(const ui::NWindowEvent& event) override;
+		void enter() override;
+	};
+} // namespace flx::app
 
 #endif

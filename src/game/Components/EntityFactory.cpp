@@ -7,191 +7,195 @@
 #include "src/game/Game.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/meta/ComponentMeta.h"
+#include "src/utils/Math.h"
 
-using namespace myecs;
+namespace flx::game {
+	using namespace myecs;
+	using namespace meta;
 
-void validateComponentConfig(std::string_view entity, std::string_view name, const json& j) {
+	void validateComponentConfig(std::string_view entity, std::string_view name, const Json& j) {
 
-	const auto metaData = ComponentMeta::getMetaInfo(name);
-	if (!metaData) {
-		LoggerOld::warn("Invalid component: {}\n\nfor entity{}", name, entity);
-		return;
-	}
-	for (auto& [fieldName, _] : j.items()) {
-		if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
-			LoggerOld::warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
+		const auto metaData = meta::ComponentMeta::getMetaInfo(name);
+		if (!metaData) {
+			logger.warn("Invalid component: {}\n\nfor entity{}", name, entity);
+			return;
 		}
-	}
-}
-
-void EntityFactory::initEntityComponents() {
-	for (auto& [entityType, j] : DataMgr::getEntityComponentData().items()) {
-		Util::Vector<ComponentInitializer> components;
-		for (auto& [componentName, jj] : j.items()) {
-			validateComponentConfig(entityType, componentName, jj);
-			if (const auto gen = ComponentMeta::getInitializerFactory(componentName)) {
-				components.emplace_back(gen(jj));
-			} else
-				LoggerOld::warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
-		}
-		entityInitializers[entityType] = std::move(components);
-	}
-}
-
-void EntityFactory::initFactories() {
-	for (auto& [entityType, components] : entityInitializers) {
-		auto* componentList = &components;
-		factories[entityType] = [this, componentList](const GameCtx& ctx) {
-			auto e = ctx.reg.create();
-			for (auto& component : *componentList) {
-				component(ctx, e);
+		for (auto& [fieldName, _] : j.items()) {
+			if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
+				logger.warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 			}
-			return e;
-		};
+		}
 	}
-}
 
-EntityFactory::EntityFactory() {
-	initEntityComponents();
-	initFactories();
-}
+	void EntityFactory::initEntityComponents() {
+		for (auto& [entityType, j] : app::DataMgr::getEntityComponentData().items()) {
+			flx::Vector<ComponentInitializer> components;
+			for (auto& [componentName, jj] : j.items()) {
+				validateComponentConfig(entityType, componentName, jj);
+				if (const auto gen = meta::ComponentMeta::getInitializerFactory(componentName)) {
+					components.emplace_back(gen(jj));
+				} else
+					logger.warn("Component generator not found: {}\n\t When initializing entityType: {}", componentName, entityType);
+			}
+			entityInitializers[entityType] = std::move(components);
+		}
+	}
 
-// generally, do not set anything to sensor
-myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
-	LoggerOld::info("Creating player entity...");
-	static auto& factory = factories["player"];
-	auto e = factory(ctx);
-	auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
-	// effect->easing_function = Easing::ease_out_cubic;
-	ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
+	void EntityFactory::initFactories() {
+		for (auto& [entityType, components] : entityInitializers) {
+			auto* componentList = &components;
+			factories[entityType] = [this, componentList](const GameCtx& ctx) {
+				const auto e = ctx.reg.create();
+				for (auto& component : *componentList) {
+					component(ctx, e);
+				}
+				return e;
+			};
+		}
+	}
 
-	LoggerOld::info("Player entity created: {}", e.string());
-	// Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
-	return e;
-}
+	EntityFactory::EntityFactory() {
+		initEntityComponents();
+		initFactories();
+	}
 
-myecs::entity EntityFactory::createBullet(const GameCtx& ctx, nvec2 position, nvec2 velocity) {
-	// todo
-	static auto& factory = factories["bullet"];
-	auto e = factory(ctx);
-	const auto& body = ctx.reg.get<BodyComponent>(e);
-	PhysicsService().setTransform(body, position, Util::to_rad(velocity));
-	PhysicsService().setVelocity(body, velocity);
-	return e;
-}
+	// generally, do not set anything to sensor
+	myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
+		logger.info("Creating player entity...");
+		static auto& factory = factories["player"];
+		auto e = factory(ctx);
+		auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
+		// effect->easing_function = Easing::ease_out_cubic;
+		ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
-// Should keep this one
-myecs::entity EntityFactory::createBorder(const GameCtx& ctx, nvec2 start, nvec2 end) {
-	static auto& factory = factories["border"];
-	auto e = factory(ctx);
-	auto& reg = ctx.reg;
+		logger.info("Player entity created: {}", e.string());
+		// Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
+		return e;
+	}
 
-	reg.emplace<BodyComponent>(e);
+	myecs::entity EntityFactory::createBullet(const GameCtx& ctx, vec2 position, vec2 velocity) {
+		// todo
+		static auto& factory = factories["bullet"];
+		auto e = factory(ctx);
+		const auto& body = ctx.reg.get<BodyComponent>(e);
+		PhysicsService().setTransform(body, position, math::to_rad(velocity));
+		PhysicsService().setVelocity(body, velocity);
+		return e;
+	}
 
-	const BodyArg arg{
-		.type = BodyArg::Static,
-		.shape = BodyArg::Segment,
-		.point1 = start,
-		.point2 = end,
-		.friction = 0.0f,
-		.restitution = 0.0f,
-	};
+	// Should keep this one
+	myecs::entity EntityFactory::createBorder(const GameCtx& ctx, vec2 start, vec2 end) {
+		static auto& factory = factories["border"];
+		auto e = factory(ctx);
+		auto& reg = ctx.reg;
 
-	PhysicsService().createBody(ctx, e, arg);
+		reg.emplace<BodyComponent>(e);
 
-	return e;
-}
+		const BodyArg arg{
+			.type = BodyArg::Static,
+			.shape = BodyArg::Segment,
+			.point1 = start,
+			.point2 = end,
+			.friction = 0.0f,
+			.restitution = 0.0f,
+		};
 
-myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, nvec2 pos) {
-	static auto& factory = factories["enemy"];
-	auto e = factory(ctx);
+		PhysicsService().createBody(ctx, e, arg);
 
-	PhysicsService().setPosition(ctx, e, pos);
+		return e;
+	}
 
-	return e;
-}
+	myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, vec2 pos) {
+		static auto& factory = factories["enemy"];
+		auto e = factory(ctx);
 
-myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, nvec2 pos, float radius, float impulse) {
-	// Logger::error("Creating explosion entity at position ({}, {}) with radius {} and impulse {}", pos.x, pos.y, radius, impulse);
-	static auto& factory = factories["explosion"];
-	auto e = factory(ctx);
-	auto& reg = ctx.reg;
-	reg.emplace<BodyComponent>(e);
+		PhysicsService().setPosition(ctx, e, pos);
 
-	const BodyArg arg{
-		.type = BodyArg::Static,
-		.fixedRotation = true,
-		.shape = BodyArg::Circle,
-		.radius = radius,
-	};
-	PhysicsService().createBody(ctx, e, arg);
-	const auto& body = reg.get<BodyComponent>(e);
-	PhysicsService().setPosition(ctx, e, pos);
+		return e;
+	}
 
-	auto& p = reg.emplace<ProjectileComponent>(e);
-	p.pierce = -1;
-	p.impulse = impulse;
-	p.damage = 4;
+	myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, vec2 pos, float radius, float impulse) {
+		// Logger::error("Creating explosion entity at position ({}, {}) with radius {} and impulse {}", pos.x, pos.y, radius, impulse);
+		static auto& factory = factories["explosion"];
+		auto e = factory(ctx);
+		auto& reg = ctx.reg;
+		reg.emplace<BodyComponent>(e);
 
-	constexpr float lifetime = 0.075f;
-	reg.emplace<LifetimeComponent>(e).lifeTimer.start(lifetime);
+		const BodyArg arg{
+			.type = BodyArg::Static,
+			.fixedRotation = true,
+			.shape = BodyArg::Circle,
+			.radius = radius,
+		};
+		PhysicsService().createBody(ctx, e, arg);
+		const auto& body = reg.get<BodyComponent>(e);
+		PhysicsService().setPosition(ctx, e, pos);
 
-	reg.emplace<MultiContactComponent>(e);
-	ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
-		Util::makeUnique(new Tween({}, {.opacity = 0}, lifetime, 0, Easing::ease_out_quad));
-	ctx.reg.emplace<ExplosionComponent>(e);
+		auto& p = reg.emplace<ProjectileComponent>(e);
+		p.pierce = -1;
+		p.impulse = impulse;
+		p.damage = 4;
 
-	return e;
-}
+		constexpr float lifetime = 0.075f;
+		reg.emplace<LifetimeComponent>(e).lifeTimer.start(lifetime);
 
-myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
-	auto& reg = ctx.reg;
-	auto collector = reg.create();
+		reg.emplace<MultiContactComponent>(e);
+		ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
+			flx::makeUnique(new Tween({}, {.opacity = 0}, lifetime, 0, Easing::ease_out_quad));
+		ctx.reg.emplace<ExplosionComponent>(e);
 
-	reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
+		return e;
+	}
 
-	reg.emplace<BodyComponent>(collector);
+	myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
+		auto& reg = ctx.reg;
+		auto collector = reg.create();
 
-	const BodyArg arg{
-		.type = BodyArg::Static,
-		.fixedRotation = true,
-		.shape = BodyArg::Circle,
-		.radius = radius,
-		.density = 0.0f,
-		.friction = 0.0f,
-		.restitution = 0.0f,
-	};
+		reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
 
-	PhysicsService().createBody(ctx, collector, arg);
+		reg.emplace<BodyComponent>(collector);
 
-	// reg.emplace<RenderComponent>(collector).rp = EntityRenderManager::getRender<ExplosionRender>();
+		const BodyArg arg{
+			.type = BodyArg::Static,
+			.fixedRotation = true,
+			.shape = BodyArg::Circle,
+			.radius = radius,
+			.density = 0.0f,
+			.friction = 0.0f,
+			.restitution = 0.0f,
+		};
 
-	return collector;
-}
+		PhysicsService().createBody(ctx, collector, arg);
 
-myecs::entity EntityFactory::createMaterial(const GameCtx& ctx, nvec2 pos, int value) {
-	static auto& factory = factories["material"];
-	const auto e = factory(ctx);
-	PhysicsService().setPosition(ctx, e, pos);
+		// reg.emplace<RenderComponent>(collector).rp = EntityRenderManager::getRender<ExplosionRender>();
 
-	ctx.reg.emplace<MaterialComponent>(e).value = value;
+		return collector;
+	}
 
-	return e;
-}
+	myecs::entity EntityFactory::createMaterial(const GameCtx& ctx, vec2 pos, int value) {
+		static auto& factory = factories["material"];
+		const auto e = factory(ctx);
+		PhysicsService().setPosition(ctx, e, pos);
 
-myecs::entity EntityFactory::createEnemyBirth(const GameCtx& ctx, nvec2 pos, std::string_view name) {
-	static auto& factory = factories["enemy_birth"];
-	const auto e = factory(ctx);
-	const auto& ebc = ctx.reg.emplace<EnemyBirthComponent>(e, pos, std::string(name));
-	float dur = ebc.remainingTime;
-	ctx.reg.get<SpriteComponent>(e).position = pos;
+		ctx.reg.emplace<MaterialComponent>(e).value = value;
 
-	ctx.reg.get_or_emplace<SpriteEffectComponent>(e).effectList +=
-		std::make_unique<Tween>(EffectState{.opacity = 0.05f},
-								EffectState{},
-								dur,
-								0,
-								[](float t) { return Easing::ease_in_out_quad(Easing::ping_pong(t)); });
+		return e;
+	}
 
-	return e;
-}
+	myecs::entity EntityFactory::createEnemyBirth(const GameCtx& ctx, vec2 pos, std::string_view name) {
+		static auto& factory = factories["enemy_birth"];
+		const auto e = factory(ctx);
+		const auto& ebc = ctx.reg.emplace<EnemyBirthComponent>(e, pos, std::string(name));
+		float dur = ebc.remainingTime;
+		ctx.reg.get<SpriteComponent>(e).position = pos;
+
+		ctx.reg.get_or_emplace<SpriteEffectComponent>(e).effectList +=
+			std::make_unique<Tween>(EffectState{.opacity = 0.05f},
+									EffectState{},
+									dur,
+									0,
+									[](float t) { return Easing::ease_in_out_quad(Easing::ping_pong(t)); });
+
+		return e;
+	}
+} // namespace flx::game

@@ -2,11 +2,14 @@
 #include "../../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Vector.h"
 
-struct NInputState {
-	nvec2 mouseScreen;
-	nvec2 mouseRender;
+namespace flx::ui {
+	struct NInputState {
+		vec2 mouseScreen;
+		vec2 mouseRender;
 
-	Util::Array<bool, 3> mouseButtons;
+		flx::Array<bool, 3> mouseButtons;
 
-	// TODO add more state...
-};
+		// TODO add more state...
+	};
+}
+

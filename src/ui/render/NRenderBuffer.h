@@ -5,41 +5,43 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 
-class NRichTextShape;
-
 namespace sf {
 	class RenderWindow;
 }
 
-class NRenderBuffer {
-private:
-	friend class NWindow;
+namespace flx::ui {
+	class NRichTextShape;
 
-	NViewport viewport;
-	sf::Transform canvasTransform;
+	class NRenderBuffer {
+	private:
+		friend class NWindow;
 
-	sf::RenderTexture canvasTexture;
-	sf::RenderTexture canvasAccumTexture;
-	sf::RenderTexture UITexture;
+		NViewport viewport;
+		sf::Transform canvasTransform;
 
-	void flush(sf::RenderWindow& window);
+		sf::RenderTexture canvasTexture;
+		sf::RenderTexture canvasAccumTexture;
+		sf::RenderTexture UITexture;
 
-public:
-	sf::Color clearColor{};
-	bool enableMotionBlur = true;
+		void flush(sf::RenderWindow& window);
 
-	explicit NRenderBuffer(const NWindowView& viewport);
+	public:
+		sf::Color clearColor{};
+		bool enableMotionBlur = true;
 
-	void onWindowResized(const NWindowView& view);
+		explicit NRenderBuffer(const NWindowView& viewport);
 
-	void drawCanvas(const sf::Drawable& content, const sf::RenderStates& states = sf::RenderStates::Default);
-	// Special entrance for UI elements
-	void drawUI(const sf::Drawable& content, sf::RenderStates states = sf::RenderStates::Default);
-	// This doesn't scale the text, so you should set character px manually
-	void drawUIText(const NRichTextShape& text, sf::RenderStates states = sf::RenderStates::Default);
-	void drawUIRaw(const sf::Drawable& content, const sf::RenderStates& states = sf::RenderStates::Default);
+		void onWindowResized(const NWindowView& view);
 
-	void clear(sf::Color color);
+		void drawCanvas(const sf::Drawable& content, const sf::RenderStates& states = sf::RenderStates::Default);
+		// Special entrance for UI elements
+		void drawUI(const sf::Drawable& content, sf::RenderStates states = sf::RenderStates::Default);
+		// This doesn't scale the text, so you should set character px manually
+		void drawUIText(const NRichTextShape& text, sf::RenderStates states = sf::RenderStates::Default);
+		void drawUIRaw(const sf::Drawable& content, const sf::RenderStates& states = sf::RenderStates::Default);
 
-	NViewport getViewport() const;
-};
+		void clear(sf::Color color);
+
+		NViewport getViewport() const;
+	};
+} // namespace flx::ui

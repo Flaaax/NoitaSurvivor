@@ -8,114 +8,118 @@
 #include "src/game/ui/ValueBar.h"
 #include "src/ui/elements/NRichText.h"
 
-NRichText* pauseText{};
-MaterialBar* materialBar{};
-ValueBar* expBar{};
+namespace flx::app {
+	ui::NRichText* pauseText{};
+	ui::MaterialBar* materialBar{};
+	ui::ValueBar* expBar{};
 
-// NSpellSelector* spellSelector = nullptr;
+	// NSpellSelector* spellSelector = nullptr;
 
-void GameScene::initUI() {
-	createWidget();
-	auto& wand = *game.state.wands.front();
+	void GameScene::initUI() {
+		createWidget();
+		const auto ctx = game.getContext();
+		auto& wand = *ctx.gameState.wands.front();
 
-	auto inventory1 = Util::makeUnique(new NSpellInventory({100, 150}, wand.inventory.size()));
+		auto inventory1 = flx::makeUnique(new ui::NSpellInventory({100, 150}, wand.inventory.size()));
 
-	for (const auto i : wand.inventory.indices()) {
-		if (!wand.inventory[i]) {
-			continue;
+		for (const auto i : wand.inventory.indices()) {
+			if (!wand.inventory[i]) {
+				continue;
+			}
+			auto spell = flx::makeUnique(new ui::NSpell(wand.inventory[i], {i * 50, i * 50}));
+			inventory1->addItem(std::move(spell), static_cast<int>(i));
 		}
-		auto spell = Util::makeUnique(new NSpell(wand.inventory[i], {i * 50, i * 50}));
-		inventory1->addItem(std::move(spell), static_cast<int>(i));
+
+		inventory1->setOnModify([&](flx::ValEnumerableView<n_shared<game::Spell>> spells) {
+			wand.inventory.clear();
+			for (auto spell : spells) {
+				wand.inventory.emplace_back(spell);
+			}
+		});
+
+		widget->addToTop(std::move(inventory1));
+
+		auto inventory2 = flx::makeUnique(new ui::NSpellInventory({350, 50}, 5));
+		widget->addToTop(std::move(inventory2));
+
+		auto healthBar =
+			flx::makeUnique(new ui::ValueBar(
+				{windowSize.x - 20, 20},
+				{320, 22}, 10, 2.f, ui::ValueBar::HEALTH));
+		healthBar->setHealth(10);
+		widget->addToTop(std::move(healthBar));
+
+		expBar =
+			new ui::ValueBar({windowSize.x - 20, 20 + 22 + 20}, {320, 22},
+							 20, 0.f, ui::ValueBar::EXP);
+		expBar->setLevel(ctx.gameState.player.level);
+		expBar->setHealth(ctx.gameState.player.exp);
+		widget->add(flx::makeUnique(expBar));
+
+		materialBar = new ui::MaterialBar({windowSize.x - 20, 20 + 22 + 20 + 22 + 20}, 27.f);
+		materialBar->setData(100);
+		widget->add(flx::makeUnique(materialBar));
+
+		// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
+
+		pauseText = new ui::NRichText("游戏暂停", 30U);
+		pauseText->alignCenter = true;
+		pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
+		pauseText->isVisible = false;
+		widget->add(flx::makeUnique(pauseText));
 	}
 
-	inventory1->setOnModify([&](Util::ValEnumerableView<n_shared<Spell>> spells) {
-		wand.inventory.clear();
-		for (auto spell : spells) {
-			wand.inventory.emplace_back(spell);
+	GameScene::GameScene(flx::app::AppContext context)
+		: Scene(context, flx::makeContentID<GameScene>()), game(context) {
+		this->windowSize = context.windowViewport.canvasSize;
+	}
+
+	void GameScene::draw(ui::NRenderBuffer& rdr) {
+		game.draw(rdr);
+
+		pauseText->isVisible = game.isPaused();
+		Scene::draw(rdr);
+	}
+
+	void GameScene::update(float dt) {
+		// if (spellSelector && !spellSelector->getIsRunning()) {
+		//	m_widget->destroy(spellSelector);
+		//	spellSelector = nullptr;
+		// }
+
+		game.update(dt);
+		const auto ctx = game.getContext();
+		const auto& p = ctx.gameState.player;
+		materialBar->setData(p.material);
+		expBar->setValue(p.exp, p.maxExp, p.level);
+
+		Scene::update(dt);
+	}
+
+	bool GameScene::handleEvent(const ui::NWindowEvent& event) {
+		if (Scene::handleEvent(event)) {
+			return true;
 		}
-	});
 
-	widget->addToTop(std::move(inventory1));
+		if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
+			if (e->code == sf::Keyboard::Key::Space) {
+				game.setPaused(!game.isPaused());
+				return true;
+			}
+		}
 
-	auto inventory2 = Util::makeUnique(new NSpellInventory({350, 50}, 5));
-	widget->addToTop(std::move(inventory2));
+		game.handleEvent(event.rawEvent);
 
-	auto healthBar =
-		Util::makeUnique(new ValueBar(
-			{windowSize.x - 20, 20},
-			{320, 22}, 10, 2.f, ValueBar::HEALTH));
-	healthBar->setHealth(10);
-	widget->addToTop(std::move(healthBar));
-
-	expBar =
-		new ValueBar({windowSize.x - 20, 20 + 22 + 20}, {320, 22},
-					 20, 0.f, ValueBar::EXP);
-	expBar->setLevel(game.state.player.level);
-	expBar->setHealth(game.state.player.exp);
-	widget->add(Util::makeUnique(expBar));
-
-	materialBar = new MaterialBar({windowSize.x - 20, 20 + 22 + 20 + 22 + 20}, 27.f);
-	materialBar->setData(100);
-	widget->add(Util::makeUnique(materialBar));
-
-	// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
-
-	pauseText = new NRichText("游戏暂停", 30U);
-	pauseText->alignCenter = true;
-	pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
-	pauseText->isVisible = false;
-	widget->add(Util::makeUnique(pauseText));
-}
-
-GameScene::GameScene(flx::app::AppContext context)
-	: Scene(context, Util::makeContentID<GameScene>()), game(context) {
-	this->windowSize = context.windowViewport.canvasSize;
-}
-
-void GameScene::draw(NRenderBuffer& rdr) {
-	game.draw(rdr);
-
-	pauseText->isVisible = game.isPaused();
-	Scene::draw(rdr);
-}
-
-void GameScene::update(float dt) {
-	// if (spellSelector && !spellSelector->getIsRunning()) {
-	//	m_widget->destroy(spellSelector);
-	//	spellSelector = nullptr;
-	// }
-
-	game.update(dt);
-	const auto& p = game.state.player;
-	materialBar->setData(p.material);
-	expBar->setValue(p.exp, p.maxExp, p.level);
-
-	Scene::update(dt);
-}
-
-bool GameScene::handleEvent(const NWindowEvent& event) {
-	if (Scene::handleEvent(event)) {
 		return true;
 	}
 
-	if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
-		if (e->code == sf::Keyboard::Key::Space) {
-			game.setPaused(!game.isPaused());
-			return true;
+	void GameScene::enter() {
+		if (init) {
+			return;
 		}
+		game.init();
+		initUI();
+		init = true;
+		logger.info("GameScene initialized");
 	}
-
-	game.handleEvent(event.rawEvent);
-
-	return true;
-}
-
-void GameScene::enter() {
-	if (init) {
-		return;
-	}
-	game.init();
-	initUI();
-	init = true;
-	logger.info("GameScene initialized");
-}
+} // namespace flx::app

@@ -5,7 +5,10 @@ namespace sf {
 	class Font;
 }
 
-struct NStyle {
-	const sf::Font& font{};
-	u32 defaultFontSize = 25;
-};
+namespace flx::ui {
+
+	struct NStyle {
+		const sf::Font& font{};
+		u32 defaultFontSize = 25;
+	};
+} // namespace flx::ui

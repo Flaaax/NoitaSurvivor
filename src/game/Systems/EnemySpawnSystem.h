@@ -3,14 +3,16 @@
 
 #include <string_view>
 
-struct GameCtx;
+namespace flx::game {
+	struct GameCtx;
 
-class EnemySpawnSystem {
-private:
-	static void debugEnemeyBirth(const GameCtx& ctx, nvec2 pos, std::string_view name);
+	class EnemySpawnSystem {
+	private:
+		static void debugEnemeyBirth(const GameCtx& ctx, vec2 pos, std::string_view name);
 
-public:
-	static void setup(const GameCtx& ctx);
-	//static void update(const GameCtx& ctx, float dt);
-	static void updateAfterCleanup(const GameCtx& ctx, float dt);
-};
+	public:
+		static void setup(const GameCtx& ctx);
+		// static void update(const GameCtx& ctx, float dt);
+		static void updateAfterCleanup(const GameCtx& ctx, float dt);
+	};
+} // namespace flx::game

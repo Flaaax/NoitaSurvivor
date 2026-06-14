@@ -5,40 +5,42 @@
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
 
-struct PlayerData {
-	myecs::entity id;
-	myecs::entity collector;
+namespace flx::game {
+	struct PlayerData {
+		myecs::entity id;
+		myecs::entity collector;
 
-	bool isShooting = false;
+		bool isShooting = false;
 
-	int material = 0;
-	int exp = 0;
-	int maxExp = 0;
-	int level = 0;
+		int material = 0;
+		int exp = 0;
+		int maxExp = 0;
+		int level = 0;
 
-	nvec2 controlDir;
-	bool isUp{}, isRight{}, isLeft{}, isDown{};
-};
+		vec2 controlDir;
+		bool isUp{}, isRight{}, isLeft{}, isDown{};
+	};
 
-class Wand;
+	class Wand;
 
-struct GameState {
-	PlayerData player;
+	struct GameState {
+		PlayerData player;
 
-	bool isPaused = false;
+		bool isPaused = false;
 
-	nrect bound;
-	nrect maxBound;
-	nrect debugEnemySpawnArea;
+		rect bound;
+		rect maxBound;
+		rect debugEnemySpawnArea;
 
-	nvec2 playerPos;
-	nvec2 mousePos;
-	nvec2 cameraPos;
+		vec2 playerPos;
+		vec2 mousePos;
+		vec2 cameraPos;
 
-	Util::Vector<myecs::entity> borders;
-	Util::Vector<n_unique<Wand>> wands;
+		flx::Vector<myecs::entity> borders;
+		flx::Vector<n_unique<Wand>> wands;
 
-	CTimer enemySpawnTimer;
+		CTimer enemySpawnTimer;
 
-	bool debugMode = true;
-};
+		bool debugMode = true;
+	};
+} // namespace flx::game

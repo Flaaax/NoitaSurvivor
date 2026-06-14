@@ -1,21 +1,20 @@
 #pragma once
-#include <array>
 #include <memory>
 #include <utility>
 
-template <class T>
-using n_shared = std::shared_ptr<T>;
+namespace flx {
+	template <class T>
+	using n_shared = std::shared_ptr<T>;
 
-template <class T>
-using n_unique = std::unique_ptr<T>;
+	template <class T>
+	using n_unique = std::unique_ptr<T>;
 
-template <class T>
-using n_weak = std::weak_ptr<T>;
+	template <class T>
+	using n_weak = std::weak_ptr<T>;
 
-template <class T>
-using n_pair = std::pair<T, T>;
+	template <class T>
+	using n_pair = std::pair<T, T>;
 
-namespace Util {
 	template <class T>
 	n_shared<T> makeShared(T* ptr) {
 		return n_shared<T>(ptr);
@@ -25,23 +24,22 @@ namespace Util {
 	n_unique<T> makeUnique(T* ptr) {
 		return n_unique<T>(ptr);
 	}
-} // namespace Util
-
-namespace Util {
-	using std::size_t;
 
 	namespace internal {
-		struct move_t {
-			template <class T>
-			[[nodiscard]]
-			friend constexpr decltype(auto) operator|(T&& value, move_t) noexcept {
-				return std::move(value);
-			}
-		};
+		struct move_t {};
+
+		template <class T>
+		[[nodiscard]]
+		constexpr decltype(auto) operator|(T&& value, move_t) noexcept {
+			return std::move(value);
+		}
 	} // namespace internal
 
 	// This is evil FR FR
 	inline constexpr internal::move_t move{};
+} // namespace flx
+
+namespace flx {
 
 #if false
 
@@ -279,4 +277,4 @@ namespace Util {
 
 #endif
 
-} // namespace Util
+} // namespace flx

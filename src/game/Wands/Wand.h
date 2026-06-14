@@ -1,78 +1,86 @@
 #pragma once
 #include "src/utils/Container/Vector.h"
+#include "src/utils/Math.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
+#include "src/utils/Vec2/Vec2.h"
+
 #include <SFML/Graphics/Sprite.hpp>
 #include <deque>
 
-class NPainter;
-class Spell;
-struct GameCtx;
+namespace flx::ui {
+	class NPainter;
+}
 
-class Wand {
-protected:
-	sf::Texture texture;
-	sf::Sprite sprite;
+namespace flx::game {
+	class Spell;
+	struct GameCtx;
 
-	void reload();
+	class Wand {
+	protected:
+		sf::Texture texture;
+		sf::Sprite sprite;
 
-	static std::string getWandTextureName(int number);
+		void reload();
 
-public:
-	static constexpr float MIN_CAST_DELAY = 1.f / 60.f;
+		static std::string getWandTextureName(int number);
 
-	// wand
-	float castDelay = 0.f;
-	float reloadDelay = 0.f;
-	float scattering = 0.f;
-	int capacity = 0;
-	int castAmount = 0;
+	public:
+		static constexpr float MIN_CAST_DELAY = 1.f / 60.f;
 
-	bool isReloaded = true;
+		// wand
+		float castDelay = 0.f;
+		float reloadDelay = 0.f;
+		float scattering = 0.f;
+		int capacity = 0;
+		int castAmount = 0;
 
-	float currentCastDelay = 0.f;
-	float currentReloadDelay = 0.f;
+		bool isReloaded = true;
 
-	Timer castTimer;
-	Timer reloadTimer;
+		float currentCastDelay = 0.f;
+		float currentReloadDelay = 0.f;
 
-	// gfx
-	float arg = 0.f;
-	float length = 0.f;
+		Timer castTimer;
+		Timer reloadTimer;
 
-	nvec2 worldPos = {};
-	nvec2 castPos = {};
+		// gfx
+		float arg = 0.f;
+		float length = 0.f;
 
-	Util::Vector<n_shared<Spell>> inventory; // Not modified when shooting
-	std::deque<n_shared<Spell>> drawPile;
-	std::deque<n_shared<Spell>> discardPile;
-	std::deque<n_shared<Spell>> hand;
+		vec2 worldPos = {};
+		vec2 castPos = {};
 
-	explicit Wand(float wand_scale);
+		flx::Vector<n_shared<Spell>> inventory; // Not modified when shooting
+		std::deque<n_shared<Spell>> drawPile;
+		std::deque<n_shared<Spell>> discardPile;
+		std::deque<n_shared<Spell>> hand;
 
-	void setGeometry(nvec2 pos, float arg) {
-		worldPos = pos;
-		sprite.setPosition(worldPos);
-		sprite.setRotation(sf::radians(arg));
-		this->arg = arg;
-		castPos = worldPos + length * Util::from_rad(arg);
-	}
+		explicit Wand(float wand_scale);
 
-	void render(const NPainter& renderer) const;
-
-	void update(float deltaTime) {
-		castTimer.update(deltaTime);
-		reloadTimer.update(deltaTime);
-	}
-
-	void use(const GameCtx& ctx) {
-		if (!castTimer.isRunning() && !reloadTimer.isRunning()) {
-			cast(ctx);
+		void setGeometry(vec2 pos, float arg) {
+			worldPos = pos;
+			sprite.setPosition(worldPos);
+			sprite.setRotation(sf::radians(arg));
+			this->arg = arg;
+			castPos = worldPos + length * math::from_rad(arg);
 		}
-	}
 
-	void cast(const GameCtx& ctx);
+		void render(const ui::NPainter& renderer) const;
 
-	// Clear all the spells but keep the delays
-	void clear();
-};
+		void update(float deltaTime) {
+			castTimer.update(deltaTime);
+			reloadTimer.update(deltaTime);
+		}
+
+		void use(const GameCtx& ctx) {
+			if (!castTimer.isRunning() && !reloadTimer.isRunning()) {
+				cast(ctx);
+			}
+		}
+
+		void cast(const GameCtx& ctx);
+
+		// Clear all the spells but keep the delays
+		void clear();
+	};
+} // namespace flx::game

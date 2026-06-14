@@ -3,8 +3,7 @@
 
 #include <random>
 
-namespace Util {
-
+namespace flx {
 	class Random {
 	private:
 		std::random_device rd;			// Random device to seed the generator
@@ -55,4 +54,4 @@ namespace Util {
 
 		return normalized * 2.f - 1.f;
 	}
-} // namespace Util
+} // namespace flx

@@ -17,119 +17,121 @@
 #include "Systems/EnemySpawnSystem.h"
 #include "src/game/Wands/Wand.h"
 
-Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
-	logger = flx::Logger::makeAsync("Game", true);
-}
-
-Game::~Game() {
-	if (!isInitialized)
-		return;
-
-	logger.info("entity count: {}", reg.entity_count());
-	logger.info("component count: {}", reg.component_count());
-	logger.info("max entity count: {}", reg.max_entity_count());
-	logger.info("max component count: {}", "not avaliable...");
-
-	const auto ctx = getContext();
-	for (auto [e, bc] : reg.view<BodyComponent>()) {
-		PhysicsService().destroyBody(ctx, e);
+namespace flx::game {
+	Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
+		logger = flx::Logger::makeAsync("Game", true);
 	}
 
-	reg.reset();
+	Game::~Game() {
+		if (!isInitialized)
+			return;
 
-	if (int count = b2World_GetCounters(worldCtx.world).bodyCount; count > 0) {
-		logger.warn("Undestroyed body remaining: {}", count);
+		logger.info("entity count: {}", reg.entity_count());
+		logger.info("component count: {}", reg.component_count());
+		logger.info("max entity count: {}", reg.max_entity_count());
+		logger.info("max component count: {}", "not avaliable...");
+
+		const auto ctx = getContext();
+		for (auto [e, bc] : reg.view<BodyComponent>()) {
+			PhysicsService().destroyBody(ctx, e);
+		}
+
+		reg.reset();
+
+		if (int count = b2World_GetCounters(worldCtx.world).bodyCount; count > 0) {
+			logger.warn("Undestroyed body remaining: {}", count);
+		}
+
+		b2DestroyWorld(worldCtx.world);
 	}
 
-	b2DestroyWorld(worldCtx.world);
-}
-
-GameCtx Game::getContext() {
-	return GameCtx{
-		.reg = reg,
-		.worldCtx = worldCtx,
-		.factory = *factory,
-		.contactRules = contactRules,
-		.gameState = state,
-		.contactState = contactState,
-		.scales = scales,
-		.appCtx = appCtx,
-	};
-}
-
-void Game::init() {
-	if (isInitialized) {
-		logger.error_and_throw("Initialized more than once");
+	GameCtx Game::getContext() {
+		return GameCtx{
+			.reg = reg,
+			.worldCtx = worldCtx,
+			.factory = *factory,
+			.contactRules = contactRules,
+			.gameState = state,
+			.contactState = contactState,
+			.scales = scales,
+			.appCtx = appCtx,
+		};
 	}
 
-	LocManager::inst().loadDefaultLanguage();
+	void Game::init() {
+		if (isInitialized) {
+			logger.error_and_throw("Initialized more than once");
+		}
 
-	// todo move this to another place
-	b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {
-		flx::logger.error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
-		return 1;
-	});
+		app::LocManager::inst().loadDefaultLanguage();
 
-	isInitialized = true;
-	using namespace Util;
+		// todo move this to another place
+		b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {
+			flx::logger.error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
+			return 1;
+		});
 
-	b2WorldDef worldDef = b2DefaultWorldDef();
-	worldDef.enableContinuous = true;
-	worldDef.gravity = {0, 0};
-	worldCtx.world = b2CreateWorld(&worldDef);
+		isInitialized = true;
+		using namespace flx;
 
-	factory = makeUnique(new EntityFactory());
+		b2WorldDef worldDef = b2DefaultWorldDef();
+		worldDef.enableContinuous = true;
+		worldDef.gravity = {0, 0};
+		worldCtx.world = b2CreateWorld(&worldDef);
 
-	const auto ctx = getContext();
+		factory = makeUnique(new EntityFactory());
 
-	// contactListener = make_unique(new GameContactListener(ctx));
-	// contactFilter = make_unique(new GameContactFilter(ctx));
-	// world->SetContactListener(contactListener.get());
-	// world->SetContactFilter(contactFilter.get());
+		const auto ctx = getContext();
 
-	ctxInternal = makeUnique(new GameCtx(getContext()));
+		// contactListener = make_unique(new GameContactListener(ctx));
+		// contactFilter = make_unique(new GameContactFilter(ctx));
+		// world->SetContactListener(contactListener.get());
+		// world->SetContactFilter(contactFilter.get());
 
-	b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::filterCallback, ctxInternal.get());
-	b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::presolveCallback, ctxInternal.get());
+		ctxInternal = makeUnique(new GameCtx(getContext()));
 
-	GameStateSystem().initGameState(ctx);
-	EnemySpawnSystem().setup(ctx);
-}
+		b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::filterCallback, ctxInternal.get());
+		b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::presolveCallback, ctxInternal.get());
 
-void Game::draw(NRenderBuffer& rdr) {
-	const auto ctx = getContext();
-	RenderSystem().render(rdr, ctx);
-}
-
-void Game::update(float dt) {
-	if (state.isPaused) {
-		return;
+		GameStateSystem().initGameState(ctx);
+		EnemySpawnSystem().setup(ctx);
 	}
 
-	const GameCtx ctx = getContext();
-
-	GameStateSystem().updateBeforePhysics(ctx);
-	PhysicsSystem().step(ctx, dt);
-	ContactSystem().handleEvents(ctx);
-	ContactSystem().updateAfterHandleEvent(ctx, dt);
-	PhysicsSystem().updateAfterContactSystem(ctx, dt);
-	GameSystem().update(ctx, dt);
-
-	static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", false);
-	if (shouldClear) {
-		shouldClear = false;
-		EntityService().clearMostEntities(ctx);
+	void Game::draw(ui::NRenderBuffer& rdr) {
+		const auto ctx = getContext();
+		RenderSystem().render(rdr, ctx);
 	}
 
-	LifeTimeSystem().cleanupDeadEntities(ctx);
+	void Game::update(float dt) {
+		if (state.isPaused) {
+			return;
+		}
 
-	GameSystem().updateAfterCleanup(ctx);
-	EnemySpawnSystem().updateAfterCleanup(ctx, dt);
+		const GameCtx ctx = getContext();
 
-	RenderSystem().update(ctx, dt);
-}
+		GameStateSystem().updateBeforePhysics(ctx);
+		PhysicsSystem().step(ctx, dt);
+		ContactSystem().handleEvents(ctx);
+		ContactSystem().updateAfterHandleEvent(ctx, dt);
+		PhysicsSystem().updateAfterContactSystem(ctx, dt);
+		GameSystem().update(ctx, dt);
 
-void Game::handleEvent(const sf::Event& event) {
-	const GameCtx ctx = getContext();
-	GameSystem().handleEvent(ctx, event);
-}
+		static bool& shouldClear = app::DebugVariables::try_emplace<bool>("shouldClearEntities", false);
+		if (shouldClear) {
+			shouldClear = false;
+			EntityService().clearMostEntities(ctx);
+		}
+
+		LifeTimeSystem().cleanupDeadEntities(ctx);
+
+		GameSystem().updateAfterCleanup(ctx);
+		EnemySpawnSystem().updateAfterCleanup(ctx, dt);
+
+		RenderSystem().update(ctx, dt);
+	}
+
+	void Game::handleEvent(const sf::Event& event) {
+		const GameCtx ctx = getContext();
+		GameSystem().handleEvent(ctx, event);
+	}
+} // namespace flx::game

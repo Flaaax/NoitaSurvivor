@@ -1,19 +1,22 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
-#include <memory>
+#include "src/utils/Pointer.h"
+
 #include <vector>
 
-class ModifierSpell;
-class ProjectileSpell;
-class Spell;
-struct GameCtx;
+namespace flx::game {
+	class ModifierSpell;
+	class ProjectileSpell;
+	class Spell;
+	struct GameCtx;
 
-class SpellBlock {
-public:
-	std::vector<std::shared_ptr<ProjectileSpell>> projectiles;
-	std::vector<std::shared_ptr<ModifierSpell>> modifiers;
-	std::vector<std::shared_ptr<ModifierSpell>> shotModifiers;
+	class SpellBlock {
+	public:
+		std::vector<n_shared<ProjectileSpell>> projectiles;
+		std::vector<n_shared<ModifierSpell>> modifiers;
+		std::vector<n_shared<ModifierSpell>> shotModifiers;
 
-	void add(const std::shared_ptr<Spell>& spell);
-	void cast(const GameCtx& ctx, nvec2 pos, float arg);
-};
+		void add(n_shared<Spell> spell);
+		void cast(const GameCtx& ctx, vec2 pos, float arg);
+	};
+} // namespace flx::game

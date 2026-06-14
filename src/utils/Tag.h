@@ -1,7 +1,7 @@
 #pragma once
 #include <type_traits>
 
-namespace Util {
+namespace flx {
 	template <class Tag_t>
 		requires std::is_integral_v<Tag_t> || std::is_enum_v<Tag_t>
 	class Tag {

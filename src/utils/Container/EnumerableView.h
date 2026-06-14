@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace Util {
+namespace flx {
 
 	template <class Ref>
 	struct IEnumerator {
@@ -347,5 +347,5 @@ namespace Util {
 
 namespace std::ranges { // NOLINT(*-dcl58-cpp)
 	template <class T, class Ref>
-	inline constexpr bool enable_view<Util::EnumerableView<T, Ref>> = true;
+	inline constexpr bool enable_view<flx::EnumerableView<T, Ref>> = true;
 }

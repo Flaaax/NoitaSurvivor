@@ -1,10 +1,8 @@
 #pragma once
-#include "../Assert.h"
-#include "../Pointer.h"
 #include <memory>
 #include <type_traits>
 
-namespace Util {
+namespace flx {
 	// struct NoDelete {};
 
 	struct StringViewHash : std::hash<std::string_view> {

@@ -45,6 +45,12 @@ class TokenReader:
 			return None
 		return self.tokens[self.index - 1]
 
+	def peek(self, offset):
+		index = self.index + offset
+		if index < 0 or index >= len(self.tokens):
+			return None
+		return self.tokens[index]
+
 	def next(self):
 		self.index += 1
 
@@ -177,120 +183,280 @@ def skip_noinit_struct(reader):
 		reader.skip_brace_scope()
 
 
-def parse_structs(tokens):
-	structs = []
-	reader = TokenReader(tokens)
+def qualified_type_name(namespace_stack, type_name):
+	if not namespace_stack:
+		return type_name
+	return "::" + "::".join(namespace_stack + [type_name])
 
-	while reader.find("struct", "Word"):
-		previous = reader.previous()
+
+def unqualified_type_name(type_name):
+	return type_name.split("::")[-1]
+
+
+def generated_identifier(text):
+	text = re.sub(r"[^a-zA-Z0-9_]+", "_", text)
+	text = text.strip("_")
+	if not text or text[0].isdigit():
+		text = "_" + text
+	return text
+
+
+def is_scope_access(reader):
+	return reader.current() is not None and reader.current().text == ":" and reader.peek(1) is not None and reader.peek(1).text == ":"
+
+
+def read_namespace_name(reader):
+	names = []
+
+	while reader.current() is not None:
+		token = reader.current()
+		if token.kind != "Word":
+			break
+
+		names.append(token.text)
 		reader.next()
 
-		if previous is not None and previous.text == "N_NOINIT":
-			skip_noinit_struct(reader)
-			continue
+		if not is_scope_access(reader):
+			break
+
+		reader.next()
+		reader.next()
+
+	return names
+
+
+def skip_attribute_scope(reader):
+	# Skip C++ attributes such as [[nodiscard]].
+	if reader.current() is None or reader.current().text != "[" or reader.peek(1) is None or reader.peek(1).text != "[":
+		return False
+
+	reader.next()
+	reader.next()
+
+	while reader.current() is not None:
+		if reader.current().text == "]" and reader.peek(1) is not None and reader.peek(1).text == "]":
+			reader.next()
+			reader.next()
+			return True
+		reader.next()
+
+	return True
+
+
+def parse_namespace(reader, namespace_stack, structs):
+	reader.next()
+
+	while skip_attribute_scope(reader):
+		pass
+
+	names = read_namespace_name(reader)
+
+	while skip_attribute_scope(reader):
+		pass
+
+	if reader.current() is not None and reader.current().text == "=":
+		reader.skip_field()
+		return
+
+	if reader.current() is None or reader.current().text != "{":
+		reader.next()
+		return
+
+	reader.next()
+	parse_scope(reader, namespace_stack + names, structs, True)
+
+	if reader.current() is not None and reader.current().text == ";":
+		reader.next()
+
+
+def skip_type_scope(reader):
+	while reader.current() is not None:
+		text = reader.current().text
+		if text == ";":
+			reader.next()
+			return
+		if text == "{":
+			reader.skip_brace_scope()
+			if reader.current() is not None and reader.current().text == ";":
+				reader.next()
+			return
+		reader.next()
+
+
+def parse_struct(reader, namespace_stack, structs):
+	previous = reader.previous()
+	reader.next()
+
+	while skip_attribute_scope(reader):
+		pass
+
+	if previous is not None and previous.text == "N_NOINIT":
+		skip_noinit_struct(reader)
+		return
+
+	token = reader.current()
+	if token is None:
+		return
+
+	if token.kind == "Word" and token.text == "N_NOINIT":
+		skip_noinit_struct(reader)
+		return
+
+	if token.text == ";":
+		reader.next()
+		return
+
+	if token.kind != "Word":
+		reader.next()
+		return
+
+	struct_name = token.text
+
+	reader.next()
+	while skip_attribute_scope(reader):
+		pass
+
+	while reader.current() is not None:
+		text = reader.current().text
+		if text == ";":
+			reader.next()
+			return
+		if text == "{":
+			break
+		reader.next()
+
+	if reader.current() is None or reader.current().text != "{":
+		return
+
+	info = StructInfo(qualified_type_name(namespace_stack, struct_name))
+	reader.next()
+	can_visit = True
+
+	while reader.current() is not None:
+		while reader.current() is not None and reader.current().kind == "Comment":
+			reader.next()
 
 		token = reader.current()
 		if token is None:
 			break
 
-		if token.kind == "Word" and token.text == "N_NOINIT":
-			skip_noinit_struct(reader)
-			continue
+		text = token.text
 
-		if token.text == ";":
+		if text == "}":
+			structs.append(info)
 			reader.next()
-			continue
-
-		if token.kind != "Word":
-			reader.next()
-			continue
-
-		struct_name = token.text
-
-		if not reader.find("{", None):
+			if reader.current() is not None and reader.current().text == ";":
+				reader.next()
 			break
 
-		info = StructInfo(struct_name)
+		if text == "public":
+			can_visit = True
+			reader.next()
+			if reader.current() is not None and reader.current().text == ":":
+				reader.next()
+			continue
+
+		if text == "private" or text == "protected":
+			can_visit = False
+			reader.next()
+			if reader.current() is not None and reader.current().text == ":":
+				reader.next()
+			continue
+
+		if text == "{":
+			reader.skip_brace_scope()
+			continue
+
+		if text == "union" or text == "struct" or text == "class" or text == "enum":
+			if reader.find("{", None):
+				reader.skip_brace_scope()
+			continue
+
+		skip_this_field = False
+		if not can_visit:
+			skip_this_field = True
+		if text == "const" or text == "volatile" or text == "N_NOINIT":
+			skip_this_field = True
+
+		last_word = None
+		if token.kind == "Word":
+			last_word = token.text
+
 		reader.next()
-		can_visit = True
+		is_field = False
 
 		while reader.current() is not None:
-			while reader.current() is not None and reader.current().kind == "Comment":
-				reader.next()
-
 			token = reader.current()
-			if token is None:
-				break
-
 			text = token.text
 
-			if text == "}":
-				structs.append(info)
-				reader.next()
+			if text == ";":
+				is_field = True
 				break
-
-			if text == "public":
-				can_visit = True
-				reader.next()
-				if reader.current() is not None and reader.current().text == ":":
-					reader.next()
-				continue
-
-			if text == "private" or text == "protected":
-				can_visit = False
-				reader.next()
-				if reader.current() is not None and reader.current().text == ":":
-					reader.next()
-				continue
-
-			if text == "{":
-				reader.skip_brace_scope()
-				continue
-
-			if text == "union" or text == "struct" or text == "class" or text == "enum":
-				if reader.find("{", None):
-					reader.skip_brace_scope()
-				continue
-
-			skip_this_field = False
-			if not can_visit:
-				skip_this_field = True
-			if text == "const" or text == "volatile" or text == "N_NOINIT":
-				skip_this_field = True
-
-			last_word = None
+			if text == "(":
+				break
+			if text == "{" or text == "=":
+				is_field = True
+				break
 			if token.kind == "Word":
 				last_word = token.text
 
 			reader.next()
-			is_field = False
 
-			while reader.current() is not None:
-				token = reader.current()
-				text = token.text
+		if is_field:
+			if not skip_this_field and last_word is not None:
+				info.fields.append(last_word)
+			reader.skip_field()
+		else:
+			reader.skip_function()
 
-				if text == ";":
-					is_field = True
-					break
-				if text == "(":
-					break
-				if text == "{" or text == "=":
-					is_field = True
-					break
-				if token.kind == "Word":
-					last_word = token.text
 
+def parse_scope(reader, namespace_stack, structs, stop_at_closing_brace):
+	while reader.current() is not None:
+		while reader.current() is not None and reader.current().kind == "Comment":
+			reader.next()
+
+		token = reader.current()
+		if token is None:
+			return
+
+		text = token.text
+
+		if text == "}":
+			if stop_at_closing_brace:
 				reader.next()
+				return
+			reader.next()
+			continue
 
-			if is_field:
-				if not skip_this_field and last_word is not None:
-					info.fields.append(last_word)
-				reader.skip_field()
-			else:
-				reader.skip_function()
+		if text == "inline" and reader.peek(1) is not None and reader.peek(1).text == "namespace":
+			reader.next()
+			parse_namespace(reader, namespace_stack, structs)
+			continue
 
+		if text == "namespace":
+			parse_namespace(reader, namespace_stack, structs)
+			continue
+
+		if text == "struct":
+			parse_struct(reader, namespace_stack, structs)
+			continue
+
+		if text == "class" or text == "union" or text == "enum":
+			skip_type_scope(reader)
+			continue
+
+		if text == "{":
+			reader.skip_brace_scope()
+			continue
+
+		reader.next()
+
+
+def parse_structs(tokens):
+	structs = []
+	reader = TokenReader(tokens)
+	parse_scope(reader, [], structs, False)
 	return structs
-
 
 def collect_structs(repo_root):
 	structs = []
@@ -328,13 +494,13 @@ def generate_component_initializers(lines, structs):
 	add(lines, "void ComponentMeta::initGeneratedComponentInitializers() {")
 
 	for info in structs:
-		add(lines, 'componentInitializerFactories["' + info.name + '"] =')
-		add(lines, "[](const json& jsonData) -> ComponentInitializer {")
+		add(lines, 'componentInitializerFactories["' + unqualified_type_name(info.name) + '"] =')
+		add(lines, "[](const Json& jsonData) -> ComponentInitializer {")
 
 		for field in info.fields:
 			add(lines, "using __" + field + "_t = ValueWrapper<decltype(" + info.name + "::" + field + ")>;")
 
-		add(lines, "struct __" + info.name + "Parser {")
+		add(lines, "struct __" + generated_identifier(info.name) + "Parser {")
 		for field in info.fields:
 			add(lines, "__" + field + "_t " + field + "{};")
 		add(lines, "} p;")
@@ -367,15 +533,15 @@ def generate_meta_info(lines, structs):
 
 	for info in structs:
 		add(lines, "{")
-		add(lines, 'auto& info = componentMetaInfo["' + info.name + '"];')
+		add(lines, 'auto& info = componentMetaInfo["' + unqualified_type_name(info.name) + '"];')
 
 		for field in info.fields:
 			field_type = "decltype(" + info.name + "::" + field + ")"
-			alias = "__" + info.name + "_" + field + "_t"
+			alias = "__" + generated_identifier(info.name) + "_" + field + "_t"
 
 			add(lines, "using " + alias + " = ValueWrapper<" + field_type + ">;")
 			add(lines, "if constexpr (" + alias + "::enabled) {")
-			add(lines, 'info.fields.emplace_back(Field{"' + field + '", Util::typeFullName<' + field_type + ">()});")
+			add(lines, 'info.fields.emplace_back(Field{"' + field + '", typeFullName<' + field_type + ">()});")
 			add(lines, "}")
 
 		add(lines, "}")
@@ -388,8 +554,10 @@ def generate_code(structs):
 	lines = []
 	add(lines, "// NOLINTBEGIN\n")
 	generate_header(lines)
+	add(lines, "namespace flx::meta{")
 	generate_component_initializers(lines, structs)
 	generate_meta_info(lines, structs)
+	add(lines, "}")
 	add(lines, "// NOLINTEND")
 	return "\n".join(lines) + "\n"
 

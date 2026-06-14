@@ -4,25 +4,27 @@
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/shapes/NRichTextShape.h"
 
-class NRichText;
+namespace flx::ui {
+	class NRichText;
 
-class MaterialBar : public NObject {
-private:
-	inline static std::string format{};
-	int material = 0;
-	nvec2 rightTop;
-	float height;
-	mutable NRichTextShape text;
+	class MaterialBar : public ui::NObject {
+	private:
+		inline static std::string format{};
+		int material = 0;
+		vec2 rightTop;
+		float height;
+		mutable ui::NRichTextShape text;
 
-	void updateText();
+		void updateText();
 
-public:
-	MaterialBar(nvec2 rightTop, float height);
+	public:
+		MaterialBar(vec2 rightTop, float height);
 
-	void setData(int material) {
-		this->material = material;
-		updateText();
-	}
+		void setData(int material) {
+			this->material = material;
+			updateText();
+		}
 
-	void draw(const NUIPainter& canvas) const override;
-};
+		void draw(const ui::NUIPainter& canvas) const override;
+	};
+} // namespace flx::game

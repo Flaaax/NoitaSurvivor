@@ -3,28 +3,30 @@
 #include "src/ecs/entity.h"
 #include "src/game/States/ContactState.h"
 
-class Script {
-public:
-	bool isDone = false;
+namespace flx::game {
+	class Script {
+	public:
+		bool isDone = false;
 
-	virtual ~Script() {
-	}
+		virtual ~Script() {
+		}
 
-	virtual void onUpdate(const GameCtx& ctx, myecs::entity self, float dt) {
-	}
+		virtual void onUpdate(const GameCtx& ctx, myecs::entity self, float dt) {
+		}
 
-	// triggered on removal of the entity
-	virtual void onDeath(const GameCtx& ctx, myecs::entity self) {
-	}
+		// triggered on removal of the entity
+		virtual void onDeath(const GameCtx& ctx, myecs::entity self) {
+		}
 
-	//Should NOT handle game logic!
-	virtual void configureContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) {
-	}
+		// Should NOT handle game logic!
+		virtual void configureContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, ContactSettings& settings) {
+		}
 
-	virtual void onContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, const ContactEvent& event) {
-	}
-};
+		virtual void onContact(const GameCtx& ctx, myecs::entity self, myecs::entity other, const ContactEvent& event) {
+		}
+	};
 
-struct ScriptComponent {
-	Util::Vector<n_shared<Script>> scripts;
-};
+	struct ScriptComponent {
+		Vector<n_shared<Script>> scripts;
+	};
+} // namespace flx::game

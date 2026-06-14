@@ -1,51 +1,46 @@
 #pragma once
 #include <memory>
 
-template <typename T>
-class Singleton {
-public:
-	Singleton(const Singleton&) = delete;
-	Singleton& operator=(const Singleton&) = delete;
+namespace flx {
+	template <typename T>
+	class Singleton {
+	public:
+		Singleton(const Singleton&) = delete;
+		Singleton& operator=(const Singleton&) = delete;
 
-	inline static T& inst() {
-		static T ins;
-		return ins;
-	}
+		static T& inst() {
+			static T ins;
+			return ins;
+		}
 
-protected:
-	Singleton() = default;
-	virtual ~Singleton() = default;
-};
+	protected:
+		Singleton() = default;
+		virtual ~Singleton() = default;
+	};
 
-template <typename T>
-class SharedSingleton {
-public:
-	SharedSingleton(const SharedSingleton&) = delete;
-	SharedSingleton& operator=(const SharedSingleton&) = delete;
+	template <typename T>
+	class SharedSingleton {
+	public:
+		SharedSingleton(const SharedSingleton&) = delete;
+		SharedSingleton& operator=(const SharedSingleton&) = delete;
 
-	inline static std::shared_ptr<T>& inst() {
-		static std::shared_ptr<T> ins = std::shared_ptr<T>(new T(), std::default_delete<T>{});
-		return ins;
-	}
+		static std::shared_ptr<T>& inst() {
+			static std::shared_ptr<T> ins = std::shared_ptr<T>(new T(), std::default_delete<T>{});
+			return ins;
+		}
 
-protected:
-	SharedSingleton() = default;
-	virtual ~SharedSingleton() = default;
-};
+	protected:
+		SharedSingleton() = default;
+		virtual ~SharedSingleton() = default;
+	};
+} // namespace flx
 
-#ifndef N_SINGLETON_DEF
-#define N_SINGLETON_DEF
+#ifndef FLX_SINGLETON_DEF
+#define FLX_SINGLETON_DEF
 
-#define N_DEF_SINGLETON(T) class T : public Singleton<T>
+#define FLX_DEF_SINGLETON(T) class T : public ::flx::Singleton<T>
 
-#define N_SHARED_SINGLETON(x)             \
-	friend class std::shared_ptr<x>;      \
-	friend struct std::default_delete<x>; \
-	friend class SharedSingleton<x>;
-
-#define N_SINGLETON(x) friend class Singleton<x>;
-
-#define N_DECL_SINGLETON(Class)   \
+#define FLX_DECL_SINGLETON(Class) \
 public:                           \
 	inline static Class& inst() { \
 		static Class ins;         \
@@ -55,6 +50,5 @@ public:                           \
 private:                          \
 	Class(const Class&) = delete; \
 	Class& operator=(const Class&) = delete
-
 
 #endif

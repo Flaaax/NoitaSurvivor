@@ -1,10 +1,11 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
 
-struct GameCtx;
+namespace flx::game {
+	struct GameCtx;
 
-class GameService {
-public:
-	static void dropMaterial(const GameCtx& ctx, nvec2 pos);
-
-};
+	class GameService {
+	public:
+		static void dropMaterial(const GameCtx& ctx, vec2 pos);
+	};
+} // namespace flx::game

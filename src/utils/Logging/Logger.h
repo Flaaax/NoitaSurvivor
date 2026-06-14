@@ -3,6 +3,7 @@
 #define _MYLOGGER_H
 
 #include "src/utils/Text/Format.h"
+#include "src/utils/Pointer.h"
 
 #ifdef _DEBUG
 inline constexpr bool n_debug_log = true;
@@ -15,7 +16,7 @@ namespace spdlog {
 }
 
 namespace flx {
-	using logptr = std::shared_ptr<spdlog::logger>;
+	using logptr = n_shared<spdlog::logger>;
 
 	struct Logger {
 		logptr raw{};
@@ -25,33 +26,33 @@ namespace flx {
 
 		template <typename... Args>
 		void info(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::info, Util::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::info, flx::format(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void warn(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::warn, Util::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::warn, flx::format(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void error(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::err, Util::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::err, flx::format(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void trace(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::trace, Util::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::trace, flx::format(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void critical(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::critical, Util::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::critical, flx::format(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void debug(std::string_view fmt, Args&&... args) {
 			if constexpr (n_debug_log) {
-				this->_impl_log(spdlog::level::debug, Util::format(fmt, std::forward<Args>(args)...));
+				this->_impl_log(spdlog::level::debug, flx::format(fmt, std::forward<Args>(args)...));
 			}
 		}
 
@@ -71,43 +72,43 @@ namespace flx {
 	inline Logger logger = Logger::makeAsync("Default");
 } // namespace flx
 
-struct LoggerOld {
-public:
-	template <typename... Args>
-	static void info(std::string_view fmt, Args&&... args) {
-		flx::logger.info(fmt, std::forward<Args>(args)...);
-	}
-
-	template <typename... Args>
-	static void warn(std::string_view fmt, Args&&... args) {
-		flx::logger.warn(fmt, std::forward<Args>(args)...);
-	}
-
-	template <typename... Args>
-	static void error(std::string_view fmt, Args&&... args) {
-		flx::logger.error(fmt, std::forward<Args>(args)...);
-	}
-
-	template <typename... Args>
-	static void trace(std::string_view fmt, Args&&... args) {
-		flx::logger.trace(fmt, std::forward<Args>(args)...);
-	}
-
-	template <typename... Args>
-	static void critical(std::string_view fmt, Args&&... args) {
-		flx::logger.critical(fmt, std::forward<Args>(args)...);
-	}
-
-	template <typename... Args>
-	static void debug(std::string_view fmt, Args&&... args) {
-		flx::logger.debug(fmt, std::forward<Args>(args)...);
-	}
-
-	// Throws an error!
-	template <typename... Args>
-	[[noreturn]] static void error_and_throw(std::string_view fmt, Args&&... args) {
-		flx::logger.error_and_throw(fmt, std::forward<Args>(args)...);
-	}
-};
+// struct LoggerOld {
+// public:
+// 	template <typename... Args>
+// 	static void info(std::string_view fmt, Args&&... args) {
+// 		flx::logger.info(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	template <typename... Args>
+// 	static void warn(std::string_view fmt, Args&&... args) {
+// 		flx::logger.warn(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	template <typename... Args>
+// 	static void error(std::string_view fmt, Args&&... args) {
+// 		flx::logger.error(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	template <typename... Args>
+// 	static void trace(std::string_view fmt, Args&&... args) {
+// 		flx::logger.trace(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	template <typename... Args>
+// 	static void critical(std::string_view fmt, Args&&... args) {
+// 		flx::logger.critical(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	template <typename... Args>
+// 	static void debug(std::string_view fmt, Args&&... args) {
+// 		flx::logger.debug(fmt, std::forward<Args>(args)...);
+// 	}
+//
+// 	// Throws an error!
+// 	template <typename... Args>
+// 	[[noreturn]] static void error_and_throw(std::string_view fmt, Args&&... args) {
+// 		flx::logger.error_and_throw(fmt, std::forward<Args>(args)...);
+// 	}
+// };
 
 #endif // _MYLOGGER_H

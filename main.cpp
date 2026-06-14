@@ -11,7 +11,7 @@ int main() {
 		.displayDebugFPS = true,
 	};
 
-	flx::app::Application::run<NoitaSurvivorApp>(init);
+	flx::app::Application::run<flx::app::NoitaSurvivorApp>(init);
 
 	return 1;
 }

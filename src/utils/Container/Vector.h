@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace Util {
+namespace flx {
 	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)

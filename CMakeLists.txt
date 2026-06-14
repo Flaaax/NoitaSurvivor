@@ -80,6 +80,8 @@ target_compile_definitions(NoitaSurvivor PRIVATE
         _CONSOLE
         $<$<CONFIG:Debug>:_DEBUG>
         $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
+        WIN32_LEAN_AND_MEAN
+        NOMINMAX
 )
 
 target_compile_options(NoitaSurvivor PRIVATE

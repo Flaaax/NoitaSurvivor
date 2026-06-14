@@ -17,7 +17,7 @@ namespace flx {
 	}
 
 	void Logger::_impl_error_and_throw(std::string msg) {
-		Util::Debug::printCallStack();
+		flx::Debug::printCallStack();
 		this->error(msg);
 		throw std::runtime_error(msg);
 	}

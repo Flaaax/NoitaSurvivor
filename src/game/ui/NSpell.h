@@ -2,38 +2,44 @@
 #include "src/ui/NObject.h"
 #include "src/utils/Pointer.h"
 
-class Spell;
-class NSpellInventory;
 
-class NSpell : public NObject {
-protected:
-	friend class NSpellInventory;
-	bool isReleased{};
+namespace flx::game {
+	class Spell;
+}
 
-	n_shared<Spell> spell;
-	int index{};
+namespace flx::ui {
+	class NSpellInventory;
 
-	float rotation{};
-	float t{};
+	class NSpell : public ui::NObject {
+	protected:
+		friend class NSpellInventory;
+		bool isReleased{};
 
-	// bool isHovered{};
+		n_shared<game::Spell> spell;
+		int index{};
 
-	void updateTooltipSpec();
-	static n_unique<NLayout> tooltipBuilder(const NStyle& style, NObject* self);
+		float rotation{};
+		float t{};
 
-public:
-	static constexpr nvec2 slotSize = {45.f, 45.f};
-	static constexpr float outLine = 3.f;
+		// bool isHovered{};
 
-	explicit NSpell(std::shared_ptr<Spell> spell, nvec2 pos = {});
+		void updateTooltipSpec();
+		static n_unique<ui::NLayout> tooltipBuilder(const ui::NStyle& style, NObject* self);
 
-	std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
-	void update(float dt) override;
-	void draw(const NUIPainter& canvas) const override;
+	public:
+		static constexpr vec2 slotSize = {45.f, 45.f};
+		static constexpr float outLine = 3.f;
 
-	nrect getHitbox() const override {
-		return frame.getExpand({5.f, 5.f});
-	}
+		explicit NSpell(std::shared_ptr<game::Spell> spell, vec2 pos = {});
 
-	const NSpellInventory* getInventory() const;
-};
+		std::optional<ui::NEventResult> handleEvent(const ui::NUIEvent& event) override;
+		void update(float dt) override;
+		void draw(const ui::NUIPainter& canvas) const override;
+
+		rect getHitbox() const override {
+			return frame.getExpand({5.f, 5.f});
+		}
+
+		const NSpellInventory* getInventory() const;
+	};
+} // namespace flx::game

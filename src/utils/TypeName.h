@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <string_view>
 
-namespace Util {
-
-	template <typename Type>
-	[[nodiscard]] inline consteval std::string_view typeFullName() noexcept {
+namespace flx {
+	template <class Type>
+	[[nodiscard]] consteval std::string_view typeFullName() noexcept {
 		std::string_view pretty_function{static_cast<const char*>(__FUNCSIG__)};
 		size_t pos = pretty_function.find('<');
 		pos = pretty_function.find('<', pos + 1);
@@ -14,8 +13,8 @@ namespace Util {
 		return pretty_function.substr(first, last - first);
 	}
 
-	template <typename Type>
-	[[nodiscard]] inline consteval std::string_view typeName() noexcept {
+	template <class Type>
+	[[nodiscard]] consteval std::string_view typeName() noexcept {
 		std::string_view name = typeFullName<Type>();
 		constexpr std::string_view class_prefix = "class ";
 		constexpr std::string_view struct_prefix = "struct ";
@@ -29,4 +28,21 @@ namespace Util {
 		// ReSharper disable once CppDFALocalValueEscapesFunction
 		return name;
 	}
-} // namespace Util
+
+	template <class Type>
+	[[nodiscard]] consteval std::string_view typeNameShort() noexcept {
+		std::string_view name = typeName<Type>();
+
+		const size_t template_pos = name.find('<');
+		const size_t head_end = template_pos == std::string_view::npos ? name.size() : template_pos;
+
+		const std::string_view head = name.substr(0, head_end);
+		const size_t scope_pos = head.rfind("::");
+
+		if (scope_pos != std::string_view::npos) {
+			name.remove_prefix(scope_pos + 2);
+		}
+
+		return name;
+	}
+} // namespace flx

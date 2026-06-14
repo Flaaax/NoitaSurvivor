@@ -7,7 +7,7 @@
 #include <SFML/System/String.hpp>
 #include <optional>
 
-namespace Util {
+namespace flx::text {
 	enum class TextEffect : u64 {
 		None = 0u,
 		Sine = 1u << 0u,
@@ -33,17 +33,17 @@ namespace Util {
 	};
 
 	inline std::optional<TextStyle> getNextStyle(std::string_view tag, TextStyle style) {
-		Text::trim(tag);
+		text::trim(tag);
 		if (tag.empty()) {
 			return {};
 		}
 
-		if (const auto color = Text::parseNamedColorTag(tag)) {
+		if (const auto color = text::parseNamedColorTag(tag)) {
 			style.color = *color;
 			return style;
 		}
 
-		if (const auto color = Text::parseRgbTag(tag)) {
+		if (const auto color = text::parseRgbTag(tag)) {
 			style.color = *color;
 			return style;
 		}
