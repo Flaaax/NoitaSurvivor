@@ -4,7 +4,7 @@
 #include <format>
 
 namespace flx::app {
-	void SceneManager::add(n_unique<Scene> scene) {
+	void SceneManager::add(Unique<Scene> scene) {
 		// Logger::info("Adding scene to SceneManager...");
 		if (!scene)
 			throw std::runtime_error("scene is nullptr");

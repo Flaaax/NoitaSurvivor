@@ -30,7 +30,7 @@ namespace flx::meta {
 			json::initField(arg.isSensor, j, "isSensor");
 			// Logger::info("Density = {}", arg.density);
 			return [=](const GameCtx& ctx, myecs::entity e) {
-				ctx.reg.get_or_emplace<BodyComponent>(e);
+				ctx.reg.emplace<BodyComponent>(e);
 				PhysicsService().createBody(ctx, e, arg);
 				// Logger::info("Created body for entity {}", e.string());
 				// Logger::info("Entity {} has BodyComponent: {}", e.string(), ctx.reg.has<BodyComponent>(e));
@@ -53,14 +53,14 @@ namespace flx::meta {
 			componentMetaInfo["BodyComponent"]
 				.fields = keys.view()
 							  .select([](std::string_view key) { return Field{key}; })
-							  .to<flx::Vector>();
+							  .to<Vector>();
 		}
 
 		componentInitializerFactories["SpriteComponent"] = [](const Json& j) -> ComponentInitializer {
 			struct {
 				std::string name;
 				const sf::Sprite* sprite{};
-				SpriteInfo info;
+				SpriteRenderOptions info;
 
 				void operator()(const GameCtx& ctx, myecs::entity e) {
 					if (!sprite) {
@@ -92,7 +92,7 @@ namespace flx::meta {
 			componentMetaInfo["SpriteComponent"]
 				.fields = keys.view()
 							  .select([](std::string_view key) { return Field{key}; })
-							  .to<flx::Vector>();
+							  .to<Vector>();
 		}
 
 		componentInitializerFactories["LifetimeComponent"] = [](const Json& j) -> ComponentInitializer {
@@ -109,7 +109,7 @@ namespace flx::meta {
 			componentMetaInfo["LifetimeComponent"]
 				.fields = keys.view()
 							  .select([](std::string_view key) { return Field{key}; })
-							  .to<flx::Vector>();
+							  .to<Vector>();
 		}
 	}
 } // namespace flx::meta

@@ -10,7 +10,7 @@ namespace flx::app {
 
 	class SceneManager {
 	private:
-		flx::StrMap<n_unique<Scene>> scenes;
+		flx::StrMap<Unique<Scene>> scenes;
 		Scene* currentScene{};
 		Scene* sceneToChange{};
 
@@ -18,7 +18,7 @@ namespace flx::app {
 		SceneManager();
 		~SceneManager();
 
-		void add(n_unique<Scene> scene);
+		void add(Unique<Scene> scene);
 
 		Scene* get(std::string_view name) const;
 

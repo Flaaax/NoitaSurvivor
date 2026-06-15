@@ -23,7 +23,7 @@ namespace flx::ui {
 		bool shouldHighlight{};
 		flx::Vector<Slot> slots;
 
-		using OnModify = std::function<void(flx::ValEnumerableView<n_shared<game::Spell>>)>;
+		using OnModify = std::function<void(flx::IValView<Shared<game::Spell>>)>;
 		OnModify onModify{};
 
 		void updateSlotsGeometry();
@@ -40,9 +40,9 @@ namespace flx::ui {
 		void onDropAccepted(const NDropQuery& query, bool shouldDrop) override;
 		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
-		void addItem(n_unique<NObject> spell, int index);
+		void addItem(Unique<NObject> spell, int index);
 		NSpell* getSpell(int index);
-		n_unique<NObject> removeItem(NSpell* spell);
+		Unique<NObject> removeItem(NSpell* spell);
 		rect getSlotGeometry(int index) const;
 
 		void setOnModify(OnModify onModify);

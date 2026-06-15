@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "EnumerableView.h"
+#include "IView.h"
 #include <algorithm>
 #include <array>
 #include <stdexcept>

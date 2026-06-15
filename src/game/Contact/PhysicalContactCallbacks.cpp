@@ -14,7 +14,7 @@ namespace flx::game {
 	using namespace myecs;
 
 	bool PhysicalContactCallbacks::filter(const GameCtx& ctx, myecs::entity a, myecs::entity b) {
-		n_pair<entity> pairs[2] = {{a, b}, {b, a}};
+		Pair<entity> pairs[2] = {{a, b}, {b, a}};
 		auto& reg = ctx.reg;
 
 		if (!(reg.valid(a) && reg.valid(b))) {
@@ -75,7 +75,7 @@ namespace flx::game {
 		// 	settings.emitEvent = false;
 		// }
 
-		std::initializer_list<n_pair<entity>> pairs = {{a, b}, {b, a}};
+		std::initializer_list<Pair<entity>> pairs = {{a, b}, {b, a}};
 
 		for (auto& [a, b] : pairs) {
 			if (const auto s = reg.try_get<ScriptComponent>(a)) {

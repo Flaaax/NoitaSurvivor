@@ -19,7 +19,7 @@ namespace flx::ui {
 		friend class NRootWidget;
 
 		bool isRoot{};
-		flx::Vector<n_unique<NObject>> objects;
+		flx::Vector<Unique<NObject>> objects;
 
 		void bind(NObject* obj);
 
@@ -32,7 +32,7 @@ namespace flx::ui {
 			isWidget_ = true;
 		}
 
-		NObject* add(n_unique<NObject> obj) {
+		NObject* add(Unique<NObject> obj) {
 			return addToTop(std::move(obj));
 		}
 
@@ -41,14 +41,14 @@ namespace flx::ui {
 		// 	return static_cast<T*>(this->add(std::move(obj)));
 		// }
 
-		NObject* addToTop(n_unique<NObject> obj) {
+		NObject* addToTop(Unique<NObject> obj) {
 			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_back(std::move(obj)).get();
 		}
 
-		NObject* addToBottom(n_unique<NObject> obj) {
+		NObject* addToBottom(Unique<NObject> obj) {
 			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
@@ -56,7 +56,7 @@ namespace flx::ui {
 		}
 
 		auto getObjects() const {
-			return objects | std::views::transform([](const n_unique<NObject>& obj) { return obj.get(); });
+			return objects | std::views::transform([](const Unique<NObject>& obj) { return obj.get(); });
 		}
 
 		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
@@ -68,7 +68,7 @@ namespace flx::ui {
 			return obj->getParent() == this;
 		}
 
-		n_unique<NObject> remove(const NObject* target);
+		Unique<NObject> remove(const NObject* target);
 		void clear();
 
 		void moveToTop(const NObject* obj) {

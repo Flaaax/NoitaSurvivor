@@ -1,13 +1,43 @@
 #include "../global/DataManager.h"
+
 #include "../../utils/File/json.h"
+#include "Loader.h"
 
 namespace flx::app {
+	static Logger logger = Logger::makeAsync("DataManager");
+
+	namespace fs = std::filesystem;
+
+	namespace {
+		struct Impl {
+			FLX_DECL_SINGLETON(Impl);
+
+			StrMap<AssetTable<DataMgr::TextureDefData>> textureDefs;
+
+			void loadTextureData() {
+				auto onFile = [this](const fs::path& path, std::string_view entry) {
+					if (!json::isValidExtension(path.extension())) {
+						return;
+					}
+					auto j = json::loadFromFile(path);
+					for (const auto& jj : j) {
+						const auto entry_name = json::getOr<std::string>(jj["file"], "");
+						//const auto file=
+					}
+				};
+			}
+
+			Impl() {
+			}
+		};
+	} // namespace
+
 	void DataMgr::loadSpriteInfo() {
-		const auto filename = "resources/data/sprite/entity.json";
+		const auto filename = "resources/data/gfx/entity.json";
 		Json j = flx::json::loadFromFile(filename);
-		for (const auto& dat : j["sprites"]) {
-			const auto name = dat["name"].get<std::string>();
-			const SpriteData info{
+		for (const auto& dat : j) {
+			const auto name = dat["file"].get<std::string>();
+			const TextureDefData info{
 				//.followPosition = json_parse_or(dat, "followPosition", false, filename),
 				//.followAngle = json_parse_or(dat, "followAngle", false, filename),
 				//.dynamicScale = json_parse_or(dat, "dynamicScale", false, filename),
@@ -16,10 +46,15 @@ namespace flx::app {
 				//.positionOffset = json_parse_or(dat, "positionOffset", nvec2{0.0f, 0.0f}, filename),
 				.scale = json::parseOr(dat, "scale", vec2{1.0f, 1.0f}, filename),
 				.targetSize = json::parseOr(dat, "targetSize", vec2{}, filename),
-				.texture = json::parseOr(dat, "texture", name, filename)};
+				.smooth = json::parseOr(dat, "smooth", false, filename),
+				.entry = json::parseOr(dat, "entry", name, filename),
+			};
 
-			spriteInfo[std::move(name)] = info;
+			textureDefs[std::move(name)] = info;
 		}
+	}
+
+	void DataMgr::loadTextureData() {
 	}
 
 	DataMgr::DataMgr() {
@@ -28,10 +63,10 @@ namespace flx::app {
 		entityComponentData = flx::json::loadFromFile("resources/data/component/entity.json");
 	}
 
-	const DataMgr::SpriteData* DataMgr::getSpriteData(std::string_view name) {
-		if (const auto it = inst().spriteInfo.find(name); it != inst().spriteInfo.end()) {
-			return &it->second;
+	const DataMgr::TextureDefData* DataMgr::getTextureData(std::string_view entry, std::string_view name) {
+		if (entry != "entity") {
+			return {};
 		}
-		return nullptr;
+		return inst().textureDefs.try_find(name);
 	}
 } // namespace flx::app

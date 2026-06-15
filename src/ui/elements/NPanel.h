@@ -24,7 +24,7 @@ namespace flx::ui {
 		float outlineThickness = 2.f;
 
 		void draw(const NUIPainter& canvas) const override;
-		void setLayout(n_unique<NLayout> layout);
+		void setLayout(Unique<NLayout> layout);
 		void refresh() override;
 	};
 } // namespace flx::ui

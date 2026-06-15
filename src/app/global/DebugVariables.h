@@ -28,7 +28,7 @@ namespace flx::app {
 		struct Entry {
 			void* ptr{};
 			const void* typeId{};
-			n_unique<HolderBase> holder{};
+			Unique<HolderBase> holder{};
 		};
 
 		static flx::StrMap<Entry>& vars() {

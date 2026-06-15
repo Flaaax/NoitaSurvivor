@@ -11,7 +11,7 @@ namespace flx::app {
 		// friend class SceneManager;
 
 	protected:
-		n_unique<ui::NRootWidget> widget{};
+		Unique<ui::NRootWidget> widget{};
 		Logger logger{};
 		AppContext context;
 		const ui::NViewport& viewport;

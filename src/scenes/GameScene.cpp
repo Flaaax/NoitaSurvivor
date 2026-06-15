@@ -30,7 +30,7 @@ namespace flx::app {
 			inventory1->addItem(std::move(spell), static_cast<int>(i));
 		}
 
-		inventory1->setOnModify([&](flx::ValEnumerableView<n_shared<game::Spell>> spells) {
+		inventory1->setOnModify([&](flx::IValView<Shared<game::Spell>> spells) {
 			wand.inventory.clear();
 			for (auto spell : spells) {
 				wand.inventory.emplace_back(spell);

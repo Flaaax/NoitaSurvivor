@@ -41,7 +41,7 @@ namespace flx::ui {
 		bool tooltipDirty = true;
 	};
 
-	using NTooltipBuilder = n_unique<NLayout> (*)(const NStyle& style, NObject* self);
+	using NTooltipBuilder = Unique<NLayout> (*)(const NStyle& style, NObject* self);
 
 	struct NTooltipSpec {
 		NTooltipBuilder builder{};

@@ -60,8 +60,8 @@ namespace flx::ui {
 		if (!onModify)
 			return;
 		const auto spells = slots
-								.view()
-								.select([](const Slot& slot) -> n_shared<game::Spell> {
+								.iview()
+								.select([](const Slot& slot) -> Shared<game::Spell> {
 									if (slot.spell)
 										return slot.spell->spell;
 									return {};
@@ -125,8 +125,8 @@ namespace flx::ui {
 		if (!spell) {
 			logger.error_and_throw("This should never happen...");
 		}
-		n_unique<NObject> spellObject;
-		n_unique<NObject> replacedSpellObject;
+		Unique<NObject> spellObject;
+		Unique<NObject> replacedSpellObject;
 		NSpell* replacedSpell = getSpell(selectedSlot);
 
 		if (spell == replacedSpell) {
@@ -177,7 +177,7 @@ namespace flx::ui {
 		return NWidget::handleEvent(event);
 	}
 
-	void NSpellInventory::addItem(n_unique<NObject> spell, int index) {
+	void NSpellInventory::addItem(Unique<NObject> spell, int index) {
 		NSpell* nspell = spell->convert<NSpell>();
 		if (!nspell) {
 			logger.error_and_throw("Should only add NSpell item!");
@@ -198,7 +198,7 @@ namespace flx::ui {
 		return slots[index].spell;
 	}
 
-	n_unique<NObject> NSpellInventory::removeItem(NSpell* spell) {
+	Unique<NObject> NSpellInventory::removeItem(NSpell* spell) {
 		slots.at(spell->index).spell = {};
 		spell->index = -1;
 		return this->remove(spell);

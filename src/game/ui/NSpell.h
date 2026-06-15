@@ -15,7 +15,7 @@ namespace flx::ui {
 		friend class NSpellInventory;
 		bool isReleased{};
 
-		n_shared<game::Spell> spell;
+		Shared<game::Spell> spell;
 		int index{};
 
 		float rotation{};
@@ -24,7 +24,7 @@ namespace flx::ui {
 		// bool isHovered{};
 
 		void updateTooltipSpec();
-		static n_unique<ui::NLayout> tooltipBuilder(const ui::NStyle& style, NObject* self);
+		static Unique<ui::NLayout> tooltipBuilder(const ui::NStyle& style, NObject* self);
 
 	public:
 		static constexpr vec2 slotSize = {45.f, 45.f};

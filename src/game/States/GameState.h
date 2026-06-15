@@ -37,7 +37,7 @@ namespace flx::game {
 		vec2 cameraPos;
 
 		flx::Vector<myecs::entity> borders;
-		flx::Vector<n_unique<Wand>> wands;
+		flx::Vector<Unique<Wand>> wands;
 
 		CTimer enemySpawnTimer;
 

@@ -68,14 +68,14 @@ namespace flx::game {
 
 			const auto bc = ctx.reg.try_get<BodyComponent>(e);
 
-			if (c.info.followPosition) {
+			if (c.options.followPosition) {
 				const vec2 pos = bc ? ps.getPosition(*bc) : c.position;
-				copy.setPosition(pos + c.info.positionOffset);
+				copy.setPosition(pos + c.options.positionOffset);
 			}
-			if (c.info.followAngle) {
-				copy.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.info.rotationOffset));
+			if (c.options.followAngle) {
+				copy.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.options.rotationOffset));
 			}
-			if (c.info.dynamicScale) {
+			if (c.options.dynamicScale) {
 				float r = ps.getRadius(*bc);
 				copy.scale({r, r});
 			}

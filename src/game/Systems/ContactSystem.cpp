@@ -49,7 +49,7 @@ namespace flx::game {
 				PhysicsService().applySoftCollision(ctx, a, b);
 			}
 
-			std::initializer_list<n_pair<entity>> pairs = {{a, b}, {b, a}};
+			std::initializer_list<Pair<entity>> pairs = {{a, b}, {b, a}};
 
 			bool enabled = true;
 

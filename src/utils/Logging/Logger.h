@@ -2,8 +2,8 @@
 #ifndef _MYLOGGER_H
 #define _MYLOGGER_H
 
-#include "src/utils/Text/Format.h"
 #include "src/utils/Pointer.h"
+#include "src/utils/Text/Format.h"
 
 #ifdef _DEBUG
 inline constexpr bool n_debug_log = true;
@@ -16,7 +16,7 @@ namespace spdlog {
 }
 
 namespace flx {
-	using logptr = n_shared<spdlog::logger>;
+	using logptr = Shared<spdlog::logger>;
 
 	struct Logger {
 		logptr raw{};
@@ -63,8 +63,8 @@ namespace flx {
 			this->_impl_error_and_throw(std::move(err_string));
 		}
 
-		static Logger makeAsync(std::string_view logger_id, bool showID = false);
-		static Logger makeSync(std::string_view logger_id, bool showID = false);
+		static Logger makeAsync(std::string_view logger_id, bool showID = true);
+		static Logger makeSync(std::string_view logger_id, bool showID = true);
 
 		static void setPattern(logptr logger, bool showID);
 	};

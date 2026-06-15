@@ -27,6 +27,6 @@ namespace flx::game {
 	};
 
 	struct ScriptComponent {
-		Vector<n_shared<Script>> scripts;
+		Vector<Shared<Script>> scripts;
 	};
 } // namespace flx::game

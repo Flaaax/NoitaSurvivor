@@ -21,7 +21,7 @@ namespace flx::game {
 			return;
 		}
 		for (auto& [fieldName, _] : j.items()) {
-			if (!metaData->fields.view().any([&](const auto& field) { return field.name == fieldName; })) {
+			if (!metaData->fields.iview().any([&](const auto& field) { return field.name == fieldName; })) {
 				logger.warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 			}
 		}

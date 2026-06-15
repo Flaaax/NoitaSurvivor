@@ -12,11 +12,11 @@ namespace flx::game {
 
 	class SpellBlock {
 	public:
-		std::vector<n_shared<ProjectileSpell>> projectiles;
-		std::vector<n_shared<ModifierSpell>> modifiers;
-		std::vector<n_shared<ModifierSpell>> shotModifiers;
+		std::vector<Shared<ProjectileSpell>> projectiles;
+		std::vector<Shared<ModifierSpell>> modifiers;
+		std::vector<Shared<ModifierSpell>> shotModifiers;
 
-		void add(n_shared<Spell> spell);
+		void add(Shared<Spell> spell);
 		void cast(const GameCtx& ctx, vec2 pos, float arg);
 	};
 } // namespace flx::game

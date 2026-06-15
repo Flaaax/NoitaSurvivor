@@ -27,13 +27,13 @@ namespace flx::game {
 		ContactLayerRules contactRules;
 		WorldCtx worldCtx;
 		myecs::Registry reg;
-		n_unique<EntityFactory> factory;
+		Unique<EntityFactory> factory;
 		GameRenderScales scales;
 		flx::app::AppContext appCtx;
 
 		flx::Logger logger;
 
-		n_unique<GameCtx> ctxInternal;
+		Unique<GameCtx> ctxInternal;
 
 		bool isInitialized = false;
 

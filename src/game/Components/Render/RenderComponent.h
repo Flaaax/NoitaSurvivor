@@ -10,7 +10,7 @@ namespace sf {
 namespace flx::game {
 	struct SpriteData;
 
-	struct SpriteInfo {
+	struct SpriteRenderOptions {
 		bool followPosition{};
 		bool followAngle{};
 		bool dynamicScale{};
@@ -18,9 +18,18 @@ namespace flx::game {
 		vec2 positionOffset{};
 	};
 
+	enum class RenderLayer {
+		Bottom,
+		Enemey,
+		Player,
+		PlayerProjectile,
+		EnemyProjectile,
+		Top
+	};
+
 	struct SpriteComponent {
-		const SpriteInfo& info;
 		const sf::Sprite& sprite;
+		const SpriteRenderOptions& options;
 		vec2 position{}; // used when entity does not have body
 	};
 
@@ -47,6 +56,6 @@ namespace flx::game {
 
 	// requires SpriteComponent
 	struct SpriteEffectComponent {
-		Vector<n_unique<BaseEffect>> effectList;
+		Vector<Unique<BaseEffect>> effectList;
 	};
 } // namespace flx::game

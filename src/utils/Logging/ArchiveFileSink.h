@@ -12,9 +12,9 @@ namespace flx {
 
 	class ArchiveFileSink : public spdlog::sinks::sink {
 	private:
-		n_shared<internal::LogFileWriter> writer;
+		Shared<internal::LogFileWriter> writer;
 		std::mutex mutex;
-		n_unique<spdlog::formatter> formatter;
+		Unique<spdlog::formatter> formatter;
 
 	public:
 		explicit ArchiveFileSink();
@@ -23,6 +23,6 @@ namespace flx {
 		void flush() override;
 
 		void set_pattern(const std::string& pattern) override;
-		void set_formatter(n_unique<spdlog::formatter> formatter) override;
+		void set_formatter(Unique<spdlog::formatter> formatter) override;
 	};
 } // namespace flx

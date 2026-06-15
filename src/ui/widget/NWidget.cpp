@@ -49,7 +49,7 @@ namespace flx::ui {
 		}
 	}
 
-	n_unique<NObject> NWidget::remove(const NObject* target) {
+	Unique<NObject> NWidget::remove(const NObject* target) {
 		const auto it =
 			std::ranges::find_if(
 				objects,
@@ -60,7 +60,7 @@ namespace flx::ui {
 			logger.warn("Widget does not own target object!");
 			return {};
 		}
-		n_unique<NObject> removed = std::move(*it);
+		Unique<NObject> removed = std::move(*it);
 		removed->parent = {};
 		objects.erase(it);
 		return removed;

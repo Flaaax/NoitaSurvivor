@@ -13,7 +13,7 @@ namespace flx::ui {
 		NDragState dragState;
 		NHoverState hoverState;
 		NStyle style;
-		n_unique<NPanel> tooltip;
+		Unique<NPanel> tooltip;
 		vec2 mousePosition{};
 		NViewport viewport;
 

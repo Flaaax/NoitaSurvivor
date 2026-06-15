@@ -5,7 +5,8 @@
 
 #include "../Logging/Logger.h"
 #include "../Vec2/Vec2.h"
-#include "file.h"
+#include "File.h"
+#include "src/utils/Container/Vector.h"
 
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -16,12 +17,20 @@
 namespace flx::json {
 	using Json = nlohmann::ordered_json;
 
-	inline Json loadFromFile(std::string_view file) {
+	consteval auto validExtensions() {
+		return Array<std::string_view, 2>{".json", ".jsonc"};
+	}
+
+	constexpr bool isValidExtension(const std::filesystem::path& path) {
+		return validExtensions().view().contains(path);
+	}
+
+	inline Json loadFromFile(const std::filesystem::path& file) {
 		return Json::parse(file::open(file), {}, true, true);
 	}
 
 	template <class T>
-	bool isValidType(const Json& j) {
+	bool isType(const Json& j) {
 		if constexpr (std::is_same_v<T, std::string>) {
 			return j.is_string();
 		} else if constexpr (std::is_same_v<T, bool>) {
@@ -34,7 +43,7 @@ namespace flx::json {
 
 	template <class T>
 	std::optional<T> getIf(const Json& j) {
-		if (!isValidType<T>(j)) {
+		if (!isType<T>(j)) {
 			return {};
 		}
 		return j.get<T>();
@@ -57,6 +66,14 @@ namespace flx::json {
 			result.emplace_back(std::move(*opt_elem));
 		}
 		return result;
+	}
+
+	template <class T>
+	T getOr(const Json& j, const T& defaultVal) {
+		if (auto jj = getIf<T>(j)) {
+			return *jj;
+		}
+		return defaultVal;
 	}
 
 	template <class T, class U>

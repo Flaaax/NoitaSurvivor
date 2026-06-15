@@ -4,25 +4,25 @@
 
 namespace flx {
 	template <class T>
-	using n_shared = std::shared_ptr<T>;
+	using Shared = std::shared_ptr<T>;
 
 	template <class T>
-	using n_unique = std::unique_ptr<T>;
+	using Unique = std::unique_ptr<T>;
 
 	template <class T>
-	using n_weak = std::weak_ptr<T>;
+	using Weak = std::weak_ptr<T>;
 
 	template <class T>
-	using n_pair = std::pair<T, T>;
+	using Pair = std::pair<T, T>;
 
 	template <class T>
-	n_shared<T> makeShared(T* ptr) {
-		return n_shared<T>(ptr);
+	Shared<T> makeShared(T* ptr) {
+		return Shared<T>(ptr);
 	}
 
 	template <class T>
-	n_unique<T> makeUnique(T* ptr) {
-		return n_unique<T>(ptr);
+	Unique<T> makeUnique(T* ptr) {
+		return Unique<T>(ptr);
 	}
 
 	namespace internal {

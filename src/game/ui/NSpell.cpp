@@ -20,7 +20,7 @@ namespace flx::ui {
 		tooltipSpec.width = 400.f;
 	}
 
-	n_unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
+	Unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
 		using flx::move;
 		const NSpell* nspell = static_cast<NSpell*>(self);
 		auto& loc = nspell->spell->getLoc();

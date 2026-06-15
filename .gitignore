@@ -1,5 +1,7 @@
 /resources/fonts/
-/resources/gfx/
+/resources/gfx/**/*.jpg
+/resources/gfx/**/*.png
+
 /resources/sounds/
 /bin/
 /CodeGenerator/bin/

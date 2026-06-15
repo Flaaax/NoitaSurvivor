@@ -70,7 +70,7 @@ namespace flx::game {
 		virtual const Loc& getLoc() const = 0;
 		static Loc makeLocFromID(std::string_view ID_);
 
-		flx::Vector<n_pair<std::string>> getDisplayedProperties() const;
+		Vector<Pair<std::string>> getDisplayedProperties() const;
 	};
 
 	template <class T, class Base>

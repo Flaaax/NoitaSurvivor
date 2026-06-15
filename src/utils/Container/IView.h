@@ -1,5 +1,6 @@
 #pragma once
 
+#include "View.h"
 #include "src/utils/Integers.h"
 
 #include <algorithm>
@@ -58,29 +59,29 @@ namespace flx {
 			: self(std::forward<Range>(self)) {
 		}
 
-		std::unique_ptr<IEnumerator<Ref>> getEnumerator() override {
+		Unique<IEnumerator<Ref>> getEnumerator() override {
 			using Iter = decltype(self.begin());
 			using Sent = decltype(self.end());
 
-			return std::unique_ptr<IEnumerator<Ref>>(
+			return Unique<IEnumerator<Ref>>(
 				new DefaultEnumerator<Ref, Iter, Sent>(self.begin(), self.end()));
 		}
 	};
 
 	namespace internal {
 		struct NonType;
-	};
+	}
 
 	template <class T = internal::NonType, class Ref = T&>
 		requires(!std::is_reference_v<T>)
-	class EnumerableView {
+	class IView {
 	private:
-		std::shared_ptr<IEnumerable<Ref>> enumerable{};
+		Shared<IEnumerable<Ref>> enumerable{};
 
 		template <bool IsConst>
 		class Iterator {
 		private:
-			std::unique_ptr<IEnumerator<Ref>> enumerator{};
+			Unique<IEnumerator<Ref>> enumerator{};
 
 			void normalize() {
 				if (!enumerator || !enumerator->hasNext()) {
@@ -142,17 +143,17 @@ namespace flx {
 		using const_iterator = Iterator<true>;
 		using sentinel = std::default_sentinel_t;
 
-		EnumerableView() = default;
+		IView() = default;
 
-		explicit EnumerableView(std::shared_ptr<IEnumerable<Ref>> e)
+		explicit IView(std::shared_ptr<IEnumerable<Ref>> e)
 			: enumerable(std::move(e)) {
 		}
 
-		EnumerableView(const EnumerableView& other) : enumerable(other.enumerable) {
+		IView(const IView& other) : enumerable(other.enumerable) {
 		}
 
 		template <class Range>
-		static EnumerableView from(Range&& range) {
+		static IView from(Range&& range) {
 			using StoredRange = std::conditional_t<
 				std::is_lvalue_reference_v<Range&&>,
 				Range,
@@ -161,7 +162,7 @@ namespace flx {
 			auto e = std::shared_ptr<IEnumerable<Ref>>(
 				new RangeEnumerable<Ref, StoredRange>(std::forward<Range>(range)));
 
-			return EnumerableView(e);
+			return IView(e);
 		}
 
 		iterator begin() {
@@ -200,14 +201,14 @@ namespace flx {
 
 		template <class Pred>
 		[[nodiscard]]
-		EnumerableView where(Pred pred) const {
+		IView where(Pred pred) const {
 			auto source = *this;
 
 			auto filtered = std::views::filter(
 				std::move(source),
 				std::move(pred));
 
-			return EnumerableView::from(std::move(filtered));
+			return IView::from(std::move(filtered));
 		}
 
 		[[nodiscard]]
@@ -232,7 +233,7 @@ namespace flx {
 					 (!std::is_void_v<std::invoke_result_t<Func&, Ref>>)
 		[[nodiscard]]
 		auto select(Func func) const
-			-> EnumerableView<
+			-> IView<
 				std::remove_cv_t<std::invoke_result_t<Func&, Ref>>,
 				std::remove_cv_t<std::invoke_result_t<Func&, Ref>>> {
 			using Result = std::remove_cv_t<std::invoke_result_t<Func&, Ref>>;
@@ -243,7 +244,7 @@ namespace flx {
 				std::move(source),
 				std::move(func));
 
-			return EnumerableView<Result, Result>::from(std::move(transformed));
+			return IView<Result, Result>::from(std::move(transformed));
 		}
 
 		template <class Pred = std::identity>
@@ -263,14 +264,14 @@ namespace flx {
 	};
 
 	template <>
-	class EnumerableView<internal::NonType, internal::NonType&> {
+	class IView<internal::NonType, internal::NonType&> {
 	public:
 		template <std::ranges::range Range>
 		[[nodiscard]]
 		static auto from(Range&& range) {
 			using Ref = std::ranges::range_reference_t<Range&&>;
 			using T = std::remove_cvref_t<Ref>;
-			return EnumerableView<T, Ref>::from(std::forward<Range>(range));
+			return IView<T, Ref>::from(std::forward<Range>(range));
 		}
 	};
 
@@ -286,34 +287,51 @@ namespace flx {
 			using Ref = std::ranges::range_reference_t<StoredRange&>;
 			using T = std::remove_cvref_t<Ref>;
 
-			return EnumerableView<T, Ref>::from(std::forward<Range>(range));
+			return IView<T, Ref>::from(std::forward<Range>(range));
 		}
 	};
 
 	template <class T>
-	using ValEnumerableView = EnumerableView<T, T>;
+	using IValView = IView<T, T>;
 
 	template <class Derived, class T>
 	struct Viewable {
-		auto view() & {
+		auto iview() & {
 			auto& self = static_cast<Derived&>(*this);
 
 			using Ref = std::ranges::range_reference_t<Derived&>;
 			using Elem = std::remove_cvref_t<Ref>;
 
-			return EnumerableView<Elem, Ref>::from(self);
+			return IView<Elem, Ref>::from(self);
 		}
 
-		auto view() const& {
+		auto iview() const& {
 			const auto& self = static_cast<const Derived&>(*this);
 
 			using Ref = std::ranges::range_reference_t<const Derived&>;
 			using Elem = std::remove_cvref_t<Ref>;
 
-			return EnumerableView<Elem, Ref>::from(self);
+			return IView<Elem, Ref>::from(self);
 		}
 
-		auto view() && = delete;
+		auto iview() && = delete;
+		auto iview() const&& = delete;
+
+		auto view() & {
+			auto& self = static_cast<Derived&>(*this);
+			return View::from(self);
+		}
+
+		auto view() const& {
+			const auto& self = static_cast<const Derived&>(*this);
+			return View::from(self);
+		}
+
+		auto view() && {
+			auto&& self = static_cast<Derived&&>(*this);
+			return View::from(std::move(self));
+		}
+
 		auto view() const&& = delete;
 	};
 
@@ -343,9 +361,9 @@ namespace flx {
 
 	template <class Derived, class T, template <class, class> class... Features>
 	struct ContainerFeature : Features<Derived, T>... {};
-} // namespace Util
+} // namespace flx
 
 namespace std::ranges { // NOLINT(*-dcl58-cpp)
 	template <class T, class Ref>
-	inline constexpr bool enable_view<flx::EnumerableView<T, Ref>> = true;
+	inline constexpr bool enable_view<flx::IView<T, Ref>> = true;
 }

@@ -17,7 +17,7 @@ namespace flx {
 			static constexpr std::string_view defaultFilePath = "logs/flx.log";
 			static constexpr u64 defaultMaxArchives = 5;
 
-			inline static n_shared<LogFileWriter> inst_{};
+			inline static Shared<LogFileWriter> inst_{};
 			inline static std::mutex mutex;
 
 			const fs::path filePath{};
@@ -125,7 +125,7 @@ namespace flx {
 				}
 			}
 
-			static n_shared<LogFileWriter> inst() {
+			static Shared<LogFileWriter> inst() {
 				std::scoped_lock lock(mutex);
 				if (!inst_) {
 					inst_ = std::make_shared<LogFileWriter>(defaultFilePath, defaultMaxArchives);
@@ -188,7 +188,7 @@ namespace flx {
 		formatter = std::make_unique<spdlog::pattern_formatter>(pattern);
 	}
 
-	void ArchiveFileSink::set_formatter(n_unique<spdlog::formatter> formatter) {
+	void ArchiveFileSink::set_formatter(Unique<spdlog::formatter> formatter) {
 		std::scoped_lock lock(mutex);
 		this->formatter = std::move(formatter);
 	}

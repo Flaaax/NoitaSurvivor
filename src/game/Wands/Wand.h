@@ -50,10 +50,10 @@ namespace flx::game {
 		vec2 worldPos = {};
 		vec2 castPos = {};
 
-		flx::Vector<n_shared<Spell>> inventory; // Not modified when shooting
-		std::deque<n_shared<Spell>> drawPile;
-		std::deque<n_shared<Spell>> discardPile;
-		std::deque<n_shared<Spell>> hand;
+		flx::Vector<Shared<Spell>> inventory; // Not modified when shooting
+		std::deque<Shared<Spell>> drawPile;
+		std::deque<Shared<Spell>> discardPile;
+		std::deque<Shared<Spell>> hand;
 
 		explicit Wand(float wand_scale);
 

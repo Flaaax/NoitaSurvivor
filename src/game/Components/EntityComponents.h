@@ -40,8 +40,8 @@ namespace flx::game {
 		// Should disable physical contact and give impulse manually
 		bool isBullet = true;
 
-		N_NOINIT n_shared<ProjectileSpell> spell; // todo change all these pointers to raw pointer
-		N_NOINIT std::vector<n_shared<ModifierSpell>> mods;
+		N_NOINIT Shared<ProjectileSpell> spell; // todo change all these pointers to raw pointer
+		N_NOINIT std::vector<Shared<ModifierSpell>> mods;
 	};
 
 	// marks an enemy

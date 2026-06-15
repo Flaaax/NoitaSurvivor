@@ -6,7 +6,7 @@
 #include <src/utils/Random.h>
 
 namespace flx::game {
-	void Shot::modify(const GameCtx& ctx, myecs::entity proj, const n_shared<ProjectileSpell>& ps, const std::vector<n_shared<ModifierSpell>>& projMods) {
+	void Shot::modify(const GameCtx& ctx, myecs::entity proj, const Shared<ProjectileSpell>& ps, const std::vector<Shared<ModifierSpell>>& projMods) {
 		auto& p = ctx.reg.get<ProjectileComponent>(proj);
 		p.spell = ps;
 		p.mods = projMods;
@@ -17,7 +17,7 @@ namespace flx::game {
 		}
 	}
 
-	myecs::entity Shot::fire(const GameCtx& ctx, const n_shared<ProjectileSpell>& ps, const std::vector<n_shared<ModifierSpell>>& projMods, vec2 shotPos, float arg) {
+	myecs::entity Shot::fire(const GameCtx& ctx, const Shared<ProjectileSpell>& ps, const std::vector<Shared<ModifierSpell>>& projMods, vec2 shotPos, float arg) {
 		float proj_scatter = ps->scatter;
 		for (const auto& mod : projMods) {
 			if (!mod)

@@ -12,12 +12,12 @@ namespace flx::game {
 	}
 
 	const sf::Texture& Spell::getTextureFromID(std::string_view ID_) {
-		return app::AssetMgr::getSpellTexture(ID_);
+		return app::AssetMgr::getTexture("spell",ID_);
 	}
 
 	Spell::Loc Spell::makeLocFromID(std::string_view ID_) {
 		const std::string ID = std::string(ID_);
-		constexpr std::string_view entry = "spells";
+		constexpr std::string_view entry = "spell";
 		return Loc{
 			.title = app::LocManager::inst().debugGetString(entry, ID + ".title"),
 			.description = app::LocManager::inst().debugGetString(entry, ID + ".description"),
@@ -55,11 +55,11 @@ namespace flx::game {
 	fn(projectiles, 1);              \
 	fn(lifeTime, -1.f)
 
-	flx::Vector<n_pair<std::string>> Spell::getDisplayedProperties() const {
+	flx::Vector<Pair<std::string>> Spell::getDisplayedProperties() const {
 		constexpr auto get = [](std::string_view key) {
 			return app::LocManager::inst().debugGetString("spell_properties", key, true);
 		};
-		flx::Vector<n_pair<std::string>> ret{};
+		flx::Vector<Pair<std::string>> ret{};
 		ret.emplace_back(get("kind"), get(text::pascalToSnake(magic_enum::enum_name(kind))));
 		ITERATE_SPELL_PROPERTIES(ADD_DISPLAY_PROPERTY);
 

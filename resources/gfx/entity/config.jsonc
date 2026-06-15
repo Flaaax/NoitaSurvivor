@@ -1,0 +1,46 @@
+[
+	{
+		"file": "player",
+		"scale": [
+			0.03125,
+			0.03125
+		]
+	},
+	{
+		"file": "block",
+		"entry": "enemy",
+		"scale": [
+			0.03125,
+			0.03125
+		]
+	},
+	{
+		"file": "bullet",
+		"scale": [
+			0.03125,
+			0.03125
+		]
+	},
+	{
+		"file": "material",
+		"scale": [
+			0.009375,
+			0.009375
+		]
+	},
+	{
+		"file": "explosion_entity",
+		"entry": "explosion",
+		"scale": [
+			0.0625,
+			0.0625
+		]
+	},
+	{
+		"name": "enemy_birth",
+		"scale": [
+			0.03125,
+			0.03125
+		]
+	}
+]

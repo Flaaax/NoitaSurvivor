@@ -27,7 +27,7 @@ namespace flx::game {
 			for (const auto& sc : s.scripts) {
 				sc->onUpdate(ctx, e, dt);
 			}
-			flx::eraseIf(s.scripts, [](const n_shared<Script>& ele) {
+			flx::eraseIf(s.scripts, [](const Shared<Script>& ele) {
 				return ele->isDone;
 			});
 		}

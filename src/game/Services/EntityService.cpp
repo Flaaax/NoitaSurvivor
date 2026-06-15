@@ -42,7 +42,7 @@ namespace flx::game {
 	}
 
 	void EntityService::clearMostEntities(const GameCtx& ctx) {
-		auto es = flx::EnumerableView<>::from(ctx.reg.view<EntityComponent>()).to<flx::Vector>();
+		auto es = flx::IView<>::from(ctx.reg.view<EntityComponent>()).to<flx::Vector>();
 		for (auto& [e, ec] : es) {
 			if (ec.layer == ContactLayer::Enemy || ec.layer == ContactLayer::Collectible || ec.layer == ContactLayer::PlayerProjectile) {
 				killSilent(ctx, e);

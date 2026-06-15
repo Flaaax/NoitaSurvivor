@@ -17,7 +17,7 @@ namespace flx::ui {
 		NWidget::draw(canvas);
 	}
 
-	void NPanel::setLayout(n_unique<NLayout> layout) {
+	void NPanel::setLayout(Unique<NLayout> layout) {
 		clear();
 		this->addToTop(std::move(layout));
 		refresh();
