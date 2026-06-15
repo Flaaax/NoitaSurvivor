@@ -8,7 +8,7 @@
 	},
 	{
 		"file": "block",
-		"entry": "enemy",
+		//"entry": "enemy",
 		"scale": [
 			0.03125,
 			0.03125
@@ -29,15 +29,16 @@
 		]
 	},
 	{
-		"file": "explosion_entity",
-		"entry": "explosion",
+		// Entry: entity/explosion
+		// File: entity/explosion.png
+		"file": "explosion",
 		"scale": [
 			0.0625,
 			0.0625
 		]
 	},
 	{
-		"name": "enemy_birth",
+		"file": "enemy_birth",
 		"scale": [
 			0.03125,
 			0.03125

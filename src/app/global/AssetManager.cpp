@@ -21,7 +21,22 @@ namespace flx::app {
 	auto logger = Logger::makeAsync("AssetManager");
 
 	FLX_DEF_SINGLETON(AssetMgrImpl) {
-	private:
+	public:
+		FLX_CONSTEXPR auto resource_path = "./resources";
+		FLX_CONSTEXPR auto font_path = "./resources/fonts";
+		FLX_CONSTEXPR auto sound_path = "./resources/sounds";
+		FLX_CONSTEXPR auto default_font = "msyh";
+		FLX_CONSTEXPR auto spell_gfx_path = "./resources/gfx/spells";			  // 32*32
+		FLX_CONSTEXPR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
+		FLX_CONSTEXPR auto spell_gfx_default = "default";
+		FLX_CONSTEXPR Array<std::string_view, 2> texture_ext = {".png", ".jpg"};
+
+		StrMap<sf::Font> fonts;
+
+		StrMap<Vector<Unique<sf::SoundBuffer>>> soundBuffers;
+		Vector<Unique<sf::Sound>> sounds;
+
+		StrMap<TextureDef> textures;
 		// input: aaa_bbb_c_N.wav, output: aaa_bbb_c
 		static std::string remove_number_suffix(const std::string& filename) {
 			const std::regex pattern(R"((.*)_\d+\.wav$)");
@@ -34,33 +49,40 @@ namespace flx::app {
 		}
 
 		void loadTextures() {
-			auto onFile = [this](const fs::path& file, std::string_view entry) {
-				const auto name = file.stem().string();
-				auto& table = textureTables[entry];
-				if (table.contains(name)) {
-					logger.error_and_throw("duplicated texture name: {} with path {}", name, file.string());
+			auto onFile = [this](const fs::path& file) {
+				const auto ext = file.extension();
+				if (!texture_ext.view().contains(ext)) {
+					return;
 				}
-				auto& def = table[name];
+				// auto& def = table[name];
+
+				const auto entry = Loader::makeEntry(file, AssetMgr::texturePath);
+				if (textures.contains(entry)) {
+					logger.warn("Skipping duplicated texture entry: {} with path {}", entry, file.string());
+					return;
+				}
+
+				TextureDef def;
 				if (!def.texture.loadFromFile(file)) {
-					logger.error_and_throw("failed to load texture {}", name);
+					logger.warn("Failed to load texture {}", file.string());
+					return;
 				}
-				if (const auto data = DataMgr::getTextureData(entry, name)) {
+
+				if (const auto data = DataMgr::getTextureData(entry)) {
 					if (data->centerAligned) {
 						def.origin = static_cast<vec2>(def.texture.getSize()) / 2.f;
 					}
 					def.scale = data->scale;
 					def.texture.setSmooth(data->smooth);
 				} else {
-					def.texture.setSmooth(true);
+					def.texture.setSmooth(false);
 				}
+
+				textures[entry] = std::move(def);
 			};
 
 			Loader::traverseFolder(AssetMgr::texturePath, onFile);
-			u64 count = 0;
-			for (const auto& table : textureTables | std::views::values) {
-				count += table.size();
-			}
-			logger.info("Textures loaded: {}", count);
+			logger.info("Textures loaded: {}", textures.size());
 		}
 
 		void loadFonts() {
@@ -99,22 +121,6 @@ namespace flx::app {
 			logger.info("Sounds loaded: {}", soundBuffers.size());
 		}
 
-	public:
-		FLX_CONSTEXPR auto resource_path = "./resources";
-		FLX_CONSTEXPR auto font_path = "./resources/fonts";
-		FLX_CONSTEXPR auto sound_path = "./resources/sounds";
-		FLX_CONSTEXPR auto default_font = "msyh";
-		FLX_CONSTEXPR auto spell_gfx_path = "./resources/gfx/spells";			  // 32*32
-		FLX_CONSTEXPR auto spell_noita_gfx_path = "./resources/gfx/spells/noita"; // 16*16
-		FLX_CONSTEXPR auto spell_gfx_default = "default";
-
-		StrMap<sf::Font> fonts;
-
-		StrMap<Vector<Unique<sf::SoundBuffer>>> soundBuffers;
-		Vector<Unique<sf::Sound>> sounds;
-
-		StrMap<AssetMgr::AssetTable<TextureDef>> textureTables;
-
 		AssetMgrImpl() {
 			loadTextures();
 			loadFonts();
@@ -149,7 +155,7 @@ namespace flx::app {
 				index = flx::random.nextVal<int>(0, static_cast<int>(it->second.size()) - 1);
 			}
 
-			for (auto& sound : inst().sounds) {
+			for (const auto& sound : inst().sounds) {
 				if (sound->getStatus() != sf::Sound::Status::Playing) {
 					sound->setBuffer(*it->second[static_cast<size_t>(index)]);
 					sound->play();
@@ -166,16 +172,15 @@ namespace flx::app {
 		}
 	}
 
-	const sf::Texture& AssetMgr::getTexture(std::string_view entry, std::string_view name) {
-		return inst().textureTables.at(entry).at(name).texture;
+	const sf::Texture* AssetMgr::getTexture(std::string_view entry) {
+		if (const auto t = inst().textures.try_find(entry)) {
+			return &t->texture;
+		}
+		return {};
 	}
 
-	const TextureDef& AssetMgr::getTextureDef(std::string_view entry, std::string_view name) {
-		return inst().textureTables.at(entry).at(name);
-	}
-
-	const AssetTable<TextureDef>& AssetMgr::getTextureTable(std::string_view entry) {
-		return inst().textureTables.at(entry);
+	const TextureDef* AssetMgr::getTextureDef(std::string_view entry) {
+		return inst().textures.try_find(entry);
 	}
 
 	// const TextureDef& AssetMgr::getSpellTexture(std::string_view name) {

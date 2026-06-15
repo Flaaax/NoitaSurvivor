@@ -1,27 +1,19 @@
 #pragma once
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 
 namespace flx {
-	// struct NoDelete {};
-
-	struct StringViewHash : std::hash<std::string_view> {
-		using is_transparent = void;
-	};
-
 	template <typename T>
-	using BaseStrMap = std::unordered_map<
+	using BaseOStrMap = std::map<
 		std::string,
 		T,
-		StringViewHash,
-		std::equal_to<> // C++14+
-		>;
+		std::less<>>;
 
 	template <class T>
-	class StrMap : public BaseStrMap<T> {
-		using Base = BaseStrMap<T>;
+	class OStrMap : public BaseOStrMap<T> {
+		using Base = BaseOStrMap<T>;
 
 	public:
 		T& operator[](std::string_view key) {
@@ -54,10 +46,6 @@ namespace flx {
 				return *ret;
 			}
 			throw std::out_of_range(std::string(key));
-		}
-
-		const T& at(std::string_view key) const {
-			return const_cast<StrMap*>(this)->at(key);
 		}
 	};
 } // namespace flx

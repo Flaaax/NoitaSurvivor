@@ -19,15 +19,15 @@ namespace flx::meta {
 	void ComponentMeta::initCustomComponentInitializers() {
 		componentInitializerFactories["BodyComponent"] = [](const Json& j) -> ComponentInitializer {
 			BodyArg arg;
-			json::initField(arg.type, j, "type");
-			json::initField(arg.fixedRotation, j, "fixedRotation");
-			json::initField(arg.shape, j, "shape");
-			json::initField(arg.size, j, "size");
-			json::initField(arg.radius, j, "radius");
-			json::initField(arg.density, j, "density");
-			json::initField(arg.friction, j, "friction");
-			json::initField(arg.restitution, j, "restitution");
-			json::initField(arg.isSensor, j, "isSensor");
+			initField(arg.type, j, "type");
+			initField(arg.fixedRotation, j, "fixedRotation");
+			initField(arg.shape, j, "shape");
+			initField(arg.size, j, "size");
+			initField(arg.radius, j, "radius");
+			initField(arg.density, j, "density");
+			initField(arg.friction, j, "friction");
+			initField(arg.restitution, j, "restitution");
+			initField(arg.isSensor, j, "isSensor");
 			// Logger::info("Density = {}", arg.density);
 			return [=](const GameCtx& ctx, myecs::entity e) {
 				ctx.reg.emplace<BodyComponent>(e);
@@ -69,12 +69,12 @@ namespace flx::meta {
 					ctx.reg.emplace<SpriteComponent>(e, info, *sprite);
 				}
 			} ret;
-			json::initField(ret.name, j, "sprite");
-			json::initField(ret.info.followPosition, j, "followPosition");
-			json::initField(ret.info.followAngle, j, "followAngle");
-			json::initField(ret.info.dynamicScale, j, "dynamicScale");
-			json::initField(ret.info.rotationOffset, j, "rotationOffset");
-			json::initField(ret.info.positionOffset, j, "positionOffset");
+			initField(ret.name, j, "sprite");
+			initField(ret.info.followPosition, j, "followPosition");
+			initField(ret.info.followAngle, j, "followAngle");
+			initField(ret.info.dynamicScale, j, "dynamicScale");
+			initField(ret.info.rotationOffset, j, "rotationOffset");
+			initField(ret.info.positionOffset, j, "positionOffset");
 
 			return ret;
 		};
@@ -97,7 +97,7 @@ namespace flx::meta {
 
 		componentInitializerFactories["LifetimeComponent"] = [](const Json& j) -> ComponentInitializer {
 			float lifetime{};
-			json::initField(lifetime, j, "lifetime");
+			initField(lifetime, j, "lifetime");
 			return [=](const GameCtx& ctx, myecs::entity e) { ctx.reg.emplace<LifetimeComponent>(e).lifeTimer.set(lifetime).start(); };
 		};
 

@@ -12,10 +12,11 @@ namespace flx::app {
 
 	struct Loader {
 		using Path = std::filesystem::path;
-		using FileCallback = std::function<void(const Path& path, std::string_view entry)>;
+		using FileCallback = std::function<void(const Path& path)>;
 
 		FLX_CONSTEXPR std::string_view ignore_file = ".flx_ignore";
 
-		static void traverseFolder(const Path& folder, const FileCallback& onFile, std::string entry = {});
+		static void traverseFolder(const Path& folder, const FileCallback& onFile);
+		static std::string makeEntry(const Path& file, const Path& root);
 	};
 } // namespace flx::app

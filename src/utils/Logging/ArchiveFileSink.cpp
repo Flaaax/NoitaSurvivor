@@ -1,7 +1,6 @@
 #include "ArchiveFileSink.h"
-#include "src/utils/Container/Vector.h"
-#include "src/utils/Integers.h"
-#include "src/utils/Singleton.h"
+#include "../Container/Vector.h"
+#include "../Integers.h"
 
 #include <filesystem>
 #include <fstream>
@@ -39,8 +38,8 @@ namespace flx {
 				return buffer;
 			}
 
-			flx::Vector<std::filesystem::path> findArchives() const {
-				flx::Vector<std::filesystem::path> archives;
+			Vector<std::filesystem::path> findArchives() const {
+				Vector<std::filesystem::path> archives;
 
 				auto dir = this->dir;
 				const auto stem = filePath.stem().string();

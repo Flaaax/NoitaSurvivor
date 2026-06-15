@@ -15,7 +15,7 @@ namespace flx::meta {
 	struct ValueWrapper {
 		using Parser = FieldParser<T>;
 		static constexpr bool enabled = Parser::enabled;
-		using Storage = std::conditional_t<enabled, std::optional<T>, flx::json::EmptyField>;
+		using Storage = std::conditional_t<enabled, std::optional<T>, EmptyFieldType>;
 		Storage storage{};
 
 		const T& value() const {

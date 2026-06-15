@@ -24,9 +24,8 @@ namespace flx::app {
 		static const sf::Font& getDefaultFont();
 		static const sf::Font& getFont(std::string_view name);
 		static void playSound(std::string_view name, int index = -1);
-		static const sf::Texture& getTexture(std::string_view entry, std::string_view name);
-		static const TextureDef& getTextureDef(std::string_view entry, std::string_view name);
-		static const AssetTable<TextureDef>& getTextureTable(std::string_view entry);
+		static const sf::Texture* getTexture(std::string_view entry);
+		static const TextureDef* getTextureDef(std::string_view entry);
 		static void init(); // Optional
 	};
 } // namespace flx::app

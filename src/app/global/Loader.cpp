@@ -5,25 +5,24 @@
 namespace flx::app {
 	static Logger logger = Logger::makeAsync("Loader");
 
-	void Loader::traverseFolder(const Path& folder, const FileCallback& onFile, std::string entry) {
-		namespace fs = std::filesystem;
+	namespace fs = std::filesystem;
 
-		if (fs::exists(folder / ignore_file)) {
+	void Loader::traverseFolder(const Path& folder, const FileCallback& onFile) {
+		if (exists(folder / Loader::ignore_file))
 			return;
-		}
 
-		for (auto& entry1 : fs::directory_iterator(folder)) {
-			auto path = entry1.path();
-
-			if (entry1.is_regular_file()) {
-				onFile(path, entry);
-			} else if (entry1.is_directory()) {
-				if (!entry.empty()) {
-					entry += "/";
-				}
-				entry += path.string();
-				traverseFolder(path, onFile, entry | move);
+		for (auto& item : std::filesystem::directory_iterator(folder)) {
+			if (item.is_regular_file()) {
+				onFile(item.path());
+			} else if (item.is_directory()) {
+				traverseFolder(item.path(), onFile);
 			}
 		}
+	}
+
+	std::string Loader::makeEntry(const Path& file, const Path& root) {
+		auto relative = fs::proximate(file, root);
+		relative.replace_extension();
+		return relative.generic_string();
 	}
 } // namespace flx::app

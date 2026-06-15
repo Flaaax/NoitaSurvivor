@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../Integers.h"
+#include "../Pointer.h"
 #include "View.h"
-#include "src/utils/Integers.h"
-
 #include <algorithm>
 #include <concepts>
 #include <iterator>

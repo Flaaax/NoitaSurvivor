@@ -2,8 +2,14 @@
 #ifndef _MYLOGGER_H
 #define _MYLOGGER_H
 
-#include "src/utils/Pointer.h"
-#include "src/utils/Text/Format.h"
+#include "../Pointer.h"
+#include "../Text/Format.h"
+
+#include <spdlog/common.h>
+#include <spdlog/fmt/fmt.h>
+#include <string>
+#include <string_view>
+#include <utility>
 
 #ifdef _DEBUG
 inline constexpr bool n_debug_log = true;
@@ -18,11 +24,13 @@ namespace spdlog {
 namespace flx {
 	using logptr = Shared<spdlog::logger>;
 
-	struct Logger {
-		logptr raw{};
-
+	class Logger {
+	private:
 		void _impl_log(spdlog::level::level_enum level, std::string msg) const;
 		[[noreturn]] void _impl_error_and_throw(std::string msg);
+
+	public:
+		logptr raw{};
 
 		template <typename... Args>
 		void info(std::string_view fmt, Args&&... args) {

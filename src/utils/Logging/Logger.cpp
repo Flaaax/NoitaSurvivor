@@ -1,13 +1,16 @@
 #include "Logger.h"
 
 #include "ArchiveFileSink.h"
-#include "src/utils/Debug.h"
-#include "src/utils/Pointer.h"
+#include "../Debug.h"
 
 #include <chrono>
+#include <memory>
 #include <spdlog/async.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace flx {
 	static std::string defaultLogFilePath = "logs/flx.log";

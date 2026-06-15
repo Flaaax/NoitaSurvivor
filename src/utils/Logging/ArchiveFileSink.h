@@ -1,7 +1,8 @@
 #pragma once
-#include "src/utils/Pointer.h"
+#include "../Pointer.h"
 
 #include <memory>
+#include <mutex>
 #include <spdlog/sinks/sink.h>
 #include <string>
 
@@ -13,8 +14,8 @@ namespace flx {
 	class ArchiveFileSink : public spdlog::sinks::sink {
 	private:
 		Shared<internal::LogFileWriter> writer;
-		std::mutex mutex;
 		Unique<spdlog::formatter> formatter;
+		std::mutex mutex;
 
 	public:
 		explicit ArchiveFileSink();
