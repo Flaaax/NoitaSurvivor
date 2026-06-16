@@ -4,8 +4,7 @@ namespace flx::ui {
 	struct NInputState;
 	struct NWindowView;
 	class NWindow;
-
-}
+} // namespace flx::ui
 
 namespace flx::app {
 	class SceneManager;
@@ -15,5 +14,4 @@ namespace flx::app {
 		const ui::NInputState& input;
 		SceneManager& sceneManager;
 	};
-}
-
+} // namespace flx::app

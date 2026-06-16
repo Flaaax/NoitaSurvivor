@@ -1,6 +1,7 @@
 #include "Spell.h"
 #include "../../app/global/AssetManager.h"
 #include "../../app/global/LocManager.h"
+#include "src/app/global/Loader.h"
 #include "src/utils/Text/Format.h"
 
 #include <magic_enum/magic_enum.hpp>
@@ -12,12 +13,16 @@ namespace flx::game {
 	}
 
 	const sf::Texture& Spell::getTextureFromID(std::string_view ID_) {
-		return app::AssetMgr::getTexture("spell",ID_);
+		const auto entry = vformat("gfx/spell/{}.png", ID_);
+		if (const auto t = app::Loader::loadTexture(entry)) {
+			return *t;
+		}
+		return *app::Loader::loadTexture("gfx/spell/default.png", true);
 	}
 
 	Spell::Loc Spell::makeLocFromID(std::string_view ID_) {
 		const std::string ID = std::string(ID_);
-		constexpr std::string_view entry = "spell";
+		constexpr std::string_view entry = "spells";
 		return Loc{
 			.title = app::LocManager::inst().debugGetString(entry, ID + ".title"),
 			.description = app::LocManager::inst().debugGetString(entry, ID + ".description"),

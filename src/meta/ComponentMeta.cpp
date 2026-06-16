@@ -1,11 +1,14 @@
 #include "ComponentMeta.h"
 #include "CustomFieldParser.h"
 // #include "EnumMeta.h"
+#include "src/app/global/Loader.h"
 #include "src/app/global/SpriteManager.h"
+#include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Render/RenderComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
+#include "src/utils/File/JsonExt.h"
 
 namespace flx::meta {
 	using namespace game;
@@ -58,36 +61,45 @@ namespace flx::meta {
 
 		componentInitializerFactories["SpriteComponent"] = [](const Json& j) -> ComponentInitializer {
 			struct {
-				std::string name;
-				const sf::Sprite* sprite{};
-				SpriteRenderOptions info;
+				std::string entry;
+				const sf::Texture* texture{};
+				SpriteRenderOptions options;
 
 				void operator()(const GameCtx& ctx, myecs::entity e) {
-					if (!sprite) {
-						sprite = &app::SpriteMgr::getSprite(name);
+					if (!texture) {
+						texture = app::Loader::loadTexture(entry, true);
 					}
-					ctx.reg.emplace<SpriteComponent>(e, info, *sprite);
+					ctx.reg.emplace<SpriteComponent>(e, *texture, options);
 				}
 			} ret;
-			initField(ret.name, j, "sprite");
-			initField(ret.info.followPosition, j, "followPosition");
-			initField(ret.info.followAngle, j, "followAngle");
-			initField(ret.info.dynamicScale, j, "dynamicScale");
-			initField(ret.info.rotationOffset, j, "rotationOffset");
-			initField(ret.info.positionOffset, j, "positionOffset");
+
+			initField(ret.entry, j, "texture");
+			initField(ret.options.followPosition, j, "followPosition");
+			initField(ret.options.followRotation, j, "followRotation");
+			initField(ret.options.dynamicScale, j, "dynamicScale");
+			initField(ret.options.rotation, j, "rotation");
+			initField(ret.options.offset, j, "offset");
+			initField(ret.options.targetSize, j, "targetSize");
+
+			if (const auto scale = json::getIfVec2(j, "scale")) {
+				ret.options.scale = *scale;
+			} else if (const auto scale1 = j.getIf<float>("scale")) {
+				ret.options.scale = {*scale1, *scale1};
+			}
 
 			return ret;
 		};
 
 		{
 			flx::Vector<std::string_view> keys = {
-				"sprite",
+				"texture",
 				"followPosition",
-				"followAngle",
+				"followRotation",
 				"dynamicScale",
-				"rotationOffset",
-				"positionOffset",
-			};
+				"rotation",
+				"offset",
+				"targetSize",
+				"scale"};
 
 			componentMetaInfo["SpriteComponent"]
 				.fields = keys.view()
@@ -98,7 +110,9 @@ namespace flx::meta {
 		componentInitializerFactories["LifetimeComponent"] = [](const Json& j) -> ComponentInitializer {
 			float lifetime{};
 			initField(lifetime, j, "lifetime");
-			return [=](const GameCtx& ctx, myecs::entity e) { ctx.reg.emplace<LifetimeComponent>(e).lifeTimer.set(lifetime).start(); };
+			return [=](const GameCtx& ctx, myecs::entity e) {
+				ctx.reg.emplace<LifetimeComponent>(e).lifeTimer.set(lifetime).start();
+			};
 		};
 
 		{

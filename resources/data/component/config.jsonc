@@ -1,13 +1,13 @@
 [
 	{
-		"file": "player",
+		"file": "player.png",
 		"scale": [
 			0.03125,
 			0.03125
 		]
 	},
 	{
-		"file": "block",
+		"file": "block.png",
 		//"entry": "enemy",
 		"scale": [
 			0.03125,
@@ -15,30 +15,30 @@
 		]
 	},
 	{
-		"file": "bullet",
+		"file": "bullet.png",
 		"scale": [
 			0.03125,
 			0.03125
 		]
 	},
 	{
-		"file": "material",
+		"file": "material.png",
 		"scale": [
 			0.009375,
 			0.009375
 		]
 	},
 	{
-		// Entry: entity/explosion
-		// File: entity/explosion.png
-		"file": "explosion",
+		// Entry: entity/explosion.png
+		// File: gfx/entity/explosion.png
+		"file": "explosion.png",
 		"scale": [
 			0.0625,
 			0.0625
 		]
 	},
 	{
-		"file": "enemy_birth",
+		"file": "enemy_birth.png",
 		"scale": [
 			0.03125,
 			0.03125

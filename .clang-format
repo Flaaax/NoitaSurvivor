@@ -15,3 +15,10 @@ AllowShortFunctionsOnASingleLine: Empty
 NamespaceIndentation: All
 SeparateDefinitionBlocks: Always
 AllowShortBlocksOnASingleLine: Empty
+
+
+---
+Language: Json
+BasedOnStyle: LLVM
+IndentWidth: 2
+BreakArrays: false

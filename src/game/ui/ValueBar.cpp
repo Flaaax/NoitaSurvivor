@@ -42,9 +42,9 @@ namespace flx::ui {
 				const auto levelString = app::LocManager::inst().debugGetString("ui", "level");
 				format = levelString + "{}";
 			}
-			text.setString(flx::format(format, level));
+			text.setString(flx::vformat(format, level));
 		} else if (mode == 0) {
-			text.setString(flx::format("{} / {}", m_health, m_maxHealth));
+			text.setString(flx::vformat("{} / {}", m_health, m_maxHealth));
 		}
 	}
 

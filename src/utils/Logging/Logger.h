@@ -34,33 +34,33 @@ namespace flx {
 
 		template <typename... Args>
 		void info(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::info, flx::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::info, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void warn(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::warn, flx::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::warn, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void error(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::err, flx::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::err, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void trace(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::trace, flx::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::trace, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void critical(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::critical, flx::format(fmt, std::forward<Args>(args)...));
+			this->_impl_log(spdlog::level::critical, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void debug(std::string_view fmt, Args&&... args) {
 			if constexpr (n_debug_log) {
-				this->_impl_log(spdlog::level::debug, flx::format(fmt, std::forward<Args>(args)...));
+				this->_impl_log(spdlog::level::debug, flx::vformat(fmt, std::forward<Args>(args)...));
 			}
 		}
 

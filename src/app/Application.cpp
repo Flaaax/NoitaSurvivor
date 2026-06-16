@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "global/AssetManager.h"
 #include "global/DebugVariables.h"
+#include "global/Loader.h"
 #include "src/ui/global/NGlobal.h"
 #include "src/ui/render/NRenderBuffer.h"
 #include "src/ui/shapes/NRichTextShape.h"
@@ -14,6 +15,8 @@
 #include <numeric>
 
 namespace flx::app {
+	namespace fs = std::filesystem;
+
 	namespace {
 		bool drawStringCombo(const char* label, const flx::Vector<std::string_view>& items, int& current_index) {
 			if (items.empty())
@@ -58,8 +61,8 @@ namespace flx::app {
 		// Logger::info("Initializing scenes...");
 		// sceneManager.setCurrentScene("menu_scene");
 
-		auto& font = AssetMgr::getDefaultFont();
-		auto FPSText = ui::NRichTextShape(font);
+		const auto font = Loader::loadFont(defaultFont, true);
+		auto FPSText = ui::NRichTextShape(*font);
 		FPSText.setPosition({5, 5});
 		FPSText.setCharacterSize(22u);
 		CTimer fpsCalcTimer(1.f, [&] {
@@ -256,10 +259,10 @@ namespace flx::app {
 
 		imguiEnabled = info.imguiEnabled;
 		showDebugFPS = info.displayDebugFPS;
+		defaultFont = info.defaultFont;
+		const fs::path imguiFontPath = fs::path(Loader::resource_path) / info.defaultFont;
 
 		logger.info("App {} initializing...", info.name);
-
-		AssetMgr::init();
 
 		if (imguiEnabled) {
 			if (!ImGui::SFML::Init(window.getWindow(), false)) {
@@ -271,7 +274,7 @@ namespace flx::app {
 			ImGuiIO& io = ImGui::GetIO();
 
 			const auto font = io.Fonts->AddFontFromFileTTF(
-				info.imGuiFontPath.c_str(),
+				imguiFontPath.string().c_str(),
 				22.f,
 				nullptr,
 				io.Fonts->GetGlyphRangesChineseFull());
@@ -290,7 +293,7 @@ namespace flx::app {
 			logger.info("Skip ImGui initialization");
 		}
 
-		ui::NGlobal::setDefaultFont(AssetMgr::getDefaultFont());
+		ui::NGlobal::setDefaultFont(*Loader::loadFont(defaultFont, true));
 
 		logger.info("App initialization done.");
 	}

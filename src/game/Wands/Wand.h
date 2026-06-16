@@ -18,12 +18,11 @@ namespace flx::game {
 
 	class Wand {
 	protected:
-		sf::Texture texture;
 		sf::Sprite sprite;
 
 		void reload();
 
-		static std::string getWandTextureName(int number);
+		static std::string getWandTextureEntry(int number);
 
 	public:
 		static constexpr float MIN_CAST_DELAY = 1.f / 60.f;

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -169,15 +170,29 @@ namespace flx::json {
 			index += literal.size();
 		}
 
+		static bool isIdentifierStart(char ch) {
+			const auto c = static_cast<unsigned char>(ch);
+			return std::isalpha(c) || ch == '_' || ch == '$' || c >= 0x80;
+		}
+
+		static bool isIdentifierContinue(char ch) {
+			const auto c = static_cast<unsigned char>(ch);
+			return std::isalnum(c) || ch == '_' || ch == '$' || c >= 0x80;
+		}
+
 		std::string parseString() {
-			expect('"');
+			const char quote = peek();
+			if (quote != '"' && quote != '\'') {
+				failAndThrow("expected string");
+			}
+			advance();
 
 			std::string result;
 			while (!isEnd()) {
 				const char ch = peek();
 				advance();
 
-				if (ch == '"') {
+				if (ch == quote) {
 					return result;
 				}
 
@@ -198,6 +213,7 @@ namespace flx::json {
 				advance();
 				switch (escaped) {
 				case '"':
+				case '\'':
 				case '\\':
 				case '/':
 					result.push_back(escaped);
@@ -227,35 +243,88 @@ namespace flx::json {
 			failAndThrow("unterminated string");
 		}
 
+		std::string parseObjectKey() {
+			if (peek() == '"' || peek() == '\'') {
+				return parseString();
+			}
+
+			if (!isIdentifierStart(peek())) {
+				failAndThrow("expected object key");
+			}
+
+			const u64 begin = index;
+			advance();
+			while (isIdentifierContinue(peek())) {
+				advance();
+			}
+			return std::string(source.substr(begin, index - begin));
+		}
+
 		Json parseNumber() {
 			const u64 begin = index;
 			bool isNegative = false;
 			bool isFloat = false;
 
-			if (peek() == '-') {
-				isNegative = true;
+			if (peek() == '-' || peek() == '+') {
+				isNegative = peek() == '-';
 				advance();
 			}
 
-			if (peek() == '0') {
-				advance();
-			} else if (std::isdigit(static_cast<unsigned char>(peek()))) {
-				while (std::isdigit(static_cast<unsigned char>(peek()))) {
+			if (peek() == '0' && index + 1 < source.size() && (source[index + 1] == 'x' || source[index + 1] == 'X')) {
+				index += 2;
+				const u64 hexBegin = index;
+				while (std::isxdigit(static_cast<unsigned char>(peek()))) {
 					advance();
 				}
-			} else {
-				failAndThrow("invalid number");
+				if (index == hexBegin) {
+					failAndThrow("expected hexadecimal digit");
+				}
+
+				u64 value = 0;
+				const std::string_view number = source.substr(hexBegin, index - hexBegin);
+				const auto* const first = number.data();
+				const auto* const last = number.data() + number.size();
+				const auto [ptr, ec] = std::from_chars(first, last, value, 16);
+				if (ec != std::errc() || ptr != last) {
+					failAndThrow("invalid hexadecimal number");
+				}
+
+				if (isNegative) {
+					constexpr u64 minI64Magnitude = static_cast<u64>(std::numeric_limits<i64>::max()) + 1;
+					if (value > minI64Magnitude) {
+						failAndThrow("invalid hexadecimal number");
+					}
+					if (value == minI64Magnitude) {
+						return Json(Storage{std::numeric_limits<i64>::min()});
+					}
+					return Json(Storage{-static_cast<i64>(value)});
+				}
+
+				return Json(Storage{value});
+			}
+
+			bool hasDigits = false;
+			while (std::isdigit(static_cast<unsigned char>(peek()))) {
+				hasDigits = true;
+				advance();
 			}
 
 			if (peek() == '.') {
 				isFloat = true;
 				advance();
-				if (!std::isdigit(static_cast<unsigned char>(peek()))) {
-					failAndThrow("expected digit after decimal point");
-				}
+				bool hasFractionDigits = false;
 				while (std::isdigit(static_cast<unsigned char>(peek()))) {
+					hasFractionDigits = true;
 					advance();
 				}
+				if (!hasDigits) {
+					failAndThrow("expected digit before decimal point");
+				}
+				if (!hasFractionDigits) {
+					failAndThrow("expected digit after decimal point");
+				}
+			} else if (!hasDigits) {
+				failAndThrow("invalid number");
 			}
 
 			if (peek() == 'e' || peek() == 'E') {
@@ -277,9 +346,16 @@ namespace flx::json {
 			const auto* const last = number.data() + number.size();
 
 			if (isFloat) {
+				std::string_view floatNumber = number;
+				if (!floatNumber.empty() && floatNumber.front() == '+') {
+					floatNumber.remove_prefix(1);
+				}
+
 				double value = 0.0;
-				const auto [ptr, ec] = std::from_chars(first, last, value);
-				if (ec != std::errc() || ptr != last) {
+				const auto* const floatFirst = floatNumber.data();
+				const auto* const floatLast = floatNumber.data() + floatNumber.size();
+				const auto [ptr, ec] = std::from_chars(floatFirst, floatLast, value);
+				if (ec != std::errc() || ptr != floatLast) {
 					failAndThrow("invalid number");
 				}
 				return Json(Storage{value});
@@ -294,9 +370,16 @@ namespace flx::json {
 				return Json(Storage{value});
 			}
 
+			std::string_view unsignedNumber = number;
+			if (!unsignedNumber.empty() && unsignedNumber.front() == '+') {
+				unsignedNumber.remove_prefix(1);
+			}
+
 			u64 value = 0;
-			const auto [ptr, ec] = std::from_chars(first, last, value);
-			if (ec != std::errc() || ptr != last) {
+			const auto* const unsignedFirst = unsignedNumber.data();
+			const auto* const unsignedLast = unsignedNumber.data() + unsignedNumber.size();
+			const auto [ptr, ec] = std::from_chars(unsignedFirst, unsignedLast, value);
+			if (ec != std::errc() || ptr != unsignedLast) {
 				failAndThrow("invalid number");
 			}
 			return Json(Storage{value});
@@ -323,6 +406,10 @@ namespace flx::json {
 
 				expect(',');
 				skipWhitespaceAndComments();
+				if (peek() == ']') {
+					advance();
+					return Json(std::move(array));
+				}
 			}
 		}
 
@@ -337,10 +424,7 @@ namespace flx::json {
 			}
 
 			while (true) {
-				if (peek() != '"') {
-					failAndThrow("expected object key");
-				}
-				std::string key = parseString();
+				std::string key = parseObjectKey();
 
 				skipWhitespaceAndComments();
 				expect(':');
@@ -356,10 +440,14 @@ namespace flx::json {
 
 				expect(',');
 				skipWhitespaceAndComments();
+				if (peek() == '}') {
+					advance();
+					return Json(std::move(object));
+				}
 			}
 		}
 
-		[[nodiscard]] Json parseValue() {
+		 Json parseValue() {
 			skipWhitespaceAndComments();
 
 			switch (peek()) {
@@ -373,6 +461,7 @@ namespace flx::json {
 				parseLiteral("false");
 				return Json(false);
 			case '"':
+			case '\'':
 				return Json(std::make_unique<std::string>(parseString()));
 			case '[':
 				return parseArray();
@@ -381,7 +470,7 @@ namespace flx::json {
 			case '\0':
 				failAndThrow("expected value");
 			default:
-				if (peek() == '-' || std::isdigit(static_cast<unsigned char>(peek()))) {
+				if (peek() == '-' || peek() == '+' || peek() == '.' || std::isdigit(static_cast<unsigned char>(peek()))) {
 					return parseNumber();
 				}
 				failAndThrow("expected value");
@@ -394,7 +483,7 @@ namespace flx::json {
 			  path(std::move(path)) {
 		}
 
-		[[nodiscard]] Json parse() {
+		 Json parse() {
 			// Check utf8 BOM
 			if (startsWith("\xEF\xBB\xBF")) {
 				index += 3;
@@ -440,11 +529,6 @@ namespace flx::json {
 
 	const void* Json::get(Type type) const {
 		return const_cast<Json*>(this)->get(type);
-	}
-
-	template <class T>
-	const T& Json::getNoCheck() const {
-		return *static_cast<const T*>(get(getType()));
 	}
 
 	void Json::throwInternal(std::string_view msg) {

@@ -11,7 +11,6 @@ find_package(box2d 3.1.1 EXACT CONFIG REQUIRED)
 find_package(fmt 10.2.1 EXACT CONFIG REQUIRED)
 
 find_package(ImGui-SFML CONFIG REQUIRED)
-find_package(nlohmann_json 3.11.3 EXACT CONFIG REQUIRED)
 find_package(spdlog 1.13.0 EXACT CONFIG REQUIRED)
 
 find_package(magic_enum CONFIG REQUIRED)
@@ -99,7 +98,6 @@ target_link_libraries(NoitaSurvivor PRIVATE
         box2d::box2d
         fmt::fmt
         ImGui-SFML::ImGui-SFML
-        nlohmann_json::nlohmann_json
         spdlog::spdlog
         SFML::Audio
         SFML::Graphics

@@ -63,27 +63,35 @@ namespace flx::game {
 
 		// Logger::info("begin render");
 		for (const auto& [e, c] : ctx.reg.view<SpriteComponent>()) {
-			sf::Sprite copy = c.sprite;
+			sf::Sprite sprite{c.texture};
 			PhysicsService ps{};
 
 			const auto bc = ctx.reg.try_get<BodyComponent>(e);
 
+			const vec2 size = static_cast<vec2>(sprite.getTexture().getSize());
+			if (c.options.targetSize != vec2{}) {
+				sprite.setScale(c.options.targetSize / size);
+			}
+			if (c.options.centerAlinged) {
+				sprite.setOrigin(size / 2.f);
+			}
+			sprite.scale(c.options.scale);
 			if (c.options.followPosition) {
 				const vec2 pos = bc ? ps.getPosition(*bc) : c.position;
-				copy.setPosition(pos + c.options.positionOffset);
+				sprite.setPosition(pos + c.options.offset);
 			}
-			if (c.options.followAngle) {
-				copy.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.options.rotationOffset));
+			if (bc && c.options.followRotation) {
+				sprite.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.options.rotation));
 			}
-			if (c.options.dynamicScale) {
+			if (bc && c.options.dynamicScale) {
 				float r = ps.getRadius(*bc);
-				copy.scale({r, r});
+				sprite.scale({r, r});
 			}
 
 			if (const auto sec = ctx.reg.try_get<SpriteEffectComponent>(e)) {
 				auto& el = sec->effectList;
 				for (auto it = el.begin(); it != el.end();) {
-					(*it)->apply(copy);
+					(*it)->apply(sprite);
 
 					if ((*it)->isDone()) {
 						it = el.erase(it);
@@ -92,7 +100,7 @@ namespace flx::game {
 				}
 			}
 
-			painter.draw(copy);
+			painter.draw(sprite);
 		}
 
 		for (const auto& wand : ctx.gameState.wands) {

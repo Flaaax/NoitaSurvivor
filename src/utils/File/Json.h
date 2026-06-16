@@ -28,7 +28,7 @@ namespace flx::json {
 	concept JsonType = std::is_arithmetic_v<T> ||
 					   type::is_one_of_v<T, std::string, std::string_view, std::filesystem::path>;
 
-	// Unordered JSON, Support comments
+	// 读取支持常用 JSON5 语法，输出保持标准 JSON。
 	class Json {
 	private:
 		using JsonArray = Vector<Json>;
@@ -41,8 +41,12 @@ namespace flx::json {
 
 		void* get(Type type);
 		const void* get(Type type) const;
+
 		template <class T>
-		const T& getNoCheck() const;
+		const T& getNoCheck() const {
+			return *static_cast<const T*>(get(getType()));
+		}
+
 		void dumpTo(std::string& out, std::string_view indent, u64 depth) const;
 		[[noreturn]] static void throwInternal(std::string_view msg);
 
@@ -66,7 +70,6 @@ namespace flx::json {
 		bool isObject() const;
 		bool isString() const;
 
-		// These literally do the same thing
 		const Json& operator[](std::string_view key) const;
 		const Json& at(std::string_view key) const;
 
@@ -81,8 +84,8 @@ namespace flx::json {
 
 		u64 size() const;
 
-		std::string dump() const;				 // use tab
-		std::string dump(u64 indentWidth) const; // use space
+		std::string dump() const;
+		std::string dump(u64 indentWidth) const;
 
 		void dumpToFile(const std::filesystem::path& file) const;
 		void dumpToFile(const std::filesystem::path& file, u64 indentWidth) const;
@@ -164,9 +167,7 @@ namespace flx::json {
 			if (!isArray() || size() != N) {
 				return std::nullopt;
 			}
-
 			Array<T, N> ret{};
-
 			for (u64 i = 0; i < N; ++i) {
 				if (auto v = at(i).getIf<T>()) {
 					ret[i] = std::move(*v);
@@ -174,7 +175,6 @@ namespace flx::json {
 					return std::nullopt;
 				}
 			}
-
 			return ret;
 		}
 
@@ -213,8 +213,8 @@ namespace flx::json {
 		}
 	};
 
-} // namespace flx::json
+}
 
 namespace flx {
-	using json::Json;
+	using Json = json::Json;
 }

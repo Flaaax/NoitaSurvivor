@@ -32,7 +32,7 @@ namespace flx::ui {
 	}
 
 	void MaterialBar::updateText() {
-		text.setString(flx::format(format, material));
+		text.setString(flx::vformat(format, material));
 		auto layout = text.getLayoutSize();
 		frame = {{}, layout};
 		frame.setRightTop(rightTop);

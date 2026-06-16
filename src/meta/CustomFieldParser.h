@@ -36,7 +36,7 @@ namespace flx::meta {
 		static constexpr bool enabled = true;
 
 		static std::optional<vec2> parse(const Json& j) {
-			if (!j.isArray() || !j.size() == 2) {
+			if ((!j.isArray()) || j.size() != 2) {
 				return {};
 			}
 			const auto x = j.getIf<float>(0);

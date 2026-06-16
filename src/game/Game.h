@@ -6,6 +6,7 @@
 #include "render/GameRenderScales.h"
 #include "src/app/AppContext.h"
 #include "src/ecs/entity.h"
+#include "src/utils/Logging/Logger.h"
 
 namespace sf {
 	class Event;
@@ -31,7 +32,7 @@ namespace flx::game {
 		GameRenderScales scales;
 		flx::app::AppContext appCtx;
 
-		flx::Logger logger;
+		Logger logger;
 
 		Unique<GameCtx> ctxInternal;
 

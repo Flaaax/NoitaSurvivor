@@ -1,15 +1,21 @@
 // #include"src/game/Spells/Modifiers/AddExplosionSpell.h"
 #include "Wand.h"
 #include "../../app/global/AssetManager.h"
+#include "src/app/global/Loader.h"
 #include "src/game/Spells/Modifiers/BasicModifiers.h"
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
 #include "src/ui/render/NPainter.h"
+#include "src/utils/Logging/Logger.h"
 #include "src/utils/Random.h"
+#include "src/utils/Text/Format.h"
+
 #include <iomanip>
 #include <sstream>
 
 namespace flx::game {
+	constexpr std::string_view defaultTexture = "gfx/wands/noita/wand_0000.png";
+
 	void Wand::reload() {
 		drawPile.clear();
 		hand.clear();
@@ -27,23 +33,27 @@ namespace flx::game {
 		currentCastDelay = this->castDelay;
 	}
 
-	std::string Wand::getWandTextureName(int number) {
+	std::string Wand::getWandTextureEntry(int number) {
 		if (number < 0 || number > 1000) {
 			throw std::out_of_range("Number must be between 0 and 1000.");
 		}
 		std::ostringstream oss;
-		oss << "noita_wand_" << std::setfill('0')
+		oss << "wand_" << std::setfill('0')
 			<< std::setw(4) << number; //".png";
 		return oss.str();
 	}
 
-	Wand::Wand(float wand_scale) : sprite(app::AssetMgr::getWandTexture("noita_wand_0000")) {
+	Wand::Wand(float wand_scale) : sprite(*app::Loader::loadTexture(defaultTexture, true)) {
 		const int randomNumber = flx::random.nextVal(0, 1000);
-		const auto name = getWandTextureName(randomNumber);
-		texture = app::AssetMgr::getWandTexture(name);
+		const auto name = vformat("gfx/wands/noita/{}.png", getWandTextureEntry(randomNumber));
 
-		sprite.setTexture(texture);
-		const auto textureSize = texture.getSize();
+		if (const auto t = app::Loader::loadTexture(name)) {
+			sprite.setTexture(*t);
+		} else {
+			logger.warn("Tried to set wand texture {}, but failed, fallback to default.", name);
+		}
+
+		const auto textureSize = sprite.getTexture().getSize();
 		sprite.setOrigin({0, textureSize.y / 2.0f});
 		length = 0.9f * wand_scale * static_cast<float>(textureSize.x);
 		sprite.setScale({wand_scale, wand_scale});

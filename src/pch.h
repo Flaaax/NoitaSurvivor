@@ -26,6 +26,3 @@
 #include <SFML/System.hpp>
 
 #include <box2d/box2d.h>
-#include <fmt/format.h>
-#include <nlohmann/json.hpp>
-#include <spdlog/spdlog.h>

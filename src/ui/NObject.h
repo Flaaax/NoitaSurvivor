@@ -11,7 +11,7 @@
 #include "src/utils/ID.h"
 
 namespace flx {
-	struct Logger;
+	class Logger;
 }
 
 namespace flx::ui {
@@ -43,6 +43,8 @@ namespace flx::ui {
 		std::string_view typeID{};
 		NTooltipSpec tooltipSpec;
 		mutable bool visualDirty = true;
+
+		static flx::Logger& getLogger();
 
 	public:
 		bool enableDragging{};
@@ -175,8 +177,6 @@ namespace flx::ui {
 
 		// Called when window resizes or object added to widget
 		virtual void refresh() {}
-
-		static flx::Logger& getLogger();
 
 		const NRootWidget* getRoot() const;
 	};

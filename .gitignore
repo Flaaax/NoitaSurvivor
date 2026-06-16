@@ -1,8 +1,8 @@
-/resources/fonts/
-/resources/gfx/**/*.jpg
-/resources/gfx/**/*.png
+/resources/**
+!/resources/**/
+!/resources/**/*.json5
+!/resources/**/*.jsonc
 
-/resources/sounds/
 /bin/
 /CodeGenerator/bin/
 /CodeGenerator/obj/

@@ -11,11 +11,14 @@ namespace flx::game {
 	struct SpriteData;
 
 	struct SpriteRenderOptions {
-		bool followPosition{};
-		bool followAngle{};
+		bool followPosition = true;
+		bool followRotation = true;
 		bool dynamicScale{};
-		float rotationOffset{}; // As degree
-		vec2 positionOffset{};
+		float rotation{}; // As degree
+		vec2 offset{};
+		bool centerAlinged = true;
+		vec2 scale = {1.f, 1.f};
+		vec2 targetSize{}; // 可选，与scale同时生效
 	};
 
 	enum class RenderLayer {
@@ -28,7 +31,7 @@ namespace flx::game {
 	};
 
 	struct SpriteComponent {
-		const sf::Sprite& sprite;
+		const sf::Texture& texture;
 		const SpriteRenderOptions& options;
 		vec2 position{}; // used when entity does not have body
 	};

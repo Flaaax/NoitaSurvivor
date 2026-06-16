@@ -4,6 +4,7 @@
 #include "PhysicsComponents.h"
 #include "Render/RenderComponent.h"
 #include "Render/SpriteEffects.h"
+#include "src/app/global/Loader.h"
 #include "src/game/Game.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/meta/ComponentMeta.h"
@@ -14,13 +15,12 @@ namespace flx::game {
 	using namespace meta;
 
 	void validateComponentConfig(std::string_view entity, std::string_view name, const Json& j) {
-
 		const auto metaData = meta::ComponentMeta::getMetaInfo(name);
 		if (!metaData) {
 			logger.warn("Invalid component: {}\n\nfor entity{}", name, entity);
 			return;
 		}
-		for (auto& [fieldName, _] : j.items()) {
+		for (const auto& fieldName : j.items() | std::views::keys) {
 			if (!metaData->fields.iview().any([&](const auto& field) { return field.name == fieldName; })) {
 				logger.warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 			}
@@ -28,7 +28,7 @@ namespace flx::game {
 	}
 
 	void EntityFactory::initEntityComponents() {
-		for (auto& [entityType, j] : app::DataMgr::getEntityComponentData().items()) {
+		for (auto& [entityType, j] : app::Loader::loadJson("data/component/entity.json5", true)->items()) {
 			flx::Vector<ComponentInitializer> components;
 			for (auto& [componentName, jj] : j.items()) {
 				validateComponentConfig(entityType, componentName, jj);

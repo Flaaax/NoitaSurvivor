@@ -7,7 +7,6 @@
     "box2d",
     "fmt",
     "imgui-sfml",
-    "nlohmann-json",
     "sfml",
     "spdlog",
     "magic-enum"
@@ -29,10 +28,6 @@
       "name": "imgui-sfml",
       "version": "3.0",
       "port-version": 2
-    },
-    {
-      "name": "nlohmann-json",
-      "version": "3.11.3"
     },
     {
       "name": "spdlog",

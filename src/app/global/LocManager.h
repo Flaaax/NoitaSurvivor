@@ -7,12 +7,12 @@ namespace flx::app {
 	class LocTable {
 	public:
 		std::string name;
-		flx::StrMap<std::string> contents;
+		StrMap<std::string> contents;
 	};
 
 	FLX_DEF_SINGLETON(LocManager) {
 	private:
-		flx::StrMap<LocTable> tables;
+		StrMap<LocTable> tables;
 		std::string lang_ = "";
 		FLX_CONSTEXPR std::string_view defaultLang = "zhs";
 		FLX_CONSTEXPR std::string_view filePath = "./resources/localization/";

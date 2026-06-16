@@ -1,9 +1,11 @@
 #include "../global/LocManager.h"
 
 #include "../../utils/File/json.h"
+#include "src/utils/Logging/Logger.h"
 
 namespace flx::app {
 	namespace fs = std::filesystem;
+	static Logger logger = Logger::makeAsync("LocManager");
 
 	void LocManager::loadLanguage(std::string_view lang) {
 		if (lang == lang_) {
@@ -25,12 +27,12 @@ namespace flx::app {
 
 			auto category = entry.path().stem();
 
-			Json j = flx::json::loadFromFile(entry.path().string());
+			Json j = Json::loadFromFile(entry.path());
 			auto& table = tables[category.string()];
 			table.name = category.string();
 
 			for (auto& [key, val] : j.items()) {
-				if (auto str = flx::json::getIf<std::string>(val)) {
+				if (auto str = val.getIf<std::string>()) {
 					table.contents[key] = std::move(*str);
 				} else {
 					logger.warn("Invalid Loc: {}.{}", category.string(), key);

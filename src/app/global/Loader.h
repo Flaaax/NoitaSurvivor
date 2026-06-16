@@ -1,22 +1,26 @@
 #pragma once
-#include "src/utils/Container/Map.h"
 #include "src/utils/Macro.h"
 
 #include <filesystem>
-#include <functional>
 #include <string_view>
 
-namespace flx::app {
-	template <class T>
-	using AssetTable = StrMap<T>;
+namespace flx::json {
+	class Json;
+}
 
+namespace flx::app {
 	struct Loader {
-		using Path = std::filesystem::path;
-		using FileCallback = std::function<void(const Path& path)>;
+		// using FileCallback = std::function<void(const Path& path)>;
 
 		FLX_CONSTEXPR std::string_view ignore_file = ".flx_ignore";
+		FLX_CONSTEXPR std::string_view resource_path = "resources/";
+		FLX_CONSTEXPR std::string_view texture_path = "resources/gfx/";
+		FLX_CONSTEXPR std::string_view data_path = "resources/data/";
+		FLX_CONSTEXPR std::string_view texture_config = "config.jsonc";
+		FLX_CONSTEXPR bool defaultSmooth = false;
 
-		static void traverseFolder(const Path& folder, const FileCallback& onFile);
-		static std::string makeEntry(const Path& file, const Path& root);
+		static const json::Json* loadJson(std::string_view entry, bool required = false);
+		static const sf::Texture* loadTexture(std::string_view entry, bool required = false);
+		static const sf::Font* loadFont(std::string_view entry, bool required = false);
 	};
 } // namespace flx::app

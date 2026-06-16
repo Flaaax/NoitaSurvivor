@@ -13,11 +13,11 @@
 			"type": "Dynamic",
 			"fixedRotation": true,
 			"shape": "Circle",
-			"radius": 0.5
+			"radius": 0.5,
 		},
 		"SpriteComponent": {
-			"sprite": "player",
-			"followPosition": true
+			"texture": "gfx/entity/player.png",
+			"targetSize": [1.0, 1.0]
 		}
 	},
 	"bullet": {
@@ -28,10 +28,7 @@
 			"type": "Dynamic",
 			"fixedRotation": false,
 			"shape": "Box",
-			"size": [
-				0.4,
-				0.2
-			],
+			"size": [0.4, 0.2],
 			"density": 0.3,
 			"friction": 0.0,
 			"restitution": 1.0
@@ -42,9 +39,9 @@
 			"pierce": 1
 		},
 		"SpriteComponent": {
-			"sprite": "bullet",
-			"followPosition": true,
-			"followAngle": true
+			"texture": "gfx/entity/bullet.png",
+			"followRotation": true,
+			"targetSize": [1, 1]
 		}
 	},
 	"enemy": {
@@ -69,8 +66,8 @@
 			"restitution": 0.0
 		},
 		"SpriteComponent": {
-			"sprite": "enemy",
-			"followPosition": true
+			"texture": "gfx/entity/block.png",
+			"targetSize": [1.0, 1.0]
 		}
 	},
 	"border": {
@@ -83,9 +80,10 @@
 			"layer": "PlayerProjectile"
 		},
 		"SpriteComponent": {
-			"sprite": "explosion",
-			"followPosition": true,
-			"dynamicScale": true
+			"texture": "gfx/entity/explosion.png",
+			"dynamicScale": true,
+			scale: 0.0625,
+			//"targetSize": [1.0, 1.0]
 		}
 	},
 	"material": {
@@ -105,8 +103,9 @@
 			"radius": 0.2
 		},
 		"SpriteComponent": {
-			"sprite": "material",
-			"followPosition": true
+			"texture": "gfx/entity/material.png",
+			"followRotation": true,
+			targetSize: [0.25, 0.25]
 		}
 	},
 	"enemy_birth": {
@@ -114,8 +113,8 @@
 			"layer": "None"
 		},
 		"SpriteComponent": {
-			"sprite": "enemy_birth",
-			"followPosition": true
+			"texture": "gfx/entity/enemy_birth.png",
+			scale: 0.03125
 		}
 	}
 }

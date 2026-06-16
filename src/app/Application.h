@@ -11,7 +11,7 @@ namespace flx::app {
 		std::string name = "Unnamed App";
 		vec2u defaultWindowSize = {1920, 1080};
 		bool imguiEnabled{};
-		std::string imGuiFontPath = "./resources/fonts/msyh.ttc";
+		std::string defaultFont = "fonts/msyh.ttc";
 		bool displayDebugFPS{};
 	};
 
@@ -23,6 +23,7 @@ namespace flx::app {
 		bool imguiEnabled{};
 		bool showDebugFPS{};
 		bool runGuard{};
+		std::string defaultFont;
 
 		int loop();
 		AppContext getContext();
