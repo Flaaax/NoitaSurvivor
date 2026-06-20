@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/ui/widget/NWidget.h"
+#include "src/utils/Container/Viewable.h"
 
 namespace flx::game {
 	class Spell;
@@ -23,7 +24,7 @@ namespace flx::ui {
 		bool shouldHighlight{};
 		flx::Vector<Slot> slots;
 
-		using OnModify = std::function<void(flx::IValView<Shared<game::Spell>>)>;
+		using OnModify = std::function<void(viewable::Val<Shared<game::Spell>>)>;
 		OnModify onModify{};
 
 		void updateSlotsGeometry();
@@ -55,4 +56,4 @@ namespace flx::ui {
 
 		static void updateSpellPosition(NSpell* spell, const NSpellInventory* to);
 	};
-} // namespace ui
+} // namespace flx::ui

@@ -495,7 +495,7 @@ def generate_component_initializers(lines, structs):
 
 	for info in structs:
 		add(lines, 'componentInitializerFactories["' + unqualified_type_name(info.name) + '"] =')
-		add(lines, "[](const Json& jsonData) -> ComponentInitializer {")
+		add(lines, "[](const Fon& jsonData) -> ComponentInitializer {")
 
 		for field in info.fields:
 			add(lines, "using __" + field + "_t = ValueWrapper<decltype(" + info.name + "::" + field + ")>;")

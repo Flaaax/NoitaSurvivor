@@ -20,7 +20,7 @@ namespace flx::game {
 
 		BodyType type = Static;
 		bool fixedRotation = false;
-		ShapeType shape;
+		ShapeType shape = Box;
 
 		union {
 			vec2 size{};

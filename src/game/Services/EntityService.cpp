@@ -2,6 +2,7 @@
 
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/EntityFactory.h"
+#include "src/utils/Container/View.h"
 
 namespace flx::game {
 	void EntityService::damage(const GameCtx& ctx, myecs::entity source, myecs::entity target, int damage) {
@@ -42,11 +43,12 @@ namespace flx::game {
 	}
 
 	void EntityService::clearMostEntities(const GameCtx& ctx) {
-		auto es = flx::IView<>::from(ctx.reg.view<EntityComponent>()).to<flx::Vector>();
+		auto es = view::all(ctx.reg.view<EntityComponent>())
+					  .to<Vector>();
 		for (auto& [e, ec] : es) {
-			if (ec.layer == ContactLayer::Enemy || ec.layer == ContactLayer::Collectible || ec.layer == ContactLayer::PlayerProjectile) {
+			if (ec.layer == ContactLayer::Enemy || ec.layer == ContactLayer::Collectible || ec.layer == ContactLayer::PlayerProj) {
 				killSilent(ctx, e);
 			}
 		}
 	}
-}
+} // namespace flx::game

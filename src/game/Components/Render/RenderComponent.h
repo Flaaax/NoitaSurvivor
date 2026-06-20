@@ -10,6 +10,15 @@ namespace sf {
 namespace flx::game {
 	struct SpriteData;
 
+	enum class RenderLayer {
+		Bottom,
+		Enemy,
+		Player,
+		PlayerProj,
+		EnemyProj,
+		Top
+	};
+
 	struct SpriteRenderOptions {
 		bool followPosition = true;
 		bool followRotation = true;
@@ -19,15 +28,7 @@ namespace flx::game {
 		bool centerAlinged = true;
 		vec2 scale = {1.f, 1.f};
 		vec2 targetSize{}; // 可选，与scale同时生效
-	};
-
-	enum class RenderLayer {
-		Bottom,
-		Enemey,
-		Player,
-		PlayerProjectile,
-		EnemyProjectile,
-		Top
+		RenderLayer layer = RenderLayer::Bottom;
 	};
 
 	struct SpriteComponent {

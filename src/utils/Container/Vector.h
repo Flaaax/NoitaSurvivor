@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "IView.h"
+#include "ContainerFeature.h"
+
 #include <algorithm>
 #include <array>
 #include <stdexcept>
@@ -9,7 +10,7 @@ namespace flx {
 	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)
-	class Vector : public std::vector<T>, public ContainerFeature<Vector<T>, T, Viewable, Indexable, Fillable> {
+	class Vector : public std::vector<T>, public ContainerFeature<Vector<T>, T, Indexable, Fillable> {
 	public:
 		using Base = std::vector<T>;
 		using Base::Base;
@@ -66,13 +67,14 @@ namespace flx {
 		}
 	};
 
+	// Maybe move this to flx::trait
 	template <typename T>
 	concept IntegerOrEnum =
 		std::integral<T> ||
 		std::is_enum_v<T>;
 
 	template <class T, std::size_t N>
-	class Array : public std::array<T, N>, public ContainerFeature<Array<T, N>, T, Viewable, Indexable> {
+	class Array : public std::array<T, N>, public ContainerFeature<Array<T, N>, T, Indexable> {
 	public:
 		using Base = std::array<T, N>;
 

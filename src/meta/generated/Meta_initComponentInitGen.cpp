@@ -11,7 +11,7 @@
 namespace flx::meta {
 	void ComponentMeta::initGeneratedComponentInitializers() {
 		componentInitializerFactories["EntityComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			using __layer_t = ValueWrapper<decltype(::flx::game::EntityComponent::layer)>;
 			using __health_t = ValueWrapper<decltype(::flx::game::EntityComponent::health)>;
 			struct __flx_game_EntityComponentParser {
@@ -40,7 +40,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["ProjectileComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			using __damage_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::damage)>;
 			using __impulse_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::impulse)>;
 			using __maxSpeed_t = ValueWrapper<decltype(::flx::game::ProjectileComponent::maxSpeed)>;
@@ -99,7 +99,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["EnemyComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			struct __flx_game_EnemyComponentParser {
 			} p;
 			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
@@ -108,7 +108,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["DirectionComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			struct __flx_game_DirectionComponentParser {
 			} p;
 			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
@@ -117,7 +117,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["MultiContactComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			using __default_duration_t = ValueWrapper<decltype(::flx::game::MultiContactComponent::default_duration)>;
 			struct __flx_game_MultiContactComponentParser {
 				__default_duration_t default_duration{};
@@ -136,7 +136,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["ExplosionComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			struct __flx_game_ExplosionComponentParser {
 			} p;
 			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
@@ -145,7 +145,7 @@ namespace flx::meta {
 		};
 
 		componentInitializerFactories["SmoothMovementComponent"] =
-			[](const Json& jsonData) -> ComponentInitializer {
+			[](const Fon& jsonData) -> ComponentInitializer {
 			using __acc_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::acc)>;
 			using __dec_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::dec)>;
 			using __spd_t = ValueWrapper<decltype(::flx::game::SmoothMovementComponent::spd)>;

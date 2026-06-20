@@ -1,7 +1,8 @@
 #include "Logger.h"
 
+#include "../debug.h"
 #include "ArchiveFileSink.h"
-#include "../Debug.h"
+#include "src/utils/Exception/Exceptions.h"
 
 #include <chrono>
 #include <memory>
@@ -15,14 +16,18 @@
 namespace flx {
 	static std::string defaultLogFilePath = "logs/flx.log";
 
-	void Logger::_impl_log(spdlog::level::level_enum level, std::string msg) const {
+	void Logger::impl_log(spdlog::level::level_enum level, std::string msg) const {
 		raw->log(level, msg);
+		if (level == spdlog::level::err) {
+			raw->flush();
+		}
 	}
 
-	void Logger::_impl_error_and_throw(std::string msg) {
-		flx::Debug::printCallStack();
-		this->error(msg);
-		throw std::runtime_error(msg);
+	void Logger::impl_error_and_throw(std::string msg) {
+		flx::debug::printCallStack();
+		const std::string msg1 = vformat("{}\n{}", msg, debug::getCallStackStr());
+		this->error(msg1);
+		throw except::LogThrow(msg1);
 	}
 
 	Logger Logger::makeAsync(std::string_view logger_id, bool showID) {

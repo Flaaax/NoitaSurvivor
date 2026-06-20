@@ -1,5 +1,4 @@
 #pragma once
-#include "../utils/File/json.h"
 #include "src/ecs/entity.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Singleton.h"
@@ -7,6 +6,10 @@
 #include "src/utils/Container/Map.h"
 #include <functional>
 #include <string_view>
+
+namespace flx::fon {
+	class Fon;
+}
 
 namespace flx::game {
 	struct GameCtx;
@@ -29,7 +32,7 @@ namespace flx::meta {
 
 	public:
 		using ComponentInitializer = std::function<void(const game::GameCtx& ctx, myecs::entity e)>;
-		using ComponentInitializerFactory = ComponentInitializer (*)(const Json& componentJson);
+		using ComponentInitializerFactory = ComponentInitializer (*)(const fon::Fon& componentJson);
 
 	private:
 		flx::StrMap<ComponentInitializerFactory> componentInitializerFactories;

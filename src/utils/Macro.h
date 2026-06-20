@@ -9,6 +9,7 @@
 #define FLX_CONSTEXPR inline static constexpr
 
 #define FLX_NODISCARD [[nodiscard]]
+#define FLX_FORWARD std::forward<Args>(args)...
 
 #ifdef _DEBUG
 inline constexpr bool N_IS_DEBUG = true;

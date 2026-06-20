@@ -26,41 +26,41 @@ namespace flx {
 
 	class Logger {
 	private:
-		void _impl_log(spdlog::level::level_enum level, std::string msg) const;
-		[[noreturn]] void _impl_error_and_throw(std::string msg);
+		void impl_log(spdlog::level::level_enum level, std::string msg) const;
+		[[noreturn]] void impl_error_and_throw(std::string msg);
 
 	public:
 		logptr raw{};
 
 		template <typename... Args>
 		void info(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::info, flx::vformat(fmt, std::forward<Args>(args)...));
+			this->impl_log(spdlog::level::info, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void warn(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::warn, flx::vformat(fmt, std::forward<Args>(args)...));
+			this->impl_log(spdlog::level::warn, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void error(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::err, flx::vformat(fmt, std::forward<Args>(args)...));
+			this->impl_log(spdlog::level::err, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void trace(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::trace, flx::vformat(fmt, std::forward<Args>(args)...));
+			this->impl_log(spdlog::level::trace, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void critical(std::string_view fmt, Args&&... args) {
-			this->_impl_log(spdlog::level::critical, flx::vformat(fmt, std::forward<Args>(args)...));
+			this->impl_log(spdlog::level::critical, flx::vformat(fmt, std::forward<Args>(args)...));
 		}
 
 		template <typename... Args>
 		void debug(std::string_view fmt, Args&&... args) {
 			if constexpr (n_debug_log) {
-				this->_impl_log(spdlog::level::debug, flx::vformat(fmt, std::forward<Args>(args)...));
+				this->impl_log(spdlog::level::debug, flx::vformat(fmt, std::forward<Args>(args)...));
 			}
 		}
 
@@ -68,7 +68,7 @@ namespace flx {
 		template <typename... Args>
 		[[noreturn]] void error_and_throw(std::string_view fmt, Args&&... args) {
 			auto err_string = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
-			this->_impl_error_and_throw(std::move(err_string));
+			this->impl_error_and_throw(std::move(err_string));
 		}
 
 		static Logger makeAsync(std::string_view logger_id, bool showID = true);
@@ -77,7 +77,7 @@ namespace flx {
 		static void setPattern(logptr logger, bool showID);
 	};
 
-	inline Logger logger = Logger::makeAsync("Default");
+	inline Logger logger = Logger::makeAsync("flx_logger_global", false);
 } // namespace flx
 
 // struct LoggerOld {

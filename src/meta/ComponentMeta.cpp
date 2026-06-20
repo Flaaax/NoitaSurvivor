@@ -8,7 +8,9 @@
 #include "src/game/Components/Render/RenderComponent.h"
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
-#include "src/utils/File/JsonExt.h"
+#include "src/utils/Container/View.h"
+#include "src/utils/Fon/Fon.h"
+#include "src/utils/Fon/FonExt.h"
 
 namespace flx::meta {
 	using namespace game;
@@ -20,11 +22,11 @@ namespace flx::meta {
 	}
 
 	void ComponentMeta::initCustomComponentInitializers() {
-		componentInitializerFactories["BodyComponent"] = [](const Json& j) -> ComponentInitializer {
+		componentInitializerFactories["BodyComponent"] = [](const Fon& j) -> ComponentInitializer {
 			BodyArg arg;
 			initField(arg.type, j, "type");
 			initField(arg.fixedRotation, j, "fixedRotation");
-			initField(arg.shape, j, "shape");
+			initField(arg.shape, j, "shape", true);
 			initField(arg.size, j, "size");
 			initField(arg.radius, j, "radius");
 			initField(arg.density, j, "density");
@@ -41,7 +43,7 @@ namespace flx::meta {
 		};
 
 		{
-			flx::Vector<std::string_view> keys = {
+			Vector<std::string_view> keys = {
 				"type",
 				"fixedRotation",
 				"shape",
@@ -54,12 +56,12 @@ namespace flx::meta {
 			};
 
 			componentMetaInfo["BodyComponent"]
-				.fields = keys.view()
+				.fields = view::all(keys)
 							  .select([](std::string_view key) { return Field{key}; })
 							  .to<Vector>();
 		}
 
-		componentInitializerFactories["SpriteComponent"] = [](const Json& j) -> ComponentInitializer {
+		componentInitializerFactories["SpriteComponent"] = [](const Fon& j) -> ComponentInitializer {
 			struct {
 				std::string entry;
 				const sf::Texture* texture{};
@@ -80,8 +82,9 @@ namespace flx::meta {
 			initField(ret.options.rotation, j, "rotation");
 			initField(ret.options.offset, j, "offset");
 			initField(ret.options.targetSize, j, "targetSize");
+			initField(ret.options.layer, j, "layer");
 
-			if (const auto scale = json::getIfVec2(j, "scale")) {
+			if (const auto scale = fon::getIfVec2(j, "scale")) {
 				ret.options.scale = *scale;
 			} else if (const auto scale1 = j.getIf<float>("scale")) {
 				ret.options.scale = {*scale1, *scale1};
@@ -99,15 +102,17 @@ namespace flx::meta {
 				"rotation",
 				"offset",
 				"targetSize",
-				"scale"};
+				"scale",
+				"layer",
+			};
 
 			componentMetaInfo["SpriteComponent"]
-				.fields = keys.view()
+				.fields = view::all(keys)
 							  .select([](std::string_view key) { return Field{key}; })
 							  .to<Vector>();
 		}
 
-		componentInitializerFactories["LifetimeComponent"] = [](const Json& j) -> ComponentInitializer {
+		componentInitializerFactories["LifetimeComponent"] = [](const Fon& j) -> ComponentInitializer {
 			float lifetime{};
 			initField(lifetime, j, "lifetime");
 			return [=](const GameCtx& ctx, myecs::entity e) {
@@ -121,7 +126,7 @@ namespace flx::meta {
 			};
 
 			componentMetaInfo["LifetimeComponent"]
-				.fields = keys.view()
+				.fields = view::all(keys)
 							  .select([](std::string_view key) { return Field{key}; })
 							  .to<Vector>();
 		}

@@ -20,6 +20,7 @@
 namespace flx::game {
 	Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
 		logger = flx::Logger::makeAsync("Game", true);
+		//logger.error_and_throw("TEST ERROR");
 	}
 
 	Game::~Game() {

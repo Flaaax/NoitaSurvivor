@@ -11,9 +11,9 @@ namespace flx::game {
 		All,
 		Player,
 		Enemy,
-		Projectile, // hits player and enemy
-		PlayerProjectile,
-		EnemyProjectile,
+		Proj, // hits player and enemy
+		PlayerProj,
+		EnemyProj,
 		Wall,
 		Collectible,
 		Collector,
@@ -124,10 +124,10 @@ namespace flx::game {
 
 			std::initializer_list<std::pair<ContactLayer, ContactLayer>> contacts = {
 				{ContactLayer::Player, ContactLayer::Enemy},
-				{ContactLayer::Player, ContactLayer::Projectile},
-				{ContactLayer::Player, ContactLayer::EnemyProjectile},
-				{ContactLayer::Enemy, ContactLayer::Projectile},
-				{ContactLayer::Enemy, ContactLayer::PlayerProjectile},
+				{ContactLayer::Player, ContactLayer::Proj},
+				{ContactLayer::Player, ContactLayer::EnemyProj},
+				{ContactLayer::Enemy, ContactLayer::Proj},
+				{ContactLayer::Enemy, ContactLayer::PlayerProj},
 				{ContactLayer::Enemy, ContactLayer::Enemy},
 			};
 

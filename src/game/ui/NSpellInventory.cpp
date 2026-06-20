@@ -59,8 +59,7 @@ namespace flx::ui {
 	void NSpellInventory::invokeOnModify() {
 		if (!onModify)
 			return;
-		const auto spells = slots
-								.iview()
+		const auto spells = viewable::all(slots)
 								.select([](const Slot& slot) -> Shared<game::Spell> {
 									if (slot.spell)
 										return slot.spell->spell;

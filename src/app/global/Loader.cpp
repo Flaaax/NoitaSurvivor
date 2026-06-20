@@ -1,7 +1,7 @@
 #include "Loader.h"
 
 #include "src/utils/Container/Map.h"
-#include "src/utils/File/Json.h"
+#include "src/utils/Fon/Fon.h"
 #include "src/utils/Logging/Logger.h"
 #include "src/utils/Singleton.h"
 
@@ -37,21 +37,21 @@ namespace flx::app {
 			FLX_STATIC_VAR auto resource_path = fs::path(Loader::resource_path);
 
 			StrMap<std::string> failure;
-			StrMap<Json> jsonData;
+			StrMap<Fon> fonData;
 			StrMap<sf::Texture> textures;
 			StrMap<sf::Font> fonts;
 
 			template <class... Args>
 			void fail(bool warn, std::string_view entry, std::string_view fmt, Args&&... args) {
-				auto s = ::flx::vformat("msg: {}\nentry: {}", vformat(fmt, std::forward<Args>(args)...), entry);
+				auto s = ::flx::vformat("msg: {}; entry: {}", vformat(fmt, std::forward<Args>(args)...), entry);
 				if (warn) {
 					logger.warn(s);
 				}
 				failure.emplace(entry, std::move(s));
 			}
 
-			const Json* loadJson(std::string_view entry, bool required) {
-				if (const auto j = jsonData.try_find(entry)) {
+			const Fon* loadFon(std::string_view entry, bool required) {
+				if (const auto j = fonData.try_find(entry)) {
 					return j;
 				}
 				if (failure.contains(entry)) {
@@ -67,10 +67,10 @@ namespace flx::app {
 				}
 
 				try {
-					const auto j = jsonData.emplace(entry, Json::loadFromFile(file));
+					const auto j = fonData.emplace(entry, Fon::loadFromFile(file));
 					return &j.first->second;
 				} catch (const std::exception& e) {
-					fail(true, entry, "Failed to load json: ", e.what());
+					fail(true, entry, "Failed to load FON: ", e.what());
 					return {};
 				}
 			}
@@ -86,9 +86,14 @@ namespace flx::app {
 
 				const fs::path file = resource_path / entry;
 
+				if (!fs::exists(file)) {
+					fail(true, entry, "File {} does not exist", file.generic_string());
+					return {};
+				}
+
 				sf::Texture texture;
 				if (!texture.loadFromFile(file)) {
-					fail(true, entry, "Failed to load texture");
+					fail(true, entry, "Failed to load texture", file.generic_string());
 					return {};
 				}
 
@@ -122,12 +127,12 @@ namespace flx::app {
 		return Impl::inst();
 	}
 
-	const json::Json* Loader::loadJson(std::string_view entry, bool required) {
-		if (const auto ret = inst().loadJson(entry, true)) {
+	const fon::Fon* Loader::loadFonFile(std::string_view entry, bool required) {
+		if (const auto ret = inst().loadFon(entry, true)) {
 			return ret;
 		}
 		if (required) {
-			logger.error_and_throw("Failed to load json: {}", entry);
+			logger.error_and_throw("Failed to load FON: {}", entry);
 		}
 		return {};
 	}

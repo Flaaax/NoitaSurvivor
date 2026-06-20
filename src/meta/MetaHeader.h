@@ -6,7 +6,7 @@
 #include "src/meta/CustomFieldParser.h"
 #include "src/utils/TypeName.h"
 
-using namespace flx::json;
+using namespace flx::fon;
 using namespace flx::game;
 using namespace flx::meta;
 

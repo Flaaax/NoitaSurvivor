@@ -5,7 +5,6 @@
 
 #include <cctype>
 #include <charconv>
-#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <limits>
@@ -125,7 +124,7 @@ namespace flx::json {
 								   message);
 		}
 
-		void skipWhitespaceAndComments() {
+		void skipSpace() {
 			while (!isEnd()) {
 				if (std::isspace(static_cast<unsigned char>(peek()))) {
 					advance();
@@ -180,7 +179,7 @@ namespace flx::json {
 			return std::isalnum(c) || ch == '_' || ch == '$' || c >= 0x80;
 		}
 
-		std::string parseString() {
+		std::string parseQuotedString() {
 			const char quote = peek();
 			if (quote != '"' && quote != '\'') {
 				failAndThrow("expected string");
@@ -245,7 +244,7 @@ namespace flx::json {
 
 		std::string parseObjectKey() {
 			if (peek() == '"' || peek() == '\'') {
-				return parseString();
+				return parseQuotedString();
 			}
 
 			if (!isIdentifierStart(peek())) {
@@ -387,7 +386,7 @@ namespace flx::json {
 
 		Json parseArray() {
 			expect('[');
-			skipWhitespaceAndComments();
+			skipSpace();
 
 			auto array = std::make_unique<JsonArray>();
 			if (peek() == ']') {
@@ -397,7 +396,7 @@ namespace flx::json {
 
 			while (true) {
 				array->emplace_back(parseValue());
-				skipWhitespaceAndComments();
+				skipSpace();
 
 				if (peek() == ']') {
 					advance();
@@ -405,7 +404,7 @@ namespace flx::json {
 				}
 
 				expect(',');
-				skipWhitespaceAndComments();
+				skipSpace();
 				if (peek() == ']') {
 					advance();
 					return Json(std::move(array));
@@ -415,7 +414,7 @@ namespace flx::json {
 
 		Json parseObject() {
 			expect('{');
-			skipWhitespaceAndComments();
+			skipSpace();
 
 			auto object = std::make_unique<JsonObject>();
 			if (peek() == '}') {
@@ -426,12 +425,12 @@ namespace flx::json {
 			while (true) {
 				std::string key = parseObjectKey();
 
-				skipWhitespaceAndComments();
+				skipSpace();
 				expect(':');
-				skipWhitespaceAndComments();
+				skipSpace();
 
-				object->insert_or_assign(std::move(key), parseValue());
-				skipWhitespaceAndComments();
+				object->emplace(std::move(key), parseValue());
+				skipSpace();
 
 				if (peek() == '}') {
 					advance();
@@ -439,7 +438,7 @@ namespace flx::json {
 				}
 
 				expect(',');
-				skipWhitespaceAndComments();
+				skipSpace();
 				if (peek() == '}') {
 					advance();
 					return Json(std::move(object));
@@ -448,7 +447,7 @@ namespace flx::json {
 		}
 
 		 Json parseValue() {
-			skipWhitespaceAndComments();
+			skipSpace();
 
 			switch (peek()) {
 			case 'n':
@@ -462,7 +461,7 @@ namespace flx::json {
 				return Json(false);
 			case '"':
 			case '\'':
-				return Json(std::make_unique<std::string>(parseString()));
+				return Json(std::make_unique<std::string>(parseQuotedString()));
 			case '[':
 				return parseArray();
 			case '{':
@@ -490,7 +489,7 @@ namespace flx::json {
 			}
 
 			Json result = parseValue();
-			skipWhitespaceAndComments();
+			skipSpace();
 			if (!isEnd()) {
 				failAndThrow("unexpected trailing character");
 			}

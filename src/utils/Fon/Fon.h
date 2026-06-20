@@ -1,5 +1,4 @@
 #pragma once
-#include "../Container/Map.h"
 #include "../Container/Vector.h"
 #include "../Container/VectorMap.h"
 #include "../Integers.h"
@@ -12,14 +11,15 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <variant>
 
-namespace flx::json {
+namespace flx::fon {
 	enum class Type {
 		Null,
 		Bool,
-		Int,
 		UInt,
+		Int,
 		Float,
 		String,
 		Array,
@@ -27,19 +27,29 @@ namespace flx::json {
 	};
 
 	template <class T>
-	concept JsonType = std::is_arithmetic_v<T> ||
+	concept FonType = std::is_arithmetic_v<T> ||
 					   type::is_one_of_v<T, std::string, std::string_view, std::filesystem::path>;
 
-	// 读取支持常用 JSON5 语法，输出保持标准 JSON。
-	class Json {
+	// 保持键有序
+	class Fon {
 	private:
-		using JsonArray = Vector<Json>;
-		using JsonObject = VectorMap<Json>;
-		using Storage = std::variant<std::monostate, bool, i64, u64, double, Unique<std::string>, Unique<JsonArray>, Unique<JsonObject>>;
-		using const_iterator = JsonArray::const_iterator;
+		using FonArray = Vector<Fon>;
+		using FonObject = VectorMap<Fon>;
+		using Storage = std::variant<
+			std::monostate,
+			bool,
+			u64,
+			i64,
+			double,
+			Unique<std::string>,
+			Unique<FonArray>,
+			Unique<FonObject>>;
+		using const_iterator = FonArray::const_iterator;
 		class Parser;
 
 		Storage storage{};
+
+		explicit Fon(Storage&& storage) noexcept;
 
 		void* get(Type type);
 		const void* get(Type type) const;
@@ -53,11 +63,10 @@ namespace flx::json {
 		[[noreturn]] static void throwInternal(std::string_view msg);
 
 	public:
-		explicit Json() = default;
-		explicit Json(Storage&& storage) noexcept;
+		explicit Fon() = default;
 
-		static Json loadFromFile(std::filesystem::path path);
-		static Json loadFromString(std::string content);
+		static Fon loadFromFile(std::filesystem::path path);
+		static Fon loadFromString(std::string content);
 
 		Type getType() const;
 		bool is(Type type) const;
@@ -72,23 +81,21 @@ namespace flx::json {
 		bool isObject() const;
 		bool isString() const;
 
-		const Json& operator[](std::string_view key) const;
-		const Json& at(std::string_view key) const;
-
+		const Fon& operator[](std::string_view key) const;
+		const Fon& at(std::string_view key) const;
 		bool contains(std::string_view key) const;
-		const JsonObject& items() const;
+		const FonObject& items() const;
 
 		const_iterator begin() const;
 		const_iterator end() const;
-		const Json& operator[](u64 i) const;
-		const Json& at(u64 i) const;
+		const Fon& operator[](u64 i) const;
+		const Fon& at(u64 i) const;
 		bool contains(u64 i) const;
 
 		u64 size() const;
 
 		std::string dump() const;
 		std::string dump(u64 indentWidth) const;
-
 		void dumpToFile(const std::filesystem::path& file) const;
 		void dumpToFile(const std::filesystem::path& file, u64 indentWidth) const;
 
@@ -185,13 +192,13 @@ namespace flx::json {
 			if (auto t = getIf<T>()) {
 				return std::move(*t);
 			}
-			throwInternal("Bad json cast");
+			throwInternal("Bad fson cast");
 		}
 
 		template <class T>
 		T get(std::string_view key) const {
 			if (!contains(key)) {
-				throwInternal("Bad json cast");
+				throwInternal("Bad fson cast");
 			}
 			return at(key).get<T>();
 		}
@@ -214,9 +221,8 @@ namespace flx::json {
 			return std::move(defaultVal);
 		}
 	};
-
-}
+} // namespace flx::gon
 
 namespace flx {
-	using Json = json::Json;
+	using Fon = fon::Fon;
 }

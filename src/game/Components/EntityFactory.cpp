@@ -8,27 +8,29 @@
 #include "src/game/Game.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/meta/ComponentMeta.h"
+#include "src/utils/Container/View.h"
+#include "src/utils/Fon/Fon.h"
 #include "src/utils/Math.h"
 
 namespace flx::game {
 	using namespace myecs;
 	using namespace meta;
 
-	void validateComponentConfig(std::string_view entity, std::string_view name, const Json& j) {
+	void validateComponentConfig(std::string_view entity, std::string_view name, const Fon& j) {
 		const auto metaData = meta::ComponentMeta::getMetaInfo(name);
 		if (!metaData) {
 			logger.warn("Invalid component: {}\n\nfor entity{}", name, entity);
 			return;
 		}
 		for (const auto& fieldName : j.items() | std::views::keys) {
-			if (!metaData->fields.iview().any([&](const auto& field) { return field.name == fieldName; })) {
+			if (!view::all(metaData->fields).any([&](const auto& field) { return field.name == fieldName; })) {
 				logger.warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 			}
 		}
 	}
 
 	void EntityFactory::initEntityComponents() {
-		for (auto& [entityType, j] : app::Loader::loadJson("data/component/entity.json5", true)->items()) {
+		for (auto& [entityType, j] : app::Loader::loadFonFile("data/component/entity.fon", true)->items()) {
 			flx::Vector<ComponentInitializer> components;
 			for (auto& [componentName, jj] : j.items()) {
 				validateComponentConfig(entityType, componentName, jj);

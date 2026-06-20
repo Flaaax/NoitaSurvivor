@@ -2,29 +2,29 @@
 #include <algorithm>
 #include <ranges>
 
-namespace flx {
+namespace flx::view {
 	template <std::ranges::view V>
-	class BasicView;
+	class View;
 
 	namespace internal {
 		template <std::ranges::range Range>
 		[[nodiscard]]
 		auto makeView(Range&& range) {
-			return BasicView<std::views::all_t<Range>>(
+			return View<std::views::all_t<Range>>(
 				std::views::all(std::forward<Range>(range)));
 		}
 	} // namespace internal
 
-	struct View {
-		template <std::ranges::range Range>
-		[[nodiscard]]
-		static auto from(Range&& range) {
-			return internal::makeView(std::forward<Range>(range));
-		}
-	};
+	// struct View {
+	// 	template <std::ranges::range Range>
+	// 	[[nodiscard]]
+	// 	static auto from(Range&& range) {
+	// 		return internal::makeView(std::forward<Range>(range));
+	// 	}
+	// };
 
 	template <std::ranges::view V>
-	class BasicView {
+	class View {
 	private:
 		V self;
 
@@ -34,11 +34,11 @@ namespace flx {
 		using reference = std::ranges::range_reference_t<V>;
 		using value_type = std::ranges::range_value_t<V>;
 
-		BasicView()
+		View()
 			requires std::default_initializable<V>
 		= default;
 
-		explicit BasicView(V self)
+		explicit View(V self)
 			: self(std::move(self)) {
 		}
 
@@ -129,5 +129,11 @@ namespace flx {
 	};
 
 	template <std::ranges::range Range>
-	BasicView(Range&&) -> BasicView<std::views::all_t<Range>>;
-} // namespace flx
+	View(Range&&) -> View<std::views::all_t<Range>>;
+
+	template <std::ranges::range Range>
+	[[nodiscard]]
+	auto all(Range&& range) {
+		return internal::makeView(std::forward<Range>(range));
+	}
+} // namespace flx::view
