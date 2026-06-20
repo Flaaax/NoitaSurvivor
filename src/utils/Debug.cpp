@@ -1,5 +1,5 @@
 // ReSharper disable All
-#include "debug.h"
+#include "Debug.h"
 
 // clang-format off
 #include <windows.h>

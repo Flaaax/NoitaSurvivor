@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-#include "../debug.h"
+#include "../Debug.h"
 #include "ArchiveFileSink.h"
 #include "src/utils/Exception/Exceptions.h"
 

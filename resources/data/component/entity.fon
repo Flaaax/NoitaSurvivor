@@ -1,0 +1,127 @@
+player {
+	EntityComponent {
+		layer Player
+	}
+	DirectionComponent {
+	}
+	SmoothMovementComponent {
+		acc 32
+		dec 40
+		spd 15
+	}
+	BodyComponent {
+		type Dynamic
+		fixedRotation true
+		shape Circle
+		radius 0.5
+	}
+	SpriteComponent {
+		texture gfx/entity/player.png
+		targetSize [1.0 1.0]
+		layer Player
+	}
+}
+bullet {
+	EntityComponent {
+		layer PlayerProj
+	}
+	BodyComponent {
+		type Dynamic
+		fixedRotation false
+		shape Box
+		size [0.4 0.2]
+		density 0.3
+		friction 0.0
+		restitution 1.0
+	}
+	ProjectileComponent {
+		impulse 10
+		damage 6
+		pierce 1
+	}
+	SpriteComponent {
+		texture gfx/entity/bullet.png
+		followRotation true
+		targetSize [1 1]
+		layer PlayerProj
+	}
+}
+enemy {
+	EntityComponent {
+		layer Enemy
+		health 10
+	}
+	EnemyComponent {
+	}
+	SmoothMovementComponent {
+		acc 20
+		dec 40
+		spd 8
+	}
+	DirectionComponent {
+	}
+	BodyComponent {
+		type Dynamic
+		fixedRotation true
+		shape Circle
+		radius 0.5
+		density 1.0
+		friction 0.0
+		restitution 0.0
+	}
+	SpriteComponent {
+		texture gfx/entity/block.png
+		targetSize [1.0 1.0]
+		layer Enemy
+	}
+}
+border {
+	EntityComponent {
+		layer Wall
+	}
+}
+explosion {
+	EntityComponent {
+		layer PlayerProj
+	}
+	SpriteComponent {
+		texture gfx/entity/explosion.png
+		dynamicScale true
+		scale 0.0625
+		layer PlayerProj
+		//"targetSize": [1.0, 1.0]
+	}
+}
+material {
+	EntityComponent {
+		layer Collectible
+	}
+	DirectionComponent {
+	}
+	SmoothMovementComponent {
+		spd 60
+		acc 45
+		dec 75
+	}
+	BodyComponent {
+		shape Circle
+		type Dynamic
+		fixedRotation true
+		radius 0.2
+	}
+	SpriteComponent {
+		texture gfx/entity/material.png
+		followRotation true
+		targetSize [0.25 0.25]
+	}
+}
+enemy_birth {
+	EntityComponent {
+		layer None
+	}
+	SpriteComponent {
+		texture gfx/entity/enemy_birth.png
+		scale 0.03125
+		layer Bottom
+	}
+}

@@ -2,6 +2,7 @@
 !/resources/**/
 !/resources/**/*.json5
 !/resources/**/*.jsonc
+!/resources/**/*.fon
 
 /bin/
 /CodeGenerator/bin/
