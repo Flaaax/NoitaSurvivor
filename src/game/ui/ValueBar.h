@@ -1,13 +1,13 @@
 #pragma once
 
 #include "src/ui/Object.h"
-#include "src/ui/shapes/NRichTextShape.h"
-#include "src/ui/shapes/NRoundRectShape.h"
+#include "src/ui/shapes/RichTextShape.h"
+#include "src/ui/shapes/RoundRectShape.h"
 
 #include <SFML/Graphics.hpp>
 
 namespace flx::ui {
-	class NRichText;
+	class RichText;
 
 	// Used for both health bar and exp bar
 	class ValueBar : public Object {
@@ -26,10 +26,10 @@ namespace flx::ui {
 		int mode = 0;
 		int level = 0;
 
-		mutable NRoundRectShape backGroundShape;
+		mutable RoundRectShape backGroundShape;
 		mutable sf::RectangleShape healthBarShape;
 		mutable sf::RectangleShape healthShape;
-		mutable NRichTextShape text;
+		mutable RichTextShape text;
 
 		inline static std::string format{};
 

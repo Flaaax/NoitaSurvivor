@@ -7,7 +7,7 @@
 // #define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
 // #endif
 #include "../utils/Vec2/Vec2.h"
-#include "context/NUIEvent.h"
+#include "context/UIEvent.h"
 #include "src/utils/ID.h"
 
 namespace flx {
@@ -66,7 +66,7 @@ namespace flx::ui {
 		// 	return this->isHovered_;
 		// }
 
-		virtual std::optional<NEventResult> handleEvent(const NUIEvent& event) {
+		virtual std::optional<EventResult> handleEvent(const UIEvent& event) {
 			return {};
 		}
 

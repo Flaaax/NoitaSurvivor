@@ -2,7 +2,7 @@
 
 #include "../utils/Logging/Logger.h"
 #include "global/Global.h"
-#include "render/NRenderBuffer.h"
+#include "render/RenderBuffer.h"
 #include <SFML/Graphics.hpp>
 
 namespace flx::ui {
@@ -36,7 +36,7 @@ namespace flx::ui {
 	Window::~Window() {
 	}
 
-	const NWindowView& Window::getView() const {
+	const WindowView& Window::getView() const {
 		return viewport;
 	}
 

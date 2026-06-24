@@ -7,7 +7,7 @@
 #include "src/game/Spells/Modifiers/BasicModifiers.h"
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
-#include "src/ui/render/NPainter.h"
+#include "src/ui/render/Painter.h"
 #include "src/utils/Logging/Logger.h"
 #include "src/utils/Random.h"
 #include "src/utils/Text/Format.h"

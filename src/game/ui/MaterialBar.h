@@ -1,11 +1,11 @@
 #pragma once
 
 #include "src/ui/Object.h"
-#include "src/ui/elements/NPanel.h"
-#include "src/ui/shapes/NRichTextShape.h"
+#include "src/ui/elements/Panel.h"
+#include "src/ui/shapes/RichTextShape.h"
 
 namespace flx::ui {
-	class NRichText;
+	class RichText;
 
 	class MaterialBar : public ui::Object {
 	private:
@@ -13,7 +13,7 @@ namespace flx::ui {
 		int material = 0;
 		vec2 rightTop;
 		float height;
-		mutable ui::NRichTextShape text;
+		mutable ui::RichTextShape text;
 
 		void updateText();
 

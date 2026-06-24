@@ -4,8 +4,8 @@
 #include "global/DebugVariables.h"
 #include "global/Loader.h"
 #include "src/ui/global/Global.h"
-#include "src/ui/render/NRenderBuffer.h"
-#include "src/ui/shapes/NRichTextShape.h"
+#include "src/ui/render/RenderBuffer.h"
+#include "src/ui/shapes/RichTextShape.h"
 #include "src/utils/Timer.h"
 
 #include <SFML/System/Clock.hpp>
@@ -34,7 +34,7 @@ namespace flx::app {
 		// sceneManager.setCurrentScene("menu_scene");
 
 		const auto font = Loader::loadFont(defaultFont, true);
-		auto FPSText = ui::NRichTextShape(*font);
+		auto FPSText = ui::RichTextShape(*font);
 		FPSText.setPosition({5, 5});
 		FPSText.setCharacterSize(22u);
 		CTimer fpsCalcTimer(1.f, [&] {

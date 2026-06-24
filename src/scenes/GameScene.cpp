@@ -1,18 +1,18 @@
 #include "GameScene.h"
-#include "../ui/elements/NButton.h"
+#include "../ui/elements/Button.h"
 #include "src/app/global/DebugVariables.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/ui/MaterialBar.h"
-#include "src/game/ui/NSpell.h"
+#include "src/game/ui/Spell.h"
 #include "src/game/ui/SpellInventory.h"
 #include "src/game/ui/ValueBar.h"
-#include "src/ui/elements/NRichText.h"
+#include "src/ui/elements/RichText.h"
 
 #include <imgui.h>
 
 namespace flx::app {
-	ui::NRichText* pauseText{};
+	ui::RichText* pauseText{};
 	ui::MaterialBar* materialBar{};
 	ui::ValueBar* expBar{};
 
@@ -66,7 +66,7 @@ namespace flx::app {
 
 		// spellSelector = new NSpellSelector(windowSize / 2.f, 3, widget);
 
-		pauseText = new ui::NRichText("游戏暂停", 30U);
+		pauseText = new ui::RichText("游戏暂停", 30U);
 		pauseText->alignCenter = true;
 		pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
 		pauseText->isVisible = false;

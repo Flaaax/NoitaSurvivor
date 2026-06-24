@@ -1,7 +1,7 @@
 #pragma once
-#include "context/NInputState.h"
+#include "context/InputState.h"
 #include "context/WindowEvent.h"
-#include "render/NWindowView.h"
+#include "render/WindowView.h"
 
 namespace flx::ui {
 	class RenderBuffer;
@@ -17,7 +17,7 @@ namespace flx::ui {
 
 	private:
 		sf::RenderWindow window;
-		NWindowView viewport;
+		WindowView viewport;
 		Mode mode = Mode::Windowed;
 		std::string title{};
 
@@ -25,13 +25,13 @@ namespace flx::ui {
 		void updateMousePosition();
 
 	public:
-		NInputState input;
+		InputState input;
 
 		// Creates the window
 		Window(vec2u windowSize, std::string_view title);
 		~Window();
 
-		const NWindowView& getView() const;
+		const WindowView& getView() const;
 
 		sf::RenderWindow& getWindow() {
 			return window;

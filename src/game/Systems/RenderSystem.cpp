@@ -5,14 +5,14 @@
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/render/GameRenderScales.h"
-#include "src/ui/render/NPainter.h"
-#include "src/ui/render/NRenderBuffer.h"
-#include "src/ui/render/NWindowView.h"
-#include "src/ui/shapes/NLineShape.h"
+#include "src/ui/render/Painter.h"
+#include "src/ui/render/RenderBuffer.h"
+#include "src/ui/render/WindowView.h"
+#include "src/ui/shapes/LineShape.h"
 
 namespace flx::game {
 	void RenderSystem::debugRender(const GameCtx& ctx, const ui::Painter& rdr) {
-		ui::NLineShape shape;
+		ui::LineShape shape;
 		for (const auto& e : ctx.gameState.borders) {
 			if (const auto b = ctx.reg.try_get<BodyComponent>(e)) {
 				auto [point1, point2] = b2Shape_GetSegment(b->shape);

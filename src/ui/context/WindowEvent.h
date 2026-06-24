@@ -4,13 +4,13 @@
 
 namespace flx::ui {
 	using NRawEvent = sf::Event;
-	struct NWindowView;
-	struct NInputState;
+	struct WindowView;
+	struct InputState;
 
 	struct WindowEvent {
 		NRawEvent rawEvent;
-		const NWindowView& viewport;
-		const NInputState& input;
+		const WindowView& viewport;
+		const InputState& input;
 	};
 
 } // namespace flx::ui

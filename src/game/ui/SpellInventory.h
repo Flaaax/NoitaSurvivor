@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/ui/widget/NWidget.h"
+#include "src/ui/widget/Widget.h"
 #include "src/utils/Container/Viewable.h"
 
 namespace flx::game {
@@ -39,7 +39,7 @@ namespace flx::ui {
 
 		void onDropQuery(const DropQuery& query, DropCollector& collector) override;
 		void onDropAccepted(const DropQuery& query, bool shouldDrop) override;
-		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
+		std::optional<EventResult> handleEvent(const UIEvent& event) override;
 
 		void addItem(Unique<Object> spell, int index);
 		Spell* getSpell(int index);

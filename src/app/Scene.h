@@ -2,9 +2,9 @@
 #ifndef NSCENE_H
 #define NSCENE_H
 #include "AppCtx.h"
-#include "src/ui/render/NWindowView.h"
-#include "src/ui/widget/NRootWidget.h"
-#include "src/ui/widget/NWidget.h"
+#include "src/ui/render/WindowView.h"
+#include "src/ui/widget/RootWidget.h"
+#include "src/ui/widget/Widget.h"
 
 namespace flx::app {
 	class Scene {
@@ -54,7 +54,7 @@ namespace flx::app {
 			widget = flx::makeUnique(new ui::RootWidget(viewport));
 		}
 
-		void onWindowResized(const ui::NWindowView& view) const {
+		void onWindowResized(const ui::WindowView& view) const {
 			if (widget) {
 				widget->onWindowResized(view);
 			}

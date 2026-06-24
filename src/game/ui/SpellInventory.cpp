@@ -1,9 +1,9 @@
-#include "../../utils/Container/Map.h"
 #include "SpellInventory.h"
+#include "../../utils/Container/Map.h"
 #include "src/game/Spells/Spell.h"
-#include "src/game/ui/NSpell.h"
-#include "src/ui/render/NPainter.h"
-#include "src/ui/widget/NWidget.h"
+#include "src/game/ui/Spell.h"
+#include "src/ui/render/Painter.h"
+#include "src/ui/widget/Widget.h"
 #include "src/utils/Assert.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -168,7 +168,7 @@ namespace flx::ui {
 		}
 	}
 
-	std::optional<NEventResult> SpellInventory::handleEvent(const NUIEvent& event) {
+	std::optional<EventResult> SpellInventory::handleEvent(const UIEvent& event) {
 		if (event.windowEvent.rawEvent.is<sf::Event::MouseMoved>()) {
 			updateHoveredSlot(event.localCtx.mouseLocal);
 		}

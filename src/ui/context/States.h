@@ -9,26 +9,26 @@ namespace sf {
 
 namespace flx::ui {
 	class Layout;
-	struct NStyle;
+	struct Style;
 
 	class Object;
 
-	struct NDragState {
+	struct DragState {
 		Object* dragged{};
 		vec2 offset{};
 	};
 
-	struct NDropCandidate {
+	struct DropCandidate {
 		Object* target;
 		float score{}; // Higher scrore means higher chance to be se
 	};
 
 	struct DropCollector {
-		flx::Vector<NDropCandidate> candidates;
+		Vector<DropCandidate> candidates;
 	};
 
 	struct DropQuery {
-		const NDragState& state;
+		const DragState& state;
 		const rect globalHitbox;
 	};
 
@@ -41,10 +41,10 @@ namespace flx::ui {
 		bool tooltipDirty = true;
 	};
 
-	using NTooltipBuilder = Unique<Layout> (*)(const NStyle& style, Object* self);
+	using TooltipBuilder = Unique<Layout> (*)(const Style& style, Object* self);
 
 	struct TooltipSpec {
-		NTooltipBuilder builder{};
+		TooltipBuilder builder{};
 		float width = 200.f;
 		bool shouldUpdate{};
 	};

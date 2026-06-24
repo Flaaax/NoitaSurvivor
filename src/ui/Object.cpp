@@ -1,8 +1,8 @@
 #include "Object.h"
 
 #include "global/Global.h"
-#include "widget/NRootWidget.h"
-#include "widget/NWidget.h"
+#include "widget/RootWidget.h"
+#include "widget/Widget.h"
 
 namespace flx::ui {
 	vec2 Object::getGlobalPosition() const {

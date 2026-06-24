@@ -1,8 +1,8 @@
 #pragma once
 
 namespace flx::ui {
-	struct NInputState;
-	struct NWindowView;
+	struct InputState;
+	struct WindowView;
 	class Window;
 } // namespace flx::ui
 
@@ -16,8 +16,8 @@ namespace flx::app {
 	};
 
 	struct AppCtx {
-		const ui::NWindowView& windowViewport;
-		const ui::NInputState& input;
+		const ui::WindowView& windowViewport;
+		const ui::InputState& input;
 		SceneManager& sceneManager;
 		RuntimeCtx& runtime;
 	};

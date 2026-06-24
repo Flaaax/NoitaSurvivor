@@ -14,7 +14,7 @@ namespace sf {
 
 namespace flx::ui {
 	class RenderBuffer;
-	struct NInputState;
+	struct InputState;
 } // namespace flx::ui
 
 namespace flx::game {

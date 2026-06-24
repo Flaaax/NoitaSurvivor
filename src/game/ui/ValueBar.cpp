@@ -1,9 +1,9 @@
 // ReSharper disable CppDFANullDereference
 #include "ValueBar.h"
 #include "../../app/global/LocManager.h"
-#include "src/ui/elements/NRichText.h"
+#include "src/ui/elements/RichText.h"
 #include "src/ui/global/Global.h"
-#include "src/ui/render/NPainter.h"
+#include "src/ui/render/Painter.h"
 #include "src/utils/Text/Format.h"
 
 namespace flx::ui {
