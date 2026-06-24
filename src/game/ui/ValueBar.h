@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/ui/NObject.h"
+#include "src/ui/Object.h"
 #include "src/ui/shapes/NRichTextShape.h"
 #include "src/ui/shapes/NRoundRectShape.h"
 
@@ -10,7 +10,7 @@ namespace flx::ui {
 	class NRichText;
 
 	// Used for both health bar and exp bar
-	class ValueBar : public NObject {
+	class ValueBar : public Object {
 	public:
 		static constexpr int HEALTH = 0;
 		static constexpr int EXP = 1;
@@ -62,6 +62,6 @@ namespace flx::ui {
 
 		void updateText();
 
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 	};
 } // namespace flx::ui

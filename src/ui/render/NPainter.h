@@ -27,22 +27,22 @@ namespace flx::ui {
 		}
 	};
 
-	class NUIPainter {
+	class UIPainter {
 	private:
 		RenderBuffer& rdr;
 
 	public:
 		::sf::RenderStates states;
 
-		NUIPainter translated(vec2 offset) const {
-			return NUIPainter(rdr, offset, states);
+		UIPainter translated(vec2 offset) const {
+			return UIPainter(rdr, offset, states);
 		}
 
-		explicit NUIPainter(RenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : NUIPainter(rdr, states) {
+		explicit UIPainter(RenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : UIPainter(rdr, states) {
 			this->states.transform.translate(translate);
 		}
 
-		explicit NUIPainter(RenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+		explicit UIPainter(RenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
 		}
 
 		void draw(const sf::Drawable& drawable) const {

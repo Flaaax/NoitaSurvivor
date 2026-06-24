@@ -1,14 +1,14 @@
 #include "NBoxLayout.h"
 
 namespace flx::ui {
-	NLayoutResult NVBoxLayout::onMeasure(NLayoutConstraint constraint) {
+	LayoutResult NVBoxLayout::onMeasure(LayoutConstraint constraint) {
 		// TODO minSize ignored
 		auto [minSize, maxSize] = constraint;
 
 		maxSize.y = std::min(maxSize.y, maxHeight);
 		const auto contentMaxSize = maxSize - padding.size();
 
-		const NLayoutConstraint childConstraint{
+		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {contentMaxSize.x, math::finf},
 		};
@@ -48,7 +48,7 @@ namespace flx::ui {
 		auto [pos, size] = allocation;
 		const auto contentSize = size - padding.size();
 
-		const NLayoutConstraint childConstraint{
+		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {contentSize.x, math::finf},
 		};
@@ -58,7 +58,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float y{};
 			vec2 size{};
-			NObject* child{};
+			Object* child{};
 		};
 
 		flx::Vector<ChildLayout> children{};
@@ -107,13 +107,13 @@ namespace flx::ui {
 		setFrame(allocation);
 	}
 
-	NLayoutResult NHBoxLayout::onMeasure(NLayoutConstraint constraint) {
+	LayoutResult NHBoxLayout::onMeasure(LayoutConstraint constraint) {
 		// TODO minSize ignored
 
 		auto [minSize, maxSize] = constraint;
 		const auto contentMaxSize = maxSize - padding.size();
 
-		const NLayoutConstraint childConstraint{
+		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {math::finf, contentMaxSize.y},
 		};
@@ -144,7 +144,7 @@ namespace flx::ui {
 		auto [pos, size] = allocation;
 		const auto contentSize = size - padding.size();
 
-		const NLayoutConstraint childConstraint{
+		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {math::finf, contentSize.y},
 		};
@@ -152,7 +152,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float x{};
 			vec2 size{};
-			NObject* child{};
+			Object* child{};
 		};
 
 		flx::Vector<ChildLayout> children{};

@@ -4,7 +4,7 @@
 #include "../widget/NWidget.h"
 
 namespace flx::ui {
-	class NTooltip : public NObject {
+	class NTooltip : public Object {
 	private:
 		mutable std::optional<sf::Sprite> sprite{};
 		mutable flx::Vector<NRichTextShape> textLines{};
@@ -14,6 +14,6 @@ namespace flx::ui {
 
 	public:
 		// void setContent(const NTooltipSpec& spec, const NStyle& style);
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 	};
 } // namespace flx::ui

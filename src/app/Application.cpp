@@ -1,7 +1,6 @@
 #include "Application.h"
 
 #include "Scene.h"
-#include "global/AssetManager.h"
 #include "global/DebugVariables.h"
 #include "global/Loader.h"
 #include "src/ui/global/Global.h"
@@ -59,7 +58,9 @@ namespace flx::app {
 		// rectangle.setSize(richText.getLayoutSize());
 		// rectangle.setFillColor(sf::Color::Cyan);
 
-		ImGui::GetStyle().ScaleAllSizes(1.5f);
+		if (imguiEnabled) {
+			ImGui::GetStyle().ScaleAllSizes(1.5f);
+		}
 
 		while (window.isOpen() && isRunning) {
 			// calculate deltatime
@@ -186,7 +187,10 @@ namespace flx::app {
 			window.display();
 		}
 
-		ImGui::SFML::Shutdown();
+		if (imguiEnabled) {
+			ImGui::SFML::Shutdown();
+		}
+
 		return 0;
 	}
 
@@ -246,5 +250,9 @@ namespace flx::app {
 		ui::Global::setDefaultFont(*Loader::loadFont(defaultFont, true));
 
 		logger.info("App initialization done.");
+	}
+
+	Application::~Application() {
+		sceneManager.exitAll();
 	}
 } // namespace flx::app

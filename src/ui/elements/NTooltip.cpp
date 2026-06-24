@@ -63,7 +63,7 @@ namespace flx::ui {
 	// 	updateLayout();
 	// }
 
-	void NTooltip::draw(const NUIPainter& canvas) const {
+	void NTooltip::draw(const UIPainter& canvas) const {
 		sf::RectangleShape background;
 		background.setSize(frame.size);
 		background.setFillColor({150, 150, 150});

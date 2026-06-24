@@ -1,25 +1,28 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "src/utils/Assert.h"
-#include <format>
 
 namespace flx::app {
-	void SceneManager::add(Unique<Scene> scene) {
+	static Logger logger = Logger::makeAsync("SceneManager");
+
+	void SceneManager::add(SUnique<Scene> scene) {
 		// Logger::info("Adding scene to SceneManager...");
-		if (!scene)
-			throw std::runtime_error("scene is nullptr");
+		if (!scene) {
+			logger.error_and_throw("Scene is nullptr");
+		}
 		const auto& name = scene->name;
-		if (scenes.contains(name))
-			return;
+		if (scenes.contains(name)) {
+			logger.error_and_throw("Scene {} already registered!", name);
+		}
 		scenes[name] = std::move(scene);
 		// Logger::info("Scene {} added to SceneManager", name);
 	}
 
-	Scene* SceneManager::get(std::string_view name) const {
-		if (const auto it = scenes.find(name); it != scenes.end()) {
-			return it->second.get();
+	SWeak<Scene> SceneManager::get(std::string_view name) const {
+		if (const auto ret = scenes.try_find(name)) {
+			return *ret;
 		}
-		throw std::runtime_error(std::format("Scene {} does not exist or not registered!", name));
+		logger.error_and_throw("Scene {} not registered!", name);
 	}
 
 	SceneManager::SceneManager() {}
@@ -31,12 +34,21 @@ namespace flx::app {
 	}
 
 	void SceneManager::changeScene() {
+		if (!sceneToChange) {
+			logger.error_and_throw("No scene to change");
+		}
 		if (currentScene) {
 			currentScene->exit();
 		}
 		currentScene = sceneToChange;
 		currentScene->enter();
-		sceneToChange = nullptr;
+		sceneToChange = {};
+	}
+
+	void SceneManager::exitAll() const {
+		if (currentScene) {
+			currentScene->exit();
+		}
 	}
 
 } // namespace flx::app

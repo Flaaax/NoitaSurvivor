@@ -10,7 +10,7 @@ namespace flx::ui {
 		visualDirty = true;
 	}
 
-	void NImage::draw(const NUIPainter& canvas) const {
+	void NImage::draw(const UIPainter& canvas) const {
 		if (visualDirty) {
 			const vec2 textureSize = static_cast<vec2>(sprite.getTexture().getSize());
 			const vec2 scale = getSize() / textureSize;

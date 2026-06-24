@@ -14,10 +14,10 @@ namespace flx::game {
 
 		auto& state = ctx.gameState;
 
-		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
-		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
-		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
-		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
+		state.wandManager.addWand(ctx.scales.wandScale);
+		state.wandManager.addWand(ctx.scales.wandScale);
+		state.wandManager.addWand(ctx.scales.wandScale);
+		state.wandManager.addWand(ctx.scales.wandScale);
 
 		state.player.id = ctx.factory.createPlayer(ctx);
 		state.player.collector = ctx.factory.createCollector(ctx, 4.5f);

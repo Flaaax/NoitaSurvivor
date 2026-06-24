@@ -2,7 +2,6 @@
 #include "CustomFieldParser.h"
 // #include "EnumMeta.h"
 #include "src/app/global/Loader.h"
-#include "src/app/global/SpriteManager.h"
 #include "src/game/Components/EntityComponents.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Components/Render/RenderComponent.h"

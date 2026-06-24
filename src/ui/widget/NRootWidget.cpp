@@ -1,26 +1,25 @@
 #include "NRootWidget.h"
 
-#include "../../app/global/AssetManager.h"
 #include "../elements/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 
 namespace flx::ui {
-	bool NRootWidget::handleDragEvent(const WindowEvent& event) {
+	bool RootWidget::handleDragEvent(const WindowEvent& event) {
 		if (event.rawEvent.is<sf::Event::MouseMoved>()) {
 			const vec2 newGlobalPosition = event.input.mouseRender - dragState.offset;
 			const vec2 newLocalPosition = dragState.dragged->getParentLocalPosition(newGlobalPosition);
 			dragState.dragged->setPosition(newLocalPosition);
 		}
 
-		const NDropQuery query{
+		const DropQuery query{
 			.state = dragState,
 			.globalHitbox = dragState.dragged->getGlobalHitbox(),
 		};
-		NDropCollector collector;
+		DropCollector collector;
 		onDropQuery(query, collector);
-		NObject* candidate{};
+		Object* candidate{};
 		if (!collector.candidates.empty()) {
 			candidate = collector.candidates.best({}, &NDropCandidate::score).target;
 		}
@@ -41,7 +40,7 @@ namespace flx::ui {
 		return false;
 	}
 
-	bool NRootWidget::handleEvent(const WindowEvent& ctx) {
+	bool RootWidget::handleEvent(const WindowEvent& ctx) {
 		if (!shouldHandleEvent(ctx)) {
 			return false;
 		}
@@ -69,11 +68,11 @@ namespace flx::ui {
 			mousePosition = ctx.input.mouseRender;
 		}
 
-		const auto result = this->NWidget::handleEvent(event);
+		const auto result = this->Widget::handleEvent(event);
 
 		if (result) {
 			if (result->is<NEventResult::DragIntent>()) {
-				NObject* handler = result->handler;
+				Object* handler = result->handler;
 				dragState.dragged = handler;
 				dragState.offset = ctx.input.mouseRender - handler->getGlobalPosition();
 				handler->isDragged_ = true;
@@ -81,7 +80,7 @@ namespace flx::ui {
 			}
 
 			if (result->is<NEventResult::HoverIntent>()) {
-				NObject* handler = result->handler;
+				Object* handler = result->handler;
 				if (handler != hoverState.target) {
 					hoverState.hoveredTime = 0.f;
 					hoverState.tooltipDirty = true;
@@ -96,7 +95,7 @@ namespace flx::ui {
 		return false;
 	}
 
-	bool NRootWidget::shouldHandleEvent(const WindowEvent& ctx) {
+	bool RootWidget::shouldHandleEvent(const WindowEvent& ctx) {
 		const auto& raw = ctx.rawEvent;
 		return raw.is<sf::Event::MouseButtonPressed>() ||
 			   raw.is<sf::Event::MouseButtonReleased>() ||
@@ -105,13 +104,13 @@ namespace flx::ui {
 			   raw.is<sf::Event::FocusGained>();
 	}
 
-	void NRootWidget::updateTooltipContent() {
+	void RootWidget::updateTooltipContent() {
 		tooltip->setSize({hoverState.target->tooltipSpec.width, 0});
 		tooltip->setLayout(hoverState.target->tooltipSpec.builder(style, hoverState.target));
 		hoverState.tooltipDirty = false;
 	}
 
-	void NRootWidget::updateHover(float dt) {
+	void RootWidget::updateHover(float dt) {
 		if (!hoverState.hasTargetInFrame && hoverState.mouseMovedInFrame) {
 			hoverState.target = {};
 			if (tooltip) {
@@ -147,17 +146,17 @@ namespace flx::ui {
 		}
 	}
 
-	NRootWidget::NRootWidget(NViewport viewport, rect geometry, bool updateEnabled_)
-		: NWidget(geometry, updateEnabled_),
+	RootWidget::RootWidget(Viewport viewport, rect geometry, bool updateEnabled_)
+		: Widget(geometry, updateEnabled_),
 		  style({.font = Global::getDefaultFont()}),
 		  viewport(viewport) {
 		hoverState.hoverIntentDelay = 0.22f;
 		isRoot = true;
 	}
 
-	void NRootWidget::draw(RenderBuffer& rdr) const {
-		const NUIPainter canvas(rdr, getPosition());
-		this->NWidget::draw(canvas);
+	void RootWidget::draw(RenderBuffer& rdr) const {
+		const UIPainter canvas(rdr, getPosition());
+		this->Widget::draw(canvas);
 		if (dragState.dragged) {
 			dragState.dragged->draw(canvas.translated(dragState.dragged->getGlobalPosition()));
 
@@ -167,18 +166,18 @@ namespace flx::ui {
 		}
 	}
 
-	void NRootWidget::update(float dt) {
+	void RootWidget::update(float dt) {
 		updateHover(dt);
-		NWidget::update(dt);
+		Widget::update(dt);
 	}
 
-	const NViewport& NRootWidget::getViewport() const {
+	const Viewport& RootWidget::getViewport() const {
 		return viewport;
 	}
 
-	void NRootWidget::onWindowResized(const NWindowView& view) {
+	void RootWidget::onWindowResized(const NWindowView& view) {
 		this->viewport = view.viewport;
-		NWidget::refresh();
+		Widget::refresh();
 		if (tooltip) {
 			tooltip->refresh();
 		}

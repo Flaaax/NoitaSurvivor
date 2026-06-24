@@ -1,10 +1,10 @@
 #pragma once
-#include "src/ui/NObject.h"
+#include "src/ui/Object.h"
 
 #include <SFML/Graphics/Sprite.hpp>
 
 namespace flx::ui {
-	class NImage : public NObject {
+	class NImage : public Object {
 	protected:
 		mutable ::sf::Sprite sprite;
 		float outLineWidth{};
@@ -13,7 +13,7 @@ namespace flx::ui {
 	public:
 		explicit NImage(const ::sf::Texture& texture);
 
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 		void setOutlineWidth(float width);
 		void setOutlineColor(::sf::Color color);
 	};

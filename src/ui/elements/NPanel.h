@@ -5,9 +5,9 @@
 #include <SFML/Graphics/Color.hpp>
 
 namespace flx::ui {
-	class NPanel : public NWidget {
+	class NPanel : public Widget {
 	protected:
-		NLayout* getLayout() const;
+		Layout* getLayout() const;
 
 	public:
 		enum Policy {
@@ -23,8 +23,8 @@ namespace flx::ui {
 		sf::Color outlineColor = {120, 120, 120};
 		float outlineThickness = 2.f;
 
-		void draw(const NUIPainter& canvas) const override;
-		void setLayout(Unique<NLayout> layout);
+		void draw(const UIPainter& canvas) const override;
+		void setLayout(Unique<Layout> layout);
 		void refresh() override;
 	};
 } // namespace flx::ui

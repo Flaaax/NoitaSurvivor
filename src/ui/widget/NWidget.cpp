@@ -4,7 +4,7 @@
 #include <ranges>
 
 namespace flx::ui {
-	void NWidget::bind(NObject* obj) {
+	void Widget::bind(Object* obj) {
 		assertNotNull(obj);
 		assertWithMsg(!obj->parent, "Object already has parent; remove it explicitly first.");
 		assertWithMsg(obj != this, "Cannot add a widget to itself!");
@@ -12,12 +12,12 @@ namespace flx::ui {
 		// obj->root = this->root;
 	}
 
-	void NWidget::drawWithChildCanvas(const NUIPainter& canvas, const NObject& obj) {
-		const NUIPainter localCanvas = canvas.translated(obj.getPosition());
+	void Widget::drawWithChildCanvas(const UIPainter& canvas, const Object& obj) {
+		const UIPainter localCanvas = canvas.translated(obj.getPosition());
 		obj.draw(localCanvas);
 	}
 
-	std::optional<NEventResult> NWidget::handleEvent(const NUIEvent& event) {
+	std::optional<NEventResult> Widget::handleEvent(const NUIEvent& event) {
 		NUIEvent localEvent = event;
 		localEvent.localCtx.mouseLocal = event.localCtx.mouseLocal - getPosition();
 		for (const auto& obj : objects | std::views::reverse) {
@@ -31,7 +31,7 @@ namespace flx::ui {
 		return std::nullopt;
 	}
 
-	void NWidget::update(float deltaTime) {
+	void Widget::update(float deltaTime) {
 		if (!updateEnabled)
 			return;
 		for (const auto& obj : objects) {
@@ -41,7 +41,7 @@ namespace flx::ui {
 		}
 	}
 
-	void NWidget::draw(const NUIPainter& canvas) const {
+	void Widget::draw(const UIPainter& canvas) const {
 		for (const auto& obj : objects) {
 			if (obj->isVisible && !obj->isDragged()) {
 				drawWithChildCanvas(canvas, *obj);
@@ -49,28 +49,28 @@ namespace flx::ui {
 		}
 	}
 
-	Unique<NObject> NWidget::remove(const NObject* target) {
+	Unique<Object> Widget::remove(const Object* target) {
 		const auto it =
 			std::ranges::find_if(
 				objects,
-				[&](const std::unique_ptr<NObject>& obj) {
+				[&](const std::unique_ptr<Object>& obj) {
 					return obj.get() == target;
 				});
 		if (it == objects.end()) {
 			logger.warn("Widget does not own target object!");
 			return {};
 		}
-		Unique<NObject> removed = std::move(*it);
+		Unique<Object> removed = std::move(*it);
 		removed->parent = {};
 		objects.erase(it);
 		return removed;
 	}
 
-	void NWidget::clear() {
+	void Widget::clear() {
 		objects = {};
 	}
 
-	void NWidget::onDropQuery(const NDropQuery& query, NDropCollector& collector) {
+	void Widget::onDropQuery(const DropQuery& query, DropCollector& collector) {
 		for (const auto& obj : objects) {
 			if (obj->isVisible) {
 				obj->onDropQuery(query, collector);
@@ -78,8 +78,8 @@ namespace flx::ui {
 		}
 	}
 
-	void NWidget::refresh() {
-		NObject::refresh();
+	void Widget::refresh() {
+		Object::refresh();
 		for (const auto& obj : objects) {
 			obj->refresh();
 		}

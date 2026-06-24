@@ -52,7 +52,7 @@ namespace flx::ui {
 		UITexture.clear(sf::Color::Transparent);
 	}
 
-	NViewport RenderBuffer::getViewport() const {
+	Viewport RenderBuffer::getViewport() const {
 		return viewport;
 	}
 

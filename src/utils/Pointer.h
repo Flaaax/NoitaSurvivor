@@ -43,9 +43,15 @@ namespace flx {
 	template <class T>
 	class SUnique;
 
+	// SWeak is a non-owning observer.
+	// It does not extend the lifetime of the object.
+	// User must ensure no destruction happens during use.
 	template <class T>
 	class SWeak {
 	private:
+		template <class>
+		friend class SWeak;
+
 		T* ptr{};
 		Weak<void> lifetime{};
 
@@ -67,7 +73,7 @@ namespace flx {
 
 		template <class U>
 		[[nodiscard]]
-		SWeak<U> staticCcast() const {
+		SWeak<U> staticCast() const {
 			return {static_cast<U*>(ptr), lifetime};
 		}
 
@@ -88,7 +94,15 @@ namespace flx {
 
 		[[nodiscard]]
 		T* get() const {
-			return valid() ? ptr : nullptr;
+			return ptr;
+		}
+
+		[[nodiscard]]
+		T* at() const {
+			if (!valid) {
+				throw std::bad_weak_ptr();
+			}
+			return ptr;
 		}
 
 		[[nodiscard]]
@@ -102,6 +116,7 @@ namespace flx {
 		}
 	};
 
+	// Thread-unfriendly
 	template <class T>
 	class SUnique {
 	private:
@@ -126,7 +141,7 @@ namespace flx {
 
 		template <class U>
 			requires std::convertible_to<U*, T*>
-		explicit SUnique(Unique<U>&& ptr)
+		explicit(false) SUnique(Unique<U>&& ptr)
 			: storage(ptr | move) {}
 
 		template <class U = T, class... Args>

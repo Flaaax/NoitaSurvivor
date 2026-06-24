@@ -48,7 +48,7 @@ namespace flx::ui {
 		}
 	}
 
-	void ValueBar::draw(const NUIPainter& canvas) const {
+	void ValueBar::draw(const UIPainter& canvas) const {
 		const vec2 healthShapeSize = {(m_health / static_cast<float>(m_maxHealth)) * frame.size.x, frame.size.y};
 		healthShape.setSize(healthShapeSize);
 		healthShape.setPosition({frame.size.x - healthShapeSize.x, 0});

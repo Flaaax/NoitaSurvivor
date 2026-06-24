@@ -14,7 +14,7 @@ namespace flx::ui {
 		vec2 windowSizeF;
 		rect windowRect;
 
-		NViewport viewport;
+		Viewport viewport;
 
 		explicit NWindowView(vec2u defaultWindowSize = {1920, 1080}) {
 			this->defaultWindowSize = defaultWindowSize;

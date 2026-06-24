@@ -1,5 +1,5 @@
 #pragma once
-#include "../NObject.h"
+#include "../Object.h"
 #include "src/ui/context/States.h"
 #include "src/utils/Assert.h"
 #include "src/utils/Container/Vector.h"
@@ -13,26 +13,26 @@ namespace sf {
 
 namespace flx::ui {
 	// Use NObject::setParent to add an object
-	class NWidget : public NObject {
+	class Widget : public Object {
 	private:
-		friend class NObject;
-		friend class NRootWidget;
+		friend class Object;
+		friend class RootWidget;
 
 		bool isRoot{};
-		flx::Vector<Unique<NObject>> objects;
+		Vector<Unique<Object>> objects;
 
-		void bind(NObject* obj);
+		void bind(Object* obj);
 
-		static void drawWithChildCanvas(const NUIPainter& canvas, const NObject& obj);
+		static void drawWithChildCanvas(const UIPainter& canvas, const Object& obj);
 
 	public:
-		explicit NWidget(rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) {
+		explicit Widget(rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) {
 			updateEnabled = updateEnabled_;
 			this->frame = geometry;
 			isWidget_ = true;
 		}
 
-		NObject* add(Unique<NObject> obj) {
+		Object* add(Unique<Object> obj) {
 			return addToTop(std::move(obj));
 		}
 
@@ -41,14 +41,14 @@ namespace flx::ui {
 		// 	return static_cast<T*>(this->add(std::move(obj)));
 		// }
 
-		NObject* addToTop(Unique<NObject> obj) {
+		Object* addToTop(Unique<Object> obj) {
 			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_back(std::move(obj)).get();
 		}
 
-		NObject* addToBottom(Unique<NObject> obj) {
+		Object* addToBottom(Unique<Object> obj) {
 			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
@@ -56,32 +56,32 @@ namespace flx::ui {
 		}
 
 		auto getObjects() const {
-			return objects | std::views::transform([](const Unique<NObject>& obj) { return obj.get(); });
+			return objects | std::views::transform([](const Unique<Object>& obj) { return obj.get(); });
 		}
 
 		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
 		void update(float deltaTime) override;
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 
-		bool has(const NObject* obj) const {
+		bool has(const Object* obj) const {
 			return obj->getParent() == this;
 		}
 
-		Unique<NObject> remove(const NObject* target);
+		Unique<Object> remove(const Object* target);
 		void clear();
 
-		void moveToTop(const NObject* obj) {
+		void moveToTop(const Object* obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToTop(remove(obj));
 		}
 
-		void moveToBottom(const NObject* obj) {
+		void moveToBottom(const Object* obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToBottom(remove(obj));
 		}
 
-		void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
+		void onDropQuery(const DropQuery& query, DropCollector& collector) override;
 
 		void refresh() override;
 	};

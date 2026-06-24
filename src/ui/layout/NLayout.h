@@ -29,16 +29,16 @@ namespace flx::ui {
 		}
 	};
 
-	class NLayout : public NWidget {
+	class Layout : public Widget {
 	protected:
 		NPadding padding{};
 		float spacing{};
 
-		virtual NLayoutResult onMeasure(NLayoutConstraint constraint) = 0;
+		virtual LayoutResult onMeasure(LayoutConstraint constraint) = 0;
 		virtual void onArrange(rect allocation) = 0;
 
 	public:
-		NLayoutResult measure(NLayoutConstraint constraint) final {
+		LayoutResult measure(LayoutConstraint constraint) final {
 			return onMeasure(constraint);
 		}
 

@@ -5,7 +5,7 @@
 #include "src/game/Wands/Wand.h"
 #include "src/game/ui/MaterialBar.h"
 #include "src/game/ui/NSpell.h"
-#include "src/game/ui/NSpellInventory.h"
+#include "src/game/ui/SpellInventory.h"
 #include "src/game/ui/ValueBar.h"
 #include "src/ui/elements/NRichText.h"
 
@@ -24,13 +24,13 @@ namespace flx::app {
 		// auto& wand = *ctx.gameState.wands.front();
 		const auto wand = ctx.gameState.wandManager.getWand(0);
 
-		auto inventory1 = makeUnique(new ui::NSpellInventory({100, 150}, wand->inventory.size()));
+		auto inventory1 = makeUnique(new ui::SpellInventory({100, 150}, wand->inventory.size()));
 
 		for (const auto i : wand->inventory.indices()) {
 			if (!wand->inventory[i]) {
 				continue;
 			}
-			auto spell = makeUnique(new ui::NSpell(wand->inventory[i], {i * 50, i * 50}));
+			auto spell = makeUnique(new ui::Spell(wand->inventory[i], {i * 50, i * 50}));
 			inventory1->addItem(std::move(spell), static_cast<int>(i));
 		}
 
@@ -43,7 +43,7 @@ namespace flx::app {
 
 		widget->addToTop(std::move(inventory1));
 
-		auto inventory2 = makeUnique(new ui::NSpellInventory({350, 50}, 5));
+		auto inventory2 = makeUnique(new ui::SpellInventory({350, 50}, 5));
 		widget->addToTop(std::move(inventory2));
 
 		auto healthBar =

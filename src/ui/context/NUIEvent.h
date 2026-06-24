@@ -5,7 +5,7 @@
 #include <SFML/Window/Event.hpp>
 
 namespace flx::ui {
-	class NObject;
+	class Object;
 
 	struct NRootCtx {
 		const NDragState& dragState;
@@ -34,7 +34,7 @@ namespace flx::ui {
 		struct HoverIntent {
 		};
 
-		NObject* handler{};
+		Object* handler{};
 		std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
 
 		template <class T>

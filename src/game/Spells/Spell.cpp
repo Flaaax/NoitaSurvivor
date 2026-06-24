@@ -1,5 +1,4 @@
 #include "Spell.h"
-#include "../../app/global/AssetManager.h"
 #include "../../app/global/LocManager.h"
 #include "src/app/global/Loader.h"
 #include "src/utils/Text/Format.h"

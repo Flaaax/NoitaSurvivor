@@ -5,7 +5,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 
 namespace flx::ui {
-	void NPanel::draw(const NUIPainter& canvas) const {
+	void NPanel::draw(const UIPainter& canvas) const {
 		sf::RectangleShape shape;
 		shape.setFillColor(backgroundColor);
 		shape.setOutlineColor(outlineColor);
@@ -14,10 +14,10 @@ namespace flx::ui {
 
 		canvas.draw(shape);
 
-		NWidget::draw(canvas);
+		Widget::draw(canvas);
 	}
 
-	void NPanel::setLayout(Unique<NLayout> layout) {
+	void NPanel::setLayout(Unique<Layout> layout) {
 		clear();
 		this->addToTop(std::move(layout));
 		refresh();
@@ -38,8 +38,8 @@ namespace flx::ui {
 		visualDirty = false;
 	}
 
-	NLayout* NPanel::getLayout() const {
+	Layout* NPanel::getLayout() const {
 		auto objects = getObjects();
-		return static_cast<NLayout*>(objects.empty() ? nullptr : objects.front());
+		return static_cast<Layout*>(objects.empty() ? nullptr : objects.front());
 	}
 } // namespace flx::ui

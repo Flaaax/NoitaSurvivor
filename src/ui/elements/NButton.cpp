@@ -59,7 +59,7 @@ namespace flx::ui {
 		return {};
 	}
 
-	void NButton::draw(const NUIPainter& canvas) const {
+	void NButton::draw(const UIPainter& canvas) const {
 		if (isButtonVisible) {
 			sf::RectangleShape shape;
 			shape.setSize(getSize());

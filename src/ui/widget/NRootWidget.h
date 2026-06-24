@@ -8,14 +8,14 @@ namespace flx::ui {
 	class NTooltip;
 	class RenderBuffer;
 
-	class NRootWidget : public NWidget {
+	class RootWidget : public Widget {
 	private:
 		NDragState dragState;
 		NHoverState hoverState;
 		NStyle style;
 		Unique<NPanel> tooltip;
 		vec2 mousePosition{};
-		NViewport viewport;
+		Viewport viewport;
 
 		bool handleDragEvent(const WindowEvent& event);
 		static bool shouldHandleEvent(const WindowEvent& ctx);
@@ -23,12 +23,12 @@ namespace flx::ui {
 		void updateHover(float dt);
 
 	public:
-		explicit NRootWidget(NViewport viewport, rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true);
+		explicit RootWidget(Viewport viewport, rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true);
 		// Handle event as the root widget
 		bool handleEvent(const WindowEvent& ctx);
 		void draw(RenderBuffer& rdr) const;
 		void update(float dt) override;
-		const NViewport& getViewport() const;
+		const Viewport& getViewport() const;
 
 		void onWindowResized(const NWindowView& view);
 

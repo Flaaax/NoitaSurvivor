@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../NObject.h"
+#include "../Object.h"
 #include "NPanel.h"
 #include <SFML/Graphics/Text.hpp>
 #include <functional>
@@ -29,7 +29,7 @@ namespace flx::ui {
 		explicit NButton(rect geometry);
 
 		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 
 		void setText(std::string_view text, u32 characterSize = 30);
 

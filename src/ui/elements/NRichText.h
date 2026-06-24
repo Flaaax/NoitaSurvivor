@@ -1,11 +1,11 @@
 #pragma once
-#include "src/ui/NObject.h"
+#include "src/ui/Object.h"
 #include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 #include "src/ui/shapes/NRichTextShape.h"
 
 namespace flx::ui {
-	class NRichText : public NObject {
+	class NRichText : public Object {
 	public:
 		NRichTextShape text;
 		u32 designedPx;
@@ -20,7 +20,7 @@ namespace flx::ui {
 		explicit NRichText(std::string_view utf8Markup = {}, u32 characterSize = 30u)
 			: NRichText(Global::getDefaultFont(), utf8Markup, characterSize) {}
 
-		void draw(const NUIPainter& canvas) const override {
+		void draw(const UIPainter& canvas) const override {
 			if (useRealPx) {
 				canvas.drawText(text);
 			} else {
@@ -28,7 +28,7 @@ namespace flx::ui {
 			}
 		}
 
-		NLayoutResult measure(NLayoutConstraint constraint) override {
+		LayoutResult measure(LayoutConstraint constraint) override {
 			if (!getRoot() || !useRealPx) {
 				text.setCharacterSize(designedPx);
 				text.setLineWidth(constraint.maxSize.x);

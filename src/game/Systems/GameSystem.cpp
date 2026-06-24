@@ -89,7 +89,7 @@ namespace flx::game {
 
 		if (updateDir) {
 			p.controlDir.x = (p.isRight ? 1.F : 0.F) - (p.isLeft ? 1.F : 0.F);
-			p.controlDir.y = (p.isDown ? 1.F : 0.F) - (p.isUp ? 1.F : 0.F);
+			p.controlDir.y = (p.isUp ? 1.F : 0.F) - (p.isDown ? 1.F : 0.F);
 			p.controlDir.normalize();
 			// Logger::info("Dir updated, cur= {}, {}", p.controlDir.x, p.controlDir.y);
 		}

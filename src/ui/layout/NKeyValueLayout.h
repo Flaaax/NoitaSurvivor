@@ -2,9 +2,9 @@
 #include "NLayout.h"
 
 namespace flx::ui {
-	class NKeyValueLayout : public NLayout {
+	class NKeyValueLayout : public Layout {
 	protected:
-		NLayoutResult onMeasure(NLayoutConstraint constraint) override;
+		LayoutResult onMeasure(LayoutConstraint constraint) override;
 		void onArrange(rect allocation) override;
 
 	public:

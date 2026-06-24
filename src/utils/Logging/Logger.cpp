@@ -4,7 +4,6 @@
 #include "ArchiveFileSink.h"
 #include "src/utils/Exception/Exceptions.h"
 
-#include <chrono>
 #include <memory>
 #include <spdlog/async.h>
 #include <spdlog/pattern_formatter.h>
@@ -14,8 +13,6 @@
 #include <utility>
 
 namespace flx {
-	static std::string defaultLogFilePath = "logs/flx.log";
-
 	void Logger::impl_log(spdlog::level::level_enum level, std::string msg) const {
 		raw->log(level, msg);
 		if (level == spdlog::level::err) {

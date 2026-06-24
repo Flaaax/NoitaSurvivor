@@ -1,7 +1,7 @@
 #include "NKeyValueLayout.h"
 
 namespace flx::ui {
-	NLayoutResult NKeyValueLayout::onMeasure(NLayoutConstraint constraint) {
+	LayoutResult NKeyValueLayout::onMeasure(LayoutConstraint constraint) {
 		auto [minSize, maxSize] = constraint;
 		float totalHeight{};
 		const float maxWidth = maxSize.x - padding.hLength();
@@ -36,8 +36,8 @@ namespace flx::ui {
 			vec2 keySize{};
 			vec2 valueSize{};
 			float height{};
-			NObject* key{};
-			NObject* value{};
+			Object* key{};
+			Object* value{};
 		};
 
 		flx::Vector<Item> items{};

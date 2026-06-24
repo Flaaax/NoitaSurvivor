@@ -22,6 +22,7 @@ namespace flx::app {
 		AppCtx getContext();
 		bool shouldDisplayImgui()const;
 		explicit Application(AppInfo info);
+		~Application();
 
 	public:
 		template <std::derived_from<IApp> MyApp>

@@ -1,8 +1,7 @@
 #include "NSpell.h"
 
-#include "../../app/global/AssetManager.h"
 #include "../../app/global/LocManager.h"
-#include "NSpellInventory.h"
+#include "SpellInventory.h"
 #include "src/game/Spells/Spell.h"
 #include "src/ui/context/NStyle.h"
 #include "src/ui/elements/NImage.h"
@@ -15,14 +14,14 @@
 #include <SFML/Graphics/Sprite.hpp>
 
 namespace flx::ui {
-	void NSpell::updateTooltipSpec() {
+	void Spell::updateTooltipSpec() {
 		tooltipSpec.builder = tooltipBuilder;
 		tooltipSpec.width = 400.f;
 	}
 
-	Unique<NLayout> NSpell::tooltipBuilder(const NStyle& style, NObject* self) {
+	Unique<Layout> Spell::tooltipBuilder(const NStyle& style, Object* self) {
 		using flx::move;
-		const NSpell* nspell = static_cast<NSpell*>(self);
+		const Spell* nspell = static_cast<Spell*>(self);
 		auto& loc = nspell->spell->getLoc();
 
 		auto layout = std::make_unique<NVBoxLayout>();
@@ -70,15 +69,15 @@ namespace flx::ui {
 		return layout | move;
 	}
 
-	NSpell::NSpell(std::shared_ptr<game::Spell> spell, vec2 pos) : spell(std::move(spell)) {
+	Spell::Spell(std::shared_ptr<game::Spell> spell, vec2 pos) : spell(std::move(spell)) {
 		assertNotNull(this->spell.get());
 		this->updateEnabled = true;
 		frame.size = slotSize;
 		frame.position = pos;
-		this->typeID = makeTypeID<NSpell>();
+		this->typeID = makeTypeID<Spell>();
 	}
 
-	std::optional<NEventResult> NSpell::handleEvent(const NUIEvent& event) {
+	std::optional<NEventResult> Spell::handleEvent(const NUIEvent& event) {
 		auto& raw = event.windowEvent.rawEvent;
 		if (const auto e = raw.getIf<sf::Event::MouseButtonPressed>()) {
 			if (e->button == sf::Mouse::Button::Left && this->frame.contains(event.localCtx.mouseLocal)) {
@@ -104,7 +103,7 @@ namespace flx::ui {
 		return std::nullopt;
 	}
 
-	void NSpell::update(float dt) {
+	void Spell::update(float dt) {
 		if (isDragged()) {
 			t += dt;
 			constexpr float p = 0.1f; // Quarter period.
@@ -119,7 +118,7 @@ namespace flx::ui {
 		}
 		if (isReleased) {
 			rotation = 0.f;
-			const NSpellInventory* inventory = getInventory();
+			const SpellInventory* inventory = getInventory();
 			if (!inventory) {
 				logger.error_and_throw("NSpell does not have an inventory, but released.");
 			}
@@ -142,7 +141,7 @@ namespace flx::ui {
 		}
 	}
 
-	void NSpell::draw(const NUIPainter& canvas) const {
+	void Spell::draw(const UIPainter& canvas) const {
 		if (!spell) {
 			logger.error_and_throw("NSpell must be tied with a Spell!");
 		}
@@ -158,11 +157,11 @@ namespace flx::ui {
 		canvas.draw(sprite);
 	}
 
-	const NSpellInventory* NSpell::getInventory() const {
-		const NWidget* parent = getParent();
+	const SpellInventory* Spell::getInventory() const {
+		const Widget* parent = getParent();
 		if (!parent) {
 			return {};
 		}
-		return parent->convert<NSpellInventory>();
+		return parent->convert<SpellInventory>();
 	}
-} // namespace flx::game
+} // namespace flx::ui

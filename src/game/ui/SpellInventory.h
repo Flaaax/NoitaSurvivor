@@ -8,52 +8,52 @@ namespace flx::game {
 }
 
 namespace flx::ui {
-	class NSpellInventory;
-	class NSpell;
+	class SpellInventory;
+	class Spell;
 
-	class NSpellInventory : public NWidget {
+	class SpellInventory : public Widget {
 	private:
 		struct Slot {
 			rect frame;
-			NSpell* spell{};
+			Spell* spell{};
 			// size_t index{};
 		};
 
 		int selectedSlot = -1;
 		int hoveredSlot = -1;
 		bool shouldHighlight{};
-		flx::Vector<Slot> slots;
+		Vector<Slot> slots;
 
 		using OnModify = std::function<void(viewable::Val<Shared<game::Spell>>)>;
 		OnModify onModify{};
 
 		void updateSlotsGeometry();
-		std::pair<int, float> getBestSlot(rect globalHitbox) const;
+		Pair<int, float> getBestSlot(rect globalHitbox) const;
 		void updateHoveredSlot(vec2 mouseLocal);
 		void invokeOnModify();
 
 	public:
-		NSpellInventory(vec2 position, size_t slotCount);
+		SpellInventory(vec2 position, size_t slotCount);
 
-		void draw(const NUIPainter& canvas) const override;
+		void draw(const UIPainter& canvas) const override;
 
-		void onDropQuery(const NDropQuery& query, NDropCollector& collector) override;
-		void onDropAccepted(const NDropQuery& query, bool shouldDrop) override;
+		void onDropQuery(const DropQuery& query, DropCollector& collector) override;
+		void onDropAccepted(const DropQuery& query, bool shouldDrop) override;
 		std::optional<NEventResult> handleEvent(const NUIEvent& event) override;
 
-		void addItem(Unique<NObject> spell, int index);
-		NSpell* getSpell(int index);
-		Unique<NObject> removeItem(NSpell* spell);
+		void addItem(Unique<Object> spell, int index);
+		Spell* getSpell(int index);
+		Unique<Object> removeItem(Spell* spell);
 		rect getSlotGeometry(int index) const;
 
 		void setOnModify(OnModify onModify);
 
 		// void onSpellReturn();
 
-		size_t getCount() const {
+		u64 getCount() const {
 			return slots.size();
 		}
 
-		static void updateSpellPosition(NSpell* spell, const NSpellInventory* to);
+		static void updateSpellPosition(Spell* spell, const SpellInventory* to);
 	};
 } // namespace flx::ui

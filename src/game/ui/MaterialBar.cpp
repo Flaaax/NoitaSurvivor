@@ -27,7 +27,7 @@ namespace flx::ui {
 		updateText();
 	}
 
-	void MaterialBar::draw(const ui::NUIPainter& canvas) const {
+	void MaterialBar::draw(const ui::UIPainter& canvas) const {
 		canvas.draw(text);
 	}
 

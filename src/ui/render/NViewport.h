@@ -4,7 +4,7 @@
 
 namespace flx::ui {
 	// Defines the transform from canvas to screen
-	struct NViewport {
+	struct Viewport {
 		vec2 offset;
 		vec2 scale = {1.f, 1.f};
 
@@ -36,19 +36,19 @@ namespace flx::ui {
 		}
 	};
 
-	inline vec2 operator>>(vec2 pos, const NViewport& viewport) {
+	inline vec2 operator>>(vec2 pos, const Viewport& viewport) {
 		return viewport.posToScreen(pos);
 	}
 
-	inline vec2 operator<<(vec2 pos, const NViewport& viewport) {
+	inline vec2 operator<<(vec2 pos, const Viewport& viewport) {
 		return viewport.posFromScreen(pos);
 	}
 
-	inline rect operator>>(rect rect, const NViewport& viewport) {
+	inline rect operator>>(rect rect, const Viewport& viewport) {
 		return viewport.rectToScreen(rect);
 	}
 
-	inline rect operator<<(rect rect, const NViewport& viewport) {
+	inline rect operator<<(rect rect, const Viewport& viewport) {
 		return viewport.rectFromScreen(rect);
 	}
 }

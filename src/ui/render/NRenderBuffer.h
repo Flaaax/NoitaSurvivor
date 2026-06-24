@@ -16,7 +16,7 @@ namespace flx::ui {
 	private:
 		friend class Window;
 
-		NViewport viewport;
+		Viewport viewport;
 		sf::Transform canvasTransform;
 
 		sf::RenderTexture canvasTexture;
@@ -42,6 +42,6 @@ namespace flx::ui {
 
 		void clear(sf::Color color);
 
-		NViewport getViewport() const;
+		Viewport getViewport() const;
 	};
 } // namespace flx::ui

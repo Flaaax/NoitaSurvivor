@@ -1,5 +1,4 @@
 #include "EntityFactory.h"
-#include "../../app/global/DataManager.h"
 #include "EntityComponents.h"
 #include "PhysicsComponents.h"
 #include "Render/RenderComponent.h"

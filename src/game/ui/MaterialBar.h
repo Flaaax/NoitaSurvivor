@@ -1,13 +1,13 @@
 #pragma once
 
-#include "src/ui/NObject.h"
+#include "src/ui/Object.h"
 #include "src/ui/elements/NPanel.h"
 #include "src/ui/shapes/NRichTextShape.h"
 
 namespace flx::ui {
 	class NRichText;
 
-	class MaterialBar : public ui::NObject {
+	class MaterialBar : public ui::Object {
 	private:
 		inline static std::string format{};
 		int material = 0;
@@ -25,6 +25,6 @@ namespace flx::ui {
 			updateText();
 		}
 
-		void draw(const ui::NUIPainter& canvas) const override;
+		void draw(const ui::UIPainter& canvas) const override;
 	};
 } // namespace flx::game

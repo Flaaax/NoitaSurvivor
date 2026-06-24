@@ -11,14 +11,14 @@ namespace flx::app {
 		// friend class SceneManager;
 
 	protected:
-		Unique<ui::NRootWidget> widget{};
+		Unique<ui::RootWidget> widget{};
 		Logger logger{};
 		AppCtx context;
-		const ui::NViewport& viewport;
+		const ui::Viewport& viewport;
 		// std::string nextScene = "";
 
 	public:
-		const std::string_view name;
+		const std::string name;
 
 		explicit Scene(AppCtx context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),
@@ -51,7 +51,7 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = flx::makeUnique(new ui::NRootWidget(viewport));
+			widget = flx::makeUnique(new ui::RootWidget(viewport));
 		}
 
 		void onWindowResized(const ui::NWindowView& view) const {

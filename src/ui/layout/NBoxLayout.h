@@ -2,9 +2,9 @@
 #include "NLayout.h"
 
 namespace flx::ui {
-	class NVBoxLayout : public NLayout {
+	class NVBoxLayout : public Layout {
 	protected:
-		NLayoutResult onMeasure(NLayoutConstraint constraint) override;
+		LayoutResult onMeasure(LayoutConstraint constraint) override;
 		void onArrange(rect allocation) override;
 
 	public:
@@ -24,9 +24,9 @@ namespace flx::ui {
 		float maxHeight = 500.f;
 	};
 
-	class NHBoxLayout : public NLayout {
+	class NHBoxLayout : public Layout {
 	protected:
-		NLayoutResult onMeasure(NLayoutConstraint constraint) override;
+		LayoutResult onMeasure(LayoutConstraint constraint) override;
 		void onArrange(rect allocation) override;
 
 	public:

@@ -1,5 +1,4 @@
 #include "RenderSystem.h"
-#include "../../app/global/DataManager.h"
 #include "../Components/Render/RenderComponent.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/GameContext.h"

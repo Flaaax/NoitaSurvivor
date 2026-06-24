@@ -15,25 +15,25 @@ namespace flx {
 }
 
 namespace flx::ui {
-	struct NViewport;
-	class NUIPainter;
-	class NLayout;
+	struct Viewport;
+	class UIPainter;
+	class Layout;
 
-	struct NLayoutConstraint {
+	struct LayoutConstraint {
 		vec2 minSize{};
 		vec2 maxSize{};
 	};
 
-	struct NLayoutResult {
+	struct LayoutResult {
 		vec2 size{};
 	};
 
-	class NObject {
-		friend class NWidget;
-		friend class NRootWidget;
+	class Object {
+		friend class Widget;
+		friend class RootWidget;
 
 	private:
-		NWidget* parent{};
+		Widget* parent{};
 		bool isWidget_{};
 		bool isDragged_{};
 
@@ -41,18 +41,18 @@ namespace flx::ui {
 	protected:
 		rect frame;
 		std::string_view typeID{};
-		NTooltipSpec tooltipSpec;
+		TooltipSpec tooltipSpec;
 		mutable bool visualDirty = true;
 
-		static flx::Logger& getLogger();
+		static Logger& getLogger();
 
 	public:
 		bool enableDragging{};
 		bool updateEnabled{};
 		bool isVisible = true;
 
-		explicit NObject() = default;
-		virtual ~NObject() = default;
+		explicit Object() = default;
+		virtual ~Object() = default;
 
 		bool isWidget() const {
 			return this->isWidget_;
@@ -73,7 +73,7 @@ namespace flx::ui {
 		virtual void update(float deltaTime) {
 		}
 
-		virtual void draw(const NUIPainter& painter) const = 0;
+		virtual void draw(const UIPainter& painter) const = 0;
 
 		// Generally, these values should not be changed inside Objects whose geometries are determined by user
 		void setPosition(vec2 pos) {
@@ -106,11 +106,11 @@ namespace flx::ui {
 			return frame.size;
 		}
 
-		NWidget* getParent() {
+		Widget* getParent() {
 			return parent;
 		}
 
-		const NWidget* getParent() const {
+		const Widget* getParent() const {
 			return parent;
 		}
 
@@ -121,10 +121,10 @@ namespace flx::ui {
 		vec2 getParentLocalPosition(vec2 globalPosition) const;
 		rect getLocalBounds() const;
 
-		virtual void onDropQuery(const NDropQuery& query, NDropCollector& collector) {
+		virtual void onDropQuery(const DropQuery& query, DropCollector& collector) {
 		}
 
-		virtual void onDropAccepted(const NDropQuery& query, bool shouldDrop) {
+		virtual void onDropAccepted(const DropQuery& query, bool shouldDrop) {
 		}
 
 		virtual rect getHitbox() const {
@@ -135,7 +135,7 @@ namespace flx::ui {
 			return toGlobalBounds(getHitbox());
 		}
 
-		NWidget* asWidget();
+		Widget* asWidget();
 
 		std::string_view getTypeID() const {
 			return typeID;
@@ -146,7 +146,7 @@ namespace flx::ui {
 			return flx::makeContentID<T>();
 		}
 
-		template <std::derived_from<NObject> T>
+		template <std::derived_from<Object> T>
 		const T* convert() const {
 			if (getTypeID() == makeTypeID<T>()) {
 				return static_cast<const T*>(this);
@@ -154,7 +154,7 @@ namespace flx::ui {
 			return {};
 		}
 
-		template <std::derived_from<NObject> T>
+		template <std::derived_from<Object> T>
 		T* convert() {
 			if (getTypeID() == makeTypeID<T>()) {
 				return static_cast<T*>(this);
@@ -162,7 +162,7 @@ namespace flx::ui {
 			return {};
 		}
 
-		virtual NLayoutResult measure(NLayoutConstraint constraint) {
+		virtual LayoutResult measure(LayoutConstraint constraint) {
 			return {.size = getSize()};
 		}
 
@@ -173,13 +173,13 @@ namespace flx::ui {
 		}
 
 		// Check hasRoot() before calling this!
-		const NViewport& getGlobalViewport() const;
+		const Viewport& getGlobalViewport() const;
 
 		// Called when window resizes or object added to widget
 		virtual void refresh() {}
 
-		const NRootWidget* getRoot() const;
+		const RootWidget* getRoot() const;
 	};
 } // namespace flx::ui
 
-#endif // ifndef NOBJECT_H
+#endif // FLX_GUARD_UI_OBJECT_H

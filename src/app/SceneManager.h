@@ -10,31 +10,33 @@ namespace flx::app {
 
 	class SceneManager {
 	private:
-		flx::StrMap<Unique<Scene>> scenes;
-		Scene* currentScene{};
-		Scene* sceneToChange{};
+		StrMap<SUnique<Scene>> scenes;
+		SWeak<Scene> currentScene{};
+		SWeak<Scene> sceneToChange{};
 
 	public:
 		SceneManager();
 		~SceneManager();
 
-		void add(Unique<Scene> scene);
+		void add(SUnique<Scene> scene);
 
-		Scene* get(std::string_view name) const;
+		SWeak<Scene> get(std::string_view name) const;
 
 		void setCurrent(std::string_view name) {
 			sceneToChange = get(name);
 		}
 
-		Scene* getCurrentScene() const {
+		SWeak<Scene> getCurrentScene() const {
 			return currentScene;
 		}
 
 		bool shouldChangeScene() const {
-			return sceneToChange != nullptr;
+			return !sceneToChange.expired();
 		}
 
 		void changeScene();
+
+		void exitAll() const;
 	};
 } // namespace flax::app
 

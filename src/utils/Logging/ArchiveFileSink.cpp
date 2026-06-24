@@ -14,7 +14,7 @@ namespace flx {
 		class LogFileWriter {
 		private:
 			static constexpr std::string_view defaultFilePath = "logs/flx.log";
-			static constexpr u64 defaultMaxArchives = 5;
+			static constexpr u64 defaultMaxArchives = 4;
 
 			inline static Shared<LogFileWriter> inst_{};
 			inline static std::mutex mutex;

@@ -55,15 +55,15 @@ namespace flx::game {
 			if (count() == 1) {
 				radius = 0;
 			} else if (count() > 2 && count() % 2 == 0) {
-				arg = -off / 2.f;
+				arg = off / 2.f;
 			} else if (count() % 2 == 1) {
-				arg = -math::pi / 2.f;
+				arg = math::pi / 2.f;
 			}
 
 			for (const auto i : wands.indices<int>()) {
 				const auto& wand = wands[i];
 				wand->localPos = radius * vec2::rad(arg);
-				arg += off;
+				arg -= off;
 			}
 		}
 
