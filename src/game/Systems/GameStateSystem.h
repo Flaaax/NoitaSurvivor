@@ -5,8 +5,8 @@ namespace flx::game {
 
 	class GameStateSystem {
 	public:
-		static void initGameState(const GameCtx& ctx);
-
+		static void setup(const GameCtx& ctx);
 		static void updateBeforePhysics(const GameCtx& ctx);
+		static void updateAfterPhysics(const GameCtx& ctx);
 	};
 } // namespace flx::game

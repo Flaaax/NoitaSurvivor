@@ -10,7 +10,7 @@ namespace flx::ui {
 
 		const NLayoutConstraint childConstraint{
 			.minSize = {},
-			.maxSize = {contentMaxSize.x, math::inf},
+			.maxSize = {contentMaxSize.x, math::finf},
 		};
 
 		vec2 layout{};
@@ -50,7 +50,7 @@ namespace flx::ui {
 
 		const NLayoutConstraint childConstraint{
 			.minSize = {},
-			.maxSize = {contentSize.x, math::inf},
+			.maxSize = {contentSize.x, math::finf},
 		};
 
 		bool first = true;
@@ -115,7 +115,7 @@ namespace flx::ui {
 
 		const NLayoutConstraint childConstraint{
 			.minSize = {},
-			.maxSize = {math::inf, contentMaxSize.y},
+			.maxSize = {math::finf, contentMaxSize.y},
 		};
 
 		vec2 layout{};
@@ -146,7 +146,7 @@ namespace flx::ui {
 
 		const NLayoutConstraint childConstraint{
 			.minSize = {},
-			.maxSize = {math::inf, contentSize.y},
+			.maxSize = {math::finf, contentSize.y},
 		};
 
 		struct ChildLayout {

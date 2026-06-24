@@ -44,7 +44,7 @@ namespace flx::game {
 
 	DEF_SPELL(Parasite, ModifierSpell) {
 	private:
-		std::shared_ptr<Script> script;
+		Shared<Script> script;
 
 	public:
 		Parasite() {

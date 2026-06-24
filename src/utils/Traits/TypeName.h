@@ -46,12 +46,4 @@ namespace flx {
 		// ReSharper disable once CppDFALocalValueEscapesFunction
 		return name;
 	}
-
-	namespace type {
-		template <class T, class... Ts>
-		inline constexpr bool is_one_of_v = (std::is_same_v<T, Ts> || ...);
-
-		template <class>
-		inline constexpr bool always_false_v = false;
-	} // namespace type
 } // namespace flx

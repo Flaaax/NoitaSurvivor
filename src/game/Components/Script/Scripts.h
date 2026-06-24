@@ -12,7 +12,7 @@ namespace flx::game {
 	private:
 		myecs::entity target;
 		vec2 offset;
-		float lengthSquared{};
+		//float lengthSquared{};
 		float maxForceSize = 15.f;
 		float radius;
 
@@ -30,35 +30,38 @@ namespace flx::game {
 			constexpr PhysicsService ps{};
 			const auto& proj_body = ctx.reg.get<BodyComponent>(self);
 
-			auto queryCallback = [this, ctx, self](myecs::entity other) {
-				if (!EntityService().isValidAndAlive(ctx, target) ||
-					EntityService().getLayer(ctx, target) != ContactLayer::Enemy) {
-					target = other;
-					offset = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
-					lengthSquared = offset.lengthSquared();
-				} else {
-					const vec2 offset1 = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
-					const float lengthSquared1 = offset1.lengthSquared();
-					if (lengthSquared1 < lengthSquared) {
-						target = other;
-						offset = offset1;
-						lengthSquared = lengthSquared1;
-					}
-				}
-				return true;
-			};
+			// auto queryCallback = [this, ctx, self](myecs::entity other) {
+			// 	if (!EntityService().isValidAndAlive(ctx, target) ||
+			// 		EntityService().getLayer(ctx, target) != EntityType::Enemy) {
+			// 		target = other;
+			// 		offset = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
+			// 		lengthSquared = offset.lengthSquared();
+			// 	} else {
+			// 		const vec2 offset1 = ps.getPosition(ctx, other) - ps.getPosition(ctx, self);
+			// 		const float lengthSquared1 = offset1.lengthSquared();
+			// 		if (lengthSquared1 < lengthSquared) {
+			// 			target = other;
+			// 			offset = offset1;
+			// 			lengthSquared = lengthSquared1;
+			// 		}
+			// 	}
+			// 	return true;
+			// };
 
-			ps.queryCircle(ctx,
-						   ContactLayerRules::bit(ContactLayer::Enemy),
-						   ps.getPosition(proj_body),
-						   radius,
-						   queryCallback);
+			target = ps.queryNearestEntity(ctx, EntityType::Enemy, ps.getPosition(proj_body), radius, target);
+			// ps.queryCircle(ctx,
+			// 			   ContactLayerRules::bit(EntityType::Enemy),
+			// 			   ps.getPosition(proj_body),
+			// 			   radius,
+			// 			   queryCallback);
 
 			if (!EntityService().isValidAndAlive(ctx, target) ||
-				EntityService().getLayer(ctx, target) != ContactLayer::Enemy) {
+				EntityService().getLayer(ctx, target) != EntityType::Enemy) {
 				target = {};
 				return;
 			}
+
+			offset = ps.getPosition(ctx, target) - ps.getPosition(proj_body);
 
 			static const int* i{};
 			if (!i) {

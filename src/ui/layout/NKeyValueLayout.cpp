@@ -15,8 +15,8 @@ namespace flx::ui {
 			}
 			const auto key = children[i];
 			const auto val = children[i + 1];
-			const vec2 keySize = key->measure({{}, {maxWidth, math::inf}}).size;
-			const vec2 valueSize = val->measure({{}, {maxWidth - keySize.x, math::inf}}).size;
+			const vec2 keySize = key->measure({{}, {maxWidth, math::finf}}).size;
+			const vec2 valueSize = val->measure({{}, {maxWidth - keySize.x, math::finf}}).size;
 			totalHeight += std::max(keySize.y, valueSize.y);
 			if (!isFirst) {
 				totalHeight += spacing;
@@ -54,8 +54,8 @@ namespace flx::ui {
 			const auto key = children[i];
 			const auto value = children[i + 1];
 
-			const vec2 keySize = key->measure({{}, {maxWidth, math::inf}}).size;
-			const vec2 valueSize = value->measure({{}, {maxWidth - keySize.x, math::inf}}).size;
+			const vec2 keySize = key->measure({{}, {maxWidth, math::finf}}).size;
+			const vec2 valueSize = value->measure({{}, {maxWidth - keySize.x, math::finf}}).size;
 
 			const float rowHeight = std::max(keySize.y, valueSize.y);
 			items.emplace_back(Item{keySize, valueSize, rowHeight, key, value});

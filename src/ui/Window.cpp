@@ -1,12 +1,12 @@
-#include "NWindow.h"
+#include "Window.h"
 
 #include "../utils/Logging/Logger.h"
-#include "global/NGlobal.h"
+#include "global/Global.h"
 #include "render/NRenderBuffer.h"
 #include <SFML/Graphics.hpp>
 
 namespace flx::ui {
-	void NWindow::updateViewport() {
+	void Window::updateViewport() {
 		viewport.resize(window.getSize());
 		const auto size = static_cast<vec2>(window.getSize());
 		// glViewport(0, 0, sizeu.x, sizeu.y);
@@ -17,12 +17,12 @@ namespace flx::ui {
 		window.setView(view);
 	}
 
-	void NWindow::updateMousePosition() {
+	void Window::updateMousePosition() {
 		input.mouseScreen = static_cast<vec2>(sf::Mouse::getPosition(window));
 		input.mouseRender = viewport.toCanvasPos(input.mouseScreen);
 	}
 
-	NWindow::NWindow(vec2u windowSize, std::string_view title)
+	Window::Window(vec2u windowSize, std::string_view title)
 		: window(sf::VideoMode(windowSize), title.data()), viewport(windowSize) {
 
 		updateViewport();
@@ -30,17 +30,17 @@ namespace flx::ui {
 
 		this->title = title;
 
-		NGlobal::getLogger().info("Window opened: {}", title);
+		Global::getLogger().info("Window opened: {}", title);
 	}
 
-	NWindow::~NWindow() {
+	Window::~Window() {
 	}
 
-	const NWindowView& NWindow::getView() const {
+	const NWindowView& Window::getView() const {
 		return viewport;
 	}
 
-	std::optional<NWindowEvent> NWindow::pollEvent() {
+	std::optional<WindowEvent> Window::pollEvent() {
 		if (const auto event = window.pollEvent()) {
 			if (event->is<sf::Event::Resized>()) {
 				updateViewport();
@@ -52,7 +52,7 @@ namespace flx::ui {
 				updateMousePosition();
 			}
 
-			return NWindowEvent{
+			return WindowEvent{
 				.rawEvent = *event,
 				.viewport = getView(),
 				.input = input,
@@ -62,21 +62,21 @@ namespace flx::ui {
 		return {};
 	}
 
-	void NWindow::draw(NRenderBuffer& buffer) {
+	void Window::draw(RenderBuffer& buffer) {
 		buffer.flush(window);
 	}
 
-	void NWindow::display() {
+	void Window::display() {
 		window.display();
 	}
 
-	NWindow::Mode NWindow::getMode() const {
+	Window::Mode Window::getMode() const {
 		return mode;
 	}
 
-	void NWindow::setMode(Mode mode) {
+	void Window::setMode(Mode mode) {
 		if (mode == this->mode) {
-			NGlobal::getLogger().warn("NWindow: Did not change window mode");
+			Global::getLogger().warn("NWindow: Did not change window mode");
 			return;
 		}
 

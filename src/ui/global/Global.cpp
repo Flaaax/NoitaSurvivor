@@ -1,23 +1,23 @@
-#include "NGlobal.h"
+#include "Global.h"
 
 #include "../../utils/Logging/Logger.h"
 
 namespace flx::ui {
-	const sf::Font& NGlobal::getDefaultFont() {
+	const sf::Font& Global::getDefaultFont() {
 		if (!defaultFont) {
 			logger.error_and_throw("No default font avaliable");
 		}
 		return *defaultFont;
 	}
 
-	void NGlobal::setDefaultFont(const sf::Font& font) {
+	void Global::setDefaultFont(const sf::Font& font) {
 		if (defaultFont) {
 			logger.error_and_throw("Default font should be set once");
 		}
 		defaultFont = &font;
 	}
 
-	flx::Logger& NGlobal::getLogger() {
+	flx::Logger& Global::getLogger() {
 		return logger_;
 	}
 }

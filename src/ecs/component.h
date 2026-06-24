@@ -80,13 +80,13 @@ namespace myecs {
 			if constexpr (in_place_delete) {
 				return std::views::all(packed) |
 					   std::views::filter([this](entity e) { return e.id != u32_max; }) |
-					   std::views::transform([this](entity e) {
-						   return std::pair<entity, T&>{e, get(e)};
+					   std::views::transform([this](entity e) -> std::pair<entity, T&> {
+						   return {e, get(e)};
 					   });
 			} else {
 				return std::views::all(packed) |
-					   std::views::transform([this](entity e) {
-						   return std::pair<entity, T&>{e, get(e)};
+					   std::views::transform([this](entity e) -> std::pair<entity, T&> {
+						   return {e, get(e)};
 					   });
 			}
 		}

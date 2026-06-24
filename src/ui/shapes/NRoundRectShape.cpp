@@ -6,7 +6,7 @@ namespace flx::ui {
 		m_points.resize(m_segments * 4);
 
 		size_t index = 0;
-		const float step = (math::PI / 2.f) / static_cast<float>(m_segments - 1);
+		const float step = (math::pi / 2.f) / static_cast<float>(m_segments - 1);
 		for (size_t corner = 0; corner < 4; corner++) {
 			vec2 cornerPos;
 			vec2 cornerEnd;
@@ -31,7 +31,7 @@ namespace flx::ui {
 				break;
 			}
 			for (size_t i = 0; i < m_segments - 1; i++) {
-				const float angle = corner * (math::PI / 2.f) + i * step;
+				const float angle = corner * (math::pi / 2.f) + i * step;
 				const float x = m_radius * std::cos(angle);
 				const float y = m_radius * std::sin(angle);
 				m_points[index++] = cornerPos + vec2{x, y};

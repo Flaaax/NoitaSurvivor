@@ -12,7 +12,7 @@
 #include "src/ui/shapes/NLineShape.h"
 
 namespace flx::game {
-	void RenderSystem::debugRender(const GameCtx& ctx, const ui::NPainter& rdr) {
+	void RenderSystem::debugRender(const GameCtx& ctx, const ui::Painter& rdr) {
 		ui::NLineShape shape;
 		for (const auto& e : ctx.gameState.borders) {
 			if (const auto b = ctx.reg.try_get<BodyComponent>(e)) {
@@ -31,7 +31,9 @@ namespace flx::game {
 		}
 	}
 
-	void RenderSystem::render(ui::NRenderBuffer& buffer, const GameCtx& ctx) {
+	void RenderSystem::render(ui::RenderBuffer& buffer, const GameCtx& ctx) {
+		using namespace myecs;
+
 		ctx.scales.offset = ctx.appCtx.windowViewport.canvasSize / 2.f;
 
 		// rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
@@ -40,7 +42,7 @@ namespace flx::game {
 
 		const vec2 offset = ctx.scales.offset - ctx.gameState.cameraPos * ctx.scales.scale;
 
-		ui::NPainter painter(buffer);
+		ui::Painter painter(buffer);
 		painter.states.transform
 			.translate(offset)
 			.scale(ctx.scales.scale);
@@ -61,51 +63,61 @@ namespace flx::game {
 			painter.draw(testShape);
 		}
 
-		// Logger::info("begin render");
+		constexpr u64 layerCount = static_cast<u64>(RenderLayer::Count);
+
+		Array<Vector<Pair<entity, const SpriteComponent&>>, layerCount> renderObjects{};
+
 		for (const auto& [e, c] : ctx.reg.view<SpriteComponent>()) {
-			sf::Sprite sprite{c.texture};
-			PhysicsService ps{};
+			renderObjects[c.options.layer].emplace_back(e, c);
+		}
 
-			const auto bc = ctx.reg.try_get<BodyComponent>(e);
+		for (auto& layer : renderObjects) {
+			for (auto& [e, c] : layer) {
+				sf::Sprite sprite{c.texture};
+				PhysicsService ps{};
 
-			const vec2 size = static_cast<vec2>(sprite.getTexture().getSize());
-			if (c.options.targetSize != vec2{}) {
-				sprite.setScale(c.options.targetSize / size);
-			}
-			if (c.options.centerAlinged) {
-				sprite.setOrigin(size / 2.f);
-			}
-			sprite.scale(c.options.scale);
-			if (c.options.followPosition) {
-				const vec2 pos = bc ? ps.getPosition(*bc) : c.position;
-				sprite.setPosition(pos + c.options.offset);
-			}
-			if (bc && c.options.followRotation) {
-				sprite.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.options.rotation));
-			}
-			if (bc && c.options.dynamicScale) {
-				float r = ps.getRadius(*bc);
-				sprite.scale({r, r});
-			}
+				const auto bc = ctx.reg.try_get<BodyComponent>(e);
 
-			if (const auto sec = ctx.reg.try_get<SpriteEffectComponent>(e)) {
-				auto& el = sec->effectList;
-				for (auto it = el.begin(); it != el.end();) {
-					(*it)->apply(sprite);
-
-					if ((*it)->isDone()) {
-						it = el.erase(it);
-					} else
-						++it;
+				const vec2 size = static_cast<vec2>(sprite.getTexture().getSize());
+				if (c.options.targetSize != vec2{}) {
+					sprite.setScale(c.options.targetSize / size);
 				}
+				if (c.options.centerAlinged) {
+					sprite.setOrigin(size / 2.f);
+				}
+				sprite.scale(c.options.scale);
+				if (c.options.followPosition) {
+					const vec2 pos = bc ? ps.getPosition(*bc) : c.position;
+					sprite.setPosition(pos + c.options.offset);
+				}
+				if (bc && c.options.followRotation) {
+					sprite.setRotation(sf::radians(ps.getRotation(*bc)) + sf::degrees(c.options.rotation));
+				}
+				if (bc && c.options.dynamicScale) {
+					float r = ps.getRadius(*bc);
+					sprite.scale({r, r});
+				}
+
+				if (const auto sec = ctx.reg.try_get<SpriteEffectComponent>(e)) {
+					auto& el = sec->effectList;
+					for (auto it = el.begin(); it != el.end();) {
+						(*it)->apply(sprite);
+
+						if ((*it)->isDone()) {
+							it = el.erase(it);
+						} else
+							++it;
+					}
+				}
+
+				painter.draw(sprite);
 			}
-
-			painter.draw(sprite);
 		}
 
-		for (const auto& wand : ctx.gameState.wands) {
-			wand->render(painter);
-		}
+		ctx.gameState.wandManager.draw(painter);
+		// for (const auto& wand : ctx.gameState.wands) {
+		// 	wand->draw(painter);
+		// }
 
 		if (ctx.gameState.debugMode) {
 			debugRender(ctx, painter);

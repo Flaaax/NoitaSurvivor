@@ -1,10 +1,10 @@
 // ReSharper disable CppUnusedIncludeDirective
 #pragma once
+#include "../utils/Traits/TypeName.h"
 #include "src/ecs/entity.h"
 #include "src/game/GameContext.h"
 #include "src/meta/ComponentMeta.h"
 #include "src/meta/CustomFieldParser.h"
-#include "src/utils/TypeName.h"
 
 using namespace flx::fon;
 using namespace flx::game;

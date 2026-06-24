@@ -11,7 +11,7 @@
 namespace flx::game {
 	struct EntityComponent {
 		// Do not modify this after initialized
-		ContactLayer layer = ContactLayer::None;
+		EntityType type = EntityType::None;
 		int health = -1;
 	};
 
@@ -41,7 +41,7 @@ namespace flx::game {
 		bool isBullet = true;
 
 		N_NOINIT Shared<ProjectileSpell> spell; // todo change all these pointers to raw pointer
-		N_NOINIT std::vector<Shared<ModifierSpell>> mods;
+		N_NOINIT Vector<Shared<ModifierSpell>> mods;
 	};
 
 	// marks an enemy

@@ -10,13 +10,14 @@ namespace sf {
 namespace flx::game {
 	struct SpriteData;
 
-	enum class RenderLayer {
+	enum class RenderLayer : u64 {
 		Bottom,
 		Enemy,
 		Player,
 		PlayerProj,
 		EnemyProj,
-		Top
+		Top,
+		Count,
 	};
 
 	struct SpriteRenderOptions {

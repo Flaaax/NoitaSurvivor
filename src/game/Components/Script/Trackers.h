@@ -14,7 +14,7 @@ namespace flx::game {
 
 		static vec2 clampLength(vec2 v, float maxLength) {
 			const float lenSq = v.lengthSquared();
-			if (lenSq < math::n_epsilon_2) {
+			if (lenSq < math::fepsilon2) {
 				return {};
 			}
 
@@ -32,9 +32,9 @@ namespace flx::game {
 			const float speed = velocity.length();
 
 			if (
-				offset.lengthSquared() < math::n_epsilon_2 ||
-				speed < math::n_epsilon ||
-				responseTime < math::n_epsilon) {
+				offset.lengthSquared() < math::fepsilon2 ||
+				speed < math::fepsilon ||
+				responseTime < math::fepsilon) {
 				return {};
 			}
 
@@ -44,7 +44,7 @@ namespace flx::game {
 
 			const float side = dir.cross(targetDir);
 
-			if (std::abs(side) < math::n_epsilon) {
+			if (std::abs(side) < math::fepsilon) {
 				return {};
 			}
 
@@ -66,8 +66,8 @@ namespace flx::game {
 			const float speedSquared = velocity.lengthSquared();
 
 			if (
-				offset.lengthSquared() < math::n_epsilon_2 ||
-				speedSquared < math::n_epsilon_2) {
+				offset.lengthSquared() < math::fepsilon2 ||
+				speedSquared < math::fepsilon2) {
 				return {};
 			}
 
@@ -76,7 +76,7 @@ namespace flx::game {
 			const vec2 rotatedOffset = rot * offset;
 
 			// Target is in front or behind of the projectile
-			if (std::abs(rotatedOffset.x) < math::n_epsilon) {
+			if (std::abs(rotatedOffset.x) < math::fepsilon) {
 				return {};
 			}
 
@@ -84,7 +84,7 @@ namespace flx::game {
 				rotatedOffset.lengthSquared() /
 				(2.f * std::abs(rotatedOffset.x));
 
-			if (radius < math::n_epsilon) {
+			if (radius < math::fepsilon) {
 				return {};
 			}
 
@@ -105,7 +105,7 @@ namespace flx::game {
 			const float speed = projVelocity.length();
 			const float offsetLengthSquared = offset.lengthSquared();
 
-			if (offsetLengthSquared < math::n_epsilon_2 || speed < math::n_epsilon) {
+			if (offsetLengthSquared < math::fepsilon2 || speed < math::fepsilon) {
 				return {};
 			}
 
@@ -120,7 +120,7 @@ namespace flx::game {
 
 			const float lineOfSightRate = offset.cross(relativeVelocity) / offsetLengthSquared;
 
-			if (std::abs(lineOfSightRate) < math::n_epsilon) {
+			if (std::abs(lineOfSightRate) < math::fepsilon) {
 				return {};
 			}
 

@@ -1,19 +1,16 @@
 #pragma once
+#include "../../utils/Functional/Lambda.h"
 #include "src/ecs/entity.h"
 #include "src/game/Components/PhysicsComponents.h"
 #include "src/game/Contact/ContactLayerRules.h"
-#include "src/utils/Lambda.h"
+#include "src/utils/Functional/FuncRef.h"
 
 namespace flx::game {
 	struct GameCtx;
 
 	class PhysicsService {
 	private:
-		using queryCallbackFcn = bool(myecs::entity e, void* customContext);
-
 		static BodyComponent& getBody(const GameCtx& ctx, myecs::entity e);
-		static void queryCircle(const GameCtx& ctx, ContactLayer layer, u64 targetLayers,
-								vec2 center, float radius, queryCallbackFcn* customCallback, void* customContext);
 
 	public:
 		static void assertValid(const BodyComponent& bc);
@@ -66,11 +63,7 @@ namespace flx::game {
 
 		static void applySoftCollision(const GameCtx& ctx, myecs::entity a, myecs::entity b);
 
-		template <class Callback>
-			requires std::is_invocable_r_v<bool, Callback&, myecs::entity>
-		static void queryCircle(const GameCtx& ctx, u64 targetLayers, vec2 center, float radius, Callback&& cbLambda, ContactLayer layer = ContactLayer::All) {
-			auto fn = flx::unwrapLambda(std::forward<Callback>(cbLambda));
-			PhysicsService::queryCircle(ctx, layer, targetLayers, center, radius, fn.fn, fn.ctx());
-		}
+		static void queryCircle(const GameCtx& ctx, LayerRules::Mask targetLayers, vec2 center, float radius, FuncRef<bool(myecs::entity)> callback, EntityType layer = EntityType::All);
+		static myecs::entity queryNearestEntity(const GameCtx& ctx, LayerRules::Mask targetLayers, vec2 center, float radius, myecs::entity preferred = {}, bool preferIfInside = false);
 	};
 } // namespace flx::game

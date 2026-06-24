@@ -26,7 +26,7 @@ namespace flx::ui {
 	void NPanel::refresh() {
 		const auto layout = getLayout();
 		if (sizePolicy == Auto) {
-			const vec2 maxSize = {getSize().x, math::inf};
+			const vec2 maxSize = {getSize().x, math::finf};
 			const vec2 backgroundSize = layout->measure({{}, maxSize}).size;
 			layout->arrange({{}, backgroundSize});
 			setSize(backgroundSize);

@@ -38,15 +38,15 @@ namespace flx::game {
 		return ctx.reg.valid(e) && isAlive(ctx, e);
 	}
 
-	ContactLayer EntityService::getLayer(const GameCtx& ctx, myecs::entity e) {
-		return ctx.reg.get<EntityComponent>(e).layer;
+	EntityType EntityService::getLayer(const GameCtx& ctx, myecs::entity e) {
+		return ctx.reg.get<EntityComponent>(e).type;
 	}
 
 	void EntityService::clearMostEntities(const GameCtx& ctx) {
 		auto es = view::all(ctx.reg.view<EntityComponent>())
 					  .to<Vector>();
 		for (auto& [e, ec] : es) {
-			if (ec.layer == ContactLayer::Enemy || ec.layer == ContactLayer::Collectible || ec.layer == ContactLayer::PlayerProj) {
+			if (ec.type == EntityType::Enemy || ec.type == EntityType::Collectible || ec.type == EntityType::PlayerProj) {
 				killSilent(ctx, e);
 			}
 		}

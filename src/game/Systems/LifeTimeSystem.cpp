@@ -40,7 +40,7 @@ namespace flx::game {
 					// disable the enemy
 					auto& body = reg.get<BodyComponent>(e);
 					auto& ee = reg.get<EntityComponent>(e);
-					ee.layer = ContactLayer::None; // disable all contact
+					ee.type = EntityType::None; // disable all contact
 					ee.health = -1;
 					PhysicsService().setType(body, BodyArg::Static);
 					vec2 impulse = ec->impulseRecieved;

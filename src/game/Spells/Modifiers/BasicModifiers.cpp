@@ -66,7 +66,7 @@ namespace flx::game {
 	ScatterShot::ScatterShot() {
 		castDelay = -0.3f;
 		reloadDelay = -0.5f;
-		scatter = 3.f * math::PI;
+		scatter = 3.f * math::pi;
 	}
 
 	void Parasite::apply(const GameCtx& ctx, myecs::entity p) {
@@ -92,7 +92,7 @@ namespace flx::game {
 					}
 				}
 				for (auto left = mat22::rotLeft() * dir; auto& new_dir : {left, -left}) {
-					const auto proj1 = Shot::clone(ctx, self, pos, math::to_rad(new_dir));
+					const auto proj1 = Shot::clone(ctx, self, pos, new_dir.rad());
 					auto& p1 = reg.get_or_emplace<MultiContactComponent>(proj1);
 					p1.banned.merge(reg.get<MultiContactComponent>(self).banned);
 				}

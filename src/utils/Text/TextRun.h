@@ -1,7 +1,7 @@
 #pragma once
 #include "BBCode.h"
+#include "src/utils/FlagSet.h"
 #include "src/utils/Integers.h"
-#include "src/utils/Tag.h"
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/String.hpp>
@@ -18,7 +18,7 @@ namespace flx::text {
 
 	struct TextStyle {
 		sf::Color color = sf::Color::Black;
-		Tag<TextEffect> effects;
+		FlagSet<TextEffect> effects;
 
 		bool operator==(const TextStyle&) const = default;
 

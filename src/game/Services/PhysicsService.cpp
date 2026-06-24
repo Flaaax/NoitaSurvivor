@@ -1,8 +1,9 @@
 #include "PhysicsService.h"
+#include "../../utils/Functional/Lambda.h"
 #include "../../utils/Logging/Logger.h"
 #include "ContactService.h"
+#include "EntityService.h"
 #include "src/game/GameContext.h"
-#include "src/utils/Lambda.h"
 #include <src/game/Components/PhysicsComponents.h>
 
 namespace flx::game {
@@ -51,7 +52,7 @@ namespace flx::game {
 		if (!ec) {
 			logger.error_and_throw("Entity must have EntityComponent to create a body");
 		}
-		const auto layer = ec->layer;
+		const auto layer = ec->type;
 
 		b2BodyDef bodyDef = b2DefaultBodyDef();
 		bodyDef.type = static_cast<b2BodyType>(arg.type);
@@ -217,7 +218,7 @@ namespace flx::game {
 		float dist = delta.lengthSquared();
 
 		b2Vec2 normal;
-		if (dist > math::n_epsilon) {
+		if (dist > math::fepsilon) {
 			dist = math::sqrt(dist);
 			normal = (1.0f / dist) * delta;
 		} else {
@@ -258,7 +259,7 @@ namespace flx::game {
 		b2Body_ApplyForceToCenter(bodyB, force, true);
 	}
 
-	void PhysicsService::queryCircle(const GameCtx& ctx, ContactLayer layer, u64 targetLayers, vec2 center, float radius, queryCallbackFcn* customCallback, void* customContext) {
+	void PhysicsService::queryCircle(const GameCtx& ctx, LayerRules::Mask targetLayers, vec2 center, float radius, FuncRef<bool(myecs::entity)> callback, EntityType layer) {
 		// circle proxy：1 个点 + 半径
 		const b2Vec2 center1 = center;
 		const b2ShapeProxy proxy = b2MakeProxy(&center1, 1, radius);
@@ -266,13 +267,53 @@ namespace flx::game {
 		// 可选：只查询某些 category
 		b2QueryFilter filter = b2DefaultQueryFilter();
 		filter.categoryBits = ctx.contactRules.bit(layer);
-		filter.maskBits = targetLayers;
-		auto queryCallback = flx::unwrapLambda([=](b2ShapeId shapeId) {
+		filter.maskBits = targetLayers.flatten();
+		auto queryCallback = unwrapLambda([=](b2ShapeId shapeId) {
 			// Logger::info("Called1111 yeah");
 			const auto e = ContactService().getEntity(shapeId);
-			return customCallback(e, customContext);
+			return callback(e);
 		});
 
 		b2World_OverlapShape(ctx.worldCtx.world, &proxy, filter, queryCallback.fn, queryCallback.ctx());
+	}
+
+	myecs::entity PhysicsService::queryNearestEntity(const GameCtx& ctx, LayerRules::Mask targetLayers, vec2 center, float radius, myecs::entity preferred, bool preferIfInside) {
+		float length2 = math::finf;
+		auto candidate = preferred;
+		if (EntityService().isValidAndAlive(ctx, candidate)) {
+			length2 = (getPosition(ctx, candidate) - center).lengthSquared();
+		} else {
+			candidate = {};
+		}
+
+		bool findPreferred = false;
+
+		auto callback = [&](myecs::entity e) {
+			if (!EntityService().isValidAndAlive(ctx, e)) {
+				return true;
+			}
+			if (preferIfInside && e == preferred) {
+				findPreferred = true;
+				return false;
+			}
+			if (!candidate) {
+				candidate = e;
+				length2 = (getPosition(ctx, e) - center).lengthSquared();
+			} else {
+				const auto len2 = (getPosition(ctx, e) - center).lengthSquared();
+				if (len2 < length2) {
+					length2 = len2;
+					candidate = e;
+				}
+			}
+			return true;
+		};
+
+		queryCircle(ctx, targetLayers, center, radius, callback);
+
+		if (preferIfInside && findPreferred) {
+			return preferred;
+		}
+		return candidate;
 	}
 } // namespace flx::game

@@ -1,7 +1,7 @@
 #pragma once
 #include "States/ContactState.h"
 #include "States/GameState.h"
-#include "src/app/AppContext.h"
+#include "src/app/AppCtx.h"
 #include "src/ecs/entity.h"
 
 // namespace flx::ui {
@@ -27,6 +27,6 @@ namespace flx::game {
 		GameState& gameState;
 		ContactState& contactState;
 		GameRenderScales& scales;
-		const flx::app::AppContext& appCtx;
+		const app::AppCtx& appCtx;
 	};
 } // namespace flx::game

@@ -1,13 +1,13 @@
 #include "NRenderBuffer.h"
 
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/shapes/NRichTextShape.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
 namespace flx::ui {
-	NRenderBuffer::NRenderBuffer(const NWindowView& viewport)
+	RenderBuffer::RenderBuffer(const NWindowView& viewport)
 		: canvasTexture(viewport.defaultWindowSize),
 		  canvasAccumTexture(viewport.defaultWindowSize),
 		  UITexture(viewport.defaultWindowSize) {
@@ -15,9 +15,9 @@ namespace flx::ui {
 		onWindowResized(viewport);
 	}
 
-	void NRenderBuffer::onWindowResized(const NWindowView& view) {
+	void RenderBuffer::onWindowResized(const NWindowView& view) {
 		if (!UITexture.resize(view.windowSize)) {
-			NGlobal::getLogger().error_and_throw("Failed to resize render texture with unknown reason");
+			Global::getLogger().error_and_throw("Failed to resize render texture with unknown reason");
 		}
 
 		viewport = view.viewport;
@@ -28,35 +28,35 @@ namespace flx::ui {
 		UITexture.clear(clearColor);
 	}
 
-	void NRenderBuffer::drawCanvas(const sf::Drawable& content, const sf::RenderStates& states) {
+	void RenderBuffer::drawCanvas(const sf::Drawable& content, const sf::RenderStates& states) {
 		canvasTexture.draw(content, states);
 	}
 
-	void NRenderBuffer::drawUI(const sf::Drawable& content, sf::RenderStates states) {
+	void RenderBuffer::drawUI(const sf::Drawable& content, sf::RenderStates states) {
 		states.transform = canvasTransform * states.transform;
 		UITexture.draw(content, states);
 	}
 
-	void NRenderBuffer::drawUIText(const NRichTextShape& text, sf::RenderStates states) {
+	void RenderBuffer::drawUIText(const NRichTextShape& text, sf::RenderStates states) {
 		const vec2 canvasPos = states.transform.transformPoint({0.f, 0.f});
 		states.transform = sf::Transform().translate(viewport.offset + canvasPos * viewport.scale);
 		UITexture.draw(text, states);
 	}
 
-	void NRenderBuffer::drawUIRaw(const sf::Drawable& content, const sf::RenderStates& states) {
+	void RenderBuffer::drawUIRaw(const sf::Drawable& content, const sf::RenderStates& states) {
 		UITexture.draw(content, states);
 	}
 
-	void NRenderBuffer::clear(sf::Color color) {
+	void RenderBuffer::clear(sf::Color color) {
 		canvasTexture.clear(color);
 		UITexture.clear(sf::Color::Transparent);
 	}
 
-	NViewport NRenderBuffer::getViewport() const {
+	NViewport RenderBuffer::getViewport() const {
 		return viewport;
 	}
 
-	void NRenderBuffer::flush(sf::RenderWindow& window) {
+	void RenderBuffer::flush(sf::RenderWindow& window) {
 		canvasTexture.display();
 		const sf::Texture* targetTexture{};
 

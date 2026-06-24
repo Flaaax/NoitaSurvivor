@@ -1,6 +1,6 @@
 #pragma once
 #include "src/ui/NObject.h"
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 #include "src/ui/shapes/NRichTextShape.h"
 
@@ -18,7 +18,7 @@ namespace flx::ui {
 			: text(font, utf8Markup, characterSize), designedPx(characterSize) {}
 
 		explicit NRichText(std::string_view utf8Markup = {}, u32 characterSize = 30u)
-			: NRichText(NGlobal::getDefaultFont(), utf8Markup, characterSize) {}
+			: NRichText(Global::getDefaultFont(), utf8Markup, characterSize) {}
 
 		void draw(const NUIPainter& canvas) const override {
 			if (useRealPx) {

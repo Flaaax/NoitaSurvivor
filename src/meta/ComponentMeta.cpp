@@ -94,7 +94,7 @@ namespace flx::meta {
 		};
 
 		{
-			flx::Vector<std::string_view> keys = {
+			Vector<std::string_view> keys = {
 				"texture",
 				"followPosition",
 				"followRotation",
@@ -121,7 +121,7 @@ namespace flx::meta {
 		};
 
 		{
-			flx::Vector<std::string_view> keys = {
+			Vector<std::string_view> keys = {
 				"lifetime",
 			};
 

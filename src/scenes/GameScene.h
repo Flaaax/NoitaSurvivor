@@ -6,7 +6,7 @@
 #include "src/game/Game.h"
 
 namespace flx::app {
-	class GameScene : public flx::app::Scene {
+	class GameScene : public Scene {
 	private:
 		game::Game game;
 		bool init{};
@@ -15,12 +15,13 @@ namespace flx::app {
 		void initUI();
 
 	public:
-		explicit GameScene(flx::app::AppContext context);
+		explicit GameScene(AppCtx context);
 
-		void draw(ui::NRenderBuffer& rdr) override;
+		void draw(ui::RenderBuffer& rdr) override;
 		void update(float dt) override;
-		bool handleEvent(const ui::NWindowEvent& event) override;
+		bool handleEvent(const ui::WindowEvent& event) override;
 		void enter() override;
+		void makeImGuiContent() override;
 	};
 } // namespace flx::app
 

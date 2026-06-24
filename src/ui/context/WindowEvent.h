@@ -7,7 +7,7 @@ namespace flx::ui {
 	struct NWindowView;
 	struct NInputState;
 
-	struct NWindowEvent {
+	struct WindowEvent {
 		NRawEvent rawEvent;
 		const NWindowView& viewport;
 		const NInputState& input;

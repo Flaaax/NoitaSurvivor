@@ -1,6 +1,6 @@
 player {
 	EntityComponent {
-		layer Player
+		type Player
 	}
 	DirectionComponent {
 	}
@@ -23,7 +23,7 @@ player {
 }
 bullet {
 	EntityComponent {
-		layer PlayerProj
+		type PlayerProj
 	}
 	BodyComponent {
 		type Dynamic
@@ -48,7 +48,7 @@ bullet {
 }
 enemy {
 	EntityComponent {
-		layer Enemy
+		type Enemy
 		health 10
 	}
 	EnemyComponent {
@@ -77,12 +77,12 @@ enemy {
 }
 border {
 	EntityComponent {
-		layer Wall
+		type Wall
 	}
 }
 explosion {
 	EntityComponent {
-		layer PlayerProj
+		type PlayerProj
 	}
 	SpriteComponent {
 		texture gfx/entity/explosion.png
@@ -94,7 +94,7 @@ explosion {
 }
 material {
 	EntityComponent {
-		layer Collectible
+		type Collectible
 	}
 	DirectionComponent {
 	}
@@ -117,7 +117,7 @@ material {
 }
 enemy_birth {
 	EntityComponent {
-		layer None
+		type None
 	}
 	SpriteComponent {
 		texture gfx/entity/enemy_birth.png

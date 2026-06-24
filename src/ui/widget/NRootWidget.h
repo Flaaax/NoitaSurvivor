@@ -6,7 +6,7 @@
 namespace flx::ui {
 	class NPanel;
 	class NTooltip;
-	class NRenderBuffer;
+	class RenderBuffer;
 
 	class NRootWidget : public NWidget {
 	private:
@@ -17,16 +17,16 @@ namespace flx::ui {
 		vec2 mousePosition{};
 		NViewport viewport;
 
-		bool handleDragEvent(const NWindowEvent& event);
-		static bool shouldHandleEvent(const NWindowEvent& ctx);
+		bool handleDragEvent(const WindowEvent& event);
+		static bool shouldHandleEvent(const WindowEvent& ctx);
 		void updateTooltipContent();
 		void updateHover(float dt);
 
 	public:
 		explicit NRootWidget(NViewport viewport, rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true);
 		// Handle event as the root widget
-		bool handleEvent(const NWindowEvent& ctx);
-		void draw(NRenderBuffer& rdr) const;
+		bool handleEvent(const WindowEvent& ctx);
+		void draw(RenderBuffer& rdr) const;
 		void update(float dt) override;
 		const NViewport& getViewport() const;
 

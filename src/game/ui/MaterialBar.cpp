@@ -1,13 +1,13 @@
 #include "MaterialBar.h"
 #include "../../app/global/LocManager.h"
 #include "src/ui/elements/NRichText.h"
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 #include "src/utils/Text/Format.h"
 
 namespace flx::ui {
 	MaterialBar::MaterialBar(vec2 rightTop, float height)
-		: rightTop(rightTop), height(height), text(ui::NGlobal::getDefaultFont()) {
+		: rightTop(rightTop), height(height), text(ui::Global::getDefaultFont()) {
 		frame = {{}, {500.f, height}};
 		frame.setRightTop(rightTop);
 

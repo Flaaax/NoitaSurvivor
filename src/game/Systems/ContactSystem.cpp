@@ -45,7 +45,7 @@ namespace flx::game {
 			}
 
 			auto [ea, eb] = reg.get<EntityComponent>(a, b);
-			if (ctx.contactRules.softContact.get(ea.layer, eb.layer)) {
+			if (ctx.contactRules.softContact.get(ea.type, eb.type)) {
 				PhysicsService().applySoftCollision(ctx, a, b);
 			}
 

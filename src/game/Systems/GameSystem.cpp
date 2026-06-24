@@ -13,15 +13,18 @@ namespace flx::game {
 
 	void GameSystem::update(const GameCtx& ctx, float dt) {
 		auto& reg = ctx.reg;
-		{
-			const auto mydir = ctx.gameState.mousePos - ctx.gameState.playerPos;
-			auto& wand = *ctx.gameState.wands.front();
-			wand.setGeometry(ctx.gameState.playerPos, mydir.rad());
-			wand.update(dt);
-			if (ctx.gameState.player.isShooting) {
-				wand.use(ctx);
-			}
-		}
+
+		ctx.gameState.wandManager.update(ctx, dt);
+
+		// {
+		// 	const auto mydir = ctx.gameState.mousePos - ctx.gameState.playerPos;
+		// 	auto& wand = *ctx.gameState.wands.front();
+		// 	wand.setGeometry(ctx.gameState.playerPos, mydir.rad());
+		// 	wand.update(dt);
+		// 	if (ctx.gameState.player.isShooting) {
+		// 		wand.use(ctx);
+		// 	}
+		// }
 
 		for (auto [e, s] : reg.view<ScriptComponent>()) {
 			for (const auto& sc : s.scripts) {

@@ -12,9 +12,9 @@ namespace sf {
 namespace flx::ui {
 	class NRichTextShape;
 
-	class NRenderBuffer {
+	class RenderBuffer {
 	private:
-		friend class NWindow;
+		friend class Window;
 
 		NViewport viewport;
 		sf::Transform canvasTransform;
@@ -29,7 +29,7 @@ namespace flx::ui {
 		sf::Color clearColor{};
 		bool enableMotionBlur = true;
 
-		explicit NRenderBuffer(const NWindowView& viewport);
+		explicit RenderBuffer(const NWindowView& viewport);
 
 		void onWindowResized(const NWindowView& view);
 

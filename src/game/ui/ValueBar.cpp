@@ -2,7 +2,7 @@
 #include "ValueBar.h"
 #include "../../app/global/LocManager.h"
 #include "src/ui/elements/NRichText.h"
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 #include "src/utils/Text/Format.h"
 
@@ -12,7 +12,7 @@ namespace flx::ui {
 		  m_initialLength(size.x),
 		  lengthPerHealth(lengthPerHealth),
 		  m_right(topRight.x),
-		  mode(mode), text(NGlobal::getDefaultFont(), "", static_cast<unsigned int>(size.y * 0.9)) {
+		  mode(mode), text(Global::getDefaultFont(), "", static_cast<unsigned int>(size.y * 0.9)) {
 		frame.size = size;
 		frame.setRightTop(topRight);
 

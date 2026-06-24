@@ -7,6 +7,9 @@
 #include <vector>
 
 namespace flx {
+	template <class T>
+	using Span = std::span<T>;
+
 	// Wrapper for std::vector
 	template <class T>
 		requires(!std::is_same_v<T, bool>)
@@ -14,6 +17,11 @@ namespace flx {
 	public:
 		using Base = std::vector<T>;
 		using Base::Base;
+
+		Vector() = default;
+
+		explicit(false) Vector(Span<const T> span)
+			: Base(span.begin(), span.end()) {}
 
 		template <std::integral I>
 		T& operator[](I index) {
@@ -38,12 +46,21 @@ namespace flx {
 			this->emplace_back(std::forward<U>(elem));
 		}
 
+		// Vector& operator=(Span<const T> span) {
+		// 	this->assign(span.begin(), span.end());
+		// 	return *this;
+		// }
+
 		template <class... Args>
 		T& emplace_front(Args&&... args) {
 			auto it = this->emplace(
 				this->begin(),
 				std::forward<Args>(args)...);
 			return *it;
+		}
+
+		void pop_front() {
+			this->erase(this->begin());
 		}
 
 		// Better: Returns true if left is better
@@ -89,4 +106,4 @@ namespace flx {
 		}
 	};
 
-} // namespace Util
+} // namespace flx

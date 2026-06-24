@@ -12,15 +12,15 @@ namespace flx::meta {
 	void ComponentMeta::initGeneratedComponentInitializers() {
 		componentInitializerFactories["EntityComponent"] =
 			[](const Fon& jsonData) -> ComponentInitializer {
-			using __layer_t = ValueWrapper<decltype(::flx::game::EntityComponent::layer)>;
+			using __type_t = ValueWrapper<decltype(::flx::game::EntityComponent::type)>;
 			using __health_t = ValueWrapper<decltype(::flx::game::EntityComponent::health)>;
 			struct __flx_game_EntityComponentParser {
-				__layer_t layer{};
+				__type_t type{};
 				__health_t health{};
 			} p;
-			if constexpr (__layer_t::enabled) {
-				if (jsonData.contains("layer")) {
-					p.layer.storage = std::move(__layer_t::Parser::parse(jsonData["layer"]));
+			if constexpr (__type_t::enabled) {
+				if (jsonData.contains("type")) {
+					p.type.storage = std::move(__type_t::Parser::parse(jsonData["type"]));
 				}
 			}
 			if constexpr (__health_t::enabled) {
@@ -30,8 +30,8 @@ namespace flx::meta {
 			}
 			return [p = std::move(p)](const GameCtx& ctx, myecs::entity e) -> void {
 				auto& c = ctx.reg.emplace<::flx::game::EntityComponent>(e);
-				if (p.layer.storage) {
-					c.layer = p.layer.value();
+				if (p.type.storage) {
+					c.type = p.type.value();
 				}
 				if (p.health.storage) {
 					c.health = p.health.value();
@@ -187,9 +187,9 @@ namespace flx::meta {
 	void ComponentMeta::initGeneratedMetaInfo() {
 		{
 			auto& info = componentMetaInfo["EntityComponent"];
-			using __flx_game_EntityComponent_layer_t = ValueWrapper<decltype(::flx::game::EntityComponent::layer)>;
-			if constexpr (__flx_game_EntityComponent_layer_t::enabled) {
-				info.fields.emplace_back(Field{"layer", typeFullName<decltype(::flx::game::EntityComponent::layer)>()});
+			using __flx_game_EntityComponent_type_t = ValueWrapper<decltype(::flx::game::EntityComponent::type)>;
+			if constexpr (__flx_game_EntityComponent_type_t::enabled) {
+				info.fields.emplace_back(Field{"type", typeFullName<decltype(::flx::game::EntityComponent::type)>()});
 			}
 			using __flx_game_EntityComponent_health_t = ValueWrapper<decltype(::flx::game::EntityComponent::health)>;
 			if constexpr (__flx_game_EntityComponent_health_t::enabled) {

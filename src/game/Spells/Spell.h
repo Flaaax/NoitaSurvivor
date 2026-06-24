@@ -1,6 +1,6 @@
 #pragma once
 #include "src/game/GameContext.h"
-#include "src/utils/Tag.h"
+#include "src/utils/FlagSet.h"
 #include "src/utils/ID.h"
 
 #pragma warning(disable : 5105)
@@ -38,7 +38,7 @@ namespace flx::game {
 			SHOT_MODIFY = 1 << 1,
 		};
 
-		flx::Tag<Tag> tags;
+		flx::FlagSet<Tag> tags;
 
 		int drawModifier = 0;
 		float castDelay = 0.f;

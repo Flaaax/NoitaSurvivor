@@ -1,7 +1,7 @@
 #pragma once
 #include "NInputState.h"
-#include "NWindowEvent.h"
 #include "States.h"
+#include "WindowEvent.h"
 #include <SFML/Window/Event.hpp>
 
 namespace flx::ui {
@@ -16,7 +16,7 @@ namespace flx::ui {
 	};
 
 	struct NUIEvent {
-		const NWindowEvent& windowEvent;
+		const WindowEvent& windowEvent;
 		const NRootCtx& rootCtx;
 		NLocalEventCtx localCtx;
 	};

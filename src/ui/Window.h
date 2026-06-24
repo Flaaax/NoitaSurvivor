@@ -1,13 +1,13 @@
 #pragma once
 #include "context/NInputState.h"
-#include "context/NWindowEvent.h"
+#include "context/WindowEvent.h"
 #include "render/NWindowView.h"
 
 namespace flx::ui {
-	class NRenderBuffer;
+	class RenderBuffer;
 
 	// Manages and holds the SFML window
-	class NWindow {
+	class Window {
 	public:
 		enum Mode {
 			Windowed,
@@ -28,8 +28,8 @@ namespace flx::ui {
 		NInputState input;
 
 		// Creates the window
-		NWindow(vec2u windowSize, std::string_view title);
-		~NWindow();
+		Window(vec2u windowSize, std::string_view title);
+		~Window();
 
 		const NWindowView& getView() const;
 
@@ -41,9 +41,9 @@ namespace flx::ui {
 			return window.isOpen();
 		}
 
-		std::optional<NWindowEvent> pollEvent();
+		std::optional<WindowEvent> pollEvent();
 
-		void draw(NRenderBuffer& buffer);
+		void draw(RenderBuffer& buffer);
 		void display();
 
 		Mode getMode() const;

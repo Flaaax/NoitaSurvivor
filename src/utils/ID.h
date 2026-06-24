@@ -1,6 +1,6 @@
 #pragma once
 #include "Text/CaseConvert.h"
-#include "TypeName.h"
+#include "Traits/TypeName.h"
 
 #include <string>
 

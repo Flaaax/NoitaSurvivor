@@ -1,7 +1,7 @@
 #pragma once
 #ifndef NSCENE_H
 #define NSCENE_H
-#include "AppContext.h"
+#include "AppCtx.h"
 #include "src/ui/render/NWindowView.h"
 #include "src/ui/widget/NRootWidget.h"
 #include "src/ui/widget/NWidget.h"
@@ -13,14 +13,14 @@ namespace flx::app {
 	protected:
 		Unique<ui::NRootWidget> widget{};
 		Logger logger{};
-		AppContext context;
+		AppCtx context;
 		const ui::NViewport& viewport;
 		// std::string nextScene = "";
 
 	public:
 		const std::string_view name;
 
-		explicit Scene(AppContext context, std::string_view name)
+		explicit Scene(AppCtx context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),
 			  context(context),
 			  viewport(context.windowViewport.viewport),
@@ -29,7 +29,7 @@ namespace flx::app {
 		virtual ~Scene() {
 		}
 
-		virtual void draw(ui::NRenderBuffer& rdr) {
+		virtual void draw(ui::RenderBuffer& rdr) {
 			if (widget) {
 				widget->draw(rdr);
 			}
@@ -41,7 +41,7 @@ namespace flx::app {
 			}
 		}
 
-		virtual bool handleEvent(const ui::NWindowEvent& event) {
+		virtual bool handleEvent(const ui::WindowEvent& event) {
 			if (widget) {
 				return widget->handleEvent(event);
 			}

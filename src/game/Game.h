@@ -4,7 +4,7 @@
 #include "Contact/ContactLayerRules.h"
 #include "GameContext.h"
 #include "render/GameRenderScales.h"
-#include "src/app/AppContext.h"
+#include "src/app/AppCtx.h"
 #include "src/ecs/entity.h"
 #include "src/utils/Logging/Logger.h"
 
@@ -13,7 +13,7 @@ namespace sf {
 }
 
 namespace flx::ui {
-	class NRenderBuffer;
+	class RenderBuffer;
 	struct NInputState;
 } // namespace flx::ui
 
@@ -30,7 +30,7 @@ namespace flx::game {
 		myecs::Registry reg;
 		Unique<EntityFactory> factory;
 		GameRenderScales scales;
-		flx::app::AppContext appCtx;
+		flx::app::AppCtx appCtx;
 
 		Logger logger;
 
@@ -39,11 +39,11 @@ namespace flx::game {
 		bool isInitialized = false;
 
 	public:
-		explicit Game(flx::app::AppContext appCtx);
+		explicit Game(flx::app::AppCtx appCtx);
 		~Game();
 
 		void init();
-		void draw(ui::NRenderBuffer& rdr);
+		void draw(ui::RenderBuffer& rdr);
 		void update(float dt);
 
 		void handleEvent(const sf::Event& event);

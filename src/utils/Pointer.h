@@ -1,4 +1,6 @@
 #pragma once
+#include "Macro.h"
+
 #include <memory>
 #include <utility>
 
@@ -12,8 +14,8 @@ namespace flx {
 	template <class T>
 	using Weak = std::weak_ptr<T>;
 
-	template <class T>
-	using Pair = std::pair<T, T>;
+	template <class T, class U = T>
+	using Pair = std::pair<T, U>;
 
 	template <class T>
 	Shared<T> makeShared(T* ptr) {
@@ -37,244 +39,143 @@ namespace flx {
 
 	// This is evil FR FR
 	inline constexpr internal::move_t move{};
-} // namespace flx
 
-namespace flx {
+	template <class T>
+	class SUnique;
 
-#if false
-
-	namespace internal {
-		template <class T>
-		struct ControlBlock {
-			T* ptr;
-			size_t weakCount;
-
-			explicit ControlBlock(T* p) : ptr(p), weakCount(0) {
-			}
-		};
-	} // namespace internal
-
-	template <typename T>
-	class Weak;
-
-	// Single-threaded unique pointer, supports weak reference.
-	template <typename T>
-	class Unique {
+	template <class T>
+	class SWeak {
 	private:
-		using ControlBlock = internal::ControlBlock<T>;
-		ControlBlock* control;
+		T* ptr{};
+		Weak<void> lifetime{};
 
-		void destroy() noexcept {
-			if (!control)
-				return;
-			if (control->ptr) {
-				delete control->ptr;
-				control->ptr = {};
-			}
-			if (control->weakCount == 0) {
-				delete control;
-			}
-			control = {};
-		}
+		explicit SWeak(T* ptr, Weak<void> lifetime)
+			: ptr(ptr), lifetime(lifetime | move) {}
 
 	public:
-		friend class Weak<T>;
+		SWeak() = default;
 
-		explicit Unique() noexcept : control(nullptr) {
+		template <class U>
+			requires std::convertible_to<U*, T*>
+		explicit(false) SWeak(const SUnique<U>& storage)
+			: ptr(storage.storage.get()), lifetime(storage.storage) {}
+
+		template <class U>
+			requires std::convertible_to<U*, T*>
+		explicit(false) SWeak(const SWeak<U>& other)
+			: ptr(other.ptr), lifetime(other.lifetime) {}
+
+		template <class U>
+		[[nodiscard]]
+		SWeak<U> staticCcast() const {
+			return {static_cast<U*>(ptr), lifetime};
 		}
 
-		explicit Unique(T* ptr) : control(ptr ? new ControlBlock(ptr) : nullptr) {
+		[[nodiscard]]
+		bool expired() const {
+			return lifetime.expired();
 		}
 
-		~Unique() {
-			destroy();
+		[[nodiscard]]
+		bool valid() const {
+			return !expired();
 		}
 
-		Unique(const Unique&) = delete;
-		Unique& operator=(const Unique&) = delete;
-
-		Unique(Unique&& other) noexcept : control(other.control) {
-			other.control = nullptr;
+		[[nodiscard]]
+		explicit operator bool() const {
+			return valid();
 		}
 
-		Unique& operator=(Unique&& other) noexcept {
-			if (this != &other) {
-				destroy();
-				control = other.control;
-				other.control = nullptr;
-			}
-
-			return *this;
+		[[nodiscard]]
+		T* get() const {
+			return valid() ? ptr : nullptr;
 		}
 
-		[[nodiscard]] T* get() const noexcept {
-			return control ? control->ptr : nullptr;
+		[[nodiscard]]
+		T& operator*() const {
+			return *ptr;
 		}
 
-		[[nodiscard]] T* getSafely() const {
-			if (!control || !control->ptr) {
-				throw std::logic_error("Util::Unique::require() called on null pointer");
-			}
-			return control->ptr;
-		}
-
-		[[nodiscard]] T& operator*() const {
-			return *get();
-		}
-
-		[[nodiscard]] T* operator->() const noexcept {
-			return get();
-		}
-
-		[[nodiscard]] explicit operator bool() const noexcept {
-			return get();
-		}
-
-		void reset(T* ptr = {}) {
-			if (ptr == get())
-				return;
-
-			destroy();
-
-			if (ptr) {
-				control = new ControlBlock(ptr);
-			}
-		}
-
-		[[nodiscard]] T* release() noexcept {
-			if (!control)
-				return {};
-			T* raw = control->ptr;
-			control->ptr = {};
-			if (control->weakCount == 0) {
-				delete control;
-			}
-			control = {};
-			return raw;
-		}
-
-		void swap(Unique& other) noexcept {
-			std::swap(control, other.control);
-		}
-
-		[[nodiscard]] size_t weakCount() const noexcept {
-			return control ? control->weakCount : 0;
+		[[nodiscard]]
+		T* operator->() const {
+			return ptr;
 		}
 	};
 
-	template <typename T>
-	class Weak {
+	template <class T>
+	class SUnique {
 	private:
-		internal::ControlBlock<T>* control;
+		template <class>
+		friend class SWeak;
 
-		void addRef() noexcept {
-			if (control) {
-				++control->weakCount;
-			}
-		}
+		template <class>
+		friend class SUnique;
 
-		void releaseRef() noexcept {
-			if (!control)
-				return;
+		Shared<T> storage{};
 
-			if (control->weakCount > 0) {
-				--control->weakCount;
-			}
-
-			if (!control->ptr && control->weakCount == 0) {
-				delete control;
-			}
-
-			control = {};
-		}
+		template <class U>
+			requires std::convertible_to<U*, T*>
+		explicit SUnique(Shared<U> storage)
+			: storage(storage | move) {}
 
 	public:
-		Weak() noexcept : control(nullptr) {
+		SUnique() = default;
+
+		explicit SUnique(T* ptr)
+			: storage(ptr) {}
+
+		template <class U>
+			requires std::convertible_to<U*, T*>
+		explicit SUnique(Unique<U>&& ptr)
+			: storage(ptr | move) {}
+
+		template <class U = T, class... Args>
+		[[nodiscard]]
+		static SUnique make(Args&&... args) {
+			return SUnique{std::make_shared<U>(FLX_FORWARD)};
 		}
 
-		explicit(false) Weak(const Unique<T>& unique) noexcept : control(unique.control) {
-			addRef();
+		SUnique(SUnique&&) noexcept = default;
+		SUnique& operator=(SUnique&&) noexcept = default;
+
+		SUnique(const SUnique&) = delete;
+		SUnique& operator=(const SUnique&) = delete;
+
+		[[nodiscard]]
+		T* get() const {
+			return storage.get();
 		}
 
-		~Weak() {
-			releaseRef();
+		[[nodiscard]]
+		T& operator*() const {
+			return *storage;
 		}
 
-		Weak(const Weak& other) noexcept : control(other.control) {
-			addRef();
+		[[nodiscard]]
+		T* operator->() const {
+			return storage.get();
 		}
 
-		Weak& operator=(const Weak& other) noexcept {
-			if (this != &other) {
-				releaseRef();
-				control = other.control;
-				addRef();
-			}
-
-			return *this;
+		[[nodiscard]]
+		explicit operator bool() const {
+			return static_cast<bool>(storage);
 		}
 
-		Weak(Weak&& other) noexcept : control(other.control) {
-			other.control = {};
+		void reset() {
+			storage.reset();
 		}
 
-		Weak& operator=(Weak&& other) noexcept {
-			if (this != &other) {
-				releaseRef();
-				control = other.control;
-				other.control = {};
-			}
-
-			return *this;
-		}
-
-		Weak& operator=(const Unique<T>& unique) noexcept {
-			releaseRef();
-			control = unique.control;
-			addRef();
-			return *this;
-		}
-
-		bool operator==(const Weak& other) const noexcept {
-			return control == other.control;
-		}
-
-		[[nodiscard]] T* get() const noexcept {
-			return control ? control->ptr : nullptr;
-		}
-
-		[[nodiscard]] T* getSafely() const {
-			if (!control || !control->ptr) {
-				throw std::logic_error("Util::Unique::require() called on null pointer");
-			}
-			return control->ptr;
-		}
-
-		[[nodiscard]] bool expired() const noexcept {
-			return !get();
-		}
-
-		[[nodiscard]] explicit operator T*() const noexcept {
-			return get();
-		}
-
-		[[nodiscard]] T* operator->() const noexcept {
-			return get();
-		}
-
-		[[nodiscard]] T& operator*() const {
-			return *get();
-		}
-
-		[[nodiscard]] explicit operator bool() const noexcept {
-			return get() != nullptr;
-		}
-
-		[[nodiscard]] size_t weakCount() const noexcept {
-			return control ? control->weakCount : 0;
+		template <class U = T>
+			requires std::convertible_to<T*, U*>
+		[[nodiscard]]
+		SWeak<U> ref() const {
+			return {*this};
 		}
 	};
 
-#endif
-
+	template <class T, class... Args>
+	[[nodiscard]]
+	SUnique<T> makeSUnique(Args&&... args) {
+		return SUnique<T>::make(FLX_FORWARD);
+	}
 } // namespace flx

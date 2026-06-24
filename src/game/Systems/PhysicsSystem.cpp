@@ -24,7 +24,7 @@ namespace flx::game {
 		ps.setPosition(ctx, ctx.gameState.player.collector, ctx.gameState.playerPos);
 
 		for (const auto& [e, _, bc] : reg.view<ProjectileComponent, BodyComponent>()) {
-			ps.setRotation(bc, math::to_rad(ps.getVelocity(bc)));
+			ps.setRotation(bc, ps.getVelocity(bc).rad());
 		}
 
 		// update enemy diretion

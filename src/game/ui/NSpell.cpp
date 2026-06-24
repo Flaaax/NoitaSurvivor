@@ -113,7 +113,7 @@ namespace flx::ui {
 				t -= 4 * p; // Loop the wave period.
 			float tt = (3 * p <= t && t <= 4 * p) ? (t - 4 * p) : (p - std::abs(t - p));
 			tt /= p; // Normalize to [-1, 1].
-			const float sgn = std::abs(tt) < math::n_epsilon ? 0.f : (tt / abs(tt));
+			const float sgn = std::abs(tt) < math::fepsilon ? 0.f : (tt / abs(tt));
 			rotation = sgn * (1 - 1 / std::exp(std::abs(tt))) * A;
 			return;
 		}

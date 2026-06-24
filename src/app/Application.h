@@ -1,39 +1,33 @@
 #pragma once
-#include "AppContext.h"
+#include "AppCtx.h"
 #include "IApp.h"
 #include "SceneManager.h"
-#include "src/ui/NWindow.h"
+#include "src/ui/Window.h"
 #include "src/utils/Logging/Logger.h"
 
 namespace flx::app {
 
-	struct AppInit {
-		std::string name = "Unnamed App";
-		vec2u defaultWindowSize = {1920, 1080};
-		bool imguiEnabled{};
-		std::string defaultFont = "fonts/msyh.ttc";
-		bool displayDebugFPS{};
-	};
-
 	class Application {
 	private:
-		ui::NWindow window;
+		ui::Window window;
 		SceneManager sceneManager;
 		Logger logger;
-		bool imguiEnabled{};
-		bool showDebugFPS{};
+		RuntimeCtx runtime;
 		bool runGuard{};
+		bool imguiEnabled{};
 		std::string defaultFont;
 
 		int loop();
-		AppContext getContext();
-		explicit Application(const AppInit& info);
+		void initImgui();
+		AppCtx getContext();
+		bool shouldDisplayImgui()const;
+		explicit Application(AppInfo info);
 
 	public:
 		template <std::derived_from<IApp> MyApp>
-		static int run(AppInit info) {
+		static int run() {
 			MyApp app1;
-			Application app(info);
+			Application app(app1.getInfo());
 			app1.setup(app.getContext());
 			return app.loop();
 		}

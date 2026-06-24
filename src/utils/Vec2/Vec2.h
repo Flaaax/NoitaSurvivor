@@ -29,13 +29,13 @@ namespace flx {
 		using std::sqrt;
 
 		inline bool isValid(float x) {
-			return ::std::isfinite(x);
+			return std::isfinite(x);
 		}
 
-		inline constexpr float n_epsilon = 1e-5f;
-		inline constexpr float n_epsilon_2 = 1e-10f;
-		inline constexpr float n_max = std::numeric_limits<float>::max();
-		inline constexpr float inf = std::numeric_limits<float>::infinity();
+		inline constexpr float fepsilon = 1e-5f;
+		inline constexpr float fepsilon2 = 1e-10f;
+		inline constexpr float fmax = std::numeric_limits<float>::max();
+		inline constexpr float finf = std::numeric_limits<float>::infinity();
 
 		template <class T>
 		constexpr auto abs(T a) {
@@ -191,7 +191,7 @@ namespace flx {
 
 		float normalize() noexcept {
 			const float len = length();
-			if (len < math::n_epsilon) {
+			if (len < math::fepsilon) {
 				return 0.0f;
 			}
 			const float invLength = 1.0f / len;
@@ -202,7 +202,7 @@ namespace flx {
 
 		[[nodiscard]] vec2 normalized() const noexcept {
 			const float len = length();
-			if (len < math::n_epsilon) {
+			if (len < math::fepsilon) {
 				return {};
 			}
 			const float invLength = 1.0f / len;
@@ -218,11 +218,15 @@ namespace flx {
 		}
 
 		[[nodiscard]] constexpr bool isZero() const noexcept {
-			return math::abs(x) <= math::n_epsilon && math::abs(y) <= math::n_epsilon;
+			return math::abs(x) <= math::fepsilon && math::abs(y) <= math::fepsilon;
 		}
 
 		[[nodiscard]] float rad() const noexcept {
 			return std::atan2(y, x);
+		}
+
+		[[nodiscard]] static vec2 rad(float rad_) noexcept {
+			return {std::cos(rad_), std::sin(rad_)};
 		}
 
 		[[nodiscard]] vec2 rotated(float rad, vec2 center = {}) const noexcept {

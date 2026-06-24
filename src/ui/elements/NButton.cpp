@@ -1,6 +1,6 @@
 #include "NButton.h"
 
-#include "../NWindow.h"
+#include "../Window.h"
 #include "../render/NPainter.h"
 #include "NRichText.h"
 #include "src/ui/layout/NBoxLayout.h"

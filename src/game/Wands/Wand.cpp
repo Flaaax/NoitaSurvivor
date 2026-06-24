@@ -2,6 +2,9 @@
 #include "Wand.h"
 #include "../../app/global/AssetManager.h"
 #include "src/app/global/Loader.h"
+#include "src/game/Contact/ContactLayerRules.h"
+#include "src/game/Services/EntityService.h"
+#include "src/game/Services/PhysicsService.h"
 #include "src/game/Spells/Modifiers/BasicModifiers.h"
 #include "src/game/Spells/Projectiles/BasicProjectiles.h"
 #include "src/game/Spells/SpellBlock.h"
@@ -26,7 +29,7 @@ namespace flx::game {
 			}
 		}
 
-		currentReloadDelay = std::max(MIN_CAST_DELAY, currentReloadDelay);
+		currentReloadDelay = std::max(minCastDelay, currentReloadDelay);
 		reloadTimer.set(currentReloadDelay).start();
 
 		currentReloadDelay = this->reloadDelay;
@@ -43,7 +46,7 @@ namespace flx::game {
 		return oss.str();
 	}
 
-	Wand::Wand(float wand_scale) : sprite(*app::Loader::loadTexture(defaultTexture, true)) {
+	Wand::Wand(float wandScale) : sprite(*app::Loader::loadTexture(defaultTexture, true)) {
 		const int randomNumber = flx::random.nextVal(0, 1000);
 		const auto name = vformat("gfx/wands/noita/{}.png", getWandTextureEntry(randomNumber));
 
@@ -55,8 +58,9 @@ namespace flx::game {
 
 		const auto textureSize = sprite.getTexture().getSize();
 		sprite.setOrigin({0, textureSize.y / 2.0f});
-		length = 0.9f * wand_scale * static_cast<float>(textureSize.x);
-		sprite.setScale({wand_scale, wand_scale});
+		length = 0.9f * wandScale * static_cast<float>(textureSize.x);
+		holdLength = length * 0.33f;
+		sprite.setScale({wandScale, wandScale});
 
 		// temp
 		castAmount = 1;
@@ -65,15 +69,57 @@ namespace flx::game {
 
 		inventory.resize(10);
 
-		inventory[0] = std::make_shared<AddExplosionSpell>();
-		inventory[1] = std::make_shared<MultiShots>(3);
+		// inventory[0] = std::make_shared<AddExplosionSpell>();
+		// inventory[1] = std::make_shared<MultiShots>(3);
 		inventory[2] = std::make_shared<Parasite>();
-		inventory[3] = std::make_shared<ScatterShot>();
+		// inventory[3] = std::make_shared<ScatterShot>();
 		inventory[4] = std::make_shared<HomingShot>(6.f);
 		inventory.back() = std::make_shared<BulletSpell>();
 	}
 
-	void Wand::render(const ui::NPainter& renderer) const {
+	void Wand::updateGeometry(float dt) {
+		if (autoAim) {
+			const float diff = math::argDiff(targetRot, currentRot);
+			const float sign = math::sgn(diff);
+			const float offset = dt * rotSpeed;
+			if (std::abs(diff) <= offset) {
+				currentRot = targetRot;
+			} else {
+				currentRot += sign * offset;
+			}
+		} else {
+			currentRot = targetRot;
+		}
+
+		const auto dir = vec2::rad(currentRot);
+
+		sprite.setPosition(worldPos - holdLength * dir);
+		sprite.setRotation(sf::radians(currentRot));
+		castPos = worldPos + (length - holdLength) * dir;
+	}
+
+	void Wand::updateTarget(const GameCtx& ctx) {
+		const auto playerPos = ctx.gameState.playerPos;
+
+		worldPos = playerPos + localPos;
+
+		if (autoAim) {
+			if (!target) {
+				target = PhysicsService().queryNearestEntity(ctx, EntityType::Enemy, worldPos, aimRadius, target, true);
+			}
+			if (!EntityService().isValidAndAlive(ctx, target)) {
+				target = {};
+			}
+			if (target) {
+				const auto targetPos = PhysicsService().getPosition(ctx, target);
+				targetRot = (targetPos - worldPos).rad();
+			}
+		} else {
+			targetRot = (ctx.gameState.mousePos - worldPos).rad();
+		}
+	}
+
+	void Wand::draw(const ui::Painter& renderer) const {
 		renderer.draw(sprite);
 	}
 
@@ -120,9 +166,9 @@ namespace flx::game {
 		hand.clear();
 
 		// std::cout << "cast!\n";
-		block.cast(ctx, castPos, arg);
+		block.cast(ctx, castPos, targetRot);
 
-		currentCastDelay = std::max(MIN_CAST_DELAY, currentCastDelay);
+		currentCastDelay = std::max(minCastDelay, currentCastDelay);
 		castTimer.set(currentCastDelay).start();
 		currentCastDelay = 0.f;
 

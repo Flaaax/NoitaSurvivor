@@ -1,8 +1,8 @@
 #pragma once
 
 namespace flx::ui {
-	class NPainter;
-	class NRenderBuffer;
+	class Painter;
+	class RenderBuffer;
 } // namespace flx::ui
 
 namespace flx::game {
@@ -12,7 +12,7 @@ namespace flx::game {
 	class RenderSystem {
 	public:
 		static void update(const GameCtx& ctx, float dt);
-		static void render(ui::NRenderBuffer& buffer, const GameCtx& ctx);
-		static void debugRender(const GameCtx& ctx, const ui::NPainter& rdr);
+		static void render(ui::RenderBuffer& buffer, const GameCtx& ctx);
+		static void debugRender(const GameCtx& ctx, const ui::Painter& rdr);
 	};
 } // namespace flx::game

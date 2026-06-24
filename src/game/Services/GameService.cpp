@@ -10,8 +10,8 @@
 
 namespace flx::game {
 	void GameService::dropMaterial(const GameCtx& ctx, vec2 pos) {
-		const auto arg = flx::random.nextVal<float>(0.f, 2 * flx::math::PI);
-		const auto dir = math::from_rad(arg);
+		const auto arg = flx::random.nextVal<float>(0.f, 2 * flx::math::pi);
+		const auto dir = vec2::rad(arg);
 		const auto material = ctx.factory.createMaterial(ctx, pos);
 		const float k = flx::random.nextFloat(0.55f, 0.75f);
 		PhysicsService().applyImpulse(ctx, material, dir * k);

@@ -6,14 +6,14 @@ namespace sf {
 }
 
 namespace flx::ui {
-	class NGlobal {
+	class Global {
 	private:
 		inline static const sf::Font* defaultFont{};
-		inline static flx::Logger logger_ = flx::Logger::makeAsync("NUI");
+		inline static Logger logger_ = Logger::makeAsync("FLX_UI");
 
 	public:
 		static const sf::Font& getDefaultFont();
 		static void setDefaultFont(const sf::Font& font);
-		static flx::Logger& getLogger();
+		static Logger& getLogger();
 	};
 } // namespace flx::ui

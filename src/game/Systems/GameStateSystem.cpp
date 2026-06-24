@@ -9,12 +9,15 @@
 #include "src/utils/Random.h"
 
 namespace flx::game {
-	void GameStateSystem::initGameState(const GameCtx& ctx) {
+	void GameStateSystem::setup(const GameCtx& ctx) {
 		using namespace flx;
 
 		auto& state = ctx.gameState;
 
-		state.wands += makeUnique(new Wand(ctx.scales.gfx_wand_scale));
+		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
+		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
+		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
+		state.wandManager.addWand(ctx.scales.gfx_wand_scale);
 
 		state.player.id = ctx.factory.createPlayer(ctx);
 		state.player.collector = ctx.factory.createCollector(ctx, 4.5f);
@@ -29,7 +32,7 @@ namespace flx::game {
 
 		const rect bound = state.bound;
 
-		std::vector<std::pair<vec2, vec2>> borderEdges = {
+		Vector<Pair<vec2>> borderEdges = {
 			{bound.leftTop(), bound.rightTop()},
 			{bound.rightTop(), bound.rightBottom()},
 			{bound.rightBottom(), bound.leftBottom()},
@@ -44,8 +47,18 @@ namespace flx::game {
 		auto& state = ctx.gameState;
 		auto& inputState = ctx.appCtx.input;
 		state.mousePos = (inputState.mouseRender - ctx.scales.offset) / ctx.scales.scale + state.cameraPos;
-		const myecs::entity player = ctx.gameState.player.id;
+		const auto player = ctx.gameState.player.id;
 		state.playerPos = PhysicsService().getPosition(ctx, player);
+		state.playerVelocity = PhysicsService().getVelocity(ctx, player);
 		state.cameraPos = state.playerPos;
+	}
+
+	void GameStateSystem::updateAfterPhysics(const GameCtx& ctx) {
+		auto& state = ctx.gameState;
+		const auto player = ctx.gameState.player.id;
+		state.playerPos = PhysicsService().getPosition(ctx, player);
+		state.playerVelocity = PhysicsService().getVelocity(ctx, player);
+		state.cameraPos = state.playerPos;
+
 	}
 } // namespace flx::game

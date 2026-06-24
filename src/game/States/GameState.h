@@ -1,6 +1,7 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/entity.h"
+#include "src/game/Wands/WandManager.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
@@ -33,11 +34,12 @@ namespace flx::game {
 		rect debugEnemySpawnArea;
 
 		vec2 playerPos;
+		vec2 playerVelocity;
 		vec2 mousePos;
 		vec2 cameraPos;
 
-		flx::Vector<myecs::entity> borders;
-		flx::Vector<Unique<Wand>> wands;
+		Vector<myecs::entity> borders;
+		WandManager wandManager;
 
 		CTimer enemySpawnTimer;
 

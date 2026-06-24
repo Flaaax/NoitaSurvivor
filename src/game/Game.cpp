@@ -18,7 +18,7 @@
 #include "src/game/Wands/Wand.h"
 
 namespace flx::game {
-	Game::Game(flx::app::AppContext appCtx) : appCtx(appCtx) {
+	Game::Game(flx::app::AppCtx appCtx) : appCtx(appCtx) {
 		logger = flx::Logger::makeAsync("Game", true);
 		//logger.error_and_throw("TEST ERROR");
 	}
@@ -94,11 +94,11 @@ namespace flx::game {
 		b2World_SetCustomFilterCallback(ctx.worldCtx.world, PhysicalContactCallbacks::filterCallback, ctxInternal.get());
 		b2World_SetPreSolveCallback(ctx.worldCtx.world, PhysicalContactCallbacks::presolveCallback, ctxInternal.get());
 
-		GameStateSystem().initGameState(ctx);
+		GameStateSystem().setup(ctx);
 		EnemySpawnSystem().setup(ctx);
 	}
 
-	void Game::draw(ui::NRenderBuffer& rdr) {
+	void Game::draw(ui::RenderBuffer& rdr) {
 		const auto ctx = getContext();
 		RenderSystem().render(rdr, ctx);
 	}
@@ -112,6 +112,7 @@ namespace flx::game {
 
 		GameStateSystem().updateBeforePhysics(ctx);
 		PhysicsSystem().step(ctx, dt);
+		GameStateSystem().updateAfterPhysics(ctx);
 		ContactSystem().handleEvents(ctx);
 		ContactSystem().updateAfterHandleEvent(ctx, dt);
 		PhysicsSystem().updateAfterContactSystem(ctx, dt);

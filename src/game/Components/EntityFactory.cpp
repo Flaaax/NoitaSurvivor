@@ -5,7 +5,8 @@
 #include "Render/RenderComponent.h"
 #include "Render/SpriteEffects.h"
 #include "src/app/global/Loader.h"
-#include "src/game/Game.h"
+// #include "src/game/Game.h"
+#include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/meta/ComponentMeta.h"
 #include "src/utils/Container/View.h"
@@ -16,13 +17,15 @@ namespace flx::game {
 	using namespace myecs;
 	using namespace meta;
 
+	static Logger logger = Logger::makeAsync("EntityFactory");
+
 	void validateComponentConfig(std::string_view entity, std::string_view name, const Fon& j) {
 		const auto metaData = meta::ComponentMeta::getMetaInfo(name);
 		if (!metaData) {
 			logger.warn("Invalid component: {}\n\nfor entity{}", name, entity);
 			return;
 		}
-		for (const auto& fieldName : j.items() | std::views::keys) {
+		for (const auto fieldName : j.items() | std::views::keys) {
 			if (!view::all(metaData->fields).any([&](const auto& field) { return field.name == fieldName; })) {
 				logger.warn("Invalid key: {}\n\tfor component {}\n\tfor entity {}", fieldName, name, entity);
 			}
@@ -31,7 +34,7 @@ namespace flx::game {
 
 	void EntityFactory::initEntityComponents() {
 		for (auto& [entityType, j] : app::Loader::loadFonFile("data/component/entity.fon", true)->items()) {
-			flx::Vector<ComponentInitializer> components;
+			Vector<ComponentInitializer> components;
 			for (auto& [componentName, jj] : j.items()) {
 				validateComponentConfig(entityType, componentName, jj);
 				if (const auto gen = meta::ComponentMeta::getInitializerFactory(componentName)) {
@@ -45,6 +48,7 @@ namespace flx::game {
 
 	void EntityFactory::initFactories() {
 		for (auto& [entityType, components] : entityInitializers) {
+			// Kinda weird to use pointer here?
 			auto* componentList = &components;
 			factories[entityType] = [this, componentList](const GameCtx& ctx) {
 				const auto e = ctx.reg.create();
@@ -63,14 +67,12 @@ namespace flx::game {
 
 	// generally, do not set anything to sensor
 	myecs::entity EntityFactory::createPlayer(const GameCtx& ctx) {
-		logger.info("Creating player entity...");
 		static auto& factory = factories["player"];
-		auto e = factory(ctx);
-		auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
-		// effect->easing_function = Easing::ease_out_cubic;
-		ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
+		const auto e = factory(ctx);
+		// auto effect = new BouncyMoveEffect({0.8f, 1.2f}, {1.2f, 0.8f}, 0.5f);
+		// ctx.reg.emplace<SpriteEffectComponent>(e).effectList.emplace_back(effect);
 
-		logger.info("Player entity created: {}", e.string());
+		logger.info("Player entity: {}", e.string());
 		// Logger::info("Player has BodyComponent: {}",ctx.reg.has<BodyComponent>(e));
 		return e;
 	}
@@ -78,9 +80,9 @@ namespace flx::game {
 	myecs::entity EntityFactory::createBullet(const GameCtx& ctx, vec2 position, vec2 velocity) {
 		// todo
 		static auto& factory = factories["bullet"];
-		auto e = factory(ctx);
+		const auto e = factory(ctx);
 		const auto& body = ctx.reg.get<BodyComponent>(e);
-		PhysicsService().setTransform(body, position, math::to_rad(velocity));
+		PhysicsService().setTransform(body, position, velocity.rad());
 		PhysicsService().setVelocity(body, velocity);
 		return e;
 	}
@@ -88,7 +90,7 @@ namespace flx::game {
 	// Should keep this one
 	myecs::entity EntityFactory::createBorder(const GameCtx& ctx, vec2 start, vec2 end) {
 		static auto& factory = factories["border"];
-		auto e = factory(ctx);
+		const auto e = factory(ctx);
 		auto& reg = ctx.reg;
 
 		reg.emplace<BodyComponent>(e);
@@ -109,7 +111,7 @@ namespace flx::game {
 
 	myecs::entity EntityFactory::createEnemy(const GameCtx& ctx, vec2 pos) {
 		static auto& factory = factories["enemy"];
-		auto e = factory(ctx);
+		const auto e = factory(ctx);
 
 		PhysicsService().setPosition(ctx, e, pos);
 
@@ -119,7 +121,7 @@ namespace flx::game {
 	myecs::entity EntityFactory::createExplosion(const GameCtx& ctx, vec2 pos, float radius, float impulse) {
 		// Logger::error("Creating explosion entity at position ({}, {}) with radius {} and impulse {}", pos.x, pos.y, radius, impulse);
 		static auto& factory = factories["explosion"];
-		auto e = factory(ctx);
+		const auto e = factory(ctx);
 		auto& reg = ctx.reg;
 		reg.emplace<BodyComponent>(e);
 
@@ -130,7 +132,7 @@ namespace flx::game {
 			.radius = radius,
 		};
 		PhysicsService().createBody(ctx, e, arg);
-		const auto& body = reg.get<BodyComponent>(e);
+		// const auto& body = reg.get<BodyComponent>(e);
 		PhysicsService().setPosition(ctx, e, pos);
 
 		auto& p = reg.emplace<ProjectileComponent>(e);
@@ -143,7 +145,7 @@ namespace flx::game {
 
 		reg.emplace<MultiContactComponent>(e);
 		ctx.reg.emplace<SpriteEffectComponent>(e).effectList +=
-			flx::makeUnique(new Tween({}, {.opacity = 0}, lifetime, 0, Easing::ease_out_quad));
+			makeUnique(new Tween({}, {.opacity = 0}, lifetime, 0, Easing::ease_out_quad));
 		ctx.reg.emplace<ExplosionComponent>(e);
 
 		return e;
@@ -151,9 +153,9 @@ namespace flx::game {
 
 	myecs::entity EntityFactory::createCollector(const GameCtx& ctx, float radius) {
 		auto& reg = ctx.reg;
-		auto collector = reg.create();
+		const auto collector = reg.create();
 
-		reg.emplace<EntityComponent>(collector).layer = ContactLayer::Collector;
+		reg.emplace<EntityComponent>(collector).type = EntityType::Collector;
 
 		reg.emplace<BodyComponent>(collector);
 

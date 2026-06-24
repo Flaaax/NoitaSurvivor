@@ -3,7 +3,7 @@
 #include "../Container/VectorMap.h"
 #include "../Integers.h"
 #include "../Pointer.h"
-#include "../TypeName.h"
+#include "src/utils/Traits/Traits.h"
 
 #include <cstddef>
 #include <filesystem>
@@ -28,7 +28,7 @@ namespace flx::fon {
 
 	template <class T>
 	concept FonType = std::is_arithmetic_v<T> ||
-					   type::is_one_of_v<T, std::string, std::string_view, std::filesystem::path>;
+					   traits::is_one_of_v<T, std::string, std::string_view, std::filesystem::path>;
 
 	// 保持键有序
 	class Fon {
@@ -111,12 +111,12 @@ namespace flx::fon {
 				return Type::UInt;
 			} else if constexpr (std::is_same_v<bool, U>) {
 				return Type::Bool;
-			} else if constexpr (type::is_one_of_v<U, std::string, std::string_view, std::filesystem::path>) {
+			} else if constexpr (traits::is_one_of_v<U, std::string, std::string_view, std::filesystem::path>) {
 				return Type::String;
 			} else if constexpr (std::is_same_v<std::nullptr_t, U>) {
 				return Type::Null;
 			} else {
-				static_assert(type::always_false_v<T>, "Type is not supported");
+				static_assert(traits::always_false_v<T>, "Type is not supported");
 			}
 			throwInternal("Shouldn't be here...");
 		}
@@ -140,7 +140,7 @@ namespace flx::fon {
 				if (const auto p = static_cast<const bool*>(get(Type::Bool))) {
 					return *p;
 				}
-			} else if constexpr (type::is_one_of_v<U, std::string, std::string_view, std::filesystem::path>) {
+			} else if constexpr (traits::is_one_of_v<U, std::string, std::string_view, std::filesystem::path>) {
 				if (const auto p = static_cast<const std::string*>(get(Type::String))) {
 					return T{*p};
 				}
@@ -149,7 +149,7 @@ namespace flx::fon {
 					return nullptr;
 				}
 			} else {
-				static_assert(type::always_false_v<U>, "Type is not supported");
+				static_assert(traits::always_false_v<U>, "Type is not supported");
 			}
 
 			return std::nullopt;

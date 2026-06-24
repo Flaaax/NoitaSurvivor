@@ -1,12 +1,13 @@
 #pragma once
 
 #include "src/utils/Container/Vector.h"
+#include "src/utils/FlagSet.h"
 #include "src/utils/Integers.h"
 #include <initializer_list>
 #include <utility>
 
 namespace flx::game {
-	enum class ContactLayer : u64 {
+	enum class EntityType : u64 {
 		None,
 		All,
 		Player,
@@ -23,81 +24,58 @@ namespace flx::game {
 	};
 
 	struct LayerRules {
-		static constexpr u64 MAX_LAYER_COUNT = static_cast<const u64>(ContactLayer::ContactLayerCount);
+		static constexpr u64 MAX_LAYER_COUNT = static_cast<const u64>(EntityType::ContactLayerCount);
 		static_assert(MAX_LAYER_COUNT <= 63, "too many types!");
 
-		using Mask = u64;
-		using Rules = flx::Array<Mask, MAX_LAYER_COUNT>;
+		using Bits = u64;
+		using Mask = EnumSet<EntityType, MAX_LAYER_COUNT>;
+		using Rules = Array<Mask, MAX_LAYER_COUNT>;
 
 		Rules rules{};
 
-		static constexpr Mask bit(ContactLayer layer) noexcept {
-			return Mask{1} << static_cast<u64>(layer);
-		}
-
-		static constexpr Mask validLayerBits() noexcept {
-			return ((Mask{1} << MAX_LAYER_COUNT) - Mask{1}) & ~bit(ContactLayer::None);
+		static constexpr Bits bit(EntityType layer) noexcept {
+			return Mask::bit(layer);
 		}
 
 		void sanitizeNone() noexcept {
-			rules[ContactLayer::None] = Mask{0};
+			rules[EntityType::None] = {};
 
 			for (auto& mask : rules) {
-				mask &= ~bit(ContactLayer::None);
+				mask.remove(EntityType::None);
 			}
 		}
 
-		void set(ContactLayer a, bool enabled) noexcept {
-			const Mask aBit = bit(a);
+		void set(EntityType a, bool enabled) noexcept {
+			rules[a] = Mask::all(enabled);
 
-			if (enabled) {
-				rules[a] = validLayerBits();
-
-				for (auto& mask : rules) {
-					mask |= aBit;
-				}
-			} else {
-				rules[a] = Mask{0};
-
-				for (auto& mask : rules) {
-					mask &= ~aBit;
-				}
+			for (auto& mask : rules) {
+				mask.set(a, enabled);
 			}
 
 			sanitizeNone();
 		}
 
-		void set(ContactLayer a, ContactLayer b, bool enabled = true) noexcept {
-			const Mask aBit = bit(a);
-			const Mask bBit = bit(b);
-
-			if (enabled) {
-				rules[a] |= bBit;
-				rules[b] |= aBit;
-			} else {
-				rules[a] &= ~bBit;
-				rules[b] &= ~aBit;
-			}
+		void set(EntityType a, EntityType b, bool enabled = true) noexcept {
+			rules[a].set(b, enabled);
+			rules[b].set(a, enabled);
 
 			sanitizeNone();
 		}
 
 		void setAll(bool enabled) noexcept {
-			const Mask mask = enabled ? validLayerBits() : Mask{0};
-
 			for (auto& rule : rules) {
-				rule = mask;
+				rule = Mask::all(enabled);
 			}
 
 			sanitizeNone();
 		}
 
-		bool get(ContactLayer a, ContactLayer b) const noexcept {
-			return (rules[a] & bit(b)) != 0;
+		bool get(EntityType a, EntityType b) const noexcept {
+			return rules[a].has(b);
 		}
 
-		Mask getCollisionBits(ContactLayer a) const noexcept {
-			return rules[a];
+		Bits getCollisionBits(EntityType a) const noexcept {
+			return rules[a].flatten();
 		}
 	};
 
@@ -107,43 +85,43 @@ namespace flx::game {
 		LayerRules softContact{};
 
 		ContactLayerRules() {
-			preSolve.set(ContactLayer::Wall, true);
-			preSolve.set(ContactLayer::Wall, ContactLayer::Wall, false);
+			preSolve.set(EntityType::Wall, true);
+			preSolve.set(EntityType::Wall, EntityType::Wall, false);
 
-			preSolve.set(ContactLayer::Collector, ContactLayer::Wall, false);
+			preSolve.set(EntityType::Collector, EntityType::Wall, false);
 
-			preSolve.set(ContactLayer::Collectible, false);
-			preSolve.set(ContactLayer::Collector, ContactLayer::Collectible);
-			preSolve.set(ContactLayer::Collectible, ContactLayer::Collectible);
-			preSolve.set(ContactLayer::Collectible, ContactLayer::Wall);
+			preSolve.set(EntityType::Collectible, false);
+			preSolve.set(EntityType::Collector, EntityType::Collectible);
+			preSolve.set(EntityType::Collectible, EntityType::Collectible);
+			preSolve.set(EntityType::Collectible, EntityType::Wall);
 
-			preSolve.set(ContactLayer::Detector, true);
-			preSolve.set(ContactLayer::Detector, ContactLayer::Detector, false);
+			preSolve.set(EntityType::Detector, true);
+			preSolve.set(EntityType::Detector, EntityType::Detector, false);
 
-			preSolve.set(ContactLayer::All, true);
+			preSolve.set(EntityType::All, true);
 
-			std::initializer_list<std::pair<ContactLayer, ContactLayer>> contacts = {
-				{ContactLayer::Player, ContactLayer::Enemy},
-				{ContactLayer::Player, ContactLayer::Proj},
-				{ContactLayer::Player, ContactLayer::EnemyProj},
-				{ContactLayer::Enemy, ContactLayer::Proj},
-				{ContactLayer::Enemy, ContactLayer::PlayerProj},
-				{ContactLayer::Enemy, ContactLayer::Enemy},
+			std::initializer_list<std::pair<EntityType, EntityType>> contacts = {
+				{EntityType::Player, EntityType::Enemy},
+				{EntityType::Player, EntityType::Proj},
+				{EntityType::Player, EntityType::EnemyProj},
+				{EntityType::Enemy, EntityType::Proj},
+				{EntityType::Enemy, EntityType::PlayerProj},
+				{EntityType::Enemy, EntityType::Enemy},
 			};
 
 			for (const auto& [a, b] : contacts) {
 				preSolve.set(a, b, true);
 			}
 
-			physics.set(ContactLayer::Wall, ContactLayer::Player);
-			physics.set(ContactLayer::Wall, ContactLayer::Enemy);
-			physics.set(ContactLayer::Wall, ContactLayer::Collectible);
+			physics.set(EntityType::Wall, EntityType::Player);
+			physics.set(EntityType::Wall, EntityType::Enemy);
+			physics.set(EntityType::Wall, EntityType::Collectible);
 
-			softContact.set(ContactLayer::Enemy, ContactLayer::Enemy);
-			softContact.set(ContactLayer::Player, ContactLayer::Enemy);
+			softContact.set(EntityType::Enemy, EntityType::Enemy);
+			softContact.set(EntityType::Player, EntityType::Enemy);
 		}
 
-		static constexpr u64 bit(ContactLayer layer) noexcept {
+		static constexpr u64 bit(EntityType layer) noexcept {
 			return LayerRules::bit(layer);
 		}
 	};

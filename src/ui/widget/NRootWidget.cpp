@@ -3,11 +3,11 @@
 #include "../../app/global/AssetManager.h"
 #include "../elements/NTooltip.h"
 #include "src/ui/elements/NPanel.h"
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/render/NPainter.h"
 
 namespace flx::ui {
-	bool NRootWidget::handleDragEvent(const NWindowEvent& event) {
+	bool NRootWidget::handleDragEvent(const WindowEvent& event) {
 		if (event.rawEvent.is<sf::Event::MouseMoved>()) {
 			const vec2 newGlobalPosition = event.input.mouseRender - dragState.offset;
 			const vec2 newLocalPosition = dragState.dragged->getParentLocalPosition(newGlobalPosition);
@@ -41,7 +41,7 @@ namespace flx::ui {
 		return false;
 	}
 
-	bool NRootWidget::handleEvent(const NWindowEvent& ctx) {
+	bool NRootWidget::handleEvent(const WindowEvent& ctx) {
 		if (!shouldHandleEvent(ctx)) {
 			return false;
 		}
@@ -96,7 +96,7 @@ namespace flx::ui {
 		return false;
 	}
 
-	bool NRootWidget::shouldHandleEvent(const NWindowEvent& ctx) {
+	bool NRootWidget::shouldHandleEvent(const WindowEvent& ctx) {
 		const auto& raw = ctx.rawEvent;
 		return raw.is<sf::Event::MouseButtonPressed>() ||
 			   raw.is<sf::Event::MouseButtonReleased>() ||
@@ -149,13 +149,13 @@ namespace flx::ui {
 
 	NRootWidget::NRootWidget(NViewport viewport, rect geometry, bool updateEnabled_)
 		: NWidget(geometry, updateEnabled_),
-		  style({.font = NGlobal::getDefaultFont()}),
+		  style({.font = Global::getDefaultFont()}),
 		  viewport(viewport) {
 		hoverState.hoverIntentDelay = 0.22f;
 		isRoot = true;
 	}
 
-	void NRootWidget::draw(NRenderBuffer& rdr) const {
+	void NRootWidget::draw(RenderBuffer& rdr) const {
 		const NUIPainter canvas(rdr, getPosition());
 		this->NWidget::draw(canvas);
 		if (dragState.dragged) {

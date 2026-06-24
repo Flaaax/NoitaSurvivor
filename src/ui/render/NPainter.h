@@ -4,22 +4,22 @@
 #include <SFML/Graphics/RenderStates.hpp>
 
 namespace flx::ui {
-	class NPainter {
+	class Painter {
 	private:
-		NRenderBuffer& rdr;
+		RenderBuffer& rdr;
 
 	public:
 		sf::RenderStates states;
 
-		NPainter translated(vec2 offset) const {
-			return NPainter(rdr, offset, states);
+		Painter translated(vec2 offset) const {
+			return Painter(rdr, offset, states);
 		}
 
-		explicit NPainter(NRenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : NPainter(rdr, states) {
+		explicit Painter(RenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : Painter(rdr, states) {
 			this->states.transform.translate(translate);
 		}
 
-		explicit NPainter(NRenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+		explicit Painter(RenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
 		}
 
 		void draw(const ::sf::Drawable& drawable) const {
@@ -29,7 +29,7 @@ namespace flx::ui {
 
 	class NUIPainter {
 	private:
-		NRenderBuffer& rdr;
+		RenderBuffer& rdr;
 
 	public:
 		::sf::RenderStates states;
@@ -38,11 +38,11 @@ namespace flx::ui {
 			return NUIPainter(rdr, offset, states);
 		}
 
-		explicit NUIPainter(NRenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : NUIPainter(rdr, states) {
+		explicit NUIPainter(RenderBuffer& rdr, vec2 translate, const sf::RenderStates& states = sf::RenderStates::Default) : NUIPainter(rdr, states) {
 			this->states.transform.translate(translate);
 		}
 
-		explicit NUIPainter(NRenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
+		explicit NUIPainter(RenderBuffer& rdr, const sf::RenderStates& states = sf::RenderStates::Default) : rdr(rdr), states(states) {
 		}
 
 		void draw(const sf::Drawable& drawable) const {

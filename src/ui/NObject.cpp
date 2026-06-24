@@ -1,6 +1,6 @@
 #include "NObject.h"
 
-#include "global/NGlobal.h"
+#include "global/Global.h"
 #include "widget/NRootWidget.h"
 #include "widget/NWidget.h"
 
@@ -53,7 +53,7 @@ namespace flx::ui {
 	}
 
 	flx::Logger& NObject::getLogger() {
-		return NGlobal::getLogger();
+		return Global::getLogger();
 	}
 
 	const NRootWidget* NObject::getRoot() const {

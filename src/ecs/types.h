@@ -64,6 +64,10 @@ namespace myecs {
 		constexpr bool is_null() const {
 			return id == u32_max || version == u32_max;
 		}
+
+		explicit(false) operator bool() const {
+			return !is_null();
+		}
 	};
 
 	namespace types {

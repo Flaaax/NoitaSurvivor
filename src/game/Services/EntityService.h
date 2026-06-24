@@ -11,7 +11,7 @@ namespace flx::game {
 		static void killSilent(const GameCtx& ctx, myecs::entity e); // for debug or cleanup usage
 		static bool isAlive(const GameCtx& ctx, myecs::entity e);
 		static bool isValidAndAlive(const GameCtx& ctx, myecs::entity e);
-		static ContactLayer getLayer(const GameCtx& ctx, myecs::entity e);
+		static EntityType getLayer(const GameCtx& ctx, myecs::entity e);
 		static void clearMostEntities(const GameCtx& ctx); // for debug or cleanup usage
 	};
 } // namespace flx::game

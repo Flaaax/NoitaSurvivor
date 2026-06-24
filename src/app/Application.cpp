@@ -4,7 +4,7 @@
 #include "global/AssetManager.h"
 #include "global/DebugVariables.h"
 #include "global/Loader.h"
-#include "src/ui/global/NGlobal.h"
+#include "src/ui/global/Global.h"
 #include "src/ui/render/NRenderBuffer.h"
 #include "src/ui/shapes/NRichTextShape.h"
 #include "src/utils/Timer.h"
@@ -17,33 +17,6 @@
 namespace flx::app {
 	namespace fs = std::filesystem;
 
-	namespace {
-		bool drawStringCombo(const char* label, const flx::Vector<std::string_view>& items, int& current_index) {
-			if (items.empty())
-				return false;
-
-			const char* preview = items[current_index].data();
-			bool changed = false;
-
-			if (ImGui::BeginCombo(label, preview)) {
-				for (const int i : items.indices<int>()) {
-					const bool selected = (current_index == i);
-
-					if (ImGui::Selectable(items[i].data(), selected)) {
-						current_index = i;
-						changed = true;
-					}
-
-					if (selected)
-						ImGui::SetItemDefaultFocus();
-				}
-
-				ImGui::EndCombo();
-			}
-			return changed;
-		}
-	} // namespace
-
 	int Application::loop() {
 		if (runGuard) {
 			logger.error_and_throw("Do not run the application more than once!");
@@ -53,10 +26,10 @@ namespace flx::app {
 		// Logger::info("Entering main loop...");
 		// fps
 		sf::Clock clock;
-		std::array<float, 1000> frameTimes = {};
+		Array<float, 1000> frameTimes = {};
 		float averageFPS = 0;
 		u64 index = 0;
-		ui::NRenderBuffer buffer(window.getView());
+		ui::RenderBuffer buffer(window.getView());
 
 		// Logger::info("Initializing scenes...");
 		// sceneManager.setCurrentScene("menu_scene");
@@ -94,7 +67,7 @@ namespace flx::app {
 			auto sfDt = clock.restart();
 			const float dt = std::min(sfDt.asSeconds(), MAX_DELTA_TIME);
 
-			if (showDebugFPS) {
+			if (runtime.showDebugFPS) {
 				frameTimes[index] = dt;
 				index++;
 				if (index >= frameTimes.size())
@@ -122,7 +95,7 @@ namespace flx::app {
 			// handle event
 			while (const auto event = window.pollEvent()) {
 				const auto& raw = event->rawEvent;
-				if (imguiEnabled) {
+				if (shouldDisplayImgui()) {
 					ImGui::SFML::ProcessEvent(window.getWindow(), event->rawEvent);
 					const bool isMouseEvent =
 						raw.is<sf::Event::MouseButtonPressed>() ||
@@ -143,11 +116,11 @@ namespace flx::app {
 						isRunning = false;
 						logger.info("Window closed by pressing Esc");
 					} else if (e->code == sf::Keyboard::Key::F) {
-						const bool isFullscreen = window.getMode() == ui::NWindow::Borderless;
+						const bool isFullscreen = window.getMode() == ui::Window::Borderless;
 						if (isFullscreen) {
-							window.setMode(ui::NWindow::Windowed);
+							window.setMode(ui::Window::Windowed);
 						} else {
-							window.setMode(ui::NWindow::Borderless);
+							window.setMode(ui::Window::Borderless);
 						}
 
 						onWindowResized();
@@ -160,7 +133,7 @@ namespace flx::app {
 				}
 			}
 
-			if (imguiEnabled) {
+			if (shouldDisplayImgui()) {
 				ImGui::SFML::Update(window.getWindow(), sfDt);
 			}
 
@@ -175,7 +148,7 @@ namespace flx::app {
 				currentScene->draw(buffer);
 			}
 
-			if (showDebugFPS) {
+			if (runtime.showDebugFPS) {
 				buffer.drawUI(FPSText);
 			}
 
@@ -188,8 +161,8 @@ namespace flx::app {
 
 			window.draw(buffer);
 
-			if (imguiEnabled) {
-				ImGui::Begin("Imgui");
+			if (shouldDisplayImgui()) {
+				ImGui::Begin(runtime.imguiTitle.c_str());
 
 				// ImGui::SeparatorText("渲染");
 				//
@@ -197,36 +170,8 @@ namespace flx::app {
 				// 	showDebugText = !showDebugText;
 				// }
 
-				ImGui::SeparatorText("游戏内容");
-
-				if (ImGui::Button("清除实体")) {
-					static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", true);
-					shouldClear = true;
-				}
-
-				static bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
-				if (ImGui::Button(!enableEnemySpawn ? "启用怪物生成" : "禁用怪物生成")) {
-					enableEnemySpawn = !enableEnemySpawn;
-				}
-				if (enableEnemySpawn) {
-					static float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
-					ImGui::SliderFloat("怪物生成速率", &enemySpawnFreq, 0.5f, 10.f);
-				}
-
-				static flx::Vector<std::string_view> trackers = {
-					"none",
-					"circle",
-					"seek",
-					"weakSeek",
-					"leadSeek",
-					"lateral",
-					"navigation",
-				};
-
-				static int& selectedTracker = DebugVariables::try_emplace("tracker", 1);
-
-				if (drawStringCombo("跟踪算法", trackers, selectedTracker)) {
-					// Logger::info("选择了 {}", trackers[selected]);
+				if (currentScene) {
+					currentScene->makeImGuiContent();
 				}
 
 				ImGui::End();
@@ -245,55 +190,60 @@ namespace flx::app {
 		return 0;
 	}
 
-	AppContext Application::getContext() {
+	void Application::initImgui() {
+		if (!ImGui::SFML::Init(window.getWindow(), false)) {
+			logger.error_and_throw("Failed to initialize ImGui-SFML");
+		}
+		logger.info("ImGui-SFML initialized");
+
+		const fs::path imguiFontPath = fs::path(Loader::resource_path) / defaultFont;
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		const auto font = io.Fonts->AddFontFromFileTTF(
+			imguiFontPath.string().c_str(),
+			22.f,
+			nullptr,
+			io.Fonts->GetGlyphRangesChineseFull());
+
+		if (!font) {
+			logger.error_and_throw("Failed to load Chinese font for ImGui");
+		}
+
+		io.FontDefault = font;
+
+		if (!ImGui::SFML::UpdateFontTexture()) {
+			logger.error_and_throw("Imgui-SFML Update font texture failed!");
+		}
+	}
+
+	AppCtx Application::getContext() {
 		return {
 			.windowViewport = window.getView(),
 			.input = window.input,
 			.sceneManager = sceneManager,
+			.runtime = runtime,
 		};
 	}
 
-	Application::Application(const AppInit& info)
+	bool Application::shouldDisplayImgui() const {
+		return imguiEnabled && runtime.imguiDisplay;
+	}
+
+	Application::Application(AppInfo info)
 		: window(info.defaultWindowSize, info.name),
 		  logger(Logger::makeAsync("App", true)) {
 
-		imguiEnabled = info.imguiEnabled;
-		showDebugFPS = info.displayDebugFPS;
 		defaultFont = info.defaultFont;
-		const fs::path imguiFontPath = fs::path(Loader::resource_path) / info.defaultFont;
+		if (info.imguiEnabled) {
+			imguiEnabled = true;
+			runtime.imguiDisplay = true;
+			initImgui();
+		}
 
 		logger.info("App {} initializing...", info.name);
 
-		if (imguiEnabled) {
-			if (!ImGui::SFML::Init(window.getWindow(), false)) {
-				logger.error("Failed to initialize ImGui-SFML");
-			} else {
-				logger.info("ImGui-SFML initialized");
-			}
-
-			ImGuiIO& io = ImGui::GetIO();
-
-			const auto font = io.Fonts->AddFontFromFileTTF(
-				imguiFontPath.string().c_str(),
-				22.f,
-				nullptr,
-				io.Fonts->GetGlyphRangesChineseFull());
-
-			if (!font) {
-				logger.error_and_throw("Failed to load Chinese font for ImGui");
-			}
-
-			io.FontDefault = font;
-
-			if (!ImGui::SFML::UpdateFontTexture()) {
-				logger.error("Imgui-SFML Update font texture failed!");
-			}
-
-		} else {
-			logger.info("Skip ImGui initialization");
-		}
-
-		ui::NGlobal::setDefaultFont(*Loader::loadFont(defaultFont, true));
+		ui::Global::setDefaultFont(*Loader::loadFont(defaultFont, true));
 
 		logger.info("App initialization done.");
 	}

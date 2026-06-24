@@ -6,17 +6,19 @@
 int main() {
 	// Logger::info("------Application started------\n");
 
-	try {
-		const flx::app::AppInit init{
-			.name = "NoitaSurvivor",
-			.imguiEnabled = true,
-			.displayDebugFPS = true,
-		};
+	using namespace flx;
 
-		return flx::app::Application::run<flx::app::NoitaSurvivorApp>(init);
-	} catch (flx::except::LogThrow) {
+	try {
+		// const flx::app::AppInfo init{
+		// 	.name = "NoitaSurvivor",
+		// 	.imguiEnabled = true,
+		// 	.displayDebugFPS = true,
+		// };
+
+		return app::Application::run<app::NoitaSurvivorApp>();
+	} catch (except::LogThrow) {
 	} catch (const std::exception& e) {
-		flx::logger.error("Unknown error: {}", e.what());
+		logger.error("Unknown error: {}", e.what());
 	}
 
 	return 1;

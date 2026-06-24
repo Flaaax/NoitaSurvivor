@@ -24,7 +24,7 @@ namespace flx::viewable {
 	struct IEnumerable {
 		virtual ~IEnumerable() = default;
 
-		[[nodiscard]] virtual std::unique_ptr<IEnumerator<Ref>> getEnumerator() = 0;
+		[[nodiscard]] virtual Unique<IEnumerator<Ref>> getEnumerator() = 0;
 	};
 
 	template <class Ref, class Iter, class Sent>
