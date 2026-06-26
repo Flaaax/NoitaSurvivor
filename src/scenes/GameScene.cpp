@@ -13,21 +13,17 @@
 #include <imgui.h>
 
 namespace flx::app {
-	ui::RichText* pauseText{};
-	ui::MaterialBar* materialBar{};
-	ui::ValueBar* expBar{};
-
 	// NSpellSelector* spellSelector = nullptr;
 
 	void GameScene::initUI() {
 		createWidget();
-		const auto ctx = game.getContext();
+		const auto gctx = game.getContext();
 		// auto& wand = *ctx.gameState.wands.front();
 		// const auto wand = ctx.gameState.wandManager.getWand(0);
 
 		auto editor = std::make_unique<ui::WandEditor>();
 		editor->setPosition({100, 150});
-		editor->setWands(ctx.gameState.wandManager);
+		editor->setWands(gctx.gameState.wandManager);
 		// auto inventory1 = makeUnique(new ui::SpellInventory({100, 150}, wand->inventory.size()));
 		//
 		// for (const auto i : wand->inventory.indices()) {
@@ -50,6 +46,8 @@ namespace flx::app {
 		auto inventory2 = makeUnique(new ui::SpellInventory({100, 50}, 5));
 		widget->addToTop(std::move(inventory2));
 
+		const auto windowSize = ctx.windowView.canvasSize;
+
 		auto healthBar =
 			makeUnique(new ui::ValueBar(
 				{windowSize.x - 20, 20},
@@ -60,8 +58,8 @@ namespace flx::app {
 		expBar =
 			new ui::ValueBar({windowSize.x - 20, 20 + 22 + 20}, {320, 22},
 							 20, 0.f, ui::ValueBar::EXP);
-		expBar->setLevel(ctx.gameState.player.level);
-		expBar->setHealth(ctx.gameState.player.exp);
+		expBar->setLevel(gctx.gameState.player.level);
+		expBar->setHealth(gctx.gameState.player.exp);
 		widget->add(makeUnique(expBar));
 
 		materialBar = new ui::MaterialBar({windowSize.x - 20, 20 + 22 + 20 + 22 + 20}, 27.f);
@@ -72,21 +70,29 @@ namespace flx::app {
 
 		pauseText = new ui::RichText("游戏暂停", 30U);
 		pauseText->alignCenter = true;
-		pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
+		pauseText->arrange({0, 0, windowSize.x, windowSize.y / 3.f});
 		pauseText->isVisible = false;
 		widget->add(makeUnique(pauseText));
 	}
 
-	GameScene::GameScene(app::AppCtx context)
-		: Scene(context, makeContentID<GameScene>()), game(context) {
-		this->windowSize = context.windowView.canvasSize;
+	GameScene::GameScene(app::AppCtx ctx)
+		: Scene(ctx, makeContentID<GameScene>()),
+		  game(ctx) {
 	}
 
 	void GameScene::draw(ui::RenderBuffer& rdr) {
 		game.draw(rdr);
 
 		pauseText->isVisible = game.isPaused();
-		Scene::draw(rdr);
+		if (game.isPaused()) {
+			sf::RectangleShape overlay{ctx.windowView.canvasSize};
+			overlay.setFillColor({0, 0, 0, 120});
+			rdr.drawCanvas(overlay);
+			Scene::draw(rdr);
+			rdr.drawUI(overlay);
+		} else {
+			Scene::draw(rdr);
+		}
 	}
 
 	void GameScene::update(float dt) {
@@ -132,24 +138,25 @@ namespace flx::app {
 	}
 
 	namespace {
-		bool drawStringCombo(const char* label, const flx::Vector<std::string_view>& items, int& current_index) {
+		bool drawStringCombo(const char* label, Span<const char*> items, int& current_index) {
 			if (items.empty())
 				return false;
 
-			const char* preview = items[current_index].data();
+			const char* preview = items[current_index];
 			bool changed = false;
 
 			if (ImGui::BeginCombo(label, preview)) {
 				for (const int i : items.indices<int>()) {
 					const bool selected = (current_index == i);
 
-					if (ImGui::Selectable(items[i].data(), selected)) {
+					if (ImGui::Selectable(items[i], selected)) {
 						current_index = i;
 						changed = true;
 					}
 
-					if (selected)
+					if (selected) {
 						ImGui::SetItemDefaultFocus();
+					}
 				}
 
 				ImGui::EndCombo();
@@ -162,20 +169,20 @@ namespace flx::app {
 		ImGui::SeparatorText("游戏内容");
 
 		if (ImGui::Button("清除实体")) {
-			static bool& shouldClear = DebugVariables::try_emplace<bool>("shouldClearEntities", true);
+			static bool& shouldClear = DebugVariables::emplace<bool>("shouldClearEntities", true);
 			shouldClear = true;
 		}
 
-		static bool& enableEnemySpawn = DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
+		static bool& enableEnemySpawn = DebugVariables::emplace<bool>("enableEnemySpawn", true);
 		if (ImGui::Button(!enableEnemySpawn ? "启用怪物生成" : "禁用怪物生成")) {
 			enableEnemySpawn = !enableEnemySpawn;
 		}
 		if (enableEnemySpawn) {
-			static float& enemySpawnFreq = DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
+			static float& enemySpawnFreq = DebugVariables::emplace<float>("enemySpawnFreq", 1.f);
 			ImGui::SliderFloat("怪物生成速率", &enemySpawnFreq, 0.5f, 10.f);
 		}
 
-		static Vector<std::string_view> trackers = {
+		static Vector<const char*> trackers = {
 			"none",
 			"circle",
 			"seek",
@@ -185,10 +192,15 @@ namespace flx::app {
 			"navigation",
 		};
 
-		static int& selectedTracker = DebugVariables::try_emplace("tracker", 1);
+		static int& selectedTracker = DebugVariables::emplace("tracker", 1);
 
 		if (drawStringCombo("跟踪算法", trackers, selectedTracker)) {
 			// Logger::info("选择了 {}", trackers[selected]);
 		}
+	}
+
+	void GameScene::onWindowResized(const ui::WindowView& view) {
+		Scene::onWindowResized(view);
+		// pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
 	}
 } // namespace flx::app

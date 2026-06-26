@@ -16,7 +16,7 @@ namespace flx::ui {
 		}
 
 		u32 getPx(u32 designedPx) const {
-			return static_cast<u32>(std::roundf(designedPx * scale.y));
+			return static_cast<u32>(std::roundf(static_cast<float>(designedPx) * scale.y));
 		}
 
 		vec2 posToScreen(vec2 pos) const {

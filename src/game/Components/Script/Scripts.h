@@ -65,7 +65,7 @@ namespace flx::game {
 
 			static const int* i{};
 			if (!i) {
-				i = app::DebugVariables::get<int>("tracker");
+				i = app::DebugVariables::tryGet<int>("tracker");
 			}
 			if (i) {
 				switch (*i) {

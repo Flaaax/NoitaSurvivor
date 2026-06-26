@@ -64,8 +64,9 @@ namespace flx::ui {
 			if (!getRoot() || !useRealPx) {
 				text.setCharacterSize(designedPx);
 				text.setLineWidth(rect.size.x);
-				setPosition(rect.position);
-				setSize(text.getLayoutSize());
+				setFrame(rect);
+				//setPosition(rect.position);
+				//setSize(text.getLayoutSize());
 
 				if (alignCenter) {
 					auto layout = text.getGlobalLayout();
@@ -77,8 +78,9 @@ namespace flx::ui {
 				auto& viewport = getGlobalViewport();
 				text.setCharacterSize(viewport.getPx(designedPx));
 				text.setLineWidth(rect.size.x * viewport.scale.x);
-				setPosition(rect.position);
-				setSize(text.getLayoutSize() / viewport.scale);
+				//setPosition(rect.position);
+				//setSize(rect.size / viewport.scale);
+				setFrame(rect);
 
 				if (alignCenter) {
 					auto layout = text.getGlobalLayout() << viewport;
@@ -90,10 +92,11 @@ namespace flx::ui {
 		}
 
 		void refresh() override {
-			if (getRoot()) {
-				auto& viewport = getGlobalViewport();
-				text.setCharacterSize(viewport.getPx(designedPx));
-			}
+			// if (getRoot()) {
+			// 	auto& viewport = getGlobalViewport();
+			// 	text.setCharacterSize(viewport.getPx(designedPx));
+			// }
+			arrange(getFrame());
 		}
 	};
 } // namespace flx::ui

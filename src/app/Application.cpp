@@ -141,7 +141,7 @@ namespace flx::app {
 				buffer.drawUI(FPSText);
 			}
 
-			static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
+			static bool& showDebugText = DebugVariables::emplace<bool>("showDebugText", false);
 
 			if (showDebugText) {
 				buffer.drawUI(rectangle);

@@ -30,8 +30,8 @@ namespace flx::game {
 	}
 
 	void EnemySpawnSystem::updateAfterCleanup(const GameCtx& ctx, float dt) {
-		static const bool& enableEnemySpawn = app::DebugVariables::try_emplace<bool>("enableEnemySpawn", true);
-		static const float& enemySpawnFreq = app::DebugVariables::try_emplace<float>("enemySpawnFreq", 1.f);
+		static const bool& enableEnemySpawn = app::DebugVariables::emplace<bool>("enableEnemySpawn", true);
+		static const float& enemySpawnFreq = app::DebugVariables::emplace<float>("enemySpawnFreq", 1.f);
 		if (enableEnemySpawn) {
 			ctx.gameState.enemySpawnTimer.setDuration(1.f / enemySpawnFreq);
 			ctx.gameState.enemySpawnTimer.update(dt);

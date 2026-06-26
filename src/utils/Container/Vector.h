@@ -7,15 +7,20 @@
 #include <vector>
 
 namespace flx {
-	template <class T>
-	using Span = std::span<T>;
+	template <class T, u64 Extent = std::dynamic_extent>
+	class Span : public std::span<T, Extent>, public ContainerFeature<Span<T, Extent>, T, Indexable, Fillable> {
+		using Base = std::span<T, Extent>;
+		using Base::Base;
+	};
+
+	// using Span = std::span<T>;
 
 	// Wrapper for std::vector
-	template <class T>
+	template <class T, class Alloc = std::allocator<T>>
 		requires(!std::is_same_v<T, bool>)
-	class Vector : public std::vector<T>, public ContainerFeature<Vector<T>, T, Indexable, Fillable> {
+	class Vector : public std::vector<T, Alloc>, public ContainerFeature<Vector<T, Alloc>, T, Indexable, Fillable> {
 	public:
-		using Base = std::vector<T>;
+		using Base = std::vector<T, Alloc>;
 		using Base::Base;
 
 		Vector() = default;
@@ -25,12 +30,12 @@ namespace flx {
 
 		template <std::integral I>
 		T& operator[](I index) {
-			return Base::operator[](static_cast<size_t>(index));
+			return Base::operator[](static_cast<u64>(index));
 		}
 
 		template <std::integral I>
 		const T& operator[](I index) const {
-			return Base::operator[](static_cast<size_t>(index));
+			return Base::operator[](static_cast<u64>(index));
 		}
 
 		explicit(false) operator Base&() {
@@ -102,7 +107,7 @@ namespace flx {
 		std::integral<T> ||
 		std::is_enum_v<T>;
 
-	template <class T, std::size_t N>
+	template <class T, u64 N>
 	class Array : public std::array<T, N>, public ContainerFeature<Array<T, N>, T, Indexable> {
 	public:
 		using Base = std::array<T, N>;

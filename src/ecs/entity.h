@@ -185,7 +185,7 @@ namespace myecs {
 					return;
 				}
 				ids.ret(e);
-				u64 id = static_cast<u64>(e.id);
+				u64 id = e.id;
 				if (entity_components.size() <= id)
 					return;
 				for (auto cid : entity_components[id]) {

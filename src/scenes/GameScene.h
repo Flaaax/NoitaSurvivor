@@ -3,22 +3,34 @@
 #include "../app/Scene.h"
 #include "src/game/Game.h"
 
+namespace flx::ui {
+	class ValueBar;
+	class MaterialBar;
+	class RichText;
+}
+
 namespace flx::app {
 	class GameScene : public Scene {
 	private:
 		game::Game game;
 		bool init{};
-		vec2 windowSize{};
+		//vec2 windowSize{};
+
+		ui::RichText* pauseText{};
+		ui::MaterialBar* materialBar{};
+		ui::ValueBar* expBar{};
 
 		void initUI();
 
 	public:
-		explicit GameScene(AppCtx context);
+		explicit GameScene(AppCtx ctx);
 
 		void draw(ui::RenderBuffer& rdr) override;
 		void update(float dt) override;
 		bool handleEvent(const ui::WindowEvent& event) override;
 		void enter() override;
 		void makeImGuiContent() override;
+		void onWindowResized(const ui::WindowView& view) override;
+
 	};
 } // namespace flx::app

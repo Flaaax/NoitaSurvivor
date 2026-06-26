@@ -118,7 +118,7 @@ namespace flx::game {
 		PhysicsSystem().updateAfterContactSystem(ctx, dt);
 		GameSystem().update(ctx, dt);
 
-		static bool& shouldClear = app::DebugVariables::try_emplace<bool>("shouldClearEntities", false);
+		static bool& shouldClear = app::DebugVariables::emplace<bool>("shouldClearEntities", false);
 		if (shouldClear) {
 			shouldClear = false;
 			EntityService().clearMostEntities(ctx);

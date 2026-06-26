@@ -16,7 +16,7 @@ namespace flx::ui {
 			Fixed
 		};
 
-		Policy policy = ExpandBottom; // Not supported
+		// Policy policy = ExpandBottom; // Not supported
 		Policy sizePolicy = Auto;
 
 		sf::Color backgroundColor = sf::Color::Transparent;

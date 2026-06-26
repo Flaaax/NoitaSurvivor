@@ -170,7 +170,7 @@ namespace flx::ui {
 			return;
 		}
 
-		flx::Vector<text::TextStyle> stack;
+		Vector<text::TextStyle> stack;
 		stack.push_back(m_defaultStyle);
 
 		const std::string_view input = m_sourceUtf8;

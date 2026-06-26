@@ -38,6 +38,17 @@ namespace flx::ui {
 		virtual void onArrange(rect allocation) = 0;
 
 	public:
+		enum Policy {
+			Left,
+			Center,
+			Right,
+			Shrink,
+			Fill,
+			Top,
+			Bottom,
+			Fixed,
+		};
+
 		LayoutResult measure(LayoutConstraint constraint) final {
 			return onMeasure(constraint);
 		}

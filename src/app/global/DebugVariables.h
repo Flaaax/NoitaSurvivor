@@ -75,7 +75,7 @@ namespace flx::app {
 		// 从全局访问这个Debug变量。在无key时返回null。
 		// 如果有key且访问时使用的T不匹配，则抛出异常。
 		template <class T>
-		static T* get(std::string_view key) {
+		static T* tryGet(std::string_view key) {
 			static_assert(!std::is_reference_v<T>, "DebugVariables::get<T> requires T to be a non-reference type.");
 			static_assert(!std::is_volatile_v<T>, "DebugVariables::get<T> does not accept volatile T.");
 
@@ -94,9 +94,9 @@ namespace flx::app {
 			return static_cast<T*>(it->second.ptr);
 		}
 
-		// 尝试显式创建并初始化一个Debug变量，并持有所有权。
+		// 创建或获取一个变量
 		template <class T>
-		static T& try_emplace(std::string_view key, T initVal = T{}) {
+		static T& emplace(std::string_view key, T initVal = T{}) {
 			static_assert(!std::is_const_v<T>, "DebugVariables::emplace<T> requires non-const T.");
 			static_assert(!std::is_volatile_v<T>, "DebugVariables::emplace<T> requires non-volatile T.");
 			static_assert(!std::is_reference_v<T>, "DebugVariables::emplace<T> requires non-reference T.");
@@ -104,7 +104,7 @@ namespace flx::app {
 
 			auto& data = vars();
 			if (data.contains(key)) {
-				return *get<T>(key);
+				return *tryGet<T>(key);
 			}
 
 			auto holder = std::make_unique<Holder<T>>();

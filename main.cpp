@@ -1,4 +1,3 @@
-#pragma warning(disable : 5260)
 #include "src/app/Application.h"
 #include "src/game/app/NoitaSurvivorApp.h"
 #include "src/utils/Exception/Exceptions.h"
@@ -25,6 +24,7 @@ int main() {
 
 		return app::Application::run<app::NoitaSurvivorApp>();
 	} catch (const except::LogThrow&) {
+		throw;
 	} catch (const std::exception& e) {
 		logger.error("Unknown error: {}", e.what());
 	}

@@ -52,7 +52,7 @@ namespace flx::app {
 			widget = std::make_unique<ui::RootWidget>(ctx.windowView.viewport);
 		}
 
-		void onWindowResized(const ui::WindowView& view) const {
+		virtual void onWindowResized(const ui::WindowView& view) {
 			if (widget) {
 				widget->onWindowResized(view);
 			}
