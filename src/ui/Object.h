@@ -28,6 +28,12 @@ namespace flx::ui {
 		vec2 size{};
 	};
 
+	// Not used...
+	struct ObjectMeta {
+		std::string name;
+		ObjectMeta* parent{};
+	};
+
 	class Object {
 		friend class Widget;
 		friend class RootWidget;

@@ -25,7 +25,7 @@ namespace flx::app {
 	public:
 		explicit GameScene(AppCtx ctx);
 
-		void draw(ui::RenderBuffer& rdr) override;
+		void draw(ui::RenderBuffer& buffer) override;
 		void update(float dt) override;
 		bool handleEvent(const ui::WindowEvent& event) override;
 		void enter() override;

@@ -2,7 +2,6 @@
 
 #include "../Object.h"
 #include "Panel.h"
-#include <SFML/Graphics/Text.hpp>
 #include <functional>
 
 namespace flx::ui {
@@ -14,7 +13,7 @@ namespace flx::ui {
 
 		RichText* text{};
 
-		bool isButtonVisible = true;
+		bool hasBackground = true;
 		bool isActuallyPressed{};
 
 		enum ButtonState {
@@ -23,7 +22,8 @@ namespace flx::ui {
 			Pressed
 		} state = Normal;
 
-		Button() : Button({0, 0, 50, 50}) {
+		Button()
+			: Button({0, 0, 50, 50}) {
 		}
 
 		explicit Button(rect geometry);
@@ -31,11 +31,10 @@ namespace flx::ui {
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
 		void draw(const UIPainter& canvas) const override;
 
-		void setText(std::string_view text, u32 characterSize = 30);
+		void setText(std::string text, u32 characterSize = 30);
 
-		void setOnClick(const std::function<void()>& func) {
-			onClick = func;
+		void setOnClick(std::function<void()> func) {
+			onClick = func | move;
 		}
 	};
-}
-
+} // namespace flx::ui

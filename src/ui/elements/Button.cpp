@@ -14,9 +14,10 @@ namespace flx::ui {
 		sizePolicy = Fixed;
 
 		auto layout = std::make_unique<VBoxLayout>();
-		layout->widthPolicy = VBoxLayout::Fill;
-		layout->alignY = VBoxLayout::Center;
-		layout->alignX = VBoxLayout::Center;
+		layout->widthPolicy = Layout::Fill;
+		layout->heightPolicy = Layout::Fill;
+		layout->alignY = Layout::Center;
+		layout->alignX = Layout::Center;
 
 		auto text = std::make_unique<RichText>();
 		this->text = text.get();
@@ -60,15 +61,15 @@ namespace flx::ui {
 	}
 
 	void Button::draw(const UIPainter& canvas) const {
-		if (isButtonVisible) {
+		if (hasBackground) {
 			sf::RectangleShape shape;
 			shape.setSize(getSize());
 			if (state == Normal) {
-				shape.setFillColor(sf::Color(190, 190, 190));
+				shape.setFillColor({190, 190, 190});
 			} else if (state == Hovered) {
-				shape.setFillColor(sf::Color(210, 210, 210));
+				shape.setFillColor({210, 210, 210});
 			} else {
-				shape.setFillColor(sf::Color(195, 195, 195));
+				shape.setFillColor({195, 195, 195});
 			}
 			shape.setOutlineThickness(3.f);
 			shape.setOutlineColor({150, 150, 150});
@@ -78,9 +79,9 @@ namespace flx::ui {
 		Panel::draw(canvas);
 	}
 
-	void Button::setText(std::string_view text, u32 characterSize) {
-		this->text->text.setString(text);
-		this->text->text.setCharacterSize(characterSize);
+	void Button::setText(std::string text, u32 characterSize) {
+		this->text->setString(text | move);
+		this->text->setCharacterSize(characterSize);
 		Panel::refresh();
 	}
 } // namespace flx::ui

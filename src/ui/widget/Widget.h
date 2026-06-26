@@ -20,7 +20,6 @@ namespace flx::ui {
 		Vector<Unique<Object>> objects;
 
 		void bind(Object* obj);
-
 		static void drawWithChildCanvas(const UIPainter& canvas, const Object& obj);
 
 	public:

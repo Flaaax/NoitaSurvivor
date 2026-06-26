@@ -9,6 +9,7 @@
 #include "src/game/ui/ValueBar.h"
 #include "src/game/ui/WandEditor.h"
 #include "src/ui/elements/RichText.h"
+#include "src/ui/render/RenderBuffer.h"
 
 #include <imgui.h>
 
@@ -80,18 +81,18 @@ namespace flx::app {
 		  game(ctx) {
 	}
 
-	void GameScene::draw(ui::RenderBuffer& rdr) {
-		game.draw(rdr);
+	void GameScene::draw(ui::RenderBuffer& buffer) {
+		game.draw(buffer);
 
 		pauseText->isVisible = game.isPaused();
 		if (game.isPaused()) {
 			sf::RectangleShape overlay{ctx.windowView.canvasSize};
 			overlay.setFillColor({0, 0, 0, 120});
-			rdr.drawCanvas(overlay);
-			Scene::draw(rdr);
-			rdr.drawUI(overlay);
+			buffer.drawCanvas(overlay);
+			Scene::draw(buffer);
+			buffer.drawUI(overlay);
 		} else {
-			Scene::draw(rdr);
+			Scene::draw(buffer);
 		}
 	}
 

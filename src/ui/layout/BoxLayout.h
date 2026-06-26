@@ -8,9 +8,10 @@ namespace flx::ui {
 		void onArrange(rect allocation) override;
 
 	public:
-		Policy alignX = Left;		 // Left, Right, Center
-		Policy alignY = Top;		 // Top, Center
-		Policy widthPolicy = Shrink; // Shink, Fill
+		Policy alignX = Left;          // Left, Right, Center
+		Policy alignY = Top;           // Top, Center
+		Policy widthPolicy = Shrink;   // Shrink, Fill, Fixed
+		Policy heightPolicy = Shrink;  // Shrink, Fill, Fixed
 
 		float maxHeight = 500.f;
 	};
@@ -21,6 +22,8 @@ namespace flx::ui {
 		void onArrange(rect allocation) override;
 
 	public:
-		Policy alignY = Top;
+		Policy alignY = Top;           // Top, Bottom, Center
+		Policy widthPolicy = Shrink;   // Shrink, Fill, Fixed
+		Policy heightPolicy = Shrink;  // Shrink, Fill, Fixed
 	};
 } // namespace flx::ui

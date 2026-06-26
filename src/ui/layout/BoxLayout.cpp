@@ -1,26 +1,42 @@
 #include "BoxLayout.h"
 
+#include <algorithm>
+
 namespace flx::ui {
+	namespace {
+		vec2 contentSizeOf(vec2 size, Padding padding) {
+			auto contentSize = size - padding.size();
+			contentSize.x = std::max(0.f, contentSize.x);
+			contentSize.y = std::max(0.f, contentSize.y);
+			return contentSize;
+		}
+	} // namespace
+
 	LayoutResult VBoxLayout::onMeasure(LayoutConstraint constraint) {
 		// TODO minSize ignored
 		auto [minSize, maxSize] = constraint;
 
-		maxSize.y = std::min(maxSize.y, maxHeight);
-		const auto contentMaxSize = maxSize - padding.size();
+		if (widthPolicy == Fixed) {
+			maxSize.x = getSize().x;
+		}
+		if (heightPolicy == Fixed) {
+			maxSize.y = getSize().y;
+		} else {
+			maxSize.y = std::min(maxSize.y, maxHeight);
+		}
 
+		const auto contentMaxSize = contentSizeOf(maxSize, padding);
 		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {contentMaxSize.x, math::finf},
 		};
 
 		vec2 layout{};
-
 		bool isFirst = true;
 
 		for (const auto child : getObjects()) {
 			auto childSize = child->measure(childConstraint).size;
 
-			// Change width dynamically
 			layout.x = std::max(layout.x, childSize.x);
 
 			if (!isFirst) {
@@ -28,32 +44,29 @@ namespace flx::ui {
 			}
 
 			layout.y += childSize.y;
-
 			isFirst = false;
 		}
 
-		if (alignY == Center) {
-			layout.y = maxSize.y;
+		auto measuredSize = layout + padding.size();
+
+		if (widthPolicy == Fill || widthPolicy == Fixed) {
+			measuredSize.x = maxSize.x;
+		}
+		if (heightPolicy == Fill || heightPolicy == Fixed) {
+			measuredSize.y = maxSize.y;
 		}
 
-		if (widthPolicy == Fill) {
-			return {{maxSize.x, layout.y + padding.vLength()}};
-		}
-
-		// widthPolicy: Shrink
-		return {layout + padding.size()};
+		return {measuredSize};
 	}
 
 	void VBoxLayout::onArrange(rect allocation) {
 		auto [pos, size] = allocation;
-		const auto contentSize = size - padding.size();
+		const auto contentSize = contentSizeOf(size, padding);
 
 		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {contentSize.x, math::finf},
 		};
-
-		bool first = true;
 
 		struct ChildLayout {
 			float y{};
@@ -63,7 +76,9 @@ namespace flx::ui {
 
 		Vector<ChildLayout> children{};
 		children.reserve(getObjects().size());
+
 		float cursorY = padding.top;
+		bool first = true;
 
 		for (const auto child : getObjects()) {
 			const auto childSize = child->measure(childConstraint).size;
@@ -79,26 +94,24 @@ namespace flx::ui {
 			};
 
 			cursorY += childSize.y;
-
 			first = false;
 		}
 
-		const float yTotal = cursorY - padding.top;
-		cursorY = padding.top + contentSize.y / 2.f - yTotal / 2.f;
+		const float contentHeight = cursorY - padding.top;
+		const float centeredTop = padding.top + contentSize.y / 2.f - contentHeight / 2.f;
 
-		for (auto [y, size, child] : children) {
-			rect arrange = {{padding.left, y}, size};
+		for (auto [y, childSize, child] : children) {
+			if (alignY == Center) {
+				y = centeredTop + (y - padding.top);
+			}
+
+			rect arrange = {{padding.left, y}, childSize};
 			if (alignX == Left) {
 				// pass
 			} else if (alignX == Right) {
 				arrange.setRight(padding.left + contentSize.x);
 			} else if (alignX == Center) {
 				arrange.setXCenter(padding.left + contentSize.x / 2.f);
-			}
-
-			if (alignY == Center) {
-				arrange.position.y = cursorY;
-				cursorY += size.y;
 			}
 
 			child->arrange(arrange);
@@ -109,23 +122,27 @@ namespace flx::ui {
 
 	LayoutResult HBoxLayout::onMeasure(LayoutConstraint constraint) {
 		// TODO minSize ignored
-
 		auto [minSize, maxSize] = constraint;
-		const auto contentMaxSize = maxSize - padding.size();
 
+		if (widthPolicy == Fixed) {
+			maxSize.x = getSize().x;
+		}
+		if (heightPolicy == Fixed) {
+			maxSize.y = getSize().y;
+		}
+
+		const auto contentMaxSize = contentSizeOf(maxSize, padding);
 		const LayoutConstraint childConstraint{
 			.minSize = {},
 			.maxSize = {math::finf, contentMaxSize.y},
 		};
 
 		vec2 layout{};
-
 		bool isFirst = true;
 
 		for (const auto child : getObjects()) {
 			auto childSize = child->measure(childConstraint).size;
 
-			// Change height dynamically
 			layout.y = std::max(layout.y, childSize.y);
 
 			if (!isFirst) {
@@ -133,16 +150,24 @@ namespace flx::ui {
 			}
 
 			layout.x += childSize.x;
-
 			isFirst = false;
 		}
 
-		return {layout + padding.size()};
+		auto measuredSize = layout + padding.size();
+
+		if (widthPolicy == Fill || widthPolicy == Fixed) {
+			measuredSize.x = maxSize.x;
+		}
+		if (heightPolicy == Fill || heightPolicy == Fixed) {
+			measuredSize.y = maxSize.y;
+		}
+
+		return {measuredSize};
 	}
 
 	void HBoxLayout::onArrange(rect allocation) {
 		auto [pos, size] = allocation;
-		const auto contentSize = size - padding.size();
+		const auto contentSize = contentSizeOf(size, padding);
 
 		const LayoutConstraint childConstraint{
 			.minSize = {},
@@ -155,7 +180,7 @@ namespace flx::ui {
 			Object* child{};
 		};
 
-		flx::Vector<ChildLayout> children{};
+		Vector<ChildLayout> children{};
 		children.reserve(getObjects().size());
 
 		float cursorX = padding.left;
@@ -182,7 +207,7 @@ namespace flx::ui {
 			rect arrange = {{x, padding.top}, childSize};
 
 			if (alignY == Top) {
-				// Pass
+				// pass
 			} else if (alignY == Bottom) {
 				arrange.setBottom(padding.top + contentSize.y);
 			} else if (alignY == Center) {
