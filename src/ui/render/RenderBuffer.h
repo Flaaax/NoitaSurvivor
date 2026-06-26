@@ -14,7 +14,7 @@ namespace flx::ui {
 
 	class RenderBuffer {
 	private:
-		friend class Window;
+		friend class Window;	// for flush()
 
 		Viewport viewport;
 		sf::Transform canvasTransform;

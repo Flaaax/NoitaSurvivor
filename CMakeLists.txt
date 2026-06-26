@@ -3,8 +3,14 @@ cmake_minimum_required(VERSION 3.26)
 project(NoitaSurvivor LANGUAGES CXX)
 
 if (NOT MSVC)
-    message(FATAL_ERROR "This first CMake migration target is intentionally MSVC-only.")
+    message(FATAL_ERROR "This target is intentionally MSVC-only.")
 endif ()
+
+if (MSVC)
+    set(CMAKE_MAP_IMPORTED_CONFIG_DEV RelWithDebInfo Release Debug "")
+endif ()
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 find_package(SFML 3.0.2 EXACT COMPONENTS System Window Graphics Audio CONFIG REQUIRED)
 find_package(box2d 3.1.1 EXACT CONFIG REQUIRED)
@@ -22,8 +28,19 @@ endif ()
 
 add_executable(NoitaSurvivor)
 
+#add_custom_target(NoitaSurvivor_PreBuildCheck
+#        COMMAND "python" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_code.py"
+#        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+#        COMMENT "Running pre-build tasks..."
+#        VERBATIM
+#        USES_TERMINAL
+#)
+
+set(NOITA_BUILD_TIMER_FILE "${CMAKE_CURRENT_BINARY_DIR}/.noita_build_timer.txt")
+
 add_custom_target(NoitaSurvivor_PreBuildCheck
-        COMMAND "python" "${CMAKE_CURRENT_SOURCE_DIR}/CodeGenerator/generate_meta.py"
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/build_timer.py" start "${NOITA_BUILD_TIMER_FILE}"
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_code.py"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT "Running pre-build tasks..."
         VERBATIM
@@ -31,6 +48,14 @@ add_custom_target(NoitaSurvivor_PreBuildCheck
 )
 
 add_dependencies(NoitaSurvivor NoitaSurvivor_PreBuildCheck)
+
+add_custom_command(TARGET NoitaSurvivor POST_BUILD
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/build_timer.py" end "${NOITA_BUILD_TIMER_FILE}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        COMMENT "Build time report"
+        VERBATIM
+        USES_TERMINAL
+)
 
 set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT NoitaSurvivor)
 
@@ -73,25 +98,57 @@ target_include_directories(NoitaSurvivor PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+#target_compile_definitions(NoitaSurvivor PRIVATE
+#        UNICODE
+#        _UNICODE
+#        _CONSOLE
+#        $<$<CONFIG:Debug>:_DEBUG>
+#        $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
+#        WIN32_LEAN_AND_MEAN
+#        NOMINMAX
+#)
+
 target_compile_definitions(NoitaSurvivor PRIVATE
         UNICODE
         _UNICODE
         _CONSOLE
         $<$<CONFIG:Debug>:_DEBUG>
-        $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
+        $<$<CONFIG:Release>:NDEBUG>
+        $<$<CONFIG:RelWithDebInfo>:NDEBUG>
+        $<$<CONFIG:MinSizeRel>:NDEBUG>
+        $<$<CONFIG:Dev>:NOITA_DEV>
         WIN32_LEAN_AND_MEAN
         NOMINMAX
 )
+
+#target_compile_options(NoitaSurvivor PRIVATE
+#        /MP
+#        /permissive-
+#        /sdl
+#        /W3
+#        /wd5260
+#        /wd5105
+#        /utf-8
+#        $<$<CONFIG:Release>:/Zi>
+#)
 
 target_compile_options(NoitaSurvivor PRIVATE
         /MP
         /permissive-
         /sdl
         /W3
+        # /W4
         /wd5260
         /wd5105
         /utf-8
+#        $<$<CONFIG:Debug>:/analyze>
+#        $<$<CONFIG:Debug>:/analyze:external->
+#        $<$<CONFIG:Dev>:/analyze>
+#        $<$<CONFIG:Dev>:/analyze:external->
         $<$<CONFIG:Release>:/Zi>
+        $<$<CONFIG:Dev>:/Od>
+        $<$<CONFIG:Dev>:/Zi>
+        $<$<CONFIG:Dev>:/Ob0>
 )
 
 target_link_libraries(NoitaSurvivor PRIVATE
@@ -111,8 +168,11 @@ target_link_libraries(NoitaSurvivor PRIVATE
 )
 
 target_link_options(NoitaSurvivor PRIVATE
-        $<$<CONFIG:Debug>:/INCREMENTAL:NO>
         $<$<CONFIG:Release>:/DEBUG>
+        $<$<CONFIG:Debug>:/DEBUG>
+        $<$<CONFIG:Debug>:/INCREMENTAL>
+        $<$<CONFIG:Dev>:/DEBUG>
+        $<$<CONFIG:Dev>:/INCREMENTAL>
 )
 
 set_property(TARGET NoitaSurvivor PROPERTY

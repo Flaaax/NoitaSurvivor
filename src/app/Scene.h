@@ -8,30 +8,28 @@
 
 namespace flx::app {
 	class Scene {
-		// friend class SceneManager;
-
 	protected:
 		Unique<ui::RootWidget> widget{};
 		Logger logger{};
-		AppCtx context;
-		const ui::Viewport& viewport;
-		// std::string nextScene = "";
+		AppCtx ctx;
+		// const ui::Viewport& viewport;
+		u64 layer{}; // Call UpdateLayer if changed dynamically
+					 // std::string nextScene = "";
 
 	public:
 		const std::string name;
 
 		explicit Scene(AppCtx context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),
-			  context(context),
-			  viewport(context.windowViewport.viewport),
+			  ctx(context),
 			  name(name) {}
 
 		virtual ~Scene() {
 		}
 
-		virtual void draw(ui::RenderBuffer& rdr) {
+		virtual void draw(ui::RenderBuffer& buffer) {
 			if (widget) {
-				widget->draw(rdr);
+				widget->draw(buffer);
 			}
 		}
 
@@ -51,7 +49,7 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = flx::makeUnique(new ui::RootWidget(viewport));
+			widget = std::make_unique<ui::RootWidget>(ctx.windowView.viewport);
 		}
 
 		void onWindowResized(const ui::WindowView& view) const {
@@ -64,6 +62,10 @@ namespace flx::app {
 		}
 
 		virtual void exit() {
+		}
+
+		u64 getLayer() const {
+			return layer;
 		}
 	};
 

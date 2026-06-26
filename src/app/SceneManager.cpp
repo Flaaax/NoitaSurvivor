@@ -1,9 +1,16 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "src/utils/Assert.h"
+#include "src/utils/Container/View.h"
 
 namespace flx::app {
 	static Logger logger = Logger::makeAsync("SceneManager");
+
+	SceneManager::SceneManager() = default;
+
+	SceneManager::~SceneManager() {
+		exitAll();
+	}
 
 	void SceneManager::add(SUnique<Scene> scene) {
 		// Logger::info("Adding scene to SceneManager...");
@@ -18,37 +25,115 @@ namespace flx::app {
 		// Logger::info("Scene {} added to SceneManager", name);
 	}
 
-	SWeak<Scene> SceneManager::get(std::string_view name) const {
+	SWeak<Scene> SceneManager::get(std::string_view name, bool required) const {
 		if (const auto ret = scenes.try_find(name)) {
 			return *ret;
 		}
-		logger.error_and_throw("Scene {} not registered!", name);
+		if (required) {
+			logger.error_and_throw("Scene {} not registered!", name);
+		}
+		return {};
 	}
 
-	SceneManager::SceneManager() {}
+	bool SceneManager::isActive(std::string_view name) const {
+		return view::all(activeScenes)
+			.any([name](const SWeak<Scene>& scene) { return scene->name == name; });
+	}
 
-	SceneManager::~SceneManager() {
-		if (currentScene) {
-			currentScene->exit();
+	void SceneManager::addCommand(SceneCmd cmd) {
+		commands.emplace_back(std::move(cmd));
+	}
+
+	void SceneManager::handleCommands() {
+		for (const auto& cmd : commands) {
+			if (cmd.cmd == SceneCmd::None) {
+				logger.error_and_throw("Command not specified");
+			}
+			if (cmd.cmd == SceneCmd::Exit) {
+				exit(cmd.target);
+			} else if (cmd.cmd == SceneCmd::ExitAll) {
+				exitAll();
+			} else if (cmd.cmd == SceneCmd::Enter) {
+				enter(cmd.target);
+			} else if (cmd.cmd == SceneCmd::UpdateLayer) {
+				sort();
+			}
+		}
+		commands.clear();
+	}
+
+	void SceneManager::update(float dt) {
+		for (const auto& scene : activeScenes | std::views::reverse) {
+			scene->update(dt);
 		}
 	}
 
-	void SceneManager::changeScene() {
-		if (!sceneToChange) {
-			logger.error_and_throw("No scene to change");
+	void SceneManager::draw(ui::RenderBuffer& buffer) const {
+		for (const auto& scene : activeScenes) {
+			scene->draw(buffer);
 		}
-		if (currentScene) {
-			currentScene->exit();
-		}
-		currentScene = sceneToChange;
-		currentScene->enter();
-		sceneToChange = {};
 	}
 
-	void SceneManager::exitAll() const {
-		if (currentScene) {
-			currentScene->exit();
+	bool SceneManager::handleEvent(const ui::WindowEvent& event) const {
+		for (const auto& scene : activeScenes | std::views::reverse) {
+			if (scene->handleEvent(event)) {
+				return true;
+			}
 		}
+		return false;
+	}
+
+	void SceneManager::onWindowResized(const ui::WindowView& windowView) const {
+		for (const auto& scene : activeScenes | std::views::reverse) {
+			scene->onWindowResized(windowView);
+		}
+	}
+
+	void SceneManager::makeImGuiContent() {
+		for (const auto& scene : activeScenes | std::views::reverse) {
+			scene->makeImGuiContent();
+		}
+	}
+
+	// void SceneManager::changeScene() {
+	// 	if (!sceneToChange) {
+	// 		logger.error_and_throw("No scene to change");
+	// 	}
+	// 	if (currentScene) {
+	// 		currentScene->exit();
+	// 	}
+	// 	currentScene = sceneToChange;
+	// 	currentScene->enter();
+	// 	sceneToChange = {};
+	// }
+
+	void SceneManager::sort() {
+		std::ranges::sort(activeScenes, {}, &Scene::getLayer);
+	}
+
+	void SceneManager::enter(std::string_view name) {
+		auto s = get(name);
+		s->enter();
+		activeScenes.emplace_back(std::move(s));
+		sort();
+	}
+
+	void SceneManager::exit(std::string_view name) {
+		const auto it =
+			std::ranges::find_if(activeScenes, [name](const SWeak<Scene>& scene) { return scene->name == name; });
+		if (it == activeScenes.end()) {
+			logger.error_and_throw("Scene {} not registered!", name);
+		}
+		activeScenes.erase(it);
+		it->get()->exit();
+		// No need to sort...
+	}
+
+	void SceneManager::exitAll() {
+		for (const auto& scene : activeScenes) {
+			scene->exit();
+		}
+		activeScenes = {};
 	}
 
 } // namespace flx::app

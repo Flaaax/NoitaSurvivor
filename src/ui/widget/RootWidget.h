@@ -11,7 +11,7 @@ namespace flx::ui {
 	class RootWidget : public Widget {
 	private:
 		DragState dragState;
-		NHoverState hoverState;
+		HoverState hoverState;
 		Style style;
 		Unique<Panel> tooltip;
 		vec2 mousePosition{};

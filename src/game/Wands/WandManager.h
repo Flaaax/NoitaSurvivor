@@ -22,6 +22,7 @@ namespace flx::game {
 		void draw(const ui::Painter& painter) const;
 		SWeak<Wand> getWand(u64 i) const;
 		SWeak<Wand> addWand(float scale);
+		Vector<SWeak<Wand>> getWands()const;
 		void clear();
 
 		u64 count() const;

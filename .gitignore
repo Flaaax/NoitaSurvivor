@@ -18,7 +18,8 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 
-/cmake-build-release-visual-studio/
+/cmake-build-release/
+/cmake-build-dev/
 
 *.user
 *.suo

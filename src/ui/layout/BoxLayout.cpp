@@ -40,7 +40,7 @@ namespace flx::ui {
 			return {{maxSize.x, layout.y + padding.vLength()}};
 		}
 
-		// Fallback Policy: Shrink
+		// widthPolicy: Shrink
 		return {layout + padding.size()};
 	}
 
@@ -61,7 +61,7 @@ namespace flx::ui {
 			Object* child{};
 		};
 
-		flx::Vector<ChildLayout> children{};
+		Vector<ChildLayout> children{};
 		children.reserve(getObjects().size());
 		float cursorY = padding.top;
 

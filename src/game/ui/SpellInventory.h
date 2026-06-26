@@ -4,8 +4,9 @@
 #include "src/utils/Container/Viewable.h"
 
 namespace flx::game {
+	class Wand;
 	class Spell;
-}
+} // namespace flx::game
 
 namespace flx::ui {
 	class SpellInventory;
@@ -19,12 +20,14 @@ namespace flx::ui {
 			// size_t index{};
 		};
 
+		using InventoryView = viewable::Val<Shared<game::Spell>>;
+
 		int selectedSlot = -1;
 		int hoveredSlot = -1;
 		bool shouldHighlight{};
 		Vector<Slot> slots;
 
-		using OnModify = std::function<void(viewable::Val<Shared<game::Spell>>)>;
+		using OnModify = std::function<void(InventoryView)>;
 		OnModify onModify{};
 
 		void updateSlotsGeometry();
@@ -33,7 +36,8 @@ namespace flx::ui {
 		void invokeOnModify();
 
 	public:
-		SpellInventory(vec2 position, size_t slotCount);
+		SpellInventory(vec2 position, u64 slotCount);
+		SpellInventory(const Vector<Shared<game::Spell>>& spells);
 
 		void draw(const UIPainter& canvas) const override;
 
@@ -41,6 +45,7 @@ namespace flx::ui {
 		void onDropAccepted(const DropQuery& query, bool shouldDrop) override;
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
 
+		void setItems(const Vector<Shared<game::Spell>>& spells);
 		void addItem(Unique<Object> spell, int index);
 		Spell* getSpell(int index);
 		Unique<Object> removeItem(Spell* spell);

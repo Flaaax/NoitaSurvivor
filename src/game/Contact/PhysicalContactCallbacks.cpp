@@ -35,8 +35,8 @@ namespace flx::game {
 		// }
 
 		// disable if in multicontact list
-		for (auto& [a, b] : pairs) {
-			if (ContactService().isBanned(reg.try_get<MultiContactComponent>(a), b)) {
+		for (auto& [a1, b1] : pairs) {
+			if (ContactService().isBanned(reg.try_get<MultiContactComponent>(a1), b1)) {
 				return false;
 			}
 		}
@@ -77,10 +77,10 @@ namespace flx::game {
 
 		std::initializer_list<Pair<entity>> pairs = {{a, b}, {b, a}};
 
-		for (auto& [a, b] : pairs) {
-			if (const auto s = reg.try_get<ScriptComponent>(a)) {
+		for (auto& [a1, b1] : pairs) {
+			if (const auto s = reg.try_get<ScriptComponent>(a1)) {
 				for (const auto& sc : s->scripts) {
-					sc->configureContact(ctx, a, b, settings);
+					sc->configureContact(ctx, a1, b1, settings);
 				}
 			}
 		}

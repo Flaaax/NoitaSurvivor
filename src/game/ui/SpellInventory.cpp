@@ -68,12 +68,16 @@ namespace flx::ui {
 		onModify(spells);
 	}
 
-	SpellInventory::SpellInventory(vec2 position, size_t slotCount) {
+	SpellInventory::SpellInventory(vec2 position, u64 slotCount) {
 		setPosition(position);
 		slots.resize(slotCount);
 		updateSlotsGeometry();
 		updateEnabled = true;
 		typeID = makeTypeID<SpellInventory>();
+	}
+
+	SpellInventory::SpellInventory(const Vector<Shared<game::Spell>>& spells) : SpellInventory({}, 0ull) {
+		setItems(spells);
 	}
 
 	void SpellInventory::draw(const UIPainter& canvas) const {
@@ -174,6 +178,17 @@ namespace flx::ui {
 		}
 
 		return Widget::handleEvent(event);
+	}
+
+	void SpellInventory::setItems(const Vector<Shared<game::Spell>>& spells) {
+		slots.resize(spells.size());
+		updateSlotsGeometry();
+		for (auto [i, spell] : spells.enumerate<int>()) {
+			if (!spell) {
+				continue;
+			}
+			addItem(std::make_unique<Spell>(spell), i);
+		}
 	}
 
 	void SpellInventory::addItem(Unique<Object> spell, int index) {

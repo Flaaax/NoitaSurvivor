@@ -19,7 +19,10 @@ namespace flx::game {
 
 	class Wand {
 	protected:
-		sf::Sprite sprite;
+		const sf::Texture* texture;
+		// sf::Sprite sprite;
+		vec2 scale;
+		vec2 spritePosition;
 
 		void reload();
 		void cast(const GameCtx& ctx);
@@ -83,5 +86,9 @@ namespace flx::game {
 
 		// Clear all the spells but keep the delays
 		void clear();
+
+		const sf::Texture& getTexture() const {
+			return *texture;
+		}
 	};
 } // namespace flx::game

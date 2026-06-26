@@ -10,9 +10,21 @@
 #include <utility>
 
 namespace flx::ui {
-	RichTextShape::RichTextShape(const sf::Font& font, std::string_view utf8Markup, u32 characterSize) : m_font(&font),
-																										   m_sourceUtf8(utf8Markup),
-																										   m_characterSize(characterSize) {
+	RichTextShape::RichTextShape(const sf::Font& font, std::string utf8Markup, u32 characterSize, float lineSpacing)
+		: m_font(&font),
+		  m_sourceUtf8(std::move(utf8Markup)),
+		  m_characterSize(characterSize),
+		  m_lineSpacing(lineSpacing) {
+	}
+
+	RichTextShape::RichTextShape(std::string utf8Markup, const Preset& preset)
+		: m_font(&preset.font),
+		  m_sourceUtf8(std::move(utf8Markup)),
+		  m_characterSize(preset.characterSize),
+		  m_lineWidth(preset.lineWidth),
+		  m_lineSpacing(preset.lineSpacing),
+		  m_outlineColor(preset.outlineColor),
+		  m_outlineThickness(preset.outlineThickness) {
 	}
 
 	void RichTextShape::setFont(const sf::Font& font) {
@@ -34,6 +46,10 @@ namespace flx::ui {
 		}
 		m_characterSize = size;
 		layoutDirty = true;
+	}
+
+	float RichTextShape::getLineSpacing() const {
+		return m_lineSpacing;
 	}
 
 	void RichTextShape::setTabSize(u32 spaces) {
@@ -83,6 +99,14 @@ namespace flx::ui {
 
 	float RichTextShape::getLineWidth() const {
 		return m_lineWidth;
+	}
+
+	void RichTextShape::setLineSpacing(float spacing) {
+		if (spacing == m_lineSpacing) {
+			return;
+		}
+		m_lineSpacing = spacing;
+		layoutDirty = true;
 	}
 
 	text::TextStyle RichTextShape::getDefaultStyle() const {
@@ -230,7 +254,7 @@ namespace flx::ui {
 		}
 
 		const bool needsOutline = m_outlineThickness != 0.f && m_outlineColor.a != 0u;
-		const float lineSpacing = m_font->getLineSpacing(m_characterSize);
+		const float lineSpacing = m_font->getLineSpacing(m_characterSize) * m_lineSpacing;
 
 		u64 glyphCapacity = 0u;
 		for (const auto& [text, style] : m_runs) {

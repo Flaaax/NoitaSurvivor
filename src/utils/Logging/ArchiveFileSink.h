@@ -24,6 +24,6 @@ namespace flx {
 		void flush() override;
 
 		void set_pattern(const std::string& pattern) override;
-		void set_formatter(Unique<spdlog::formatter> formatter) override;
+		void set_formatter(Unique<spdlog::formatter> formatter_) override;
 	};
 } // namespace flx

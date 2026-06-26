@@ -1,17 +1,18 @@
 #include "MenuScene.h"
 #include "../ui/elements/Button.h"
 #include "src/app/SceneManager.h"
-#include "src/ui/Window.h"
 #include "src/ui/render/RenderBuffer.h"
 
 namespace flx::app {
-	MenuScene::MenuScene(flx::app::AppCtx context) : Scene(context, flx::makeContentID<MenuScene>()) {
-		const vec2 windowSize = context.windowViewport.canvasSize;
+	MenuScene::MenuScene(AppCtx context) : Scene(context, flx::makeContentID<MenuScene>()) {
+		const vec2 windowSize = context.windowView.canvasSize;
 		auto startButton =
-			flx::makeUnique(new ui::Button(rect::fromCenter(windowSize / 2.f, {200, 100})));
+			makeUnique(new ui::Button(rect::fromCenter(windowSize / 2.f, {200, 100})));
 		startButton->setOnClick([this] {
 			// this->nextScene = "game_scene";
-			this->context.sceneManager.setCurrent("game_scene");
+			// this->ctx.sceneManager.setCurrent("game_scene");
+			this->ctx.sceneManager.addCommand({name, SceneCmd::Exit});
+			this->ctx.sceneManager.addCommand({"game_scene", SceneCmd::Enter});
 		});
 		startButton->setText("开始游戏");
 		createWidget();

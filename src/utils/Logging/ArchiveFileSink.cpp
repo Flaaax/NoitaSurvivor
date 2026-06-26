@@ -187,8 +187,8 @@ namespace flx {
 		formatter = std::make_unique<spdlog::pattern_formatter>(pattern);
 	}
 
-	void ArchiveFileSink::set_formatter(Unique<spdlog::formatter> formatter) {
+	void ArchiveFileSink::set_formatter(Unique<spdlog::formatter> formatter_) {
 		std::scoped_lock lock(mutex);
-		this->formatter = std::move(formatter);
+		this->formatter = std::move(formatter_);
 	}
 } // namespace flx

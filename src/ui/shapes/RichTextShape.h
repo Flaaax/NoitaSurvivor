@@ -19,6 +19,7 @@ namespace flx::ui {
 		u32 m_tabSize = 4u;
 		float m_timeSeconds{};
 		float m_lineWidth{};
+		float m_lineSpacing = 1.f;
 
 		sf::Color m_outlineColor{};
 		float m_outlineThickness{};
@@ -36,11 +37,23 @@ namespace flx::ui {
 
 		void appendRun(u64 byteBegin, u64 byteEnd, text::TextStyle style) const;
 		nquad applyStyleToQuad(nquad quad, text::TextStyle style, u64 glyphIndex) const;
-		static void appendQuad(flx::Vector<sf::Vertex>& vertices, nquad quad, rect textureRect, sf::Color color);
+		static void appendQuad(Vector<sf::Vertex>& vertices, nquad quad, rect textureRect, sf::Color color);
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 	public:
-		explicit RichTextShape(const sf::Font& font, std::string_view utf8Markup = {}, u32 characterSize = 30u);
+		struct Preset {
+			const sf::Font& font;
+			u32 characterSize = 30u;
+			u32 tabSize = 4u;
+			float lineWidth{};
+			float lineSpacing = 1.f;
+			sf::Color outlineColor{};
+			float outlineThickness{};
+		};
+
+		explicit RichTextShape(const sf::Font& font, std::string utf8Markup = {}, u32 characterSize = 30u,float lineSpacing=1.f);
+		explicit RichTextShape(std::string utf8Markup, const Preset& preset);
+
 		void rebuildCache() const;
 
 		void setFont(const sf::Font& font);
@@ -54,6 +67,10 @@ namespace flx::ui {
 
 		void setLineWidth(float width);
 		float getLineWidth() const;
+
+		// Default: 1.f
+		void setLineSpacing(float spacing);
+		float getLineSpacing() const;
 
 		void setTabSize(u32 spaces);
 		void setTime(float seconds);

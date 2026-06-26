@@ -17,9 +17,9 @@ namespace flx::ui {
 			Top
 		};
 
-		Policy alignX = Left;
-		Policy widthPolicy = Shrink;
-		Policy alignY = Top;
+		Policy alignX = Left;	// Left, Right, Center
+		Policy widthPolicy = Shrink;	// Shink, Fill
+		Policy alignY = Top;	// Top, Center
 
 		float maxHeight = 500.f;
 	};

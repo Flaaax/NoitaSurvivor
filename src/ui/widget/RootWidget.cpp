@@ -135,6 +135,7 @@ namespace flx::ui {
 				tooltip = std::make_unique<Panel>();
 				tooltip->parent = this;
 				tooltip->backgroundColor = {160, 160, 160};
+				tooltip->outlineThickness = 2.f;
 				updateTooltipContent();
 			} else if (hoverState.tooltipDirty) {
 				updateTooltipContent();

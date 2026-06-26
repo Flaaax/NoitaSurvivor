@@ -14,11 +14,20 @@ namespace flx::ui {
 
 		// bool fixedPosition{};
 
-		explicit RichText(const sf::Font& font, std::string_view utf8Markup = {}, u32 characterSize = 30u)
-			: text(font, utf8Markup, characterSize), designedPx(characterSize) {}
+		explicit RichText(const sf::Font& font, std::string utf8Markup = {}, u32 characterSize = 30u, float lineSpacing = 1.f)
+			: text(font, std::move(utf8Markup), characterSize, lineSpacing), designedPx(characterSize) {}
 
-		explicit RichText(std::string_view utf8Markup = {}, u32 characterSize = 30u)
-			: RichText(Global::getDefaultFont(), utf8Markup, characterSize) {}
+		explicit RichText(std::string utf8Markup = {}, u32 characterSize = 30u, float lineSpacing = 1.f)
+			: RichText(Global::getDefaultFont(), std::move(utf8Markup), characterSize) {}
+
+		explicit RichText(std::string markup, const RichTextShape::Preset& preset)
+			: text(std::move(markup), preset), designedPx(preset.characterSize) {}
+
+		static auto makePreset() {
+			return RichTextShape::Preset{
+				.font = Global::getDefaultFont(),
+			};
+		}
 
 		void draw(const UIPainter& canvas) const override {
 			if (useRealPx) {

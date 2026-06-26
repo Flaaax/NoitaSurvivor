@@ -4,6 +4,7 @@
 #include "src/game/GameContext.h"
 #include "src/game/Services/EntityService.h"
 #include "src/game/Services/PhysicsService.h"
+#include "src/utils/Container/View.h"
 #include "src/utils/Math.h"
 
 namespace flx::game {
@@ -36,6 +37,10 @@ namespace flx::game {
 	SWeak<Wand> WandManager::addWand(float scale) {
 		shouldRecalcArg = true;
 		return wands.emplace_back(makeSUnique<Wand>(scale));
+	}
+
+	Vector<SWeak<Wand>> WandManager::getWands() const {
+		return view::all(wands).select([](SWeak<Wand> wand) { return wand; }).to<Vector>();
 	}
 
 	void WandManager::clear() {

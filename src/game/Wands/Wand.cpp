@@ -45,21 +45,18 @@ namespace flx::game {
 		return oss.str();
 	}
 
-	Wand::Wand(float wandScale) : sprite(*app::Loader::loadTexture(defaultTexture, true)) {
+	Wand::Wand(float wandScale) {
 		const int randomNumber = flx::random.nextVal(0, 1000);
 		const auto name = vformat("gfx/wands/noita/{}.png", getWandTextureEntry(randomNumber));
 
-		if (const auto t = app::Loader::loadTexture(name)) {
-			sprite.setTexture(*t);
-		} else {
-			logger.warn("Tried to set wand texture {}, but failed, fallback to default.", name);
-		}
+		texture = app::Loader::loadTexture(name, true);
 
-		const auto textureSize = sprite.getTexture().getSize();
-		sprite.setOrigin({0, textureSize.y / 2.0f});
+		const auto textureSize = texture->getSize();
+		// sprite.setOrigin({0, textureSize.y / 2.0f});
 		length = 0.9f * wandScale * static_cast<float>(textureSize.x);
 		holdLength = length * 0.33f;
-		sprite.setScale({wandScale, wandScale});
+		scale = {wandScale, wandScale};
+		// sprite.setScale({wandScale, wandScale});
 
 		// temp
 		castAmount = 1;
@@ -91,9 +88,7 @@ namespace flx::game {
 		}
 
 		const auto dir = vec2::rad(currentRot);
-
-		sprite.setPosition(worldPos - holdLength * dir);
-		sprite.setRotation(sf::radians(currentRot));
+		spritePosition = worldPos - holdLength * dir;
 		castPos = worldPos + (length - holdLength) * dir;
 	}
 
@@ -119,6 +114,13 @@ namespace flx::game {
 	}
 
 	void Wand::draw(const ui::Painter& renderer) const {
+		auto sprite = sf::Sprite(*texture);
+		const auto textureSize = texture->getSize();
+		sprite.setOrigin({0, textureSize.y / 2.0f});
+		sprite.setPosition(spritePosition);
+		sprite.setRotation(sf::radians(currentRot));
+		sprite.setScale(scale);
+
 		renderer.draw(sprite);
 	}
 
@@ -148,10 +150,10 @@ namespace flx::game {
 		}
 
 		for (const auto& spell : hand) {
-			auto type = spell->getKind();
-			if (type == Spell::Kind::ProjectileSpell) {
+			const auto kind = spell->getKind();
+			if (kind == Spell::Kind::ProjectileSpell) {
 				block.add(spell);
-			} else if (type == Spell::Kind::ModifierSpell) {
+			} else if (kind == Spell::Kind::ModifierSpell) {
 				block.add(spell);
 			} else {
 				// handle more types of spells...

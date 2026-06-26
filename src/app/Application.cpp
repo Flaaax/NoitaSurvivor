@@ -49,14 +49,13 @@ namespace flx::app {
 
 		bool isRunning = true;
 
-		// NRichTextShape richText(font, "Very Very Ver Verrrrry long TEEx ver y"
-		// 							  " long not end yet bruh fr fr\n中文1非常长文本Text中文？？？？？\nYeah");
-		// richText.setPosition({200, 200});
-		// richText.setLineWidth(200.f);
-		// sf::RectangleShape rectangle;
-		// rectangle.setPosition(richText.getPosition());
-		// rectangle.setSize(richText.getLayoutSize());
-		// rectangle.setFillColor(sf::Color::Cyan);
+		ui::RichTextShape richText(*font, "中文测试 ABC xyz 12345 ０１２３ ￥$%&!?.,，\n。！中文2？；：「」『』（）()[]{} / \n | +-= * _ ~ @ # ");
+		richText.setPosition({200, 200});
+		richText.setLineWidth(1000.f);
+		sf::RectangleShape rectangle;
+		rectangle.setPosition(richText.getPosition());
+		rectangle.setSize(richText.getLayoutSize());
+		rectangle.setFillColor(sf::Color::Cyan);
 
 		if (imguiEnabled) {
 			ImGui::GetStyle().ScaleAllSizes(1.5f);
@@ -79,18 +78,13 @@ namespace flx::app {
 			// window.updateMousePos(); // this is critical!!!
 
 			// Logger::info("New frame started, deltaTime: {}", deltaTime);
-			if (sceneManager.shouldChangeScene()) {
-				sceneManager.changeScene();
-			}
-
-			const auto currentScene = sceneManager.getCurrentScene();
 			// Logger::info("Current scene: {}", currentScene ? currentScene->getName() : "null");
+
+			sceneManager.handleCommands();
 
 			auto onWindowResized = [&] {
 				buffer.onWindowResized(window.getView());
-				if (currentScene) {
-					currentScene->onWindowResized(window.getView());
-				}
+				sceneManager.onWindowResized(window.getView());
 			};
 
 			// handle event
@@ -129,9 +123,8 @@ namespace flx::app {
 				} else if (raw.is<sf::Event::Resized>()) {
 					onWindowResized();
 				}
-				if (currentScene) {
-					currentScene->handleEvent(*event);
-				}
+
+				(void)sceneManager.handleEvent(*event);
 			}
 
 			if (shouldDisplayImgui()) {
@@ -139,26 +132,21 @@ namespace flx::app {
 			}
 
 			// update
-			if (currentScene) {
-				currentScene->update(dt);
-			}
+			sceneManager.update(dt);
 
 			// draw
-
-			if (currentScene) {
-				currentScene->draw(buffer);
-			}
+			sceneManager.draw(buffer);
 
 			if (runtime.showDebugFPS) {
 				buffer.drawUI(FPSText);
 			}
 
-			// static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
-			//
-			// if (showDebugText) {
-			// 	rdr.drawUI(rectangle);
-			// 	rdr.drawUI(richText);
-			// }
+			static bool& showDebugText = DebugVariables::try_emplace<bool>("showDebugText", false);
+
+			if (showDebugText) {
+				buffer.drawUI(rectangle);
+				buffer.drawUI(richText);
+			}
 
 			window.draw(buffer);
 
@@ -171,9 +159,7 @@ namespace flx::app {
 				// 	showDebugText = !showDebugText;
 				// }
 
-				if (currentScene) {
-					currentScene->makeImGuiContent();
-				}
+				sceneManager.makeImGuiContent();
 
 				ImGui::End();
 
@@ -223,7 +209,7 @@ namespace flx::app {
 
 	AppCtx Application::getContext() {
 		return {
-			.windowViewport = window.getView(),
+			.windowView = window.getView(),
 			.input = window.input,
 			.sceneManager = sceneManager,
 			.runtime = runtime,
@@ -252,7 +238,5 @@ namespace flx::app {
 		logger.info("App initialization done.");
 	}
 
-	Application::~Application() {
-		sceneManager.exitAll();
-	}
+	Application::~Application() {}
 } // namespace flx::app

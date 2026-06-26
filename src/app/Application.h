@@ -20,7 +20,7 @@ namespace flx::app {
 		int loop();
 		void initImgui();
 		AppCtx getContext();
-		bool shouldDisplayImgui()const;
+		bool shouldDisplayImgui() const;
 		explicit Application(AppInfo info);
 		~Application();
 

@@ -32,7 +32,7 @@ namespace flx::ui {
 		const rect globalHitbox;
 	};
 
-	struct NHoverState {
+	struct HoverState {
 		Object* target{};
 		float hoveredTime{};
 		float hoverIntentDelay{};

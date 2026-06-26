@@ -26,7 +26,7 @@ namespace flx::ui {
 
 		auto layout = std::make_unique<VBoxLayout>();
 		layout->setPadding({10, 10, 10, 5});
-		layout->setSpacing(6.f);
+		layout->setSpacing(8.f);
 
 		auto titleLayout = std::make_unique<HBoxLayout>();
 		auto image = std::make_unique<Image>(nspell->spell->getTexture());
@@ -35,22 +35,24 @@ namespace flx::ui {
 		image->setOutlineWidth(3.f);
 		titleLayout->add(image | move);
 
-		auto title = std::make_unique<RichText>(style.font, loc.title, 30u);
+		constexpr float lineSpacing = 0.85f;
+
+		auto title = std::make_unique<RichText>(style.font, loc.title, 30u, lineSpacing);
 		titleLayout->add(title | move);
 		titleLayout->alignY = HBoxLayout::Center;
 		titleLayout->setSpacing(10.f);
 
 		layout->add(titleLayout | move);
 
-		auto description = std::make_unique<RichText>(style.font, loc.description, 25u);
+		auto description = std::make_unique<RichText>(style.font, loc.description, 25u, lineSpacing);
 		layout->add(description | move);
 		auto layout1 = std::make_unique<KeyValueLayout>();
 		layout1->setSpacing(1.f);
 
 		const auto properties = nspell->spell->getDisplayedProperties();
 		for (auto& [key, val] : properties) {
-			auto keyText = std::make_unique<RichText>(style.font, key, 25u);
-			auto valueText = std::make_unique<RichText>(style.font, val, 25u);
+			auto keyText = std::make_unique<RichText>(style.font, key, 25u, lineSpacing);
+			auto valueText = std::make_unique<RichText>(style.font, val, 25u, lineSpacing);
 			layout1->add(keyText | move);
 			layout1->add(valueText | move);
 		}
@@ -62,7 +64,7 @@ namespace flx::ui {
 		flavorLayout->widthPolicy = VBoxLayout::Fill;
 		flavorLayout->setPadding({0, 0, 0, 0});
 
-		auto flavorText = std::make_unique<RichText>(style.font, loc.flavor, 23u);
+		auto flavorText = std::make_unique<RichText>(style.font, loc.flavor, 23u, lineSpacing);
 		flavorLayout->add(flavorText | move);
 		layout->add(flavorLayout | move);
 

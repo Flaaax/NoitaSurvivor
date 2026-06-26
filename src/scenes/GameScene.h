@@ -1,6 +1,4 @@
 #pragma once
-#ifndef GAMESCENE_H
-#define GAMESCENE_H
 
 #include "../app/Scene.h"
 #include "src/game/Game.h"
@@ -24,5 +22,3 @@ namespace flx::app {
 		void makeImGuiContent() override;
 	};
 } // namespace flx::app
-
-#endif

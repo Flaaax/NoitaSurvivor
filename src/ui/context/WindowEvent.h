@@ -3,12 +3,12 @@
 #include <SFML/Window/Event.hpp>
 
 namespace flx::ui {
-	using NRawEvent = sf::Event;
+	using RawEvent = sf::Event;
 	struct WindowView;
 	struct InputState;
 
 	struct WindowEvent {
-		NRawEvent rawEvent;
+		RawEvent rawEvent;
 		const WindowView& viewport;
 		const InputState& input;
 	};

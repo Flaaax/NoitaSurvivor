@@ -10,7 +10,7 @@ namespace flx::game {
 namespace flx::ui {
 	class SpellInventory;
 
-	class Spell : public ui::Object {
+	class Spell : public Object {
 	protected:
 		friend class SpellInventory;
 		bool isReleased{};
@@ -30,7 +30,7 @@ namespace flx::ui {
 		static constexpr vec2 slotSize = {45.f, 45.f};
 		static constexpr float outLine = 3.f;
 
-		explicit Spell(std::shared_ptr<game::Spell> spell, vec2 pos = {});
+		explicit Spell(Shared<game::Spell> spell, vec2 pos = {});
 
 		std::optional<ui::EventResult> handleEvent(const ui::UIEvent& event) override;
 		void update(float dt) override;

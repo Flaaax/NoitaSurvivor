@@ -1,18 +1,43 @@
 #pragma once
-#pragma once
-#ifndef NSCENEMANAGER_H
-#define NSCENEMANAGER_H
 #include "../utils/Container/Map.h"
+#include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
+
+namespace flx::ui {
+	struct WindowView;
+	struct WindowEvent;
+	class RenderBuffer;
+} // namespace flx::ui
 
 namespace flx::app {
 	class Scene;
 
+	struct SceneCmd {
+		enum Cmd {
+			None,
+			Enter,
+			Exit,
+			ExitAll,
+			UpdateLayer,
+		};
+
+		std::string target;
+		Cmd cmd{};
+	};
+
 	class SceneManager {
 	private:
 		StrMap<SUnique<Scene>> scenes;
-		SWeak<Scene> currentScene{};
-		SWeak<Scene> sceneToChange{};
+		Vector<SWeak<Scene>> activeScenes;
+		Vector<SceneCmd> commands;
+		// SWeak<Scene> sceneToChange{};
+
+		void sort();
+
+		// Commands
+		void enter(std::string_view name);
+		void exit(std::string_view name);
+		void exitAll();
 
 	public:
 		SceneManager();
@@ -20,24 +45,32 @@ namespace flx::app {
 
 		void add(SUnique<Scene> scene);
 
-		SWeak<Scene> get(std::string_view name) const;
+		SWeak<Scene> get(std::string_view name, bool required = true) const;
+		bool isActive(std::string_view name) const;
 
-		void setCurrent(std::string_view name) {
-			sceneToChange = get(name);
+		void addCommand(SceneCmd cmd);
+
+		// Call at the start of a frame
+		void handleCommands();
+
+		void update(float dt);
+		void draw(ui::RenderBuffer& buffer) const;
+		bool handleEvent(const ui::WindowEvent& event) const;
+		void onWindowResized(const ui::WindowView& windowView) const;
+		void makeImGuiContent();
+
+		// void setCurrent(std::string_view name) {
+		// 	sceneToChange = get(name);
+		// }
+
+		Span<const SWeak<Scene>> getActiveScenes() const {
+			return activeScenes;
 		}
 
-		SWeak<Scene> getCurrentScene() const {
-			return currentScene;
-		}
+		// bool shouldChangeScene() const {
+		// 	return !sceneToChange.expired();
+		// }
 
-		bool shouldChangeScene() const {
-			return !sceneToChange.expired();
-		}
-
-		void changeScene();
-
-		void exitAll() const;
+		// void changeScene();
 	};
-} // namespace flax::app
-
-#endif
+} // namespace flx::app

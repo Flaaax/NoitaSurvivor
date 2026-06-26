@@ -3,9 +3,9 @@
 #include "../app/Scene.h"
 
 namespace flx::app {
-	class MenuScene : public flx::app::Scene {
+	class MenuScene : public Scene {
 	public:
-		explicit MenuScene(flx::app::AppCtx context);
+		explicit MenuScene(AppCtx context);
 
 		void draw(ui::RenderBuffer& rdr) override;
 		void update(float dt) override;

@@ -7,6 +7,7 @@
 #include "src/game/ui/Spell.h"
 #include "src/game/ui/SpellInventory.h"
 #include "src/game/ui/ValueBar.h"
+#include "src/game/ui/WandEditor.h"
 #include "src/ui/elements/RichText.h"
 
 #include <imgui.h>
@@ -22,28 +23,31 @@ namespace flx::app {
 		createWidget();
 		const auto ctx = game.getContext();
 		// auto& wand = *ctx.gameState.wands.front();
-		const auto wand = ctx.gameState.wandManager.getWand(0);
+		// const auto wand = ctx.gameState.wandManager.getWand(0);
 
-		auto inventory1 = makeUnique(new ui::SpellInventory({100, 150}, wand->inventory.size()));
+		auto editor = std::make_unique<ui::WandEditor>();
+		editor->setPosition({100, 150});
+		editor->setWands(ctx.gameState.wandManager);
+		// auto inventory1 = makeUnique(new ui::SpellInventory({100, 150}, wand->inventory.size()));
+		//
+		// for (const auto i : wand->inventory.indices()) {
+		// 	if (!wand->inventory[i]) {
+		// 		continue;
+		// 	}
+		// 	auto spell = makeUnique(new ui::Spell(wand->inventory[i], {i * 50, i * 50}));
+		// 	inventory1->addItem(std::move(spell), static_cast<int>(i));
+		// }
+		//
+		// inventory1->setOnModify([=](viewable::Val<Shared<game::Spell>> spells) {
+		// 	wand->inventory.clear();
+		// 	for (auto spell : spells) {
+		// 		wand->inventory.emplace_back(spell);
+		// 	}
+		// });
 
-		for (const auto i : wand->inventory.indices()) {
-			if (!wand->inventory[i]) {
-				continue;
-			}
-			auto spell = makeUnique(new ui::Spell(wand->inventory[i], {i * 50, i * 50}));
-			inventory1->addItem(std::move(spell), static_cast<int>(i));
-		}
+		widget->addToTop(std::move(editor));
 
-		inventory1->setOnModify([=](viewable::Val<Shared<game::Spell>> spells) {
-			wand->inventory.clear();
-			for (auto spell : spells) {
-				wand->inventory.emplace_back(spell);
-			}
-		});
-
-		widget->addToTop(std::move(inventory1));
-
-		auto inventory2 = makeUnique(new ui::SpellInventory({350, 50}, 5));
+		auto inventory2 = makeUnique(new ui::SpellInventory({100, 50}, 5));
 		widget->addToTop(std::move(inventory2));
 
 		auto healthBar =
@@ -75,7 +79,7 @@ namespace flx::app {
 
 	GameScene::GameScene(app::AppCtx context)
 		: Scene(context, makeContentID<GameScene>()), game(context) {
-		this->windowSize = context.windowViewport.canvasSize;
+		this->windowSize = context.windowView.canvasSize;
 	}
 
 	void GameScene::draw(ui::RenderBuffer& rdr) {

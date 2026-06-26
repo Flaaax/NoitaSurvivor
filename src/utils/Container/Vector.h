@@ -82,6 +82,18 @@ namespace flx {
 
 			return *std::ranges::max_element(*this, std::move(compare), std::move(projection));
 		}
+
+		template <std::ranges::input_range R>
+			requires std::convertible_to<std::ranges::range_reference_t<R>, T>
+		void assign_range(R&& r) {
+			this->clear();
+			if constexpr (std::ranges::sized_range<R>) {
+				this->reserve(std::ranges::size(r));
+			}
+			for (auto&& x : r) {
+				this->emplace_back(x);
+			}
+		}
 	};
 
 	// Maybe move this to flx::trait

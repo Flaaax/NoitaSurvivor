@@ -5,12 +5,12 @@
 
 namespace flx::app {
 	struct NoitaSurvivorApp : IApp {
-		void setup(AppCtx context) override {
-			context.sceneManager.add(std::make_unique<GameScene>(context));
-			context.sceneManager.add(std::make_unique<MenuScene>(context));
-			context.sceneManager.setCurrent("menu_scene");
-			context.runtime.showDebugFPS = true;
-			context.runtime.imguiDisplay = true;
+		void setup(AppCtx ctx) override {
+			ctx.sceneManager.add(std::make_unique<GameScene>(ctx));
+			ctx.sceneManager.add(std::make_unique<MenuScene>(ctx));
+			ctx.sceneManager.addCommand({.target = "menu_scene", .cmd = SceneCmd::Enter});
+			ctx.runtime.showDebugFPS = true;
+			ctx.runtime.imguiDisplay = true;
 		}
 
 		AppInfo getInfo() override {

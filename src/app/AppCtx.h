@@ -16,7 +16,7 @@ namespace flx::app {
 	};
 
 	struct AppCtx {
-		const ui::WindowView& windowViewport;
+		const ui::WindowView& windowView;
 		const ui::InputState& input;
 		SceneManager& sceneManager;
 		RuntimeCtx& runtime;
