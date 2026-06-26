@@ -1,10 +1,9 @@
 #pragma once
-#include "../Container/Map.h"
 #include "../Container/Vector.h"
 #include "../Container/VectorMap.h"
 #include "../Integers.h"
 #include "../Pointer.h"
-#include "src/utils/Traits/Traits.h"
+#include "../Traits/Traits.h"
 
 #include <cstddef>
 #include <filesystem>

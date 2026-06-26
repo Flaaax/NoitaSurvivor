@@ -1,14 +1,13 @@
 #include "Logger.h"
 
 #include "../Debug.h"
+#include "../Exception/Exceptions.h"
 #include "ArchiveFileSink.h"
-#include "src/utils/Exception/Exceptions.h"
 
 #include <memory>
 #include <spdlog/async.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <stdexcept>
 #include <string>
 #include <utility>
 
@@ -21,7 +20,7 @@ namespace flx {
 	}
 
 	void Logger::impl_error_and_throw(std::string msg) {
-		flx::debug::printCallStack();
+		// flx::debug::printCallStack();
 		const std::string msg1 = vformat("{}\n{}", msg, debug::getCallStackStr());
 		this->error(msg1);
 		throw except::LogThrow(msg1);

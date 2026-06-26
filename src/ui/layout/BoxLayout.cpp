@@ -71,7 +71,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float y{};
 			vec2 size{};
-			Object* child{};
+			Ref<Object> child{};
 		};
 
 		Vector<ChildLayout> children{};
@@ -177,7 +177,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float x{};
 			vec2 size{};
-			Object* child{};
+			Ref<Object> child{};
 		};
 
 		Vector<ChildLayout> children{};

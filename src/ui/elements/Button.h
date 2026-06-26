@@ -11,7 +11,7 @@ namespace flx::ui {
 	public:
 		std::function<void()> onClick;
 
-		RichText* text{};
+		Ref<RichText> text{};
 
 		bool hasBackground = true;
 		bool isActuallyPressed{};

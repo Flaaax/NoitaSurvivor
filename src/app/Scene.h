@@ -9,12 +9,12 @@
 namespace flx::app {
 	class Scene {
 	protected:
-		Unique<ui::RootWidget> widget{};
+		SUnique<ui::RootWidget> widget{};
 		Logger logger{};
 		AppCtx ctx;
 		// const ui::Viewport& viewport;
-		u64 layer{}; // Call UpdateLayer if changed dynamically
-					 // std::string nextScene = "";
+		// Call UpdateLayer if changed dynamically
+		u64 layer{};
 
 	public:
 		const std::string name;
@@ -49,7 +49,7 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = std::make_unique<ui::RootWidget>(ctx.windowView.viewport);
+			widget = makeSUnique<ui::RootWidget>(ctx.windowView.viewport);
 		}
 
 		virtual void onWindowResized(const ui::WindowView& view) {

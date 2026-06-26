@@ -1,11 +1,10 @@
 #pragma once
 #include "InputState.h"
 #include "States.h"
-#include "WindowEvent.h"
-#include <SFML/Window/Event.hpp>
 
 namespace flx::ui {
 	class Object;
+	struct WindowEvent;
 
 	struct RootCtx {
 		const DragState& dragState;
@@ -34,7 +33,7 @@ namespace flx::ui {
 		struct HoverIntent {
 		};
 
-		Object* handler{};
+		Ref<Object> handler{};
 		std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
 
 		template <class T>

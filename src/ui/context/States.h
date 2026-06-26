@@ -1,7 +1,6 @@
 #pragma once
 #include "../../utils/Vec2/Vec2.h"
 #include "src/utils/Container/Vector.h"
-#include "src/utils/Pointer.h"
 
 namespace sf {
 	class Texture;
@@ -14,12 +13,12 @@ namespace flx::ui {
 	class Object;
 
 	struct DragState {
-		Object* dragged{};
+		Ref<Object> dragged{};
 		vec2 offset{};
 	};
 
 	struct DropCandidate {
-		Object* target;
+		Ref<Object> target;
 		float score{}; // Higher scrore means higher chance to be se
 	};
 
@@ -33,7 +32,7 @@ namespace flx::ui {
 	};
 
 	struct HoverState {
-		Object* target{};
+		Ref<Object> target{};
 		float hoveredTime{};
 		float hoverIntentDelay{};
 		bool hasTargetInFrame{};
@@ -41,7 +40,7 @@ namespace flx::ui {
 		bool tooltipDirty = true;
 	};
 
-	using TooltipBuilder = Unique<Layout> (*)(const Style& style, Object* self);
+	using TooltipBuilder = SUnique<Layout> (*)(const Style& style, Ref<Object> self);
 
 	struct TooltipSpec {
 		TooltipBuilder builder{};

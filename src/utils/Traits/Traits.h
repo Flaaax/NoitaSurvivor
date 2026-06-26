@@ -1,4 +1,5 @@
 #pragma once
+#include "Integers.h"
 #include <type_traits>
 
 namespace flx::traits {
@@ -10,6 +11,11 @@ namespace flx::traits {
 
 	template <class T>
 	concept enum_v = std::is_enum_v<T>;
+
+	template <class From, class To>
+	concept static_castable_to = requires {
+		static_cast<To>(std::declval<From>());
+	};
 
 	template <std::integral T>
 	inline constexpr u64 digits = static_cast<u64>(std::numeric_limits<T>::digits);

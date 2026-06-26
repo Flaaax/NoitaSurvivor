@@ -8,8 +8,6 @@ namespace flx::game {
 }
 
 namespace flx::ui {
-	class SpellInventory;
-
 	class Spell : public Object {
 	protected:
 		friend class SpellInventory;
@@ -24,7 +22,7 @@ namespace flx::ui {
 		// bool isHovered{};
 
 		void updateTooltipSpec();
-		static Unique<ui::Layout> tooltipBuilder(const ui::Style& style, Object* self);
+		static SUnique<ui::Layout> tooltipBuilder(const ui::Style& style, Ref<Object> self);
 
 	public:
 		static constexpr vec2 slotSize = {45.f, 45.f};
@@ -35,6 +33,7 @@ namespace flx::ui {
 		std::optional<ui::EventResult> handleEvent(const ui::UIEvent& event) override;
 		void update(float dt) override;
 		void draw(const ui::UIPainter& canvas) const override;
+		void moveToSlot();
 
 		rect getHitbox() const override {
 			return frame.getExpand({5.f, 5.f});

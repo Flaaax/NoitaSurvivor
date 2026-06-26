@@ -8,6 +8,7 @@
 #include "src/game/ui/SpellInventory.h"
 #include "src/game/ui/ValueBar.h"
 #include "src/game/ui/WandEditor.h"
+#include "src/ui/context/WindowEvent.h"
 #include "src/ui/elements/RichText.h"
 #include "src/ui/render/RenderBuffer.h"
 

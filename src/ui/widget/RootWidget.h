@@ -4,6 +4,8 @@
 #include "src/ui/render/Viewport.h"
 
 namespace flx::ui {
+	struct WindowView;
+	struct WindowEvent;
 	class Panel;
 	class Tooltip;
 	class RenderBuffer;
@@ -13,7 +15,7 @@ namespace flx::ui {
 		DragState dragState;
 		HoverState hoverState;
 		Style style;
-		Unique<Panel> tooltip;
+		SUnique<Panel> tooltip;
 		vec2 mousePosition{};
 		Viewport viewport;
 

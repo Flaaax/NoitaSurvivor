@@ -49,24 +49,27 @@ namespace flx::ui {
 		}
 	}
 
-	Unique<Object> Widget::remove(const Object* target) {
+	SUnique<Object> Widget::remove(const Ref<Object>& target) {
 		const auto it =
 			std::ranges::find_if(
 				objects,
-				[&](const std::unique_ptr<Object>& obj) {
-					return obj.get() == target;
+				[&](const SUnique<Object>& obj) {
+					return obj == target;
 				});
 		if (it == objects.end()) {
 			logger.warn("Widget does not own target object!");
 			return {};
 		}
-		Unique<Object> removed = std::move(*it);
+		SUnique<Object> removed = std::move(*it);
 		removed->parent = {};
 		objects.erase(it);
 		return removed;
 	}
 
 	void Widget::clear() {
+		for (const auto& obj : objects) {
+			obj->parent = {};
+		}
 		objects = {};
 	}
 

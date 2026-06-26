@@ -17,7 +17,7 @@ namespace flx::ui {
 		Widget::draw(canvas);
 	}
 
-	void Panel::setLayout(Unique<Layout> layout) {
+	void Panel::setLayout(SUnique<Layout> layout) {
 		clear();
 		this->addToTop(std::move(layout));
 		refresh();
@@ -38,8 +38,11 @@ namespace flx::ui {
 		visualDirty = false;
 	}
 
-	Layout* Panel::getLayout() const {
+	Ref<Layout> Panel::getLayout() const {
 		auto objects = getObjects();
-		return static_cast<Layout*>(objects.empty() ? nullptr : objects.front());
+		if (objects.empty()) {
+			return {};
+		}
+		return objects.empty() ? nullptr : objects.front().staticCast<Layout>();
 	}
 } // namespace flx::ui

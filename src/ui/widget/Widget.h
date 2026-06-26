@@ -17,7 +17,7 @@ namespace flx::ui {
 		friend class RootWidget;
 
 		bool isRoot{};
-		Vector<Unique<Object>> objects;
+		Vector<SUnique<Object>> objects;
 
 		void bind(Object* obj);
 		static void drawWithChildCanvas(const UIPainter& canvas, const Object& obj);
@@ -29,7 +29,7 @@ namespace flx::ui {
 			isWidget_ = true;
 		}
 
-		Object* add(Unique<Object> obj) {
+		Object* add(SUnique<Object> obj) {
 			return addToTop(std::move(obj));
 		}
 
@@ -38,22 +38,22 @@ namespace flx::ui {
 		// 	return static_cast<T*>(this->add(std::move(obj)));
 		// }
 
-		Object* addToTop(Unique<Object> obj) {
-			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
+		Object* addToTop(SUnique<Object> obj) {
+			assertWithMsg(!has(obj), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_back(std::move(obj)).get();
 		}
 
-		Object* addToBottom(Unique<Object> obj) {
-			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
+		Object* addToBottom(SUnique<Object> obj) {
+			assertWithMsg(!has(obj), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_front(std::move(obj)).get();
 		}
 
 		auto getObjects() const {
-			return objects | std::views::transform([](const Unique<Object>& obj) { return obj.get(); });
+			return objects | std::views::transform([](const SUnique<Object>& obj) { return obj.ref(); });
 		}
 
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
@@ -61,19 +61,19 @@ namespace flx::ui {
 		void update(float deltaTime) override;
 		void draw(const UIPainter& canvas) const override;
 
-		bool has(const Object* obj) const {
+		bool has(const CRef<Object>& obj) const {
 			return obj->getParent() == this;
 		}
 
-		Unique<Object> remove(const Object* target);
+		SUnique<Object> remove(const Ref<Object>& target);
 		void clear();
 
-		void moveToTop(const Object* obj) {
+		void moveToTop(const Ref<Object>& obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToTop(remove(obj));
 		}
 
-		void moveToBottom(const Object* obj) {
+		void moveToBottom(const Ref<Object>& obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToBottom(remove(obj));
 		}

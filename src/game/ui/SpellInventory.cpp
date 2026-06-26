@@ -2,6 +2,7 @@
 #include "../../utils/Container/Map.h"
 #include "src/game/Spells/Spell.h"
 #include "src/game/ui/Spell.h"
+#include "src/ui/context/WindowEvent.h"
 #include "src/ui/render/Painter.h"
 #include "src/ui/widget/Widget.h"
 #include "src/utils/Assert.h"
@@ -11,8 +12,8 @@
 
 namespace flx::ui {
 	void SpellInventory::updateSlotsGeometry() {
-		const size_t count = slots.size();
-		for (size_t i = 0; i < count; i++) {
+		const u64 count = slots.size();
+		for (u64 i = 0; i < count; i++) {
 			auto& [geometry, spell] = slots[i];
 			geometry.position = vec2{i * (Spell::slotSize.x - Spell::outLine), 0}; // Local position
 			geometry.size = Spell::slotSize;
@@ -25,7 +26,7 @@ namespace flx::ui {
 		};
 	}
 
-	std::pair<int, float> SpellInventory::getBestSlot(rect globalHitbox) const {
+	Pair<int, float> SpellInventory::getBestSlot(rect globalHitbox) const {
 		int bestSlot = -1;
 		float bestDistance = std::numeric_limits<float>::max();
 		const vec2 globalCenter = globalHitbox.center();
@@ -76,7 +77,7 @@ namespace flx::ui {
 		typeID = makeTypeID<SpellInventory>();
 	}
 
-	SpellInventory::SpellInventory(const Vector<Shared<game::Spell>>& spells) : SpellInventory({}, 0ull) {
+	SpellInventory::SpellInventory(Span<Shared<game::Spell>> spells) : SpellInventory({}, 0ull) {
 		setItems(spells);
 	}
 
@@ -110,7 +111,7 @@ namespace flx::ui {
 		}
 		auto [bestSlot, bestDistance] = getBestSlot(query.globalHitbox);
 		if (bestSlot != -1) {
-			collector.candidates.emplace_back(this, -bestDistance);
+			collector.candidates.emplace_back(self(), -bestDistance);
 			selectedSlot = bestSlot;
 		}
 		shouldHighlight = false;
@@ -122,15 +123,15 @@ namespace flx::ui {
 			return;
 		}
 		shouldHighlight = false;
-		Widget* spellParent = query.state.dragged->getParent();
-		SpellInventory* otherInventory = spellParent->convert<SpellInventory>();
-		Spell* spell = query.state.dragged->convert<Spell>();
+		const auto spellParent = query.state.dragged->getParent();
+		auto otherInventory = spellParent->convert<SpellInventory>();
+		auto spell = query.state.dragged->convert<Spell>();
 		if (!spell) {
 			logger.error_and_throw("This should never happen...");
 		}
-		Unique<Object> spellObject;
-		Unique<Object> replacedSpellObject;
-		Spell* replacedSpell = getSpell(selectedSlot);
+		SUnique<Object> spellObject;
+		SUnique<Object> replacedSpellObject;
+		auto replacedSpell = getSpell(selectedSlot);
 
 		if (spell == replacedSpell) {
 			spell->isReleased = true;
@@ -149,7 +150,7 @@ namespace flx::ui {
 			replacedSpellObject = removeItem(replacedSpell);
 		}
 
-		updateSpellPosition(spell, this);
+		updateSpellPosition(spell, self().staticCast<SpellInventory>());
 
 		if (otherInventory) {
 			spellObject = otherInventory->removeItem(spell);
@@ -180,7 +181,7 @@ namespace flx::ui {
 		return Widget::handleEvent(event);
 	}
 
-	void SpellInventory::setItems(const Vector<Shared<game::Spell>>& spells) {
+	void SpellInventory::setItems(Span<Shared<game::Spell>> spells) {
 		slots.resize(spells.size());
 		updateSlotsGeometry();
 		for (auto [i, spell] : spells.enumerate<int>()) {
@@ -191,8 +192,8 @@ namespace flx::ui {
 		}
 	}
 
-	void SpellInventory::addItem(Unique<Object> spell, int index) {
-		Spell* nspell = spell->convert<Spell>();
+	void SpellInventory::addItem(SUnique<Object> spell, int index) {
+		const auto nspell = spell->convert<Spell>();
 		if (!nspell) {
 			logger.error_and_throw("Should only add NSpell item!");
 		}
@@ -205,14 +206,14 @@ namespace flx::ui {
 		this->addToTop(std::move(spell));
 	}
 
-	Spell* SpellInventory::getSpell(int index) {
+	Ref<Spell> SpellInventory::getSpell(int index) {
 		if (!slots.valid(index)) {
 			return {};
 		}
 		return slots[index].spell;
 	}
 
-	Unique<Object> SpellInventory::removeItem(Spell* spell) {
+	SUnique<Object> SpellInventory::removeItem(Ref<Spell> spell) {
 		slots.at(spell->index).spell = {};
 		spell->index = -1;
 		return this->remove(spell);
@@ -230,7 +231,7 @@ namespace flx::ui {
 	// 	shouldHighlight = false;
 	// }
 
-	void SpellInventory::updateSpellPosition(Spell* spell, const SpellInventory* to) {
+	void SpellInventory::updateSpellPosition(Ref<Spell> spell, CRef<SpellInventory> to) {
 		const vec2 globalPosition = spell->getGlobalPosition();
 		spell->setPosition(globalPosition - to->getGlobalPosition());
 	}

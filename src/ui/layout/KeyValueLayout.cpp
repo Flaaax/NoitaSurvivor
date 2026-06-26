@@ -36,11 +36,11 @@ namespace flx::ui {
 			vec2 keySize{};
 			vec2 valueSize{};
 			float height{};
-			Object* key{};
-			Object* value{};
+			Ref<Object> key{};
+			Ref<Object> value{};
 		};
 
-		flx::Vector<Item> items{};
+		Vector<Item> items{};
 		items.reserve(getObjects().size() / 2);
 
 		const auto& children = getObjects();

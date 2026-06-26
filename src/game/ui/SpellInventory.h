@@ -16,7 +16,7 @@ namespace flx::ui {
 	private:
 		struct Slot {
 			rect frame;
-			Spell* spell{};
+			Ref<Spell> spell{};
 			// size_t index{};
 		};
 
@@ -37,7 +37,7 @@ namespace flx::ui {
 
 	public:
 		SpellInventory(vec2 position, u64 slotCount);
-		SpellInventory(const Vector<Shared<game::Spell>>& spells);
+		explicit SpellInventory(Span<Shared<game::Spell>> spells);
 
 		void draw(const UIPainter& canvas) const override;
 
@@ -45,10 +45,10 @@ namespace flx::ui {
 		void onDropAccepted(const DropQuery& query, bool shouldDrop) override;
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
 
-		void setItems(const Vector<Shared<game::Spell>>& spells);
-		void addItem(Unique<Object> spell, int index);
-		Spell* getSpell(int index);
-		Unique<Object> removeItem(Spell* spell);
+		void setItems(Span<Shared<game::Spell>> spells);
+		void addItem(SUnique<Object> spell, int index);
+		Ref<Spell> getSpell(int index);
+		SUnique<Object> removeItem(Ref<Spell> spell);
 		rect getSlotGeometry(int index) const;
 
 		void setOnModify(OnModify onModify);
@@ -59,6 +59,6 @@ namespace flx::ui {
 			return slots.size();
 		}
 
-		static void updateSpellPosition(Spell* spell, const SpellInventory* to);
+		static void updateSpellPosition(Ref<Spell> spell, CRef<SpellInventory> to);
 	};
 } // namespace flx::ui

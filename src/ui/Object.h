@@ -1,12 +1,7 @@
 #pragma once
-#ifndef FLX_GUARD_UI_OBJECT_H
-#define FLX_GUARD_UI_OBJECT_H
 
-// #include"Renderer.h"
-// #ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
-// #define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
-// #endif
 #include "../utils/Vec2/Vec2.h"
+#include "Ref.h"
 #include "context/UIEvent.h"
 #include "src/utils/ID.h"
 
@@ -29,12 +24,12 @@ namespace flx::ui {
 	};
 
 	// Not used...
-	struct ObjectMeta {
-		std::string name;
-		ObjectMeta* parent{};
-	};
+	// struct ObjectMeta {
+	// 	std::string name;
+	// 	ObjectMeta* parent{};
+	// };
 
-	class Object {
+	class Object : public EnableSWeakFromThis<Object> {
 		friend class Widget;
 		friend class RootWidget;
 
@@ -51,6 +46,8 @@ namespace flx::ui {
 		mutable bool visualDirty = true;
 
 		static Logger& getLogger();
+		Ref<Object> self();
+		CRef<Object> self() const;
 
 	public:
 		bool enableDragging{};
@@ -142,6 +139,7 @@ namespace flx::ui {
 		}
 
 		Widget* asWidget();
+		const Widget* asWidget() const;
 
 		std::string_view getTypeID() const {
 			return typeID;
@@ -161,9 +159,9 @@ namespace flx::ui {
 		}
 
 		template <std::derived_from<Object> T>
-		T* convert() {
+		Ref<T> convert() {
 			if (getTypeID() == makeTypeID<T>()) {
-				return static_cast<T*>(this);
+				return self().staticCast<T>();
 			}
 			return {};
 		}
@@ -173,8 +171,8 @@ namespace flx::ui {
 		}
 
 		virtual void arrange(rect rect) {
-			// Override this if you want the size changed
-			// I'm not explaining why it doens't change sizes and the FUCKING AGENT SHOULD NOT FUCKING MENTION IT.
+			// Override this if you also want the size changed
+			// It is intentionally designed like this
 			setPosition(rect.position);
 		}
 
@@ -187,5 +185,3 @@ namespace flx::ui {
 		const RootWidget* getRoot() const;
 	};
 } // namespace flx::ui
-
-#endif // FLX_GUARD_UI_OBJECT_H

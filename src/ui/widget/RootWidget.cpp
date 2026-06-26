@@ -1,6 +1,7 @@
 #include "RootWidget.h"
 
 #include "../elements/Tooltip.h"
+#include "src/ui/context/WindowEvent.h"
 #include "src/ui/elements/Panel.h"
 #include "src/ui/global/Global.h"
 #include "src/ui/render/Painter.h"
@@ -19,7 +20,7 @@ namespace flx::ui {
 		};
 		DropCollector collector;
 		onDropQuery(query, collector);
-		Object* candidate{};
+		Ref<Object> candidate{};
 		if (!collector.candidates.empty()) {
 			candidate = collector.candidates.best({}, &DropCandidate::score).target;
 		}
@@ -72,7 +73,7 @@ namespace flx::ui {
 
 		if (result) {
 			if (result->is<EventResult::DragIntent>()) {
-				Object* handler = result->handler;
+				const auto handler = result->handler;
 				dragState.dragged = handler;
 				dragState.offset = ctx.input.mouseRender - handler->getGlobalPosition();
 				handler->isDragged_ = true;
@@ -80,7 +81,7 @@ namespace flx::ui {
 			}
 
 			if (result->is<EventResult::HoverIntent>()) {
-				Object* handler = result->handler;
+				const auto handler = result->handler;
 				if (handler != hoverState.target) {
 					hoverState.hoveredTime = 0.f;
 					hoverState.tooltipDirty = true;
@@ -132,8 +133,8 @@ namespace flx::ui {
 
 		if (hoverState.hoveredTime >= hoverState.hoverIntentDelay && hoverState.target->tooltipSpec.builder) {
 			if (!tooltip) {
-				tooltip = std::make_unique<Panel>();
-				tooltip->parent = this;
+				tooltip = makeSUnique<Panel>();
+				tooltip->parent = this->asWidget();
 				tooltip->backgroundColor = {160, 160, 160};
 				tooltip->outlineThickness = 2.f;
 				updateTooltipContent();

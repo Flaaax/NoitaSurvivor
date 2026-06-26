@@ -15,7 +15,7 @@ namespace flx::ui {
 
 	vec2 Object::toGlobalPosition(vec2 localPosition) const {
 		vec2 ret = localPosition;
-		if (const Widget* parent = getParent()) {
+		if (const auto parent = getParent()) {
 			ret += parent->getGlobalPosition();
 		}
 		return ret;
@@ -27,7 +27,7 @@ namespace flx::ui {
 
 	vec2 Object::getParentLocalPosition(vec2 globalPosition) const {
 		vec2 ret = globalPosition;
-		if (const Widget* parent = getParent()) {
+		if (const auto parent = getParent()) {
 			ret -= parent->getGlobalPosition();
 		}
 		return ret;
@@ -44,6 +44,10 @@ namespace flx::ui {
 		return static_cast<Widget*>(this);
 	}
 
+	const Widget* Object::asWidget() const {
+		return (const_cast<Object*>(this))->asWidget();
+	}
+
 	const Viewport& Object::getGlobalViewport() const {
 		if (const auto root = getRoot()) {
 			return root->getViewport();
@@ -52,13 +56,21 @@ namespace flx::ui {
 		getLogger().error_and_throw("Object does not have root");
 	}
 
-	flx::Logger& Object::getLogger() {
+	Logger& Object::getLogger() {
 		return Global::getLogger();
+	}
+
+	Ref<Object> Object::self() {
+		return sweakFromThis();
+	}
+
+	CRef<Object> Object::self() const {
+		return sweakFromThis();
 	}
 
 	const RootWidget* Object::getRoot() const {
 		if (isWidget()) {
-			const auto widget = static_cast<const Widget*>(this);
+			const auto widget = asWidget();
 			if (widget->isRoot) {
 				return static_cast<const RootWidget*>(widget);
 			}
@@ -70,4 +82,4 @@ namespace flx::ui {
 
 		return {};
 	}
-}
+} // namespace flx::ui

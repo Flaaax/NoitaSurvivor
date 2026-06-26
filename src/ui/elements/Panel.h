@@ -7,7 +7,7 @@
 namespace flx::ui {
 	class Panel : public Widget {
 	protected:
-		Layout* getLayout() const;
+		Ref<Layout> getLayout() const;
 
 	public:
 		enum Policy {
@@ -24,7 +24,7 @@ namespace flx::ui {
 		float outlineThickness = 0.f;
 
 		void draw(const UIPainter& canvas) const override;
-		void setLayout(Unique<Layout> layout);
+		void setLayout(SUnique<Layout> layout);
 		void refresh() override;
 	};
 } // namespace flx::ui

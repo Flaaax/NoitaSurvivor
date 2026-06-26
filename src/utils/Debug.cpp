@@ -7,6 +7,7 @@
 // clang-format on
 
 #include <iostream>
+#include <sstream>
 
 #pragma comment(lib, "dbghelp.lib")
 

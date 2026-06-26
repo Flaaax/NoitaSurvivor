@@ -4,6 +4,7 @@
 #include "SpellInventory.h"
 #include "src/game/Spells/Spell.h"
 #include "src/ui/context/Style.h"
+#include "src/ui/context/WindowEvent.h"
 #include "src/ui/elements/Image.h"
 #include "src/ui/elements/RichText.h"
 #include "src/ui/layout/BoxLayout.h"
@@ -19,9 +20,9 @@ namespace flx::ui {
 		tooltipSpec.width = 400.f;
 	}
 
-	Unique<Layout> Spell::tooltipBuilder(const Style& style, Object* self) {
+	SUnique<Layout> Spell::tooltipBuilder(const Style& style, Ref<Object> self) {
 		using flx::move;
-		const Spell* nspell = static_cast<Spell*>(self);
+		const auto nspell = self.staticCast<Spell>();
 		auto& loc = nspell->spell->getLoc();
 
 		auto layout = std::make_unique<VBoxLayout>();
@@ -86,14 +87,14 @@ namespace flx::ui {
 				isReleased = true;
 				frame.setCenter(event.localCtx.mouseLocal);
 				return EventResult{
-					.handler = this,
+					.handler = self(),
 					.result = EventResult::DragIntent{},
 				};
 			}
 		} else if (raw.is<sf::Event::MouseMoved>() && this->frame.contains(event.localCtx.mouseLocal)) {
 			updateTooltipSpec();
 			return EventResult{
-				.handler = this,
+				.handler = self(),
 				.result = EventResult::HoverIntent{},
 			};
 		}
@@ -159,8 +160,14 @@ namespace flx::ui {
 		canvas.draw(sprite);
 	}
 
+	void Spell::moveToSlot() {
+		const vec2 target = getInventory()->getSlotGeometry(index).position;
+		isReleased = false;
+		setPosition(target);
+	}
+
 	const SpellInventory* Spell::getInventory() const {
-		const Widget* parent = getParent();
+		const auto parent = getParent();
 		if (!parent) {
 			return {};
 		}
