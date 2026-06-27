@@ -11,7 +11,7 @@ namespace flx::ui {
 	Button::Button(rect geometry) {
 		setFrame(geometry);
 
-		sizePolicy = Fixed;
+		sizePolicy = Policy::Fixed;
 
 		auto layout = makeSUnique<VBoxLayout>();
 		layout->widthPolicy = Layout::Fill;
@@ -41,7 +41,7 @@ namespace flx::ui {
 			if (frame.contains(event.localCtx.mouseLocal)) {
 				state = Pressed;
 				isActuallyPressed = true;
-				return EventResult{self(), EventResult::Pressed{}};
+				return EventResult{this, EventResult::Pressed{}};
 			}
 		} else if (rawEvent.is<sf::Event::MouseButtonReleased>()) {
 			if (frame.contains(event.localCtx.mouseLocal)) {
@@ -51,7 +51,7 @@ namespace flx::ui {
 						onClick();
 					}
 					isActuallyPressed = false;
-					return EventResult{self(), EventResult::Clicked{}};
+					return EventResult{this, EventResult::Clicked{}};
 				}
 			}
 			state = Normal;

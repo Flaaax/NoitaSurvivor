@@ -19,7 +19,7 @@ namespace flx::ui {
 		explicit RichText(std::string markup, const RichTextShape::Preset& preset);
 		static auto makePreset();
 		void draw(const UIPainter& canvas) const override;
-		LayoutResult measure(LayoutConstraint constraint) override;
+		Measure measure(LayoutConstraint constraint) override;
 		void arrange(rect rect) override;
 		void refresh() override;
 		void setString(std::string markup);

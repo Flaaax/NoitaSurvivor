@@ -111,7 +111,7 @@ namespace flx::ui {
 		}
 		auto [bestSlot, bestDistance] = getBestSlot(query.globalHitbox);
 		if (bestSlot != -1) {
-			collector.candidates.emplace_back(self(), -bestDistance);
+			collector.candidates.emplace_back(this, -bestDistance);
 			selectedSlot = bestSlot;
 		}
 		shouldHighlight = false;
@@ -143,14 +143,14 @@ namespace flx::ui {
 		if (replacedSpell) {
 			if (!otherInventory) {
 				selectedSlot = -1;
-				// TODO
+				// TODO what?
 				return;
 			}
 			updateSpellPosition(replacedSpell, otherInventory);
 			replacedSpellObject = removeItem(replacedSpell);
 		}
 
-		updateSpellPosition(spell, self().staticCast<SpellInventory>());
+		updateSpellPosition(spell, this);
 
 		if (otherInventory) {
 			spellObject = otherInventory->removeItem(spell);
@@ -202,18 +202,18 @@ namespace flx::ui {
 		}
 		nspell->index = index;
 		nspell->isReleased = true;
-		slots[index].spell = nspell;
+		slots[index].spell = nspell->ref().staticCast<Spell>();
 		this->addToTop(std::move(spell));
 	}
 
-	Ref<Spell> SpellInventory::getSpell(int index) {
+	Spell* SpellInventory::getSpell(int index) {
 		if (!slots.valid(index)) {
 			return {};
 		}
-		return slots[index].spell;
+		return slots[index].spell.get();
 	}
 
-	SUnique<Object> SpellInventory::removeItem(Ref<Spell> spell) {
+	SUnique<Object> SpellInventory::removeItem(Spell* spell) {
 		slots.at(spell->index).spell = {};
 		spell->index = -1;
 		return this->remove(spell);
@@ -231,7 +231,7 @@ namespace flx::ui {
 	// 	shouldHighlight = false;
 	// }
 
-	void SpellInventory::updateSpellPosition(Ref<Spell> spell, CRef<SpellInventory> to) {
+	void SpellInventory::updateSpellPosition(Spell* spell, const SpellInventory* to) {
 		const vec2 globalPosition = spell->getGlobalPosition();
 		spell->setPosition(globalPosition - to->getGlobalPosition());
 	}

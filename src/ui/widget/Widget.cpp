@@ -49,12 +49,12 @@ namespace flx::ui {
 		}
 	}
 
-	SUnique<Object> Widget::remove(const Ref<Object>& target) {
+	SUnique<Object> Widget::remove(const Object* target) {
 		const auto it =
 			std::ranges::find_if(
 				objects,
 				[&](const SUnique<Object>& obj) {
-					return obj == target;
+					return obj.get() == target;
 				});
 		if (it == objects.end()) {
 			logger.warn("Widget does not own target object!");

@@ -39,7 +39,7 @@ namespace flx::ui {
 	void ValueBar::updateText() {
 		if (mode == 1) {
 			if (format.empty()) {
-				const auto levelString = app::LocManager::inst().debugGetString("ui", "level");
+				const auto levelString = app::LocManager::debugGetString("ui", "level");
 				format = levelString + "{}";
 			}
 			text.setString(flx::vformat(format, level));

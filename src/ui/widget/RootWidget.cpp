@@ -20,7 +20,7 @@ namespace flx::ui {
 		};
 		DropCollector collector;
 		onDropQuery(query, collector);
-		Ref<Object> candidate{};
+		Object* candidate{};
 		if (!collector.candidates.empty()) {
 			candidate = collector.candidates.best({}, &DropCandidate::score).target;
 		}
@@ -74,7 +74,7 @@ namespace flx::ui {
 		if (result) {
 			if (result->is<EventResult::DragIntent>()) {
 				const auto handler = result->handler;
-				dragState.dragged = handler;
+				dragState.dragged = handler->ref();
 				dragState.offset = ctx.input.mouseRender - handler->getGlobalPosition();
 				handler->isDragged_ = true;
 				return true;
@@ -82,12 +82,12 @@ namespace flx::ui {
 
 			if (result->is<EventResult::HoverIntent>()) {
 				const auto handler = result->handler;
-				if (handler != hoverState.target) {
+				if (handler->ref() != hoverState.target) {
 					hoverState.hoveredTime = 0.f;
 					hoverState.tooltipDirty = true;
 					hoverState.hoveredTime = hoverState.hoverIntentDelay; // Make continuous hover
 				}
-				hoverState.target = handler;
+				hoverState.target = handler->ref();
 				hoverState.hasTargetInFrame = true;
 				return true;
 			}
@@ -107,7 +107,7 @@ namespace flx::ui {
 
 	void RootWidget::updateTooltipContent() {
 		tooltip->setSize({hoverState.target->tooltipSpec.width, 0});
-		tooltip->setLayout(hoverState.target->tooltipSpec.builder(style, hoverState.target));
+		tooltip->setLayout(hoverState.target->tooltipSpec.builder(style, hoverState.target.at()));
 		hoverState.tooltipDirty = false;
 	}
 

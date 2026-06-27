@@ -33,7 +33,7 @@ namespace flx::ui {
 		struct HoverIntent {
 		};
 
-		Ref<Object> handler{};
+		Object* handler{};
 		std::variant<std::monostate, Clicked, DragIntent, Pressed, HoverIntent> result;
 
 		template <class T>

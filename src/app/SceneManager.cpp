@@ -12,7 +12,7 @@ namespace flx::app {
 		exitAll();
 	}
 
-	void SceneManager::add(SUnique<Scene> scene) {
+	SWeak<Scene> SceneManager::addInternal(SUnique<Scene> scene) {
 		// Logger::info("Adding scene to SceneManager...");
 		if (!scene) {
 			logger.error_and_throw("Scene is nullptr");
@@ -21,7 +21,7 @@ namespace flx::app {
 		if (scenes.contains(name)) {
 			logger.error_and_throw("Scene {} already registered!", name);
 		}
-		scenes[name] = std::move(scene);
+		return scenes[name] = std::move(scene);
 		// Logger::info("Scene {} added to SceneManager", name);
 	}
 

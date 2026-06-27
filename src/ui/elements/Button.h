@@ -28,6 +28,8 @@ namespace flx::ui {
 
 		explicit Button(rect geometry);
 
+		// static SUnique<Button> create(rect geometry, std::string text, u32 characterSize, std::function<void> onClick = {});
+
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
 		void draw(const UIPainter& canvas) const override;
 

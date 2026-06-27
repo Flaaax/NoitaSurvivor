@@ -23,9 +23,9 @@ namespace flx::game {
 		const std::string ID = std::string(ID_);
 		constexpr std::string_view entry = "spells";
 		return Loc{
-			.title = app::LocManager::inst().debugGetString(entry, ID + ".title"),
-			.description = app::LocManager::inst().debugGetString(entry, ID + ".description"),
-			.flavor = app::LocManager::inst().debugGetString(entry, ID + ".flavor"),
+			.title = app::LocManager::debugGetString(entry, ID + ".title"),
+			.description = app::LocManager::debugGetString(entry, ID + ".description"),
+			.flavor = app::LocManager::debugGetString(entry, ID + ".flavor"),
 		};
 	}
 
@@ -61,7 +61,7 @@ namespace flx::game {
 
 	flx::Vector<Pair<std::string>> Spell::getDisplayedProperties() const {
 		constexpr auto get = [](std::string_view key) {
-			return app::LocManager::inst().debugGetString("spell_properties", key, true);
+			return app::LocManager::debugGetString("spell_properties", key, true);
 		};
 		flx::Vector<Pair<std::string>> ret{};
 		ret.emplace_back(get("kind"), get(text::pascalToSnake(magic_enum::enum_name(kind))));

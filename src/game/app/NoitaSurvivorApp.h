@@ -2,15 +2,26 @@
 #include "src/app/IApp.h"
 #include "src/scenes/GameScene.h"
 #include "src/scenes/MenuScene.h"
+#include "src/scenes/SettingsScene.h"
 
 namespace flx::app {
 	struct NoitaSurvivorApp : IApp {
 		void setup(AppCtx ctx) override {
-			ctx.sceneManager.add(std::make_unique<GameScene>(ctx));
-			ctx.sceneManager.add(std::make_unique<MenuScene>(ctx));
+			auto gameScene = ctx.sceneManager.add(makeSUnique<GameScene>(ctx));
+			auto menuScene = ctx.sceneManager.add(makeSUnique<MenuScene>(ctx));
+			const auto settingsScene = ctx.sceneManager.add(makeSUnique<SettingsScene>(ctx));
 			ctx.sceneManager.addCommand({.target = "menu_scene", .cmd = SceneCmd::Enter});
 			ctx.runtime.showDebugFPS = true;
 			ctx.runtime.imguiDisplay = true;
+
+			gameScene->requestPause = [ctx] {
+				ctx.sceneManager.addCommand({.target = "settings_scene", .cmd = SceneCmd::Enter});
+			};
+
+			settingsScene->requestResume = [ctx, gameScene] {
+				gameScene->setPause(false);
+				ctx.sceneManager.addCommand({.target = "settings_scene", .cmd = SceneCmd::Exit});
+			};
 		}
 
 		AppInfo getInfo() override {

@@ -19,7 +19,7 @@ namespace flx::ui {
 		vec2 maxSize{};
 	};
 
-	struct LayoutResult {
+	struct Measure {
 		vec2 size{};
 	};
 
@@ -45,9 +45,8 @@ namespace flx::ui {
 		TooltipSpec tooltipSpec;
 		mutable bool visualDirty = true;
 
+		static Logger& logger;
 		static Logger& getLogger();
-		Ref<Object> self();
-		CRef<Object> self() const;
 
 	public:
 		bool enableDragging{};
@@ -56,6 +55,9 @@ namespace flx::ui {
 
 		explicit Object() = default;
 		virtual ~Object() = default;
+
+		Ref<Object> ref();
+		CRef<Object> ref() const;
 
 		bool isWidget() const {
 			return this->isWidget_;
@@ -84,8 +86,9 @@ namespace flx::ui {
 		}
 
 		void setSize(vec2 size) {
-			if (frame.size == size)
+			if (frame.size == size) {
 				return;
+			}
 			frame.size = size;
 			visualDirty = true;
 		}
@@ -147,7 +150,7 @@ namespace flx::ui {
 
 		template <class T>
 		static std::string_view makeTypeID() {
-			return flx::makeContentID<T>();
+			return makeContentID<T>();
 		}
 
 		template <std::derived_from<Object> T>
@@ -159,17 +162,17 @@ namespace flx::ui {
 		}
 
 		template <std::derived_from<Object> T>
-		Ref<T> convert() {
-			if (getTypeID() == makeTypeID<T>()) {
-				return self().staticCast<T>();
-			}
-			return {};
+		T* convert() {
+			return const_cast<T*>(
+				static_cast<const Object*>(this)->convert<T>());
 		}
 
-		virtual LayoutResult measure(LayoutConstraint constraint) {
+		// Default: size = constraint.maxSize
+		virtual Measure measure(LayoutConstraint constraint) {
 			return {.size = getSize()};
 		}
 
+		// Default: position = rect.position
 		virtual void arrange(rect rect) {
 			// Override this if you also want the size changed
 			// It is intentionally designed like this

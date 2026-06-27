@@ -18,7 +18,7 @@ namespace flx::ui {
 	};
 
 	struct DropCandidate {
-		Ref<Object> target;
+		Object* target;
 		float score{}; // Higher scrore means higher chance to be se
 	};
 
@@ -40,7 +40,7 @@ namespace flx::ui {
 		bool tooltipDirty = true;
 	};
 
-	using TooltipBuilder = SUnique<Layout> (*)(const Style& style, Ref<Object> self);
+	using TooltipBuilder = SUnique<Layout> (*)(const Style& style, Object* self);
 
 	struct TooltipSpec {
 		TooltipBuilder builder{};

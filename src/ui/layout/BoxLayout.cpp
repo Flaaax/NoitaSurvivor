@@ -12,7 +12,7 @@ namespace flx::ui {
 		}
 	} // namespace
 
-	LayoutResult VBoxLayout::onMeasure(LayoutConstraint constraint) {
+	Measure VBoxLayout::measure(LayoutConstraint constraint) {
 		// TODO minSize ignored
 		auto [minSize, maxSize] = constraint;
 
@@ -49,17 +49,17 @@ namespace flx::ui {
 
 		auto measuredSize = layout + padding.size();
 
-		if (widthPolicy == Fill || widthPolicy == Fixed) {
+		if (widthPolicy == Policy::Fill || widthPolicy == Policy::Fixed) {
 			measuredSize.x = maxSize.x;
 		}
-		if (heightPolicy == Fill || heightPolicy == Fixed) {
+		if (heightPolicy == Policy::Fill || heightPolicy == Policy::Fixed) {
 			measuredSize.y = maxSize.y;
 		}
 
 		return {measuredSize};
 	}
 
-	void VBoxLayout::onArrange(rect allocation) {
+	void VBoxLayout::arrange(rect allocation) {
 		auto [pos, size] = allocation;
 		const auto contentSize = contentSizeOf(size, padding);
 
@@ -71,7 +71,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float y{};
 			vec2 size{};
-			Ref<Object> child{};
+			Object* child{};
 		};
 
 		Vector<ChildLayout> children{};
@@ -120,7 +120,20 @@ namespace flx::ui {
 		setFrame(allocation);
 	}
 
-	LayoutResult HBoxLayout::onMeasure(LayoutConstraint constraint) {
+	SUnique<VBoxLayout> VBoxLayout::create(Def def) {
+		auto ret = makeSUnique<VBoxLayout>();
+		ret->alignX = def.alignX;
+		ret->alignY = def.alignY;
+		ret->heightPolicy = def.heightPolicy;
+		ret->widthPolicy = def.widthPolicy;
+		ret->maxHeight = def.maxHeight;
+		ret->setPadding(def.padding);
+		ret->setSpacing(def.spacing);
+		ret->setSize(def.size);
+		return ret;
+	}
+
+	Measure HBoxLayout::measure(LayoutConstraint constraint) {
 		// TODO minSize ignored
 		auto [minSize, maxSize] = constraint;
 
@@ -165,7 +178,7 @@ namespace flx::ui {
 		return {measuredSize};
 	}
 
-	void HBoxLayout::onArrange(rect allocation) {
+	void HBoxLayout::arrange(rect allocation) {
 		auto [pos, size] = allocation;
 		const auto contentSize = contentSizeOf(size, padding);
 
@@ -177,7 +190,7 @@ namespace flx::ui {
 		struct ChildLayout {
 			float x{};
 			vec2 size{};
-			Ref<Object> child{};
+			Object* child{};
 		};
 
 		Vector<ChildLayout> children{};
@@ -218,5 +231,16 @@ namespace flx::ui {
 		}
 
 		setFrame(allocation);
+	}
+
+	SUnique<HBoxLayout> HBoxLayout::create(Def def) {
+		auto ret = makeSUnique<HBoxLayout>();
+		ret->alignY = def.alignY;
+		ret->heightPolicy = def.heightPolicy;
+		ret->widthPolicy = def.widthPolicy;
+		ret->setSize(def.size);
+		ret->setSpacing(def.spacing);
+		ret->setPadding(def.padding);
+		return ret;
 	}
 } // namespace flx::ui

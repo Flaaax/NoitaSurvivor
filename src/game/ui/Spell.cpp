@@ -20,9 +20,9 @@ namespace flx::ui {
 		tooltipSpec.width = 400.f;
 	}
 
-	SUnique<Layout> Spell::tooltipBuilder(const Style& style, Ref<Object> self) {
+	SUnique<Layout> Spell::tooltipBuilder(const Style& style, Object* self) {
 		using flx::move;
-		const auto nspell = self.staticCast<Spell>();
+		const auto nspell = static_cast<Spell*>(self);
 		auto& loc = nspell->spell->getLoc();
 
 		auto layout = std::make_unique<VBoxLayout>();
@@ -87,14 +87,14 @@ namespace flx::ui {
 				isReleased = true;
 				frame.setCenter(event.localCtx.mouseLocal);
 				return EventResult{
-					.handler = self(),
+					.handler = this,
 					.result = EventResult::DragIntent{},
 				};
 			}
 		} else if (raw.is<sf::Event::MouseMoved>() && this->frame.contains(event.localCtx.mouseLocal)) {
 			updateTooltipSpec();
 			return EventResult{
-				.handler = self(),
+				.handler = this,
 				.result = EventResult::HoverIntent{},
 			};
 		}

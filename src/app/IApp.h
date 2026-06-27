@@ -2,8 +2,6 @@
 #include "src/utils/Vec2/Vec2.h"
 
 namespace flx::app {
-	struct AppCtx;
-
 	struct AppInfo {
 		std::string name = "Unnamed App";
 		vec2u defaultWindowSize = {1920, 1080};

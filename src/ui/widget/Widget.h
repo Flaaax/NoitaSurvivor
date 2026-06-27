@@ -25,7 +25,7 @@ namespace flx::ui {
 	public:
 		explicit Widget(rect geometry = {0.f, 0.f, 100.f, 100.f}, bool updateEnabled_ = true) {
 			updateEnabled = updateEnabled_;
-			this->frame = geometry;
+			setFrame(geometry);
 			isWidget_ = true;
 		}
 
@@ -39,21 +39,21 @@ namespace flx::ui {
 		// }
 
 		Object* addToTop(SUnique<Object> obj) {
-			assertWithMsg(!has(obj), "Should not re-add object, use moveTo* instead!");
+			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_back(std::move(obj)).get();
 		}
 
 		Object* addToBottom(SUnique<Object> obj) {
-			assertWithMsg(!has(obj), "Should not re-add object, use moveTo* instead!");
+			assertWithMsg(!has(obj.get()), "Should not re-add object, use moveTo* instead!");
 			bind(obj.get());
 			obj->refresh();
 			return objects.emplace_front(std::move(obj)).get();
 		}
 
 		auto getObjects() const {
-			return objects | std::views::transform([](const SUnique<Object>& obj) { return obj.ref(); });
+			return objects | std::views::transform([](const SUnique<Object>& obj) { return obj.get(); });
 		}
 
 		std::optional<EventResult> handleEvent(const UIEvent& event) override;
@@ -61,19 +61,19 @@ namespace flx::ui {
 		void update(float deltaTime) override;
 		void draw(const UIPainter& canvas) const override;
 
-		bool has(const CRef<Object>& obj) const {
+		bool has(Object* obj) const {
 			return obj->getParent() == this;
 		}
 
-		SUnique<Object> remove(const Ref<Object>& target);
+		SUnique<Object> remove(const Object* target);
 		void clear();
 
-		void moveToTop(const Ref<Object>& obj) {
+		void moveToTop(Object* obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToTop(remove(obj));
 		}
 
-		void moveToBottom(const Ref<Object>& obj) {
+		void moveToBottom(Object* obj) {
 			assertWithMsg(has(obj), "Does not own current object");
 			addToBottom(remove(obj));
 		}

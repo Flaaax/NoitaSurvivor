@@ -85,7 +85,7 @@ namespace flx::app {
 	void GameScene::draw(ui::RenderBuffer& buffer) {
 		game.draw(buffer);
 
-		pauseText->isVisible = game.isPaused();
+		// pauseText->isVisible = game.isPaused();
 		if (game.isPaused()) {
 			sf::RectangleShape overlay{ctx.windowView.canvasSize};
 			overlay.setFillColor({0, 0, 0, 120});
@@ -120,6 +120,7 @@ namespace flx::app {
 		if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
 			if (e->code == sf::Keyboard::Key::Space) {
 				game.setPaused(!game.isPaused());
+				requestPause();
 				return true;
 			}
 		}
@@ -204,5 +205,9 @@ namespace flx::app {
 	void GameScene::onWindowResized(const ui::WindowView& view) {
 		Scene::onWindowResized(view);
 		// pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
+	}
+
+	void GameScene::setPause(bool pause) {
+		game.setPaused(pause);
 	}
 } // namespace flx::app

@@ -7,7 +7,7 @@
 #include "src/ui/widget/Widget.h"
 
 namespace flx::app {
-	class Scene {
+	class Scene : public EnableSWeakFromThis<Scene> {
 	protected:
 		SUnique<ui::RootWidget> widget{};
 		Logger logger{};
@@ -18,6 +18,14 @@ namespace flx::app {
 
 	public:
 		const std::string name;
+
+		SWeak<Scene> ref() {
+			return sweakFromThis();
+		}
+
+		SWeak<const Scene> ref() const {
+			return sweakFromThis();
+		}
 
 		explicit Scene(AppCtx context, std::string_view name)
 			: logger(Logger::makeAsync(name, true)),

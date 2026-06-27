@@ -30,7 +30,7 @@ namespace flx::game {
 		myecs::Registry reg;
 		Unique<EntityFactory> factory;
 		GameRenderScales scales;
-		flx::app::AppCtx appCtx;
+		app::AppCtx appCtx;
 
 		Logger logger;
 
@@ -39,7 +39,7 @@ namespace flx::game {
 		bool isInitialized = false;
 
 	public:
-		explicit Game(flx::app::AppCtx appCtx);
+		explicit Game(app::AppCtx appCtx);
 		~Game();
 
 		void init();

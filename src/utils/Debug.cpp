@@ -14,6 +14,7 @@
 void flx::debug::printCallStack() {
 	// Initialize the symbol handler
 	const HANDLE hProcess = GetCurrentProcess();
+	SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 	SymInitialize(hProcess, nullptr, TRUE);
 
 	// Stack frame storage
@@ -45,6 +46,7 @@ void flx::debug::printCallStack() {
 
 std::string flx::debug::getCallStackStr() {
 	const HANDLE hProcess = GetCurrentProcess();
+	SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 	SymInitialize(hProcess, nullptr, TRUE);
 
 	// Stack frame storage

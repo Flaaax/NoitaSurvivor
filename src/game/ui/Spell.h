@@ -22,7 +22,7 @@ namespace flx::ui {
 		// bool isHovered{};
 
 		void updateTooltipSpec();
-		static SUnique<ui::Layout> tooltipBuilder(const ui::Style& style, Ref<Object> self);
+		static SUnique<ui::Layout> tooltipBuilder(const ui::Style& style, Object* self);
 
 	public:
 		static constexpr vec2 slotSize = {45.f, 45.f};

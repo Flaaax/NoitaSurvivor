@@ -38,12 +38,16 @@ namespace flx::app {
 		void enter(std::string_view name);
 		void exit(std::string_view name);
 		void exitAll();
+		SWeak<Scene> addInternal(SUnique<Scene> scene);
 
 	public:
 		SceneManager();
 		~SceneManager();
 
-		void add(SUnique<Scene> scene);
+		template <std::derived_from<Scene> T>
+		SWeak<T> add(SUnique<T> scene) {
+			return this->addInternal(scene | move).staticCast<T>();
+		}
 
 		SWeak<Scene> get(std::string_view name, bool required = true) const;
 		bool isActive(std::string_view name) const;

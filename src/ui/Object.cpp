@@ -56,15 +56,17 @@ namespace flx::ui {
 		getLogger().error_and_throw("Object does not have root");
 	}
 
+	Logger& Object::logger = Object::getLogger();
+
 	Logger& Object::getLogger() {
 		return Global::getLogger();
 	}
 
-	Ref<Object> Object::self() {
+	Ref<Object> Object::ref() {
 		return sweakFromThis();
 	}
 
-	CRef<Object> Object::self() const {
+	CRef<Object> Object::ref() const {
 		return sweakFromThis();
 	}
 

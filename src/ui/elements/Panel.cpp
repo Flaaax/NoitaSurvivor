@@ -19,30 +19,56 @@ namespace flx::ui {
 
 	void Panel::setLayout(SUnique<Layout> layout) {
 		clear();
+		this->layout = layout;
 		this->addToTop(std::move(layout));
 		refresh();
 	}
 
 	void Panel::refresh() {
-		const auto layout = getLayout();
-		if (sizePolicy == Auto) {
-			const vec2 maxSize = {getSize().x, math::finf};
-			const vec2 backgroundSize = layout->measure({{}, maxSize}).size;
-			layout->arrange({{}, backgroundSize});
-			setSize(backgroundSize);
-		} else {
+		visualDirty = false;
+
+		if (!layout) {
+			return;
+		}
+
+		if (sizePolicy == Policy::Shrink) {
 			const vec2 backgroundSize = layout->measure({{}, getSize()}).size;
 			layout->arrange({{}, backgroundSize});
+			setSize(backgroundSize);
+		} else if (sizePolicy == Policy::Fixed) {
+			layout->arrange({{}, getSize()});
+		} else {
+			logger.error_and_throw("Invalid policy");
 		}
-
-		visualDirty = false;
 	}
 
-	Ref<Layout> Panel::getLayout() const {
-		auto objects = getObjects();
-		if (objects.empty()) {
-			return {};
+	Measure Panel::measure(LayoutConstraint constraint) {
+		if (sizePolicy == Policy::Fixed) {
+			return {getSize()};
 		}
-		return objects.empty() ? nullptr : objects.front().staticCast<Layout>();
+		if (sizePolicy == Policy::Shrink) {
+			if (!layout) {
+				return {};
+			}
+			return layout->measure(constraint);
+		}
+		logger.error_and_throw("Invalid policy");
 	}
+
+	void Panel::arrange(rect rect) {
+		setPosition(rect.position);
+		if (sizePolicy == Policy::Shrink) {
+			setSize(rect.size);
+		}
+
+		refresh();
+	}
+
+	// Layout* Panel::getLayout() const {
+	// 	auto objects = getObjects();
+	// 	if (objects.empty()) {
+	// 		return {};
+	// 	}
+	// 	return objects.empty() ? nullptr : static_cast<Layout*>(objects.front());
+	// }
 } // namespace flx::ui

@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "global/DebugVariables.h"
 #include "global/Loader.h"
+#include "global/LocManager.h"
 #include "src/ui/global/Global.h"
 #include "src/ui/render/RenderBuffer.h"
 #include "src/ui/shapes/RichTextShape.h"
@@ -234,6 +235,8 @@ namespace flx::app {
 		logger.info("App {} initializing...", info.name);
 
 		ui::Global::setDefaultFont(*Loader::loadFont(defaultFont, true));
+
+		LocManager::loadDefaultLanguage();
 
 		logger.info("App initialization done.");
 	}

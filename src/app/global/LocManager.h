@@ -8,18 +8,16 @@ namespace flx::app {
 	public:
 		std::string name;
 		StrMap<std::string> contents;
+
+		std::string operator[](std::string_view entry) const;
+		std::string get(std::string_view entry, bool usePlaceHolder = true) const;
 	};
 
-	FLX_DEF_SINGLETON(LocManager) {
-	private:
-		StrMap<LocTable> tables;
-		std::string lang_ = "";
-		FLX_CONSTEXPR std::string_view defaultLang = "zhs";
-		FLX_CONSTEXPR std::string_view filePath = "./resources/localization/";
-
+	class LocManager {
 	public:
-		void loadLanguage(std::string_view lang);
-		void loadDefaultLanguage();
-		std::string debugGetString(std::string_view table, std::string_view entry, bool required = false);
+		static void loadLanguage(std::string_view lang);
+		static void loadDefaultLanguage();
+		static std::string debugGetString(std::string_view table, std::string_view entry, bool usePlaceHolder = true);
+		static const LocTable* getTable(std::string_view table, bool required = true);
 	};
 } // namespace flx::app

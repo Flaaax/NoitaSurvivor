@@ -10,8 +10,8 @@ namespace flx::ui {
 
 	void WandEditor::setWands(const game::WandManager& manager) {
 		auto vlayout = std::make_unique<VBoxLayout>();
-		vlayout->alignX = VBoxLayout::Left;
-		vlayout->widthPolicy = VBoxLayout::Shrink;
+		vlayout->alignX = Policy::Left;
+		vlayout->widthPolicy = Policy::Shrink;
 		vlayout->setSpacing(10.f);
 
 		for (const auto wand : manager.getWands()) {

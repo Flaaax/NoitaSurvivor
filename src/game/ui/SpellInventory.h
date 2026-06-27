@@ -47,8 +47,8 @@ namespace flx::ui {
 
 		void setItems(Span<Shared<game::Spell>> spells);
 		void addItem(SUnique<Object> spell, int index);
-		Ref<Spell> getSpell(int index);
-		SUnique<Object> removeItem(Ref<Spell> spell);
+		Spell* getSpell(int index);
+		SUnique<Object> removeItem(Spell* spell);
 		rect getSlotGeometry(int index) const;
 
 		void setOnModify(OnModify onModify);
@@ -59,6 +59,6 @@ namespace flx::ui {
 			return slots.size();
 		}
 
-		static void updateSpellPosition(Ref<Spell> spell, CRef<SpellInventory> to);
+		static void updateSpellPosition(Spell* spell, const SpellInventory* to);
 	};
 } // namespace flx::ui

@@ -23,6 +23,9 @@ namespace flx::app {
 		void initUI();
 
 	public:
+		std::function<void()> requestPause{};
+
+
 		explicit GameScene(AppCtx ctx);
 
 		void draw(ui::RenderBuffer& buffer) override;
@@ -31,6 +34,8 @@ namespace flx::app {
 		void enter() override;
 		void makeImGuiContent() override;
 		void onWindowResized(const ui::WindowView& view) override;
+
+		void setPause(bool pause);
 
 	};
 } // namespace flx::app

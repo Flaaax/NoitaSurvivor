@@ -29,7 +29,7 @@ namespace flx::ui {
 		}
 	}
 
-	LayoutResult RichText::measure(LayoutConstraint constraint) {
+	Measure RichText::measure(LayoutConstraint constraint) {
 		if (!getRoot() || !useRealPx) {
 			text.setCharacterSize(designedPx);
 			text.setLineWidth(constraint.maxSize.x);

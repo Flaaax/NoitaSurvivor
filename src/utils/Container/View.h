@@ -93,9 +93,11 @@ namespace flx::view {
 		}
 
 		template <class Pred>
+			requires std::ranges::input_range<const V> &&
+					 std::indirect_unary_predicate<Pred, std::ranges::iterator_t<const V>>
 		[[nodiscard]]
-		bool any(Pred&& pred) const {
-			return std::ranges::any_of(self, std::forward<Pred>(pred));
+		bool any(Pred pred) const {
+			return std::ranges::any_of(self, std::move(pred));
 		}
 
 		template <class Value, class Proj = std::identity>

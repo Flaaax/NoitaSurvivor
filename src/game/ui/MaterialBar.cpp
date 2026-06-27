@@ -20,7 +20,7 @@ namespace flx::ui {
 		text.setOutlineThickness(1.5f);
 
 		if (format.empty()) {
-			const auto materialString = app::LocManager::inst().debugGetString("ui", "material", true);
+			const auto materialString = app::LocManager::debugGetString("ui", "material", true);
 			format = "{}" + materialString;
 		}
 

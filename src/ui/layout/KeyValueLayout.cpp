@@ -1,7 +1,7 @@
 #include "KeyValueLayout.h"
 
 namespace flx::ui {
-	LayoutResult KeyValueLayout::onMeasure(LayoutConstraint constraint) {
+	Measure KeyValueLayout::measure(LayoutConstraint constraint) {
 		auto [minSize, maxSize] = constraint;
 		float totalHeight{};
 		const float maxWidth = maxSize.x - padding.hLength();
@@ -27,7 +27,7 @@ namespace flx::ui {
 		return {{maxSize.x, totalHeight + padding.vLength()}};
 	}
 
-	void KeyValueLayout::onArrange(rect allocation) {
+	void KeyValueLayout::arrange(rect allocation) {
 		setFrame(allocation);
 
 		const float maxWidth = getSize().x - padding.hLength();
@@ -36,8 +36,8 @@ namespace flx::ui {
 			vec2 keySize{};
 			vec2 valueSize{};
 			float height{};
-			Ref<Object> key{};
-			Ref<Object> value{};
+			Object* key{};
+			Object* value{};
 		};
 
 		Vector<Item> items{};

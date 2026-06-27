@@ -1,4 +1,5 @@
 #pragma once
+#include "src/ui/context/Policy.h"
 #include "src/ui/widget/Widget.h"
 
 namespace flx::ui {
@@ -34,29 +35,11 @@ namespace flx::ui {
 		Padding padding{};
 		float spacing{};
 
-		virtual LayoutResult onMeasure(LayoutConstraint constraint) = 0;
-		virtual void onArrange(rect allocation) = 0;
-
 	public:
-		enum Policy {
-			Left,
-			Center,
-			Right,
-			Shrink,
-			Fill,
-			Top,
-			Bottom,
-			Fixed,
-		};
+		using enum Policy;
 
-		LayoutResult measure(LayoutConstraint constraint) final {
-			return onMeasure(constraint);
-		}
-
-		void arrange(rect allocation) final {
-			setPosition(allocation.position);
-			onArrange(allocation);
-		}
+		Measure measure(LayoutConstraint constraint) override = 0;
+		void arrange(rect allocation) override = 0;
 
 		void setPadding(Padding value) {
 			padding = value;

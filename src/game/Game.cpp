@@ -64,8 +64,6 @@ namespace flx::game {
 			logger.error_and_throw("Initialized more than once");
 		}
 
-		app::LocManager::inst().loadDefaultLanguage();
-
 		// todo move this to another place
 		b2SetAssertFcn([](const char* condition, const char* fileName, int lineNumber) {
 			flx::logger.error("Box2D assert failed:\n    With condition {}\n    At file {}\n    At lineNumber {}", condition, fileName, lineNumber);
