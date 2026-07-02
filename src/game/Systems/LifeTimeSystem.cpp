@@ -19,13 +19,13 @@ namespace flx::game {
 		using namespace myecs;
 		std::vector<entity> entityToDestroy;
 
-		for (const auto& [e, c] : reg.view<EntityComponent>()) {
+		for (const auto [e, c] : reg.view<EntityComponent>()) {
 			if (!EntityService::isAlive(ctx, e)) {
 				entityToDestroy.emplace_back(e);
 			}
 		}
 
-		for (const entity& e : entityToDestroy) {
+		for (const entity e : entityToDestroy) {
 			if (!reg.has<DieSilentComponent>(e)) {
 				if (auto [sc, bc] = reg.try_get<SpellOnDeathComponent, BodyComponent>(e); sc) {
 					sc->spellBlock.cast(ctx, PhysicsService().getPosition(*bc) + sc->impulsePosFix, sc->impulsePosFix.rad());

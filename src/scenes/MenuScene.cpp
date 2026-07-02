@@ -4,8 +4,8 @@
 #include "src/ui/render/RenderBuffer.h"
 
 namespace flx::app {
-	MenuScene::MenuScene(AppCtx context) : Scene(context, flx::makeContentID<MenuScene>()) {
-		const vec2 windowSize = context.windowView.canvasSize;
+	MenuScene::MenuScene(AppCtx context) : Scene(context, makeContentID<MenuScene>()) {
+		const vec2 windowSize = context.window.getView().canvasSize;
 		auto startButton =
 			makeUnique(new ui::Button(rect::fromCenter(windowSize / 2.f, {200, 100})));
 		startButton->setOnClick([this] {

@@ -70,11 +70,11 @@ namespace flx::ui {
 		window.display();
 	}
 
-	Window::Mode Window::getMode() const {
+	WindowMode Window::getMode() const {
 		return mode;
 	}
 
-	void Window::setMode(Mode mode) {
+	void Window::setMode(WindowMode mode) {
 		if (mode == this->mode) {
 			Global::getLogger().warn("NWindow: Did not change window mode");
 			return;
@@ -82,12 +82,12 @@ namespace flx::ui {
 
 		this->mode = mode;
 
-		if (mode == Mode::Windowed) {
+		if (mode == WindowMode::Windowed) {
 			window.create(sf::VideoMode(viewport.defaultWindowSize), title);
-		} else if (mode == Mode::Borderless) {
+		} else if (mode == WindowMode::Borderless) {
 			const auto desktop = sf::VideoMode::getDesktopMode();
 			window.create(desktop, title, sf::Style::None);
-		} else if (mode == Mode::Fullscreen) {
+		} else if (mode == WindowMode::Fullscreen) {
 			const auto desktop = sf::VideoMode::getDesktopMode();
 			window.create(desktop, title, sf::Style::None, sf::State::Fullscreen);
 		}

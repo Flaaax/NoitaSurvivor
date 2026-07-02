@@ -5,6 +5,17 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 
 namespace flx::ui {
+	SUnique<Panel> Panel::create(Def def) {
+		auto ret = makeSUnique<Panel>();
+		ret->sizePolicy = def.sizePolicy;
+		ret->setSize(def.size);
+		ret->outlineThickness = def.outlineThickness;
+		ret->outlineColor = def.outlineColor;
+		ret->backgroundColor = def.backgroundColor;
+		ret->setLayout(def.layout | move);
+		return ret;
+	}
+
 	void Panel::draw(const UIPainter& canvas) const {
 		sf::RectangleShape shape;
 		shape.setFillColor(backgroundColor);

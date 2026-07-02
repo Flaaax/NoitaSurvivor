@@ -60,7 +60,7 @@ namespace flx::app {
 		void update(float dt);
 		void draw(ui::RenderBuffer& buffer) const;
 		bool handleEvent(const ui::WindowEvent& event) const;
-		void onWindowResized(const ui::WindowView& windowView) const;
+		void onWindowResized() const;
 		void makeImGuiContent();
 
 		// void setCurrent(std::string_view name) {

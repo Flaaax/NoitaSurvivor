@@ -27,6 +27,16 @@ namespace flx::ui {
 		setLayout(layout | flx::move);
 	}
 
+	SUnique<Button> Button::create(Def def) {
+		auto ret = makeSUnique<Button>();
+		ret->setPosition(def.position);
+		ret->setSize(def.size);
+		ret->setText(def.text | move, def.characterSize);
+		ret->setOnClick(def.onClick | move);
+
+		return ret;
+	}
+
 	std::optional<EventResult> Button::handleEvent(const UIEvent& event) {
 		auto& rawEvent = event.windowEvent.rawEvent;
 		if (rawEvent.is<sf::Event::MouseMoved>()) {

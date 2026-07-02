@@ -83,9 +83,12 @@ namespace flx::app {
 		return false;
 	}
 
-	void SceneManager::onWindowResized(const ui::WindowView& windowView) const {
-		for (const auto& scene : activeScenes | std::views::reverse) {
-			scene->onWindowResized(windowView);
+	void SceneManager::onWindowResized() const {
+		// for (const auto& scene : activeScenes | std::views::reverse) {
+		// 	scene->onWindowResized();
+		// }
+		for (const auto& scene : scenes | std::views::values) {
+			scene->onWindowResized();
 		}
 	}
 
@@ -112,6 +115,9 @@ namespace flx::app {
 	}
 
 	void SceneManager::enter(std::string_view name) {
+		if (isActive(name)) {
+			logger.error_and_throw("Scene {} already active!", name);
+		}
 		auto s = get(name);
 		s->enter();
 		activeScenes.emplace_back(std::move(s));
@@ -124,8 +130,8 @@ namespace flx::app {
 		if (it == activeScenes.end()) {
 			logger.error_and_throw("Scene {} not registered!", name);
 		}
-		activeScenes.erase(it);
 		it->get()->exit();
+		activeScenes.erase(it);
 		// No need to sort...
 	}
 

@@ -4,6 +4,7 @@
 #include "src/utils/Container/View.h"
 #include "src/utils/Fon/Fon.h"
 #include "src/utils/Logging/Logger.h"
+#include "src/utils/Singleton.h"
 
 namespace flx::app {
 	namespace fs = std::filesystem;

@@ -5,10 +5,6 @@
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 
-namespace sf {
-	class Event;
-}
-
 namespace flx::ui {
 	// Use NObject::setParent to add an object
 	class Widget : public Object {

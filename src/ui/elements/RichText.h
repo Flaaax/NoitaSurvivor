@@ -10,7 +10,7 @@ namespace flx::ui {
 
 	public:
 		bool alignCenter{};
-		bool useRealPx = true;
+		bool useScaledPx = true;
 
 		// bool fixedPosition{};
 

@@ -5,6 +5,7 @@
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/render/GameRenderScales.h"
+#include "src/ui/Window.h"
 #include "src/ui/render/Painter.h"
 #include "src/ui/render/RenderBuffer.h"
 #include "src/ui/render/WindowView.h"
@@ -33,7 +34,7 @@ namespace flx::game {
 	void RenderSystem::render(ui::RenderBuffer& buffer, const GameCtx& ctx) {
 		using namespace myecs;
 
-		ctx.scales.offset = ctx.appCtx.windowView.canvasSize / 2.f;
+		ctx.scales.offset = ctx.appCtx.window.getView().canvasSize / 2.f;
 
 		// rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
 

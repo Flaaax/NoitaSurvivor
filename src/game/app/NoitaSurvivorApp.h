@@ -14,8 +14,12 @@ namespace flx::app {
 			ctx.runtime.showDebugFPS = true;
 			ctx.runtime.imguiDisplay = true;
 
-			gameScene->requestPause = [ctx] {
-				ctx.sceneManager.addCommand({.target = "settings_scene", .cmd = SceneCmd::Enter});
+			gameScene->requestTogglePause = [ctx](bool pause) {
+				if (pause) {
+					ctx.sceneManager.addCommand({.target = "settings_scene", .cmd = SceneCmd::Enter});
+				} else {
+					ctx.sceneManager.addCommand({.target = "settings_scene", .cmd = SceneCmd::Exit});
+				}
 			};
 
 			settingsScene->requestResume = [ctx, gameScene] {

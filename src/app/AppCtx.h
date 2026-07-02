@@ -1,4 +1,6 @@
 #pragma once
+#include "AppCmd.h"
+#include "src/utils/Container/Vector.h"
 
 namespace flx::ui {
 	struct InputState;
@@ -13,10 +15,11 @@ namespace flx::app {
 		bool showDebugFPS{};
 		bool imguiDisplay{};
 		std::string imguiTitle = "ImGui";
+		Vector<AppCmd::Cmd> cmds{};
 	};
 
 	struct AppCtx {
-		const ui::WindowView& windowView;
+		const ui::Window& window;
 		const ui::InputState& input;
 		SceneManager& sceneManager;
 		RuntimeCtx& runtime;

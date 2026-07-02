@@ -23,8 +23,7 @@ namespace flx::app {
 		void initUI();
 
 	public:
-		std::function<void()> requestPause{};
-
+		std::function<void(bool)> requestTogglePause{};
 
 		explicit GameScene(AppCtx ctx);
 
@@ -33,7 +32,6 @@ namespace flx::app {
 		bool handleEvent(const ui::WindowEvent& event) override;
 		void enter() override;
 		void makeImGuiContent() override;
-		void onWindowResized(const ui::WindowView& view) override;
 
 		void setPause(bool pause);
 

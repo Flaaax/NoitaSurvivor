@@ -9,7 +9,7 @@ namespace flx {
 	private:
 		// should be careful about this
 		static constexpr float MIN_DURATION = 0.000f;
-		static constexpr size_t MAX_FRAME_TRIGGER = 10;
+		static constexpr u64 MAX_FRAME_TRIGGER = 10;
 
 		using callback_t = std::function<void()>;
 		callback_t m_onTimeout = {};
@@ -77,7 +77,7 @@ namespace flx {
 			if (!m_isRunning)
 				return;
 			m_remainingTime -= deltaTime;
-			size_t currentFrameTrigger = 0;
+			u64 currentFrameTrigger = 0;
 			while (m_remainingTime <= 0 && currentFrameTrigger < MAX_FRAME_TRIGGER) {
 				if (m_onTimeout) {
 					m_onTimeout();

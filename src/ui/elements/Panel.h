@@ -17,6 +17,7 @@ namespace flx::ui {
 			sf::Color outlineColor = {120, 120, 120};
 			float outlineThickness = 0.f;
 			vec2 size = {50.f, 50.f};
+			SUnique<Layout> layout{};
 		};
 
 		Policy sizePolicy = Policy::Shrink; // Shrink, Fixed
@@ -24,6 +25,8 @@ namespace flx::ui {
 		sf::Color backgroundColor = sf::Color::Transparent;
 		sf::Color outlineColor = {120, 120, 120};
 		float outlineThickness = 0.f;
+
+		static SUnique<Panel> create(Def def);
 
 		void draw(const UIPainter& canvas) const override;
 		void setLayout(SUnique<Layout> layout);

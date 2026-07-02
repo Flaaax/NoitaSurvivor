@@ -22,7 +22,7 @@ namespace flx::ui {
 	}
 
 	void RichText::draw(const UIPainter& canvas) const {
-		if (useRealPx) {
+		if (useScaledPx) {
 			canvas.drawText(text);
 		} else {
 			canvas.draw(text);
@@ -30,7 +30,7 @@ namespace flx::ui {
 	}
 
 	Measure RichText::measure(LayoutConstraint constraint) {
-		if (!getRoot() || !useRealPx) {
+		if (!getRoot() || !useScaledPx) {
 			text.setCharacterSize(designedPx);
 			text.setLineWidth(constraint.maxSize.x);
 
@@ -53,7 +53,7 @@ namespace flx::ui {
 	}
 
 	void RichText::arrange(rect rect) {
-		if (!getRoot() || !useRealPx) {
+		if (!getRoot() || !useScaledPx) {
 			text.setCharacterSize(designedPx);
 			text.setLineWidth(rect.size.x);
 			setFrame(rect);

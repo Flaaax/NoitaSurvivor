@@ -2,6 +2,7 @@
 #ifndef NSCENE_H
 #define NSCENE_H
 #include "AppCtx.h"
+#include "src/ui/Window.h"
 #include "src/ui/render/WindowView.h"
 #include "src/ui/widget/RootWidget.h"
 #include "src/ui/widget/Widget.h"
@@ -15,6 +16,15 @@ namespace flx::app {
 		// const ui::Viewport& viewport;
 		// Call UpdateLayer if changed dynamically
 		u64 layer{};
+
+		template <std::derived_from<Scene> Obj, class Callback>
+		decltype(auto) bindCallback(Callback Obj::* member) {
+			auto* self = static_cast<Obj*>(this);
+
+			return [self, member]<typename... Args>(Args&&... args) -> decltype(auto) {
+				return std::invoke(self->*member, FLX_FORWARD);
+			};
+		}
 
 	public:
 		const std::string name;
@@ -57,12 +67,12 @@ namespace flx::app {
 		virtual void makeImGuiContent() {}
 
 		void createWidget() {
-			widget = makeSUnique<ui::RootWidget>(ctx.windowView.viewport);
+			widget = makeSUnique<ui::RootWidget>(ctx.window.getView().viewport);
 		}
 
-		virtual void onWindowResized(const ui::WindowView& view) {
+		virtual void onWindowResized() {
 			if (widget) {
-				widget->onWindowResized(view);
+				widget->onWindowResized(ctx.window.getView());
 			}
 		}
 

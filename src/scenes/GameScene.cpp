@@ -4,7 +4,6 @@
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/ui/MaterialBar.h"
-#include "src/game/ui/Spell.h"
 #include "src/game/ui/SpellInventory.h"
 #include "src/game/ui/ValueBar.h"
 #include "src/game/ui/WandEditor.h"
@@ -48,7 +47,7 @@ namespace flx::app {
 		auto inventory2 = makeUnique(new ui::SpellInventory({100, 50}, 5));
 		widget->addToTop(std::move(inventory2));
 
-		const auto windowSize = ctx.windowView.canvasSize;
+		const auto windowSize = ctx.window.getView().canvasSize;
 
 		auto healthBar =
 			makeUnique(new ui::ValueBar(
@@ -87,7 +86,7 @@ namespace flx::app {
 
 		// pauseText->isVisible = game.isPaused();
 		if (game.isPaused()) {
-			sf::RectangleShape overlay{ctx.windowView.canvasSize};
+			sf::RectangleShape overlay{ctx.window.getView().canvasSize};
 			overlay.setFillColor({0, 0, 0, 120});
 			buffer.drawCanvas(overlay);
 			Scene::draw(buffer);
@@ -120,7 +119,7 @@ namespace flx::app {
 		if (const auto e = event.rawEvent.getIf<sf::Event::KeyPressed>()) {
 			if (e->code == sf::Keyboard::Key::Space) {
 				game.setPaused(!game.isPaused());
-				requestPause();
+				requestTogglePause(game.isPaused());
 				return true;
 			}
 		}
@@ -200,11 +199,6 @@ namespace flx::app {
 		if (drawStringCombo("跟踪算法", trackers, selectedTracker)) {
 			// Logger::info("选择了 {}", trackers[selected]);
 		}
-	}
-
-	void GameScene::onWindowResized(const ui::WindowView& view) {
-		Scene::onWindowResized(view);
-		// pauseText->arrange({0, 0, windowSize.x, windowSize.y / 4.f});
 	}
 
 	void GameScene::setPause(bool pause) {

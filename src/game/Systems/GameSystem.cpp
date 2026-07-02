@@ -97,7 +97,7 @@ namespace flx::game {
 
 	void GameSystem::updateAfterCleanup(const GameCtx& ctx) {
 		auto& reg = ctx.reg;
-		for (const auto& [e, c] : reg.view<EnemyComponent>()) {
+		for (auto [e, c] : reg.view<EnemyComponent>()) {
 			c.impulseRecieved = {};
 		}
 		for (auto [e, dc] : reg.view<DirectionComponent>()) {

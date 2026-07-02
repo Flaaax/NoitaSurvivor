@@ -1,7 +1,5 @@
 #pragma once
 #include "src/utils/Container/Map.h"
-#include "src/utils/Macro.h"
-#include "src/utils/Singleton.h"
 
 namespace flx::app {
 	class LocTable {

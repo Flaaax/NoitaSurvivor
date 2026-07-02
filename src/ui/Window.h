@@ -1,6 +1,7 @@
 #pragma once
 #include "context/InputState.h"
 #include "context/WindowEvent.h"
+#include "context/WindowMode.h"
 #include "render/WindowView.h"
 
 namespace flx::ui {
@@ -8,17 +9,12 @@ namespace flx::ui {
 
 	// Manages and holds the SFML window
 	class Window {
-	public:
-		enum Mode {
-			Windowed,
-			Borderless,
-			Fullscreen,
-		};
-
 	private:
+		using enum WindowMode;
+
 		sf::RenderWindow window;
 		WindowView viewport;
-		Mode mode = Mode::Windowed;
+		WindowMode mode = Windowed;
 		std::string title{};
 
 		void updateViewport();
@@ -46,7 +42,7 @@ namespace flx::ui {
 		void draw(RenderBuffer& buffer);
 		void display();
 
-		Mode getMode() const;
-		void setMode(Mode mode);
+		WindowMode getMode() const;
+		void setMode(WindowMode mode);
 	};
 } // namespace flx::ui

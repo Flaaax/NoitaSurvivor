@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "AppCmd.h"
 #include "Scene.h"
 #include "global/DebugVariables.h"
 #include "global/Loader.h"
@@ -7,6 +8,7 @@
 #include "src/ui/global/Global.h"
 #include "src/ui/render/RenderBuffer.h"
 #include "src/ui/shapes/RichTextShape.h"
+#include "src/utils/Functional/FuncTraits.h"
 #include "src/utils/Timer.h"
 
 #include <SFML/System/Clock.hpp>
@@ -85,8 +87,40 @@ namespace flx::app {
 
 			auto onWindowResized = [&] {
 				buffer.onWindowResized(window.getView());
-				sceneManager.onWindowResized(window.getView());
+				sceneManager.onWindowResized();
 			};
+
+			// handle app commands
+			{
+				auto commands = std::exchange(runtime.cmds, {});
+
+				auto handleCommand = [&]<class F>(F&& func) {
+					using T = std::remove_cvref_t<typename FuncTraits<F>::Args::begin>;
+
+					for (auto it = commands.begin(); it != commands.end();) {
+						if (auto item = it->getIf<T>()) {
+							func(*item);
+							it = commands.erase(it);
+						} else {
+							++it;
+						}
+					}
+				};
+
+				handleCommand([&](AppCmd::SetWindowMode c) {
+					window.setMode(c.mode);
+					onWindowResized();
+				});
+
+				handleCommand([&](AppCmd::Exit c) {
+					isRunning = false;
+					logger.info("App command: Exit");
+				});
+
+				if (!commands.empty()) {
+					logger.error_and_throw("Invalid command");
+				}
+			}
 
 			// handle event
 			while (const auto event = window.pollEvent()) {
@@ -125,6 +159,7 @@ namespace flx::app {
 					onWindowResized();
 				}
 
+				// Disacrd the result, for now
 				(void)sceneManager.handleEvent(*event);
 			}
 
@@ -210,7 +245,7 @@ namespace flx::app {
 
 	AppCtx Application::getContext() {
 		return {
-			.windowView = window.getView(),
+			.window = window,
 			.input = window.input,
 			.sceneManager = sceneManager,
 			.runtime = runtime,

@@ -7,6 +7,7 @@ namespace flx::app {
 		std::function<void()> requestResume{};
 
 		explicit SettingsScene(AppCtx ctx);
+		void setVisible(bool visible) const;
 
 		// void enter() override;
 		// void exit() override;
