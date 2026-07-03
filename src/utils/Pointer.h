@@ -194,7 +194,7 @@ namespace flx {
 
 		template <class U>
 			requires std::convertible_to<U*, T*>
-		explicit SUnique(const Shared<U>& storage_) : storage(storage_) {
+		explicit SUnique(Shared<U> storage_) : storage(storage_) {
 			this->bindSWeakFromThis(storage_);
 		}
 

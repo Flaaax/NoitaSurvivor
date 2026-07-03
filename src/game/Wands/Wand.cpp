@@ -49,7 +49,7 @@ namespace flx::game {
 		const int randomNumber = flx::random.nextVal(0, 1000);
 		const auto name = vformat("gfx/wands/noita/{}.png", getWandTextureEntry(randomNumber));
 
-		texture = app::Loader::loadTexture(name, true);
+		texture = &*app::Loader::loadTexture(name);
 
 		const auto textureSize = texture->getSize();
 		// sprite.setOrigin({0, textureSize.y / 2.0f});

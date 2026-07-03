@@ -67,7 +67,7 @@ namespace flx::app {
 				}
 
 				try {
-					const auto j = fonData.emplace(entry, Fon::loadFromFile(file));
+					const auto j = fonData.emplace(entry, *Fon::loadFromFile(file));
 					return &j.first->second;
 				} catch (const std::exception& e) {
 					fail(true, entry, "Failed to load FON: ", e.what());
@@ -127,33 +127,33 @@ namespace flx::app {
 		return Impl::inst();
 	}
 
-	const fon::Fon* Loader::loadFonFile(std::string_view entry, bool required) {
+	Optional<const fon::Fon&> Loader::loadFonFile(std::string_view entry) {
 		if (const auto ret = inst().loadFon(entry, true)) {
-			return ret;
+			return *ret;
 		}
-		if (required) {
-			logger.error_and_throw("Failed to load FON: {}", entry);
-		}
+		// if (required) {
+		// 	logger.error_and_throw("Failed to load FON: {}", entry);
+		// }
 		return {};
 	}
 
-	const sf::Texture* Loader::loadTexture(std::string_view entry, bool required) {
+	Optional<const sf::Texture&> Loader::loadTexture(std::string_view entry) {
 		if (const auto ret = inst().loadTexture(entry)) {
-			return ret;
+			return *ret;
 		}
-		if (required) {
-			logger.error_and_throw("Failed to load texture: {}", entry);
-		}
+		// if (required) {
+		// 	logger.error_and_throw("Failed to load texture: {}", entry);
+		// }
 		return {};
 	}
 
-	const sf::Font* Loader::loadFont(std::string_view entry, bool required) {
+	Optional<const sf::Font&> Loader::loadFont(std::string_view entry) {
 		if (const auto ret = inst().loadFont(entry)) {
-			return ret;
+			return *ret;
 		}
-		if (required) {
-			logger.error_and_throw("Failed to load fo: {}", entry);
-		}
+		// if (required) {
+		// 	logger.error_and_throw("Failed to load fo: {}", entry);
+		// }
 		return {};
 	}
 } // namespace flx::app

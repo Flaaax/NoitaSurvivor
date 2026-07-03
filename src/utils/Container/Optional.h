@@ -12,7 +12,7 @@ namespace flx {
 	template <class T>
 	class Optional<T&> {
 	private:
-		T* ptr{};
+		T* ptr_{};
 
 	public:
 		using value_type = T;
@@ -22,7 +22,7 @@ namespace flx {
 		constexpr explicit(false) Optional(std::nullopt_t) noexcept {}
 
 		constexpr explicit(false) Optional(T& ref) noexcept
-			: ptr(std::addressof(ref)) {}
+			: ptr_(std::addressof(ref)) {}
 
 		constexpr Optional& operator=(std::nullopt_t) noexcept {
 			reset();
@@ -30,12 +30,12 @@ namespace flx {
 		}
 
 		constexpr Optional& operator=(T& ref) noexcept {
-			ptr = std::addressof(ref); // 重新绑定
+			ptr_ = std::addressof(ref); // 重新绑定
 			return *this;
 		}
 
 		constexpr bool has_value() const noexcept {
-			return ptr != nullptr;
+			return ptr_ != nullptr;
 		}
 
 		constexpr explicit operator bool() const noexcept {
@@ -51,23 +51,27 @@ namespace flx {
 		}
 
 		constexpr T& value() const {
-			if (!ptr) {
+			if (!ptr_) {
 				throw std::bad_optional_access{};
 			}
-			return *ptr;
+			return *ptr_;
+		}
+
+		constexpr T* value_ptr() const {
+			return &value();
 		}
 
 		constexpr T* raw() noexcept {
-			return ptr;
+			return ptr_;
 		}
 
 		constexpr void reset() noexcept {
-			ptr = {};
+			ptr_ = {};
 		}
 
 		constexpr T& emplace(T& ref) noexcept {
-			ptr = std::addressof(ref);
-			return *ptr;
+			ptr_ = std::addressof(ref);
+			return *ptr_;
 		}
 	};
 } // namespace flx

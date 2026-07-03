@@ -41,4 +41,7 @@ imgui.ini
 /logs/
 
 .agents
+
+game_cfg.fon
+
 #run_clang_tidy.ps1

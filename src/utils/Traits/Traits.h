@@ -9,6 +9,9 @@ namespace flx::traits {
 	template <class T, class... Ts>
 	inline constexpr bool is_one_of_v = (std::is_same_v<T, Ts> || ...);
 
+	template <class T, class... Ts>
+	inline constexpr bool all_convertible_to_v = (std::convertible_to<Ts, T> && ...);
+
 	template <class... Ts>
 	inline constexpr u64 type_count_v = sizeof...(Ts);
 

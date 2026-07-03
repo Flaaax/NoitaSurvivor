@@ -4,33 +4,63 @@
 #include "Vector.h"
 
 #include <optional>
+#include <utility>
 
 namespace flx {
 	template <class T>
 	class VectorMap {
 	private:
-		using Pair = std::pair<std::string_view, T>;
+		using Pair_ = std::pair<std::string_view, T>;
+
 		Vector<std::pair<std::string_view, T>> content;
 		StrMap<u64> map;
 
 		template <class... Args>
-		Pair& emplace_nocheck(std::string key, Args&&... args) {
+		Pair_& emplace_nocheck(std::string key, Args&&... args) {
 			const auto it = map.emplace(std::move(key), content.size());
 			return content.emplace_back(it.first->first, T{std::forward<Args>(args)...});
 		}
 
+		void copy_from(const VectorMap& other) {
+			content.reserve(other.content.size());
+			for (const auto& [key, value] : other.content) {
+				this->emplace_nocheck(std::string(key), value);
+			}
+		}
+
 	public:
+		VectorMap() = default;
+
+		VectorMap(const VectorMap& other) {
+			this->copy_from(other);
+		}
+
+		VectorMap(VectorMap&&) = default;
+
+		VectorMap& operator=(const VectorMap& other) {
+			if (this == &other) {
+				return *this;
+			}
+
+			content.clear();
+			map.clear();
+			this->copy_from(other);
+			return *this;
+		}
+
+		VectorMap& operator=(VectorMap&&) = default;
+
 		template <class... Args>
-		std::pair<Pair&, bool> try_emplace(std::string_view key, Args&&... args) {
+		std::pair<Pair_&, bool> try_emplace(std::string_view key, Args&&... args) {
 			if (const auto i = map.try_find(key)) {
 				return {content[*i], false};
 			}
 
-			return {emplace_nocheck(std::string(key), FLX_FORWARD), true};
+			return {this->emplace_nocheck(std::string(key), FLX_FORWARD), true};
 		}
 
 		template <class... Args>
-		Pair& emplace(std::string key, Args&&... args) {
+		Pair_& emplace(std::string key, Args&&... args) {
 			if (map.contains(key)) {
 				throw std::runtime_error("Dulplicated key");
 			}
@@ -74,6 +104,10 @@ namespace flx {
 
 		T& operator[](std::string_view key) {
 			return try_emplace(key).first.second;
+		}
+
+		const T& operator[](std::string_view key) const {
+			return at(key);
 		}
 
 		T& at(std::string_view key) {

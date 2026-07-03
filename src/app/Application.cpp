@@ -37,8 +37,8 @@ namespace flx::app {
 		// Logger::info("Initializing scenes...");
 		// sceneManager.setCurrentScene("menu_scene");
 
-		const auto font = Loader::loadFont(defaultFont, true);
-		auto FPSText = ui::RichTextShape(*font);
+		const auto font = *Loader::loadFont(defaultFont);
+		auto FPSText = ui::RichTextShape(font);
 		FPSText.setPosition({5, 5});
 		FPSText.setCharacterSize(22u);
 		CTimer fpsCalcTimer(1.f, [&] {
@@ -269,7 +269,7 @@ namespace flx::app {
 
 		logger.info("App {} initializing...", info.name);
 
-		ui::Global::setDefaultFont(*Loader::loadFont(defaultFont, true));
+		ui::Global::setDefaultFont(*Loader::loadFont(defaultFont));
 
 		LocManager::loadDefaultLanguage();
 

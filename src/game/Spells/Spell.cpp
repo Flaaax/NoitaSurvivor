@@ -16,7 +16,7 @@ namespace flx::game {
 		if (const auto t = app::Loader::loadTexture(entry)) {
 			return *t;
 		}
-		return *app::Loader::loadTexture("gfx/spell/default.png", true);
+		return *app::Loader::loadTexture("gfx/spell/default.png");
 	}
 
 	Spell::Loc Spell::makeLocFromID(std::string_view ID_) {

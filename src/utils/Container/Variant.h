@@ -1,6 +1,6 @@
 #pragma once
+#include "../Traits/Traits.h"
 #include "Optional.h"
-#include "src/utils/Traits/Traits.h"
 
 #include <variant>
 
@@ -52,6 +52,16 @@ namespace flx {
 			return std::get<T>(base());
 		}
 
+		template <u64 N>
+		decltype(auto) get() {
+			return std::get<N>(base());
+		}
+
+		template <u64 N>
+		decltype(auto) get() const {
+			return std::get<N>(base());
+		}
+
 		template <class T>
 		Optional<T&> getIf() {
 			if (!is<T>()) {
@@ -71,6 +81,15 @@ namespace flx {
 		template <class T>
 		bool is() const {
 			return std::holds_alternative<T>(base());
+		}
+
+		bool is(u64 N) const {
+			return this->index() == N;
+		}
+
+		template <u64 N>
+		bool is() const {
+			return is(N);
 		}
 	};
 } // namespace flx

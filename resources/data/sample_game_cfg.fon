@@ -1,0 +1,5 @@
+display {
+	fullscreen false
+	camera_scale 0.88
+	camera_scale_limit [0.5 2]
+}

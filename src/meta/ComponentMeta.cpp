@@ -68,7 +68,7 @@ namespace flx::meta {
 
 				void operator()(const GameCtx& ctx, myecs::entity e) {
 					if (!texture) {
-						texture = app::Loader::loadTexture(entry, true);
+						texture = app::Loader::loadTexture(entry).value_ptr();
 					}
 					ctx.reg.emplace<SpriteComponent>(e, *texture, options);
 				}

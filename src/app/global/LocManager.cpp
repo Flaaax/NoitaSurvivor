@@ -40,7 +40,7 @@ namespace flx::app {
 
 					auto category = entry.path().stem();
 
-					auto j = Fon::loadFromFile(entry.path());
+					auto j = *Fon::loadFromFile(entry.path());
 					auto& table = tables[category.string()];
 					table.name = category.string();
 

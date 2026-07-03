@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "../ui/elements/Button.h"
+#include "src/app/AppCmd.h"
 #include "src/app/global/DebugVariables.h"
+#include "src/app/global/Loader.h"
 #include "src/game/Game.h"
 #include "src/game/Wands/Wand.h"
 #include "src/game/ui/MaterialBar.h"
@@ -69,6 +71,27 @@ namespace flx::app {
 	GameScene::GameScene(app::AppCtx ctx)
 		: Scene(ctx, makeContentID<GameScene>()),
 		  game(ctx) {
+		if (auto f = Fon::loadFromFile("game_cfg.fon")) {
+			gameCfg = *std::move(f);
+			logger.info("Load game config");
+		} else {
+			gameCfg = *Loader::loadFonFile("data/sample_game_cfg.fon");
+			logger.info("Init game config");
+		}
+
+		const auto& display = gameCfg.at("display");
+		const bool fullscreen = display.get<bool>("fullscreen");
+		auto mode = fullscreen ? ui::WindowMode::Borderless : ui::WindowMode::Windowed;
+		ctx.runtime.cmds += AppCmd::ToggleWindowMode{mode};
+
+		const float scale = display.get<float>("camera_scale");
+		game.getContext().gameState.camera.scale = {scale, scale};
+	}
+
+	GameScene::~GameScene() {
+		gameCfg.at("display", "fullscreen") = (ctx.window.getMode() == ui::WindowMode::Borderless);
+		gameCfg.dumpToFile("game_cfg.fon");
+		logger.info("Saved game config");
 	}
 
 	void GameScene::draw(ui::RenderBuffer& buffer) {
@@ -134,6 +157,7 @@ namespace flx::app {
 	}
 
 	namespace {
+		// ReSharper disable once CppDFAConstantParameter
 		bool drawStringCombo(const char* label, Span<const char*> items, int& current_index) {
 			if (items.empty())
 				return false;
@@ -196,7 +220,7 @@ namespace flx::app {
 			// Logger::info("选择了 {}", trackers[selected]);
 		}
 
-		static float& cameraScale = DebugVariables::emplace<float>("cameraScale", 1.f);
+		static float& cameraScale = DebugVariables::emplace<float>("cameraScale", game.getContext().gameState.camera.scale.x);
 
 		ImGui::SliderFloat("缩放", &cameraScale, 0.5f, 2.f, "%.3f", ImGuiSliderFlags_NoInput);
 		ImGui::SameLine();

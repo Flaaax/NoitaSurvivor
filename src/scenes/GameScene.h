@@ -2,6 +2,7 @@
 
 #include "../app/Scene.h"
 #include "src/game/Game.h"
+#include "src/utils/Fon/Fon.h"
 
 namespace flx::ui {
 	class WandEditor;
@@ -16,6 +17,7 @@ namespace flx::app {
 	private:
 		game::Game game;
 		bool init{};
+		Fon gameCfg;
 		//vec2 windowSize{};
 
 		ui::RichText* pauseText{};
@@ -30,6 +32,7 @@ namespace flx::app {
 		std::function<void(bool)> requestTogglePause{};
 
 		explicit GameScene(AppCtx ctx);
+		~GameScene() override;
 
 		void draw(ui::RenderBuffer& buffer) override;
 		void update(float dt) override;

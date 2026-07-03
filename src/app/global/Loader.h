@@ -1,4 +1,5 @@
 #pragma once
+#include "src/utils/Container/Optional.h"
 #include "src/utils/Macro.h"
 
 #include <filesystem>
@@ -17,8 +18,8 @@ namespace flx::app {
 		FLX_CONSTEXPR std::string_view texture_config = "config.jsonc";
 		FLX_CONSTEXPR bool defaultSmooth = false;
 
-		static const fon::Fon* loadFonFile(std::string_view entry, bool required = false);
-		static const sf::Texture* loadTexture(std::string_view entry, bool required = false);
-		static const sf::Font* loadFont(std::string_view entry, bool required = false);
+		static Optional<const fon::Fon&> loadFonFile(std::string_view entry);
+		static Optional<const sf::Texture&> loadTexture(std::string_view entry);
+		static Optional<const sf::Font&> loadFont(std::string_view entry);
 	};
 } // namespace flx::app

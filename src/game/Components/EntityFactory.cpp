@@ -32,7 +32,7 @@ namespace flx::game {
 	}
 
 	void EntityFactory::initEntityComponents() {
-		for (auto& [entityType, j] : app::Loader::loadFonFile("data/component/entity.fon", true)->items()) {
+		for (auto& [entityType, j] : app::Loader::loadFonFile("data/component/entity.fon")->items()) {
 			Vector<ComponentInitializer> components;
 			for (auto& [componentName, jj] : j.items()) {
 				validateComponentConfig(entityType, componentName, jj);

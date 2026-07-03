@@ -3,6 +3,7 @@
 
 #include <cctype>
 #include <charconv>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -89,6 +90,38 @@ namespace flx::fon {
 
 		bool isKeyDelimiter(char ch) {
 			return ch == '\0' || std::isspace(static_cast<unsigned char>(ch)) || ch == ',' || ch == ':' || ch == '[' || ch == ']' || ch == '{' || ch == '}';
+		}
+
+		bool containsCommentStart(std::string_view value) {
+			for (u64 i = 0; i + 1 < value.size(); ++i) {
+				const char first = value[i];
+				const char second = value[i + 1];
+				if ((first == '/' && second == '/') || (first == '/' && second == '*')) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		bool canDumpBareKey(std::string_view key) {
+			if (key.empty() || containsCommentStart(key)) {
+				return false;
+			}
+
+			for (const char ch : key) {
+				if (isKeyDelimiter(ch)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		void appendObjectKey(std::string& out, std::string_view key) {
+			if (canDumpBareKey(key)) {
+				out += key;
+				return;
+			}
+			appendEscapedString(out, key);
 		}
 
 		bool isNumberToken(std::string_view token) {
@@ -635,6 +668,42 @@ namespace flx::fon {
 		: storage(std::move(storage)) {
 	}
 
+	Fon::Storage Fon::copyStorage(const Storage& storage) {
+		switch (static_cast<Type>(storage.index())) {
+		case Type::Null:
+			return Storage{std::monostate{}};
+		case Type::Bool:
+			return Storage{storage.get<bool>()};
+		case Type::UInt:
+			return Storage{storage.get<u64>()};
+		case Type::Int:
+			return Storage{storage.get<i64>()};
+		case Type::Float:
+			return Storage{storage.get<double>()};
+		case Type::String:
+			return Storage{std::make_unique<std::string>(*storage.get<Unique<std::string>>())};
+		case Type::Array:
+			return Storage{std::make_unique<FonArray>(*storage.get<Unique<FonArray>>())};
+		case Type::Object:
+			return Storage{std::make_unique<FonObject>(*storage.get<Unique<FonObject>>())};
+		}
+
+		throwInternal("Unknown FON type");
+	}
+
+	Fon::Fon(const Fon& other)
+		: storage(copyStorage(other.storage)) {
+	}
+
+	Fon& Fon::operator=(const Fon& other) {
+		if (this == &other) {
+			return *this;
+		}
+
+		storage = copyStorage(other.storage);
+		return *this;
+	}
+
 	void* Fon::get(Type type) {
 		if (!is(type)) {
 			return {};
@@ -642,19 +711,19 @@ namespace flx::fon {
 
 		switch (type) {
 		case Type::Bool:
-			return &std::get<bool>(storage);
+			return &storage.get<bool>();
 		case Type::UInt:
-			return &std::get<u64>(storage);
+			return &storage.get<u64>();
 		case Type::Int:
-			return &std::get<i64>(storage);
+			return &storage.get<i64>();
 		case Type::Float:
-			return &std::get<double>(storage);
+			return &storage.get<double>();
 		case Type::String:
-			return std::get<Unique<std::string>>(storage).get();
+			return storage.get<Unique<std::string>>().get();
 		case Type::Array:
-			return std::get<Unique<FonArray>>(storage).get();
+			return storage.get<Unique<FonArray>>().get();
 		case Type::Object:
-			return std::get<Unique<FonObject>>(storage).get();
+			return storage.get<Unique<FonObject>>().get();
 		default:
 			return {};
 		}
@@ -668,20 +737,38 @@ namespace flx::fon {
 		logger.error_and_throw(msg);
 	}
 
-	Fon Fon::loadFromFile(std::filesystem::path path) {
+	Result<Fon> Fon::loadFromFile(std::filesystem::path path) {
 		const std::ifstream file(path, std::ios::binary);
 		if (!file) {
-			logger.error_and_throw("Failed to open Fon file '{}'", path.string());
+			auto err = vformat("Failed to open Fon file '{}'", path.string());
+			// logger.error("{}", err);
+			return Unexpected(std::move(err));
 		}
 
 		std::ostringstream ss;
 		ss << file.rdbuf();
 
-		return Parser(ss.str(), std::move(path)).parse();
+		try {
+			return Parser(ss.str(), std::move(path)).parse();
+		} catch (const std::exception& e) {
+			return Unexpected(e.what());
+		}
 	}
 
-	Fon Fon::loadFromString(std::string content) {
-		return Parser(std::move(content)).parse();
+	Result<Fon> Fon::loadFromString(std::string content) {
+		try {
+			return Parser(std::move(content)).parse();
+		} catch (const std::exception& e) {
+			return Unexpected(e.what());
+		}
+	}
+
+	Fon Fon::array() {
+		return Fon(Storage{std::make_unique<FonArray>()});
+	}
+
+	Fon Fon::object() {
+		return Fon(Storage{std::make_unique<FonObject>()});
 	}
 
 	Type Fon::getType() const {
@@ -689,7 +776,7 @@ namespace flx::fon {
 	}
 
 	bool Fon::is(Type type) const {
-		return getType() == type;
+		return storage.index() == static_cast<u64>(type);
 	}
 
 	bool Fon::isNull() const {
@@ -732,11 +819,29 @@ namespace flx::fon {
 		return at(key);
 	}
 
+	Fon& Fon::operator[](std::string_view key) {
+		return at_or_emplace(key);
+	}
+
 	const Fon& Fon::at(std::string_view key) const {
 		if (!is(Type::Object)) {
 			logger.error_and_throw("Not an object");
 		}
 		return getNoCheck<FonObject>().at(key);
+	}
+
+	Fon& Fon::at(std::string_view key) {
+		if (!is(Type::Object)) {
+			logger.error_and_throw("Not an object");
+		}
+		return getNoCheck<FonObject>().at(key);
+	}
+
+	Fon& Fon::at_or_emplace(std::string_view key, Fon f) {
+		if (!is(Type::Object)) {
+			logger.error_and_throw("Not an object");
+		}
+		return getNoCheck<FonObject>().try_emplace(key, std::move(f)).first.second;
 	}
 
 	bool Fon::contains(std::string_view key) const {
@@ -771,7 +876,18 @@ namespace flx::fon {
 		return at(i);
 	}
 
+	Fon& Fon::operator[](u64 i) {
+		return at(i);
+	}
+
 	const Fon& Fon::at(u64 i) const {
+		if (!is(Type::Array)) {
+			logger.error_and_throw("Not an array");
+		}
+		return getNoCheck<FonArray>().at(i);
+	}
+
+	Fon& Fon::at(u64 i) {
 		if (!is(Type::Array)) {
 			logger.error_and_throw("Not an array");
 		}
@@ -783,6 +899,20 @@ namespace flx::fon {
 			return false;
 		}
 		return getNoCheck<FonArray>().size() > i;
+	}
+
+	Fon& Fon::push(Fon f) {
+		if (!is(Type::Array)) {
+			logger.error_and_throw("Not an array");
+		}
+		return getNoCheck<FonArray>().emplace_back(std::move(f));
+	}
+
+	void Fon::pop() {
+		if (!is(Type::Array)) {
+			logger.error_and_throw("Not an array");
+		}
+		getNoCheck<FonArray>().pop_back();
 	}
 
 	u64 Fon::size() const {
@@ -798,7 +928,7 @@ namespace flx::fon {
 		return 1;
 	}
 
-	void Fon::dumpTo(std::string& out, std::string_view indent, u64 depth) const {
+	void Fon::dumpTo(std::string& out, std::string_view indent, u64 depth, bool global) const {
 		const bool pretty = !indent.empty();
 
 		switch (getType()) {
@@ -806,32 +936,31 @@ namespace flx::fon {
 			out += "null";
 			break;
 		case Type::Bool:
-			out += std::get<bool>(storage) ? "true" : "false";
+			out += storage.get<bool>() ? "true" : "false";
 			break;
 		case Type::UInt:
-			appendNumber(out, std::get<u64>(storage));
+			appendNumber(out, storage.get<u64>());
 			break;
 		case Type::Int:
-			appendNumber(out, std::get<i64>(storage));
+			appendNumber(out, storage.get<i64>());
 			break;
 		case Type::Float:
-			appendNumber(out, std::get<double>(storage));
+			appendNumber(out, storage.get<double>());
 			break;
 		case Type::String:
-			appendEscapedString(out, *std::get<Unique<std::string>>(storage));
+			appendEscapedString(out, *storage.get<Unique<std::string>>());
 			break;
 		case Type::Array: {
-			const auto& array = *std::get<Unique<FonArray>>(storage);
+			const auto& array = *storage.get<Unique<FonArray>>();
 			out.push_back('[');
 			for (u64 i = 0; i < array.size(); ++i) {
-				if (i != 0) {
-					out.push_back(',');
-				}
 				if (pretty) {
 					out.push_back('\n');
 					appendIndent(out, indent, depth + 1);
+				} else if (i != 0) {
+					out.push_back(' ');
 				}
-				array[i].dumpTo(out, indent, depth + 1);
+				array[i].dumpTo(out, indent, depth + 1, false);
 			}
 			if (!array.empty() && pretty) {
 				out.push_back('\n');
@@ -841,30 +970,33 @@ namespace flx::fon {
 			break;
 		}
 		case Type::Object: {
-			const auto& object = *std::get<Unique<FonObject>>(storage);
-			out.push_back('{');
+			const auto& object = *storage.get<Unique<FonObject>>();
+			if (!global) {
+				out.push_back('{');
+			}
 			bool first = true;
 			for (const auto& [key, value] : object) {
-				if (!first) {
-					out.push_back(',');
-				}
+				const u64 keyDepth = global ? depth : depth + 1;
 				if (pretty) {
-					out.push_back('\n');
-					appendIndent(out, indent, depth + 1);
-				}
-				appendEscapedString(out, key);
-				out.push_back(':');
-				if (pretty) {
+					if (!global || !first) {
+						out.push_back('\n');
+					}
+					appendIndent(out, indent, keyDepth);
+				} else if (!first) {
 					out.push_back(' ');
 				}
-				value.dumpTo(out, indent, depth + 1);
+				appendObjectKey(out, key);
+				out.push_back(' ');
+				value.dumpTo(out, indent, keyDepth, false);
 				first = false;
 			}
-			if (object.size() != 0 && pretty) {
+			if (!global && object.size() != 0 && pretty) {
 				out.push_back('\n');
 				appendIndent(out, indent, depth);
 			}
-			out.push_back('}');
+			if (!global) {
+				out.push_back('}');
+			}
 			break;
 		}
 		}
@@ -872,7 +1004,7 @@ namespace flx::fon {
 
 	std::string Fon::dump() const {
 		std::string out;
-		dumpTo(out, "\t", 0);
+		dumpTo(out, "\t", 0, true);
 		return out;
 	}
 
@@ -882,7 +1014,7 @@ namespace flx::fon {
 		}
 
 		std::string out;
-		dumpTo(out, std::string(indentWidth, ' '), 0);
+		dumpTo(out, std::string(indentWidth, ' '), 0, true);
 		return out;
 	}
 
