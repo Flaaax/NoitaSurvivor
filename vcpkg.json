@@ -1,42 +1,42 @@
 {
-  "name": "noita-survivor",
-  "version-string": "0.1.0",
-  "builtin-baseline": "4c5ae6b55f3e3e39d291679f89822f496cf190ee",
-  "dependencies": [
-    "boost-unordered",
-    "box2d",
-    "fmt",
-    "imgui-sfml",
-    "sfml",
-    "spdlog",
-    "magic-enum"
-  ],
-  "overrides": [
-    {
-      "name": "box2d",
-      "version": "3.1.1"
-    },
-    {
-      "name": "fmt",
-      "version": "10.2.1"
-    },
-    {
-      "name": "sfml",
-      "version": "3.0.2"
-    },
-    {
-      "name": "imgui-sfml",
-      "version": "3.0",
-      "port-version": 2
-    },
-    {
-      "name": "spdlog",
-      "version": "1.13.0"
-    },
-    {
-      "name": "magic-enum",
-      "version": "0.9.7",
-      "port-version": 1
-    }
-  ]
+	"name": "noita-survivor",
+	"version-string": "0.1.0",
+	"builtin-baseline": "4c5ae6b55f3e3e39d291679f89822f496cf190ee",
+	"dependencies": [
+		"boost-unordered",
+		"box2d",
+		"fmt",
+		"imgui-sfml",
+		"sfml",
+		"spdlog",
+		"magic-enum"
+	],
+	"overrides": [
+		{
+			"name": "box2d",
+			"version": "3.1.1"
+		},
+		{
+			"name": "fmt",
+			"version": "10.2.1"
+		},
+		{
+			"name": "sfml",
+			"version": "3.0.2"
+		},
+		{
+			"name": "imgui-sfml",
+			"version": "3.0",
+			"port-version": 2
+		},
+		{
+			"name": "spdlog",
+			"version": "1.13.0"
+		},
+		{
+			"name": "magic-enum",
+			"version": "0.9.7",
+			"port-version": 1
+		}
+	]
 }

@@ -4,7 +4,7 @@
 #include "Shot.h"
 
 namespace flx::game {
-	void SpellBlock::add(Shared<Spell> spell) {
+	void SpellBlock::add(const Shared<Spell>& spell) {
 		if (spell->getKind() == Spell::ModifierSpell) {
 			auto mod = std::static_pointer_cast<ModifierSpell>(spell);
 			if (mod->tags.has(Spell::Tag::SHOT_MODIFY)) {

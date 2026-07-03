@@ -40,6 +40,10 @@ namespace flx::ui {
 		return viewport;
 	}
 
+	const InputState& Window::getInput() const {
+		return input;
+	}
+
 	std::optional<WindowEvent> Window::pollEvent() {
 		if (const auto event = window.pollEvent()) {
 			if (event->is<sf::Event::Resized>()) {

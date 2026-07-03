@@ -33,9 +33,8 @@ namespace flx {
 	namespace internal {
 		struct move_t {};
 
-		template <class T>
 		[[nodiscard]]
-		constexpr decltype(auto) operator|(T&& value, move_t) noexcept {
+		constexpr decltype(auto) operator|(auto& value, move_t) noexcept {
 			return std::move(value);
 		}
 	} // namespace internal
@@ -195,7 +194,7 @@ namespace flx {
 
 		template <class U>
 			requires std::convertible_to<U*, T*>
-		explicit SUnique(Shared<U> storage_) : storage(storage_) {
+		explicit SUnique(const Shared<U>& storage_) : storage(storage_) {
 			this->bindSWeakFromThis(storage_);
 		}
 

@@ -4,14 +4,14 @@
 
 namespace flx::app {
 	struct AppCmd {
-		struct SetWindowMode {
-			ui::WindowMode mode{};
+		struct ToggleWindowMode {
+			Optional<ui::WindowMode> mode{};
 		};
 
 		struct Exit {};
 
 		using Cmd = Variant<std::monostate,
-							SetWindowMode,
+							ToggleWindowMode,
 							Exit>;
 	};
 } // namespace flx::app

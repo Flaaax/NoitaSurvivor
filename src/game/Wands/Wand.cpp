@@ -16,7 +16,7 @@
 #include <sstream>
 
 namespace flx::game {
-	constexpr std::string_view defaultTexture = "gfx/wands/noita/wand_0000.png";
+	// constexpr std::string_view defaultTexture = "gfx/wands/noita/wand_0000.png";
 
 	void Wand::reload() {
 		drawPile.clear();

@@ -1,0 +1,23 @@
+Checks: >
+    clang-diagnostic-*,
+    clang-analyzer-*,
+    -clang-diagnostic-pragma-once-outside-header,
+    bugprone-reserved-identifier,
+    bugprone-move-forwarding-reference,
+    bugprone-use-after-move,
+    bugprone-exception-escape,
+    bugprone-dangling-handle,
+    misc-definitions-in-headers,
+    misc-throw-by-value-catch-by-reference,
+    performance-*,
+    -performance-enum-size,
+    -performance-move-constructor-init,
+    -performance-move-constructor-init,
+    -performance-unnecessary-value-param,
+    -performance-avoid-endl,
+    -clang-diagnostic-overloaded-virtual,
+    -clang-diagnostic-unused-command-line-argument
+
+SystemHeaders: false
+
+HeaderFilterRegex: '.*[\/]src[\/].*'

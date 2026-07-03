@@ -30,6 +30,7 @@ namespace flx::ui {
 
 		void draw(const UIPainter& canvas) const override;
 		void setLayout(SUnique<Layout> layout);
+		const Layout* getLayout()const;
 		void refresh() override;
 		Measure measure(LayoutConstraint constraint) override;
 		void arrange(rect rect) override;

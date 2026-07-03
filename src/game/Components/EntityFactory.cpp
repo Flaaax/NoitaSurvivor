@@ -49,7 +49,7 @@ namespace flx::game {
 		for (auto& [entityType, components] : entityInitializers) {
 			// Kinda weird to use pointer here?
 			auto* componentList = &components;
-			factories[entityType] = [this, componentList](const GameCtx& ctx) {
+			factories[entityType] = [componentList](const GameCtx& ctx) {
 				const auto e = ctx.reg.create();
 				for (auto& component : *componentList) {
 					component(ctx, e);

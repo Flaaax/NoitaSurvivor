@@ -2,6 +2,7 @@
 #include <string_view>
 
 namespace flx {
+	// Full name of a type
 	template <class Type>
 	[[nodiscard]] consteval std::string_view typeFullName() noexcept {
 		std::string_view pretty_function{static_cast<const char*>(__FUNCSIG__)};
@@ -13,6 +14,7 @@ namespace flx {
 		return pretty_function.substr(first, last - first);
 	}
 
+	// Name without class/struct prefix
 	template <class Type>
 	[[nodiscard]] consteval std::string_view typeName() noexcept {
 		std::string_view name = typeFullName<Type>();
@@ -29,6 +31,7 @@ namespace flx {
 		return name;
 	}
 
+	// Name without all prefix
 	template <class Type>
 	[[nodiscard]] consteval std::string_view typeNameShort() noexcept {
 		std::string_view name = typeName<Type>();

@@ -11,6 +11,7 @@ namespace flx::game {
 
 	class RenderSystem {
 	public:
+		static void setup(const GameCtx& ctx);
 		static void update(const GameCtx& ctx, float dt);
 		static void render(ui::RenderBuffer& buffer, const GameCtx& ctx);
 		static void debugRender(const GameCtx& ctx, const ui::Painter& rdr);

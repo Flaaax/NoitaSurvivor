@@ -23,8 +23,8 @@ namespace myecs {
 		}
 
 		struct VariantVTable {
-			using destroy_func_t = void (*)(void* _data);
-			using assign_func_t = void (*)(void* _from, void* _to);
+			using destroy_func_t = void (*)(void* data_);
+			using assign_func_t = void (*)(void* from_, void* to_);
 			destroy_func_t destroy{};
 			assign_func_t move_construct{};
 			// assign_func_t move_assign{};
@@ -32,15 +32,15 @@ namespace myecs {
 
 			template <class T>
 			explicit VariantVTable(std::in_place_type_t<T>) {
-				destroy = [](void* _data) { raw<T>(_data).~T(); };
+				destroy = [](void* data_) { raw<T>(data_).~T(); };
 				if constexpr (std::is_move_constructible_v<T>) {
-					move_construct = [](void* _from, void* _to) { new (_to) T(std::move(raw<T>(_from))); };
+					move_construct = [](void* from_, void* to_) { new (to_) T(std::move(raw<T>(from_))); };
 				}
 				/*if constexpr (std::is_move_assignable_v<T>) {
 					move_assign = [](void* _from, void* _to) {raw<T>(_to) = std::move(raw<T>(_from)); };
 				}*/
 				if constexpr (std::is_copy_constructible_v<T>) {
-					copy_construct = [](void* _from, void* _to) { new (_to) T(raw<T>(_from)); };
+					copy_construct = [](void* from_, void* to_) { new (to_) T(raw<T>(from_)); };
 				}
 			}
 

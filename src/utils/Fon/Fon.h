@@ -27,7 +27,7 @@ namespace flx::fon {
 	};
 
 	template <class T>
-	concept FonType = std::is_arithmetic_v<T> ||
+	concept FonTypeC = std::is_arithmetic_v<T> ||
 					   traits::is_one_of_v<T, std::string, std::string_view, std::filesystem::path>;
 
 	// 保持键有序
@@ -94,9 +94,9 @@ namespace flx::fon {
 
 		u64 size() const;
 
-		std::string dump() const;
+		std::string dump() const; // uses tab
 		std::string dump(u64 indentWidth) const;
-		void dumpToFile(const std::filesystem::path& file) const;
+		void dumpToFile(const std::filesystem::path& file) const; // uses tab
 		void dumpToFile(const std::filesystem::path& file, u64 indentWidth) const;
 
 		template <class T>
@@ -221,7 +221,7 @@ namespace flx::fon {
 			return std::move(defaultVal);
 		}
 	};
-} // namespace flx::gon
+} // namespace flx::fon
 
 namespace flx {
 	using Fon = fon::Fon;

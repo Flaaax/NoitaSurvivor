@@ -280,7 +280,7 @@ namespace flx::json {
 				}
 
 				u64 value = 0;
-				const std::string_view number = source.substr(hexBegin, index - hexBegin);
+				const std::string number = source.substr(hexBegin, index - hexBegin);
 				const auto* const first = number.data();
 				const auto* const last = number.data() + number.size();
 				const auto [ptr, ec] = std::from_chars(first, last, value, 16);
@@ -340,7 +340,7 @@ namespace flx::json {
 				}
 			}
 
-			const std::string_view number = source.substr(begin, index - begin);
+			const std::string number = source.substr(begin, index - begin);
 			const auto* const first = number.data();
 			const auto* const last = number.data() + number.size();
 

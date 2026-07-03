@@ -1,6 +1,6 @@
-#include "src/app/Application.h"
-#include "src/game/app/NoitaSurvivorApp.h"
-#include "src/utils/Exception/Exceptions.h"
+#include "app/Application.h"
+#include "game/app/NoitaSurvivorApp.h"
+#include "utils/Exception/Exceptions.h"
 
 // static void f() {
 // 	std::string s = "hello";

@@ -46,7 +46,7 @@ namespace flx::app {
 
 		template <std::derived_from<Scene> T>
 		SWeak<T> add(SUnique<T> scene) {
-			return this->addInternal(scene | move).staticCast<T>();
+			return this->addInternal(scene | move).template staticCast<T>();
 		}
 
 		SWeak<Scene> get(std::string_view name, bool required = true) const;

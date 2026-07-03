@@ -105,7 +105,7 @@ namespace flx::game {
 					}
 
 					// If target is not projectile, then don't apply impulse
-					if (auto [p1, p2] = reg.try_get<ProjectileComponent>(a, b); !p2) {
+					if (auto [p1, p2] = reg.try_get<ProjectileComponent>(a, b); p1 && p2) {
 						const vec2 impulseApplied = p1->impulse * impulseDir;
 						PhysicsService().applyImpulse(otherBody, impulseApplied);
 						if (const auto ec = reg.try_get<EnemyComponent>(b)) {
@@ -121,7 +121,7 @@ namespace flx::game {
 					}
 
 					if (auto [e, s] = reg.try_get<EntityComponent, SpellOnDeathComponent>(a); e && !EntityService::isAlive(ctx, a) && s) {
-						const auto& bc = reg.get<BodyComponent>(a);
+						// const auto& bc = reg.get<BodyComponent>(a);
 						s->impulseDir = impulseDir;
 						// todo This could cause different behavior
 						// s->impulsePosFix = -bc.getVelocity() * (dt * 1.5f);

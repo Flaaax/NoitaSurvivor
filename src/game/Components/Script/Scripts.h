@@ -12,8 +12,8 @@ namespace flx::game {
 	private:
 		myecs::entity target;
 		vec2 offset;
-		//float lengthSquared{};
-		float maxForceSize = 15.f;
+		// float lengthSquared{};
+		//  float maxForceSize = 15.f;
 		float radius;
 
 	public:

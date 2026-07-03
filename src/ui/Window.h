@@ -15,19 +15,20 @@ namespace flx::ui {
 		sf::RenderWindow window;
 		WindowView viewport;
 		WindowMode mode = Windowed;
+		InputState input;
 		std::string title{};
 
 		void updateViewport();
 		void updateMousePosition();
 
 	public:
-		InputState input;
 
 		// Creates the window
 		Window(vec2u windowSize, std::string_view title);
 		~Window();
 
 		const WindowView& getView() const;
+		const InputState& getInput()const;
 
 		sf::RenderWindow& getWindow() {
 			return window;

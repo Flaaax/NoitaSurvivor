@@ -39,3 +39,6 @@ imgui.ini
 /*.bat
 
 /logs/
+
+.agents
+#run_clang_tidy.ps1

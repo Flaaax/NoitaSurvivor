@@ -35,6 +35,10 @@ namespace flx::ui {
 		refresh();
 	}
 
+	const Layout* Panel::getLayout() const {
+		return layout.get();
+	}
+
 	void Panel::refresh() {
 		visualDirty = false;
 

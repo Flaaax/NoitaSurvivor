@@ -1,6 +1,5 @@
 #include "../global/LocManager.h"
 
-#include "../../utils/File/json.h"
 #include "src/utils/Container/View.h"
 #include "src/utils/Fon/Fon.h"
 #include "src/utils/Logging/Logger.h"
@@ -73,9 +72,9 @@ namespace flx::app {
 				return {};
 			}
 
-			const LocTable* getTable(std::string_view table, bool required) {
+			Optional<const LocTable&> getTable(std::string_view table, bool required) {
 				try {
-					return &tables.at(table);
+					return tables.at(table);
 				} catch (...) {
 					if (required) {
 						throw;
@@ -119,7 +118,7 @@ namespace flx::app {
 		return inst().debugGetString(table, entry, usePlaceHolder);
 	}
 
-	const LocTable* LocManager::getTable(std::string_view table, bool required) {
+	Optional<const LocTable&> LocManager::getTable(std::string_view table, bool required) {
 		return inst().getTable(table, required);
 	}
 } // namespace flx::app

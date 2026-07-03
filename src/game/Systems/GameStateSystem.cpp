@@ -4,7 +4,7 @@
 #include "src/game/Components/EntityFactory.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
-#include "src/game/render/GameRenderScales.h"
+#include "src/game/render/RenderScales.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Random.h"
 
@@ -46,11 +46,11 @@ namespace flx::game {
 	void GameStateSystem::updateBeforePhysics(const GameCtx& ctx) {
 		auto& state = ctx.gameState;
 		auto& inputState = ctx.appCtx.input;
-		state.mousePos = (inputState.mouseRender - ctx.scales.offset) / ctx.scales.scale + state.cameraPos;
+		state.mousePos = (inputState.mouseRender - ctx.scales.offset) / ctx.scales.scale + state.camera.position;
 		const auto player = ctx.gameState.player.id;
 		state.playerPos = PhysicsService().getPosition(ctx, player);
 		state.playerVelocity = PhysicsService().getVelocity(ctx, player);
-		state.cameraPos = state.playerPos;
+		state.camera.position = state.playerPos;
 	}
 
 	void GameStateSystem::updateAfterPhysics(const GameCtx& ctx) {
@@ -58,7 +58,6 @@ namespace flx::game {
 		const auto player = ctx.gameState.player.id;
 		state.playerPos = PhysicsService().getPosition(ctx, player);
 		state.playerVelocity = PhysicsService().getVelocity(ctx, player);
-		state.cameraPos = state.playerPos;
-
+		// state.cameraPos = state.playerPos;
 	}
 } // namespace flx::game

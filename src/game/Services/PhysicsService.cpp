@@ -57,12 +57,12 @@ namespace flx::game {
 		b2BodyDef bodyDef = b2DefaultBodyDef();
 		bodyDef.type = static_cast<b2BodyType>(arg.type);
 		bodyDef.fixedRotation = arg.fixedRotation;
-		bodyDef.userData = reinterpret_cast<void*>(e.flatten());
+		bodyDef.userData = reinterpret_cast<void*>(e.flatten());	// NOLINT(performance-no-int-to-ptr)
 
 		bc->body = b2CreateBody(ctx.worldCtx.world, &bodyDef);
 
 		b2ShapeDef shapeDef = b2DefaultShapeDef();
-		shapeDef.userData = reinterpret_cast<void*>(e.flatten());
+		shapeDef.userData = reinterpret_cast<void*>(e.flatten());	// NOLINT(performance-no-int-to-ptr)
 		shapeDef.density = arg.density;
 		shapeDef.material.friction = arg.friction;
 		shapeDef.material.restitution = arg.restitution;
@@ -147,13 +147,15 @@ namespace flx::game {
 		assertValid(bc);
 
 		switch (const b2ShapeType type = b2Shape_GetType(bc.shape)) {
-		case b2_circleShape:
+		case b2_circleShape: {
 			const b2Circle circle = b2Shape_GetCircle(bc.shape);
 			return circle.radius;
+		}
 
-		case b2_polygonShape:
+		case b2_polygonShape: {
 			const b2Polygon polygon = b2Shape_GetPolygon(bc.shape);
 			return polygon.radius;
+		}
 
 		default:
 			logger.error_and_throw("Shape type {} not supported", static_cast<int>(type));

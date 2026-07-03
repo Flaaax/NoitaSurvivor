@@ -9,7 +9,7 @@
 // }
 
 namespace flx::game {
-	struct GameRenderScales;
+	struct RenderScales;
 	class EntityFactory;
 	struct ContactLayerRules;
 
@@ -26,7 +26,7 @@ namespace flx::game {
 		const ContactLayerRules& contactRules;
 		GameState& gameState;
 		ContactState& contactState;
-		GameRenderScales& scales;
+		RenderScales& scales;
 		const app::AppCtx& appCtx;
 	};
 } // namespace flx::game

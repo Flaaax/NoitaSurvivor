@@ -4,6 +4,8 @@
 #include "src/game/Game.h"
 
 namespace flx::ui {
+	class WandEditor;
+	class SpellInventory;
 	class ValueBar;
 	class MaterialBar;
 	class RichText;
@@ -19,6 +21,8 @@ namespace flx::app {
 		ui::RichText* pauseText{};
 		ui::MaterialBar* materialBar{};
 		ui::ValueBar* expBar{};
+		ui::Ref<ui::SpellInventory> inventory{};
+		ui::Ref<ui::WandEditor> editor{};
 
 		void initUI();
 

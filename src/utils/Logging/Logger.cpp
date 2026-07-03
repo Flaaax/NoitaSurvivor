@@ -12,7 +12,7 @@
 #include <utility>
 
 namespace flx {
-	void Logger::impl_log(spdlog::level::level_enum level, std::string msg) const {
+	void Logger::impl_log(spdlog::level::level_enum level, std::string_view msg) const {
 		raw->log(level, msg);
 		if (level == spdlog::level::err) {
 			raw->flush();
@@ -21,23 +21,23 @@ namespace flx {
 
 	void Logger::impl_error_and_throw(std::string msg) {
 		// flx::debug::printCallStack();
-		const std::string msg1 = vformat("{}\n{}", msg, debug::getCallStackStr());
+		const auto msg1 = vformat("{}\n{}", msg, debug::getCallStackStr());
 		this->error(msg1);
 		throw except::LogThrow(msg1);
 	}
 
 	Logger Logger::makeAsync(std::string_view logger_id, bool showID) {
-		auto _logger = spdlog::stdout_color_mt<spdlog::async_factory>(logger_id.data());
-		_logger->sinks().emplace_back(std::make_shared<ArchiveFileSink>());
-		setPattern(_logger, showID);
-		return {std::move(_logger)};
+		auto logger_ = spdlog::stdout_color_mt<spdlog::async_factory>(std::string(logger_id));
+		logger_->sinks().emplace_back(std::make_shared<ArchiveFileSink>());
+		setPattern(logger_, showID);
+		return {std::move(logger_)};
 	}
 
 	Logger Logger::makeSync(std::string_view logger_id, bool showID) {
-		auto _logger = spdlog::stdout_color_st(logger_id.data());
-		_logger->sinks().emplace_back(std::make_shared<ArchiveFileSink>());
-		setPattern(_logger, showID);
-		return {std::move(_logger)};
+		auto logger_ = spdlog::stdout_color_st(std::string(logger_id));
+		logger_->sinks().emplace_back(std::make_shared<ArchiveFileSink>());
+		setPattern(logger_, showID);
+		return {std::move(logger_)};
 	}
 
 	void Logger::setPattern(logptr logger, bool showID) {

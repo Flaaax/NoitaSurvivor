@@ -1,5 +1,6 @@
 #pragma once
 #include "src/utils/Container/Map.h"
+#include "src/utils/Container/Optional.h"
 
 namespace flx::app {
 	class LocTable {
@@ -16,6 +17,6 @@ namespace flx::app {
 		static void loadLanguage(std::string_view lang);
 		static void loadDefaultLanguage();
 		static std::string debugGetString(std::string_view table, std::string_view entry, bool usePlaceHolder = true);
-		static const LocTable* getTable(std::string_view table, bool required = true);
+		static Optional<const LocTable&> getTable(std::string_view table, bool required = true);
 	};
 } // namespace flx::app

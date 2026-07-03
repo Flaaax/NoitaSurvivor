@@ -68,7 +68,7 @@ namespace flx::app {
 			button1->onClick = [this] {
 				using enum ui::WindowMode;
 				const auto nextMode = this->ctx.window.getMode() == Borderless ? Windowed : Borderless;
-				this->ctx.runtime.cmds += AppCmd::SetWindowMode{nextMode};
+				this->ctx.runtime.cmds += AppCmd::ToggleWindowMode{nextMode};
 			};
 
 			rightLayout->add(button1 | move);

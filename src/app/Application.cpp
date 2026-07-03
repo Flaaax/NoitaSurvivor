@@ -14,6 +14,7 @@
 #include <SFML/System/Clock.hpp>
 #include <imgui-SFML.h>
 #include <imgui.h>
+#include <magic_enum/magic_enum.hpp>
 #include <numeric>
 
 namespace flx::app {
@@ -52,13 +53,13 @@ namespace flx::app {
 
 		bool isRunning = true;
 
-		ui::RichTextShape richText(*font, "中文测试 ABC xyz 12345 ０１２３ ￥$%&!?.,，\n。！中文2？；：「」『』（）()[]{} / \n | +-= * _ ~ @ # ");
-		richText.setPosition({200, 200});
-		richText.setLineWidth(1000.f);
-		sf::RectangleShape rectangle;
-		rectangle.setPosition(richText.getPosition());
-		rectangle.setSize(richText.getLayoutSize());
-		rectangle.setFillColor(sf::Color::Cyan);
+		// ui::RichTextShape richText(*font, "中文测试 ABC xyz 12345 ０１２３ ￥$%&!?.,，\n。！中文2？；：「」『』（）()[]{} / \n | +-= * _ ~ @ # ");
+		// richText.setPosition({200, 200});
+		// richText.setLineWidth(1000.f);
+		// sf::RectangleShape rectangle;
+		// rectangle.setPosition(richText.getPosition());
+		// rectangle.setSize(richText.getLayoutSize());
+		// rectangle.setFillColor(sf::Color::Cyan);
 
 		if (imguiEnabled) {
 			ImGui::GetStyle().ScaleAllSizes(1.5f);
@@ -99,6 +100,7 @@ namespace flx::app {
 
 					for (auto it = commands.begin(); it != commands.end();) {
 						if (auto item = it->getIf<T>()) {
+							logger.info("App command: {}", typeNameShort<T>());
 							func(*item);
 							it = commands.erase(it);
 						} else {
@@ -107,14 +109,24 @@ namespace flx::app {
 					}
 				};
 
-				handleCommand([&](AppCmd::SetWindowMode c) {
-					window.setMode(c.mode);
+				handleCommand([&](AppCmd::ToggleWindowMode c) {
+					if (c.mode) {
+						window.setMode(*c.mode);
+					} else {
+						logger.info("No mode specified, toggle window mode automatically");
+						const bool isFullscreen = window.getMode() == ui::WindowMode::Borderless;
+						if (isFullscreen) {
+							window.setMode(ui::WindowMode::Windowed);
+						} else {
+							window.setMode(ui::WindowMode::Borderless);
+						}
+					}
+					logger.info("Window mode set to {}", magic_enum::enum_name(window.getMode()));
 					onWindowResized();
 				});
 
 				handleCommand([&](AppCmd::Exit c) {
 					isRunning = false;
-					logger.info("App command: Exit");
 				});
 
 				if (!commands.empty()) {
@@ -141,20 +153,6 @@ namespace flx::app {
 				if (raw.is<sf::Event::Closed>()) {
 					isRunning = false;
 					logger.info("App window is closed by user");
-				} else if (const auto e = raw.getIf<sf::Event::KeyPressed>()) {
-					if (e->code == sf::Keyboard::Key::Escape) {
-						isRunning = false;
-						logger.info("Window closed by pressing Esc");
-					} else if (e->code == sf::Keyboard::Key::F) {
-						const bool isFullscreen = window.getMode() == ui::Window::Borderless;
-						if (isFullscreen) {
-							window.setMode(ui::Window::Windowed);
-						} else {
-							window.setMode(ui::Window::Borderless);
-						}
-
-						onWindowResized();
-					}
 				} else if (raw.is<sf::Event::Resized>()) {
 					onWindowResized();
 				}
@@ -177,12 +175,12 @@ namespace flx::app {
 				buffer.drawUI(FPSText);
 			}
 
-			static bool& showDebugText = DebugVariables::emplace<bool>("showDebugText", false);
-
-			if (showDebugText) {
-				buffer.drawUI(rectangle);
-				buffer.drawUI(richText);
-			}
+			// static bool& showDebugText = DebugVariables::emplace<bool>("showDebugText", false);
+			//
+			// if (showDebugText) {
+			// 	buffer.drawUI(rectangle);
+			// 	buffer.drawUI(richText);
+			// }
 
 			window.draw(buffer);
 
@@ -212,6 +210,8 @@ namespace flx::app {
 		if (imguiEnabled) {
 			ImGui::SFML::Shutdown();
 		}
+
+		logger.info("App shutdown");
 
 		return 0;
 	}
@@ -246,7 +246,7 @@ namespace flx::app {
 	AppCtx Application::getContext() {
 		return {
 			.window = window,
-			.input = window.input,
+			.input = window.getInput(),
 			.sceneManager = sceneManager,
 			.runtime = runtime,
 		};

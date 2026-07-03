@@ -2,6 +2,7 @@
 #include "../../utils/Vec2/Vec2.h"
 #include "src/ecs/entity.h"
 #include "src/game/Wands/WandManager.h"
+#include "src/game/render/Camera.h"
 #include "src/utils/Container/Vector.h"
 #include "src/utils/Pointer.h"
 #include "src/utils/Timer.h"
@@ -36,7 +37,9 @@ namespace flx::game {
 		vec2 playerPos;
 		vec2 playerVelocity;
 		vec2 mousePos;
-		vec2 cameraPos;
+
+		Camera camera;
+		//vec2 cameraPos;		// designed camera world position
 
 		Vector<myecs::entity> borders;
 		WandManager wandManager;

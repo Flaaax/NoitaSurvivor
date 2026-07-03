@@ -42,11 +42,11 @@ namespace flx {
 			return has_value();
 		}
 
-		constexpr T& operator*() const noexcept {
+		constexpr T& operator*() const {
 			return value();
 		}
 
-		constexpr T* operator->() const noexcept {
+		constexpr T* operator->() const {
 			return &value();
 		}
 

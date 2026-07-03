@@ -14,7 +14,7 @@ namespace flx::ui {
 		vlayout->widthPolicy = Policy::Shrink;
 		vlayout->setSpacing(10.f);
 
-		for (const auto wand : manager.getWands()) {
+		for (const auto& wand : manager.getWands()) {
 			auto hlayout = std::make_unique<HBoxLayout>();
 			hlayout->setSpacing(10.f);
 			auto inventory = std::make_unique<SpellInventory>(wand->inventory);
@@ -33,5 +33,13 @@ namespace flx::ui {
 		}
 
 		setLayout(vlayout | move);
+	}
+
+	float WandEditor::getInventoryX() const {
+		if (!getLayout()) {
+			logger.error_and_throw("No inventory");
+		}
+		const auto inventory = getLayout()->getObjects()[0]->asWidget()->getObjects()[1];
+		return inventory->getGlobalPosition().x;
 	}
 } // namespace flx::ui

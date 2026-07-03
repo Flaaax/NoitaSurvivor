@@ -4,7 +4,7 @@
 #include "src/game/GameContext.h"
 #include "src/game/Services/PhysicsService.h"
 #include "src/game/Wands/Wand.h"
-#include "src/game/render/GameRenderScales.h"
+#include "src/game/render/RenderScales.h"
 #include "src/ui/Window.h"
 #include "src/ui/render/Painter.h"
 #include "src/ui/render/RenderBuffer.h"
@@ -23,7 +23,14 @@ namespace flx::game {
 		}
 	}
 
+	void RenderSystem::setup(const GameCtx& ctx) {
+		ctx.scales.offset = ctx.appCtx.window.getView().canvasSize / 2.f;
+	}
+
 	void RenderSystem::update(const GameCtx& ctx, float dt) {
+		// const vec2 offset = ctx.scales.offset - ctx.gameState.camera.position * ctx.scales.scale;
+
+		// ctx.renderStates.camera.setDesigned()
 		for (const auto& [e, tc] : ctx.reg.view<SpriteEffectComponent>()) {
 			for (const auto& effect : tc.effectList) {
 				effect->update(dt);
@@ -34,18 +41,17 @@ namespace flx::game {
 	void RenderSystem::render(ui::RenderBuffer& buffer, const GameCtx& ctx) {
 		using namespace myecs;
 
-		ctx.scales.offset = ctx.appCtx.window.getView().canvasSize / 2.f;
-
 		// rdr.updateGameRender(ctx.gameState.cameraPos * NWindow::viewport.gameRenderScale - NWindow::viewport.gameRenderOffset);
 
 		buffer.clear({100, 100, 100});
 
-		const vec2 offset = ctx.scales.offset - ctx.gameState.cameraPos * ctx.scales.scale;
+		const vec2 scale = ctx.gameState.camera.scale * ctx.scales.scale;
+		const vec2 offset = ctx.scales.offset - ctx.gameState.camera.position * scale;
 
 		ui::Painter painter(buffer);
 		painter.states.transform
 			.translate(offset)
-			.scale(ctx.scales.scale);
+			.scale(scale);
 
 		// 还不支持Camera
 

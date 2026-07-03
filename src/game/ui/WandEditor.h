@@ -14,6 +14,7 @@ namespace flx::ui {
 	public:
 		WandEditor() = default;
 		void setWands(const game::WandManager& manager);
+		float getInventoryX()const;
 	};
 
 } // namespace flx::ui

@@ -1,5 +1,6 @@
 #pragma once
 #include "src/app/IApp.h"
+#include "src/scenes/DebugScene.h"
 #include "src/scenes/GameScene.h"
 #include "src/scenes/MenuScene.h"
 #include "src/scenes/SettingsScene.h"
@@ -10,7 +11,10 @@ namespace flx::app {
 			auto gameScene = ctx.sceneManager.add(makeSUnique<GameScene>(ctx));
 			auto menuScene = ctx.sceneManager.add(makeSUnique<MenuScene>(ctx));
 			const auto settingsScene = ctx.sceneManager.add(makeSUnique<SettingsScene>(ctx));
+			ctx.sceneManager.add(makeSUnique<DebugScene>(ctx));
 			ctx.sceneManager.addCommand({.target = "menu_scene", .cmd = SceneCmd::Enter});
+			ctx.sceneManager.addCommand({.target = "debug_scene", .cmd = SceneCmd::Enter});
+
 			ctx.runtime.showDebugFPS = true;
 			ctx.runtime.imguiDisplay = true;
 

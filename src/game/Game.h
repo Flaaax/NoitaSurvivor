@@ -1,9 +1,8 @@
 #pragma once
-#pragma warning(disable : 5105)
 #include "Components/EntityFactory.h"
 #include "Contact/ContactLayerRules.h"
 #include "GameContext.h"
-#include "render/GameRenderScales.h"
+#include "render/RenderScales.h"
 #include "src/app/AppCtx.h"
 #include "src/ecs/entity.h"
 #include "src/utils/Logging/Logger.h"
@@ -29,7 +28,7 @@ namespace flx::game {
 		WorldCtx worldCtx;
 		myecs::Registry reg;
 		Unique<EntityFactory> factory;
-		GameRenderScales scales;
+		RenderScales renderStates;
 		app::AppCtx appCtx;
 
 		Logger logger;

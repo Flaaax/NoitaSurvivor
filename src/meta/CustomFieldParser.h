@@ -23,7 +23,7 @@ namespace flx::meta {
 		}
 	};
 
-	template <fon::FonType T>
+	template <fon::FonTypeC T>
 	struct FieldParser<T> {
 		static constexpr bool enabled = true;
 

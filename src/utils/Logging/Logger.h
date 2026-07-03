@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _MYLOGGER_H
-#define _MYLOGGER_H
 
 #include "../Pointer.h"
 #include "../Text/Format.h"
@@ -26,7 +24,7 @@ namespace flx {
 
 	class Logger {
 	private:
-		void impl_log(spdlog::level::level_enum level, std::string msg) const;
+		void impl_log(spdlog::level::level_enum level, std::string_view msg) const;
 		[[noreturn]] void impl_error_and_throw(std::string msg);
 
 	public:
@@ -118,5 +116,3 @@ namespace flx {
 // 		flx::logger.error_and_throw(fmt, std::forward<Args>(args)...);
 // 	}
 // };
-
-#endif // _MYLOGGER_H

@@ -3,6 +3,9 @@
 #include "src/utils/Assert.h"
 #include "src/utils/Container/View.h"
 
+#include <imgui-SFML.h>
+#include <imgui.h>
+
 namespace flx::app {
 	static Logger logger = Logger::makeAsync("SceneManager");
 
@@ -94,7 +97,9 @@ namespace flx::app {
 
 	void SceneManager::makeImGuiContent() {
 		for (const auto& scene : activeScenes | std::views::reverse) {
+			ImGui::PushID(scene->name.c_str());
 			scene->makeImGuiContent();
+			ImGui::PopID();
 		}
 	}
 

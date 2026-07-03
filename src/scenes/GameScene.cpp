@@ -22,30 +22,20 @@ namespace flx::app {
 		// auto& wand = *ctx.gameState.wands.front();
 		// const auto wand = ctx.gameState.wandManager.getWand(0);
 
-		auto editor = std::make_unique<ui::WandEditor>();
-		editor->setPosition({100, 150});
-		editor->setWands(gctx.gameState.wandManager);
-		// auto inventory1 = makeUnique(new ui::SpellInventory({100, 150}, wand->inventory.size()));
-		//
-		// for (const auto i : wand->inventory.indices()) {
-		// 	if (!wand->inventory[i]) {
-		// 		continue;
-		// 	}
-		// 	auto spell = makeUnique(new ui::Spell(wand->inventory[i], {i * 50, i * 50}));
-		// 	inventory1->addItem(std::move(spell), static_cast<int>(i));
-		// }
-		//
-		// inventory1->setOnModify([=](viewable::Val<Shared<game::Spell>> spells) {
-		// 	wand->inventory.clear();
-		// 	for (auto spell : spells) {
-		// 		wand->inventory.emplace_back(spell);
-		// 	}
-		// });
+		{
+			auto editor = makeSUnique<ui::WandEditor>();
+			this->editor = editor;
+			editor->setPosition({100, 150});
+			editor->setWands(gctx.gameState.wandManager);
+			widget->addToTop(std::move(editor));
+		}
 
-		widget->addToTop(std::move(editor));
-
-		auto inventory2 = makeUnique(new ui::SpellInventory({100, 50}, 5));
-		widget->addToTop(std::move(inventory2));
+		{
+			auto inventory = makeSUnique<ui::SpellInventory>(vec2{editor->getInventoryX(), 75}, 5);
+			this->inventory = inventory;
+			// inventoryU->setPosition({editor->getInventoryX(), 50});
+			widget->addToTop(inventory | move)->ref();
+		}
 
 		const auto windowSize = ctx.window.getView().canvasSize;
 
@@ -122,11 +112,15 @@ namespace flx::app {
 				requestTogglePause(game.isPaused());
 				return true;
 			}
+			if (e->code == sf::Keyboard::Key::F) {
+				editor->isVisible = !editor->isVisible;
+				return true;
+			}
 		}
 
 		game.handleEvent(event.rawEvent);
 
-		return true;
+		return false;
 	}
 
 	void GameScene::enter() {
@@ -168,7 +162,9 @@ namespace flx::app {
 	} // namespace
 
 	void GameScene::makeImGuiContent() {
-		ImGui::SeparatorText("游戏内容");
+		if (!ImGui::CollapsingHeader("游戏内容", ImGuiTreeNodeFlags_DefaultOpen)) {
+			return;
+		}
 
 		if (ImGui::Button("清除实体")) {
 			static bool& shouldClear = DebugVariables::emplace<bool>("shouldClearEntities", true);
@@ -199,6 +195,16 @@ namespace flx::app {
 		if (drawStringCombo("跟踪算法", trackers, selectedTracker)) {
 			// Logger::info("选择了 {}", trackers[selected]);
 		}
+
+		static float& cameraScale = DebugVariables::emplace<float>("cameraScale", 1.f);
+
+		ImGui::SliderFloat("缩放", &cameraScale, 0.5f, 2.f, "%.3f", ImGuiSliderFlags_NoInput);
+		ImGui::SameLine();
+		if (ImGui::Button("重置")) {
+			cameraScale = 1.f;
+		}
+
+		game.getContext().gameState.camera.scale = {cameraScale, cameraScale};
 	}
 
 	void GameScene::setPause(bool pause) {

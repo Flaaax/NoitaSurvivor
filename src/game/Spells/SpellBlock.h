@@ -16,7 +16,7 @@ namespace flx::game {
 		std::vector<Shared<ModifierSpell>> modifiers;
 		std::vector<Shared<ModifierSpell>> shotModifiers;
 
-		void add(Shared<Spell> spell);
+		void add(const Shared<Spell>& spell);
 		void cast(const GameCtx& ctx, vec2 pos, float arg);
 	};
 } // namespace flx::game

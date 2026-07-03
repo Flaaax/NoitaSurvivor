@@ -54,7 +54,7 @@ namespace flx::game {
 			.contactRules = contactRules,
 			.gameState = state,
 			.contactState = contactState,
-			.scales = scales,
+			.scales = renderStates,
 			.appCtx = appCtx,
 		};
 	}
@@ -94,6 +94,7 @@ namespace flx::game {
 
 		GameStateSystem().setup(ctx);
 		EnemySpawnSystem().setup(ctx);
+		RenderSystem().setup(ctx);
 	}
 
 	void Game::draw(ui::RenderBuffer& rdr) {

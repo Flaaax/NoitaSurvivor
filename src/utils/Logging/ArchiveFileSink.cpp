@@ -59,7 +59,7 @@ namespace flx {
 						continue;
 					}
 
-					auto path = entry.path();
+					const auto& path = entry.path();
 					auto filename = path.filename().string();
 
 					if (filename.starts_with(prefix) && path.extension() == ext) {
